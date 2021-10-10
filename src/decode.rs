@@ -19,16 +19,14 @@ pub struct JSONCreator {
 }
 
 pub fn decode_metadata(
-    client: RpcClient,
+    client: &RpcClient,
     mint_accounts: &Vec<String>,
     output: &String,
 ) -> Result<()> {
     for account in mint_accounts {
         let pubkey = Pubkey::from_str(&account)?;
-        let metadata_pda = match get_metadata_pda(pubkey) {
-            Some(pubkey) => pubkey,
-            None => panic!("No metaplex account found"),
-        };
+        let metadata_pda = get_metadata_pda(pubkey);
+
         println!("Metadata Account: {}", metadata_pda);
 
         let account_data = match client.get_account_data(&metadata_pda) {
@@ -67,7 +65,7 @@ pub fn decode_metadata(
     Ok(())
 }
 
-fn get_metadata_pda(pubkey: Pubkey) -> Option<Pubkey> {
+pub fn get_metadata_pda(pubkey: Pubkey) -> Pubkey {
     let metaplex_pubkey = METAPLEX_PROGRAM_ID
         .parse::<Pubkey>()
         .expect("Failed to parse Metaplex Program Id");
@@ -79,5 +77,5 @@ fn get_metadata_pda(pubkey: Pubkey) -> Option<Pubkey> {
     ];
 
     let (pda, _) = Pubkey::find_program_address(seeds, &metaplex_pubkey);
-    Some(pda)
+    pda
 }
