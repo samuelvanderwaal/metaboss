@@ -4,7 +4,7 @@ use structopt::StructOpt;
 
 use metaboss::decode::decode_metadata;
 use metaboss::opt::{Command, Opt};
-use metaboss::update_metadata::update_metadata;
+use metaboss::update_metadata::{update_metadata_uri, update_metadata_uri_all};
 
 fn main() -> Result<()> {
     let options = Opt::from_args();
@@ -18,10 +18,13 @@ fn main() -> Result<()> {
         } => decode_metadata(&client, mint_accounts, output)?,
         Command::UpdateMetadataUri {
             ref keypair,
-            ref account,
+            ref mint_account,
             ref new_uri,
-            ref output,
-        } => update_metadata(&client, keypair, account, new_uri, output)?,
+        } => update_metadata_uri(&client, keypair, mint_account, new_uri)?,
+        Command::UpdateMetadataUriAll {
+            ref keypair,
+            ref mint_accounts,
+        } => update_metadata_uri_all(&client, keypair, mint_accounts)?,
     }
 
     Ok(())

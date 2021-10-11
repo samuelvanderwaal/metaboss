@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use reqwest;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
@@ -7,18 +8,23 @@ use spl_token_metadata::{
     instruction::update_metadata_accounts,
     state::{Creator, Data},
 };
-use std::str::FromStr;
+use std::{fs, str::FromStr};
 
 use crate::constants::*;
 use crate::decode::get_metadata_pda;
 use crate::parse::parse_keypair;
 
-pub fn update_metadata(
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MintAccount {
+    mint_account: String,
+    new_uri: String,
+}
+
+pub fn update_metadata_uri(
     client: &RpcClient,
     keypair: &String,
     mint_account: &String,
     new_uri: &String,
-    _output: &String,
 ) -> Result<()> {
     let keypair = parse_keypair(keypair)?;
     let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
@@ -28,6 +34,8 @@ pub fn update_metadata(
     let update_authority = keypair.pubkey();
 
     let body: Value = reqwest::blocking::get(new_uri)?.json()?;
+
+    println!("{}", body);
 
     let creators_json = body
         .get("properties")
@@ -67,6 +75,22 @@ pub fn update_metadata(
 
     let sig = client.send_and_confirm_transaction(&tx)?;
     println!("Tx sig: {:?}", sig);
+
+    Ok(())
+}
+
+pub fn update_metadata_uri_all(
+    client: &RpcClient,
+    keypair: &String,
+    mint_accounts: &String,
+) -> Result<()> {
+    let file = fs::File::open(mint_accounts)?;
+    let mint_accounts: Vec<MintAccount> = serde_json::from_reader(file)?;
+
+    for item in mint_accounts.iter() {
+        println!("Updating metadata for mint account: {}", item.mint_account);
+        update_metadata_uri(client, keypair, &item.mint_account, &item.new_uri)?;
+    }
 
     Ok(())
 }

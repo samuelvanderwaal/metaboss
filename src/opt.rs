@@ -31,15 +31,21 @@ pub enum Command {
         #[structopt(short, long)]
         keypair: String,
 
-        /// List of metadata accounts to update.
+        /// Mint account to update.
         #[structopt(short, long)]
-        account: String,
+        mint_account: String,
 
         #[structopt(short, long)]
         new_uri: String,
+    },
+    /// Change an NFT's URI to point to a new metadata JSON file.
+    #[structopt(name = "update_metadata_uri_all")]
+    UpdateMetadataUriAll {
+        #[structopt(short, long)]
+        keypair: String,
 
-        #[structopt(short, long, default_value = ".")]
-        /// Path to directory to save output files.
-        output: String,
+        /// Path to file containing list of mint accounts and their new URIs.
+        #[structopt(short, long)]
+        mint_accounts: String,
     },
 }
