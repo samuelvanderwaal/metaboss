@@ -2,7 +2,7 @@ use anyhow::Result;
 use solana_client::rpc_client::RpcClient;
 use structopt::StructOpt;
 
-use metaboss::decode::decode_metadata_all;
+use metaboss::decode::decode_metadata;
 use metaboss::opt::{Command, Opt};
 use metaboss::update_metadata::*;
 
@@ -13,9 +13,9 @@ fn main() -> Result<()> {
 
     match options.cmd {
         Command::Decode {
-            ref mint_accounts,
+            ref json_file,
             ref output,
-        } => decode_metadata_all(&client, mint_accounts, output)?,
+        } => decode_metadata(&client, json_file, output)?,
         Command::SetUri {
             ref keypair,
             ref mint_account,

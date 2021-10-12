@@ -1,14 +1,15 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result as AnyResult};
 use serde::Serialize;
 use serde_json::json;
 use solana_client::rpc_client::RpcClient;
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::pubkey::Pubkey;
-use spl_token_metadata::state::Metadata;
-use std::fs::File;
-use std::{process, str::FromStr};
+use spl_token_metadata::state::{Key, Metadata};
+use std::fs;
+use std::str::FromStr;
 
 use crate::constants::*;
+use crate::errors::*;
 
 #[derive(Debug, Serialize)]
 pub struct JSONCreator {
@@ -18,62 +19,80 @@ pub struct JSONCreator {
     pub share: u8,
 }
 
-pub fn decode_metadata(client: &RpcClient, mint_account: &String, output: &String) -> Result<()> {
-    let metadata = decode(client, mint_account)?;
+pub fn decode_metadata(client: &RpcClient, json_file: &String, output: &String) -> AnyResult<()> {
+    let file = fs::File::open(json_file)?;
+    let mint_accounts: Vec<String> = serde_json::from_reader(file)?;
 
-    let mut creators: Vec<JSONCreator> = Vec::new();
+    for mint_account in &mint_accounts {
+        let metadata = match decode(client, mint_account) {
+            Ok(m) => m,
+            Err(err) => match err {
+                DecodeError::MissingAccount(account) => {
+                    println!("No account data found for mint account: {}!", account);
+                    continue;
+                }
+                _ => return Err(anyhow!(err)),
+            },
+        };
 
-    if let Some(c) = metadata.data.creators {
-        creators = c
-            .iter()
-            .map(|c| JSONCreator {
-                address: c.address.to_string(),
-                verified: c.verified,
-                share: c.share,
-            })
-            .collect::<Vec<JSONCreator>>();
+        let mut creators: Vec<JSONCreator> = Vec::new();
+
+        if let Some(c) = metadata.data.creators {
+            creators = c
+                .iter()
+                .map(|c| JSONCreator {
+                    address: c.address.to_string(),
+                    verified: c.verified,
+                    share: c.share,
+                })
+                .collect::<Vec<JSONCreator>>();
+        }
+
+        let data_json = json!({
+            "name": metadata.data.name.to_string().trim_matches(char::from(0)),
+            "symbol": metadata.data.symbol.to_string().trim_matches(char::from(0)),
+            "seller_fee_basis_points": metadata.data.seller_fee_basis_points,
+            "uri": metadata.data.uri.to_string().trim_matches(char::from(0)),
+            "creators": [creators],
+        });
+
+        let metadata_json = json!({
+            "key": parse_key(metadata.key),
+            "update_authority": metadata.update_authority.to_string(),
+            "mint": metadata.mint.to_string(),
+            "data": data_json,
+            "primary_sale_happened": metadata.primary_sale_happened,
+            "is_mutable": metadata.is_mutable,
+            "edition_nonce": metadata.edition_nonce,
+        });
+
+        let mut file = fs::File::create(format!("{}/{}.json", output, mint_account))?;
+        serde_json::to_writer(&mut file, &metadata_json)?;
     }
-
-    let nft_metadata = json!({
-        "name": metadata.data.name.to_string().trim_matches(char::from(0)),
-        "symbol": metadata.data.symbol.to_string().trim_matches(char::from(0)),
-        "seller_fee_basis_points": metadata.data.seller_fee_basis_points,
-        "uri": metadata.data.uri.to_string().trim_matches(char::from(0)),
-        "creators": [creators],
-    });
-
-    let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
-    serde_json::to_writer(&mut file, &nft_metadata)?;
 
     Ok(())
 }
 
-pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata> {
-    let pubkey = Pubkey::from_str(&mint_account)?;
+pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {
+    let pubkey = match Pubkey::from_str(&mint_account) {
+        Ok(pubkey) => pubkey,
+        Err(_) => return Err(DecodeError::PubkeyParseFailed),
+    };
     let metadata_pda = get_metadata_pda(pubkey);
 
     let account_data = match client.get_account_data(&metadata_pda) {
         Ok(data) => data,
         Err(_) => {
-            println!("No account data found! Are you on the right network?");
-            process::exit(1);
+            return Err(DecodeError::MissingAccount(mint_account.to_string()));
         }
     };
 
-    let metadata: Metadata = try_from_slice_unchecked(&account_data)?;
+    let metadata: Metadata = match try_from_slice_unchecked(&account_data) {
+        Ok(m) => m,
+        Err(err) => return Err(DecodeError::DecodeMetadataFailed(err.to_string())),
+    };
 
     Ok(metadata)
-}
-
-pub fn decode_metadata_all(
-    client: &RpcClient,
-    mint_accounts: &Vec<String>,
-    output: &String,
-) -> Result<()> {
-    for account in mint_accounts {
-        decode_metadata(client, account, &output)?;
-    }
-    Ok(())
 }
 
 pub fn get_metadata_pda(pubkey: Pubkey) -> Pubkey {
@@ -89,4 +108,17 @@ pub fn get_metadata_pda(pubkey: Pubkey) -> Pubkey {
 
     let (pda, _) = Pubkey::find_program_address(seeds, &metaplex_pubkey);
     pda
+}
+
+fn parse_key(key: Key) -> String {
+    match key {
+        Key::Uninitialized => String::from("Uninitialized"),
+        Key::EditionV1 => String::from("EditionV1"),
+        Key::MasterEditionV1 => String::from("MasterEditionV1"),
+        Key::ReservationListV1 => String::from("ReservationListV1"),
+        Key::MetadataV1 => String::from("MetadataV1"),
+        Key::ReservationListV2 => String::from("ReservationListV2"),
+        Key::MasterEditionV2 => String::from("MasterEditionV2"),
+        Key::EditionMarker => String::from("EditionMarker"),
+    }
 }

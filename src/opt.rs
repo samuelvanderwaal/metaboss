@@ -19,7 +19,7 @@ pub enum Command {
     Decode {
         /// List of mint accounts to decode.
         #[structopt(short, long)]
-        mint_accounts: Vec<String>,
+        json_file: String,
 
         #[structopt(short, long, default_value = ".")]
         /// Path to directory to save output files.
@@ -28,6 +28,7 @@ pub enum Command {
     /// Change an NFT's URI to point to a new metadata JSON file.
     #[structopt(name = "set_uri")]
     SetUri {
+        /// Path to the update_authority keypair file.
         #[structopt(short, long)]
         keypair: String,
 
@@ -41,6 +42,7 @@ pub enum Command {
     /// Change an NFT's URI to point to a new metadata JSON file.
     #[structopt(name = "set_uri_all")]
     SetUriAll {
+        /// Path to the update_authority keypair file.
         #[structopt(short, long)]
         keypair: String,
 
@@ -50,6 +52,7 @@ pub enum Command {
     },
     #[structopt(name = "set_update_authority")]
     SetUpdateAuthority {
+        /// Path to the update_authority keypair file.
         #[structopt(short, long)]
         keypair: String,
 
