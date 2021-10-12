@@ -8,19 +8,25 @@ use spl_token_metadata::{
     instruction::update_metadata_accounts,
     state::{Creator, Data},
 };
-use std::{fs, str::FromStr};
+use std::{fs, str::FromStr, thread, time::Duration};
 
 use crate::constants::*;
 use crate::decode::get_metadata_pda;
 use crate::parse::parse_keypair;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct MintAccount {
+pub struct NewUri {
     mint_account: String,
     new_uri: String,
 }
 
-pub fn update_metadata_uri(
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NewUpdateAuthority {
+    mint_account: String,
+    new_update_authority: String,
+}
+
+pub fn set_uri(
     client: &RpcClient,
     keypair: &String,
     mint_account: &String,
@@ -34,8 +40,6 @@ pub fn update_metadata_uri(
     let update_authority = keypair.pubkey();
 
     let body: Value = reqwest::blocking::get(new_uri)?.json()?;
-
-    println!("{}", body);
 
     let creators_json = body
         .get("properties")
@@ -79,17 +83,72 @@ pub fn update_metadata_uri(
     Ok(())
 }
 
-pub fn update_metadata_uri_all(
+pub fn set_uri_all(client: &RpcClient, keypair: &String, json_file: &String) -> Result<()> {
+    let file = fs::File::open(json_file)?;
+    let items: Vec<NewUri> = serde_json::from_reader(file)?;
+
+    for item in items.iter() {
+        println!("Updating metadata for mint account: {}", item.mint_account);
+        set_uri(client, keypair, &item.mint_account, &item.new_uri)?;
+        thread::sleep(Duration::from_millis(DEFAULT_RPC_DELAY_MS));
+    }
+
+    Ok(())
+}
+
+pub fn set_update_authority(
     client: &RpcClient,
     keypair: &String,
-    mint_accounts: &String,
+    mint_account: &String,
+    new_update_authority: &String,
 ) -> Result<()> {
-    let file = fs::File::open(mint_accounts)?;
-    let mint_accounts: Vec<MintAccount> = serde_json::from_reader(file)?;
+    let keypair = parse_keypair(keypair)?;
+    let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
+    let mint_pubkey = Pubkey::from_str(mint_account)?;
 
-    for item in mint_accounts.iter() {
+    let update_authority = keypair.pubkey();
+    let new_update_authority = Pubkey::from_str(new_update_authority)?;
+
+    let metadata_account = get_metadata_pda(mint_pubkey);
+
+    let ix = update_metadata_accounts(
+        program_id,
+        metadata_account,
+        update_authority,
+        Some(new_update_authority),
+        None,
+        None,
+    );
+    let (recent_blockhash, _) = client.get_recent_blockhash()?;
+    let tx = Transaction::new_signed_with_payer(
+        &[ix],
+        Some(&update_authority),
+        &[&keypair],
+        recent_blockhash,
+    );
+
+    let sig = client.send_and_confirm_transaction(&tx)?;
+    println!("Tx sig: {:?}", sig);
+
+    Ok(())
+}
+
+pub fn set_update_authority_all(
+    client: &RpcClient,
+    keypair: &String,
+    json_file: &String,
+) -> Result<()> {
+    let file = fs::File::open(json_file)?;
+    let items: Vec<NewUpdateAuthority> = serde_json::from_reader(file)?;
+
+    for item in items.iter() {
         println!("Updating metadata for mint account: {}", item.mint_account);
-        update_metadata_uri(client, keypair, &item.mint_account, &item.new_uri)?;
+        set_uri(
+            client,
+            keypair,
+            &item.mint_account,
+            &item.new_update_authority,
+        )?;
     }
 
     Ok(())

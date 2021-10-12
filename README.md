@@ -40,7 +40,7 @@ cargo build --release
 Update a list of mint accounts with new URIs:
 
 ```bash
-metaboss update_metadata_uri_all -k ~/.config/solana/devnet.json --mint-accounts <path_to_json_file>
+metaboss set_uri_all -k ~/.config/solana/devnet.json --json-file new_uri.json
 ```
 
 The JSON file should be an array of `mint_accounts` and `new_uri`s. Example:
@@ -51,6 +51,15 @@ The JSON file should be an array of `mint_accounts` and `new_uri`s. Example:
         "mint_account": "xvy...",
         "new_uri": "https://arweave.net/abakdkjdlkjdkjd"
     },
-    { "mint_account": "Cns...", "new_uri": "https://arweave.net/kdsbdkjdkj" }
+    { 
+        "mint_account": "Cns...",
+        "new_uri": "https://arweave.net/kdsbdkjdkj" 
+    }
 ]
+```
+
+Update a single NFT with a new `update_authority`:
+
+```bash
+metaboss set_update_authority -k <path/to/key/file> --mint-account <mint_account> -new-update-authority <new_update_authority>
 ```

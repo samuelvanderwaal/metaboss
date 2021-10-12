@@ -18,49 +18,60 @@ pub struct JSONCreator {
     pub share: u8,
 }
 
-pub fn decode_metadata(
+pub fn decode_metadata(client: &RpcClient, mint_account: &String, output: &String) -> Result<()> {
+    let metadata = decode(client, mint_account)?;
+
+    let mut creators: Vec<JSONCreator> = Vec::new();
+
+    if let Some(c) = metadata.data.creators {
+        creators = c
+            .iter()
+            .map(|c| JSONCreator {
+                address: c.address.to_string(),
+                verified: c.verified,
+                share: c.share,
+            })
+            .collect::<Vec<JSONCreator>>();
+    }
+
+    let nft_metadata = json!({
+        "name": metadata.data.name.to_string().trim_matches(char::from(0)),
+        "symbol": metadata.data.symbol.to_string().trim_matches(char::from(0)),
+        "seller_fee_basis_points": metadata.data.seller_fee_basis_points,
+        "uri": metadata.data.uri.to_string().trim_matches(char::from(0)),
+        "creators": [creators],
+    });
+
+    let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
+    serde_json::to_writer(&mut file, &nft_metadata)?;
+
+    Ok(())
+}
+
+pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata> {
+    let pubkey = Pubkey::from_str(&mint_account)?;
+    let metadata_pda = get_metadata_pda(pubkey);
+
+    let account_data = match client.get_account_data(&metadata_pda) {
+        Ok(data) => data,
+        Err(_) => {
+            println!("No account data found! Are you on the right network?");
+            process::exit(1);
+        }
+    };
+
+    let metadata: Metadata = try_from_slice_unchecked(&account_data)?;
+
+    Ok(metadata)
+}
+
+pub fn decode_metadata_all(
     client: &RpcClient,
     mint_accounts: &Vec<String>,
     output: &String,
 ) -> Result<()> {
     for account in mint_accounts {
-        let pubkey = Pubkey::from_str(&account)?;
-        let metadata_pda = get_metadata_pda(pubkey);
-
-        println!("Metadata Account: {}", metadata_pda);
-
-        let account_data = match client.get_account_data(&metadata_pda) {
-            Ok(data) => data,
-            Err(_) => {
-                println!("No account data found! Are you on the right network?");
-                process::exit(1);
-            }
-        };
-
-        let metadata: Metadata = try_from_slice_unchecked(&account_data)?;
-
-        let mut creators: Vec<JSONCreator> = Vec::new();
-
-        if let Some(c) = metadata.data.creators {
-            creators = c
-                .iter()
-                .map(|c| JSONCreator {
-                    address: c.address.to_string(),
-                    verified: c.verified,
-                    share: c.share,
-                })
-                .collect::<Vec<JSONCreator>>();
-        }
-
-        let nft_metadata = json!({
-            "name": metadata.data.name.to_string().trim_matches(char::from(0)),
-            "symbol": metadata.data.symbol.to_string().trim_matches(char::from(0)),
-            "seller_fee_basis_points": metadata.data.seller_fee_basis_points,
-            "uri": metadata.data.uri.to_string().trim_matches(char::from(0)),
-            "creators": [creators],
-        });
-        let mut file = File::create(format!("{}/{}.json", output, account))?;
-        serde_json::to_writer(&mut file, &nft_metadata)?;
+        decode_metadata(client, account, &output)?;
     }
     Ok(())
 }
