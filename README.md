@@ -1,6 +1,7 @@
 # Metaboss
 
-The Solana Metaplex NFT Swiss-army knife tool. Current supported features:
+The Solana Metaplex NFT 'Swiss Army Knife' tool. 
+Current supported features:
 
 * Decode NFT mint account metadata
 * Get a list of mint accounts for a given candy machine ID or update authority
@@ -16,7 +17,6 @@ Planned features:
 
 
 Suggestions and PRs welcome!
-
 
 
 ## Install From Source

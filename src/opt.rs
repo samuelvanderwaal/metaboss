@@ -1,10 +1,7 @@
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-#[structopt(
-    name = "Metaboss",
-    about = "Metaplex NFT-standard Swiss army knife tool."
-)]
+#[structopt(name = "Metaboss", about = "Metaplex NFT 'Swiss Army Knife' tool.")]
 pub struct Opt {
     #[structopt(short, long, default_value = "https://api.devnet.solana.com")]
     pub rpc: String,
@@ -53,7 +50,7 @@ pub enum Command {
         output: String,
     },
     /// Change an NFT's URI to point to a new metadata JSON file.
-    #[structopt(name = "set_uri")]
+    #[structopt(name = "update_nft")]
     UpdateNFT {
         /// Path to the update_authority keypair file.
         #[structopt(short, long)]
@@ -68,7 +65,7 @@ pub enum Command {
         new_uri: String,
     },
     /// Change an NFT's URI to point to a new metadata JSON file.
-    #[structopt(name = "set_uri_all")]
+    #[structopt(name = "update_nft_all")]
     UpdateNFTAll {
         /// Path to the update_authority keypair file.
         #[structopt(short, long)]
