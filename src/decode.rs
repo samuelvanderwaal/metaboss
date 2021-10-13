@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result as AnyResult};
 use serde::Serialize;
-use serde_json::json;
+use serde_json::{json, Value};
 use solana_client::rpc_client::RpcClient;
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::pubkey::Pubkey;
@@ -19,7 +19,11 @@ pub struct JSONCreator {
     pub share: u8,
 }
 
-pub fn decode_metadata(client: &RpcClient, json_file: &String, output: &String) -> AnyResult<()> {
+pub fn decode_metadata_all(
+    client: &RpcClient,
+    json_file: &String,
+    output: &String,
+) -> AnyResult<()> {
     let file = fs::File::open(json_file)?;
     let mint_accounts: Vec<String> = serde_json::from_reader(file)?;
 
@@ -35,45 +39,29 @@ pub fn decode_metadata(client: &RpcClient, json_file: &String, output: &String) 
             },
         };
 
-        let mut creators: Vec<JSONCreator> = Vec::new();
-
-        if let Some(c) = metadata.data.creators {
-            creators = c
-                .iter()
-                .map(|c| JSONCreator {
-                    address: c.address.to_string(),
-                    verified: c.verified,
-                    share: c.share,
-                })
-                .collect::<Vec<JSONCreator>>();
-        }
-
-        let data_json = json!({
-            "name": metadata.data.name.to_string().trim_matches(char::from(0)),
-            "symbol": metadata.data.symbol.to_string().trim_matches(char::from(0)),
-            "seller_fee_basis_points": metadata.data.seller_fee_basis_points,
-            "uri": metadata.data.uri.to_string().trim_matches(char::from(0)),
-            "creators": [creators],
-        });
-
-        let metadata_json = json!({
-            "key": parse_key(metadata.key),
-            "update_authority": metadata.update_authority.to_string(),
-            "mint": metadata.mint.to_string(),
-            "data": data_json,
-            "primary_sale_happened": metadata.primary_sale_happened,
-            "is_mutable": metadata.is_mutable,
-            "edition_nonce": metadata.edition_nonce,
-        });
+        let json_metadata = decode_to_json(metadata)?;
 
         let mut file = fs::File::create(format!("{}/{}.json", output, mint_account))?;
-        serde_json::to_writer(&mut file, &metadata_json)?;
+        serde_json::to_writer(&mut file, &json_metadata)?;
     }
 
     Ok(())
 }
 
-pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {
+pub fn decode_metadata(
+    client: &RpcClient,
+    mint_account: &String,
+    output: &String,
+) -> AnyResult<()> {
+    let metadata = decode(client, mint_account)?;
+    let json_metadata = decode_to_json(metadata)?;
+
+    let mut file = fs::File::create(format!("{}/{}.json", output, mint_account))?;
+    serde_json::to_writer(&mut file, &json_metadata)?;
+    Ok(())
+}
+
+fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {
     let pubkey = match Pubkey::from_str(&mint_account) {
         Ok(pubkey) => pubkey,
         Err(_) => return Err(DecodeError::PubkeyParseFailed),
@@ -93,6 +81,40 @@ pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, Dec
     };
 
     Ok(metadata)
+}
+
+fn decode_to_json(metadata: Metadata) -> AnyResult<Value> {
+    let mut creators: Vec<JSONCreator> = Vec::new();
+
+    if let Some(c) = metadata.data.creators {
+        creators = c
+            .iter()
+            .map(|c| JSONCreator {
+                address: c.address.to_string(),
+                verified: c.verified,
+                share: c.share,
+            })
+            .collect::<Vec<JSONCreator>>();
+    }
+
+    let data_json = json!({
+        "name": metadata.data.name.to_string().trim_matches(char::from(0)),
+        "symbol": metadata.data.symbol.to_string().trim_matches(char::from(0)),
+        "seller_fee_basis_points": metadata.data.seller_fee_basis_points,
+        "uri": metadata.data.uri.to_string().trim_matches(char::from(0)),
+        "creators": [creators],
+    });
+
+    let json_metadata = json!({
+        "key": parse_key(metadata.key),
+        "update_authority": metadata.update_authority.to_string(),
+        "mint": metadata.mint.to_string(),
+        "data": data_json,
+        "primary_sale_happened": metadata.primary_sale_happened,
+        "is_mutable": metadata.is_mutable,
+        "edition_nonce": metadata.edition_nonce,
+    });
+    Ok(json_metadata)
 }
 
 pub fn get_metadata_pda(pubkey: Pubkey) -> Pubkey {

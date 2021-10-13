@@ -78,12 +78,24 @@ Please don't abuse public APIs or you may get rate-limited. If you have heavy wo
 
 ### Decode
 
-Decode NFT mint account metadata into a JSON file.
+Decode a single NFT mint account metadata into a JSON file.
 
 #### Usage
 
 ```bash
-metaboss decode --json-file <JSON_FILE> -o <OUPUT_DIRECTORY>
+metaboss decode --mint-account <MINT_ACCOUNT> -o <OUPUT_DIRECTORY>
+```
+
+The command will write the metadata JSON file to the output directory with the mint account as the name: e.g. `CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp.json`. The output option defaults to the current directory.
+
+### Decode All
+
+Decode a list of NFT mint accounts metadata into a JSON file.
+
+#### Usage
+
+```bash
+metaboss decode_all --json-file <JSON_FILE> -o <OUPUT_DIRECTORY>
 ```
 
 The JSON file should be an array of mint accounts to be decoded:
@@ -93,8 +105,6 @@ The JSON file should be an array of mint accounts to be decoded:
 ```
 
 The command will write each metadata JSON file to the output directory as a separate file with the mint account as the name: e.g. `CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp.json`. The output option defaults to the current directory.
-
-
 
 ### Help
 

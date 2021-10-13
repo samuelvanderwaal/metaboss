@@ -15,9 +15,20 @@ pub struct Opt {
 
 #[derive(Debug, StructOpt)]
 pub enum Command {
-    /// Decode NFT mint account metadata into a JSON file.
+    /// Decode a single NFT mint account metadata into a JSON file.
     #[structopt(name = "decode")]
     Decode {
+        /// Mint account to decode.
+        #[structopt(short, long)]
+        mint_account: String,
+
+        /// Path to directory to save output files.
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
+    /// Decode a list of NFT mint accounts into JSON files.
+    #[structopt(name = "decode_all")]
+    DecodeAll {
         /// List of mint accounts to decode.
         #[structopt(short, long)]
         json_file: String,
