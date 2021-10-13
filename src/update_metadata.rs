@@ -26,7 +26,7 @@ pub struct NewUpdateAuthority {
     new_update_authority: String,
 }
 
-pub fn set_uri(
+pub fn update_nft(
     client: &RpcClient,
     keypair: &String,
     mint_account: &String,
@@ -83,13 +83,13 @@ pub fn set_uri(
     Ok(())
 }
 
-pub fn set_uri_all(client: &RpcClient, keypair: &String, json_file: &String) -> Result<()> {
+pub fn update_nft_all(client: &RpcClient, keypair: &String, json_file: &String) -> Result<()> {
     let file = fs::File::open(json_file)?;
     let items: Vec<NewUri> = serde_json::from_reader(file)?;
 
     for item in items.iter() {
         println!("Updating metadata for mint account: {}", item.mint_account);
-        set_uri(client, keypair, &item.mint_account, &item.new_uri)?;
+        update_nft(client, keypair, &item.mint_account, &item.new_uri)?;
         thread::sleep(Duration::from_millis(DEFAULT_RPC_DELAY_MS));
     }
 
@@ -143,7 +143,7 @@ pub fn set_update_authority_all(
 
     for item in items.iter() {
         println!("Updating metadata for mint account: {}", item.mint_account);
-        set_uri(
+        update_nft(
             client,
             keypair,
             &item.mint_account,

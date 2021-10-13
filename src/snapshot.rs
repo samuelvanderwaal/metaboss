@@ -26,6 +26,7 @@ use crate::constants::*;
 struct Holder {
     owner_wallet: String,
     token_address: String,
+    mint_account: String,
 }
 
 pub fn get_mints(
@@ -109,6 +110,7 @@ pub fn get_snapshot(
                 let holder = Holder {
                     owner_wallet,
                     token_address,
+                    mint_account: metadata.mint.to_string(),
                 };
                 nft_holders.push(holder);
             }

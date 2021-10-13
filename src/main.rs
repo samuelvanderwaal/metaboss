@@ -22,15 +22,15 @@ fn main() -> Result<()> {
             ref candy_machine_id,
             ref output,
         } => get_mints(&client, update_authority, candy_machine_id, output)?,
-        Command::SetUri {
+        Command::UpdateNFT {
             ref keypair,
             ref mint_account,
             ref new_uri,
-        } => set_uri(&client, keypair, mint_account, new_uri)?,
-        Command::SetUriAll {
+        } => update_nft(&client, keypair, mint_account, new_uri)?,
+        Command::UpdateNFTAll {
             ref keypair,
             ref json_file,
-        } => set_uri_all(&client, keypair, json_file)?,
+        } => update_nft_all(&client, keypair, json_file)?,
         Command::SetUpdateAuthority {
             ref keypair,
             ref mint_account,
