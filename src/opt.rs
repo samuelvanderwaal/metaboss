@@ -25,6 +25,19 @@ pub enum Command {
         /// Path to directory to save output files.
         output: String,
     },
+    /// Get list of mint accounts for a given update authority.
+    #[structopt(name = "get_mints")]
+    GetMints {
+        #[structopt(short, long)]
+        update_authority: Option<String>,
+
+        #[structopt(short, long)]
+        candy_machine_id: Option<String>,
+
+        #[structopt(short, long, default_value = ".")]
+        /// Path to directory to save output files.
+        output: String,
+    },
     /// Change an NFT's URI to point to a new metadata JSON file.
     #[structopt(name = "set_uri")]
     SetUri {
@@ -69,5 +82,18 @@ pub enum Command {
 
         #[structopt(short, long)]
         json_file: String,
+    },
+    // Get candy machine holder snapshot
+    #[structopt(name = "snapshot")]
+    Snapshot {
+        #[structopt(short, long)]
+        update_authority: Option<String>,
+
+        #[structopt(short, long)]
+        candy_machine_id: Option<String>,
+
+        #[structopt(short, long, default_value = ".")]
+        /// Path to directory to save output files.
+        output: String,
     },
 }
