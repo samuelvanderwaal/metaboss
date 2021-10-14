@@ -1,13 +1,13 @@
 use anyhow::{anyhow, Result};
+use metaplex_token_metadata::{
+    instruction::update_metadata_accounts,
+    state::{Creator, Data},
+};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
-use spl_token_metadata::{
-    instruction::update_metadata_accounts,
-    state::{Creator, Data},
-};
 use std::{fs, str::FromStr, thread, time::Duration};
 
 use crate::constants::*;

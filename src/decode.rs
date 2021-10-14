@@ -1,10 +1,10 @@
 use anyhow::{anyhow, Result as AnyResult};
+use metaplex_token_metadata::state::{Key, Metadata};
 use serde::Serialize;
 use serde_json::{json, Value};
 use solana_client::rpc_client::RpcClient;
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::pubkey::Pubkey;
-use spl_token_metadata::state::{Key, Metadata};
 use std::fs;
 use std::str::FromStr;
 

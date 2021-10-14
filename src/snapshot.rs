@@ -1,4 +1,6 @@
 use anyhow::{anyhow, Result};
+use metaplex_token_metadata::state::Metadata;
+use metaplex_token_metadata::ID as TOKEN_METADATA_PROGRAM_ID;
 use serde::Serialize;
 use solana_account_decoder::{
     parse_account_data::{parse_account_data, AccountAdditionalData, ParsedAccount},
@@ -16,8 +18,6 @@ use solana_sdk::{
     pubkey::Pubkey,
 };
 use spl_token::ID as TOKEN_PROGRAM_ID;
-use spl_token_metadata::state::Metadata;
-use spl_token_metadata::ID as TOKEN_METADATA_PROGRAM_ID;
 use std::fs::File;
 
 use crate::constants::*;
