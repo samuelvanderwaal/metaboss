@@ -114,7 +114,7 @@ Displays list of commands and options for the program.
 
 ### Get Mints
 
-Get mint accounts for a candy machine or an update authority. Specify *either* a candy machine id, or *or* an update authority, but not both and at least one.
+Get mint accounts for a candy machine or an update authority. Specify *either* a candy machine id, *or* an update authority, but not both and at least one.
 
 #### Usage
 
