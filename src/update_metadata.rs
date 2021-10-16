@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
-use std::{fs, str::FromStr, thread, time::Duration};
+use std::{fs, str::FromStr};
 
 use crate::constants::*;
 use crate::decode::get_metadata_pda;
@@ -90,7 +90,6 @@ pub fn update_nft_all(client: &RpcClient, keypair: &String, json_file: &String) 
     for item in items.iter() {
         println!("Updating metadata for mint account: {}", item.mint_account);
         update_nft(client, keypair, &item.mint_account, &item.new_uri)?;
-        thread::sleep(Duration::from_millis(DEFAULT_RPC_DELAY_MS));
     }
 
     Ok(())

@@ -33,6 +33,12 @@ Clone the source:
 git clone git@github.com:samuelvanderwaal/metaboss.git
 ```
 
+or
+
+```bash
+git clone https://github.com/samuelvanderwaal/metaboss.git
+```
+
 Change directory and check out the `develop` branch:
 
 ```bash
@@ -56,10 +62,7 @@ cargo build --release
 
 ## Binaries
 
-* Linux
-* Windows
-
-
+Binaries available for Linux and Windows in [releases](https://github.com/samuelvanderwaal/metaboss/releases).
 
 ## Options
 
@@ -152,7 +155,7 @@ Outputs a TxId to the command line so you can check the result.
 
 **Warning: This command modifies your NFT. Use with caution.**
 
-Set the update authority on a list NFT's metadata accounts.
+Set the update authority on a list of NFT's metadata accounts.
 
 #### Usage
 
@@ -220,6 +223,15 @@ The JSON file should be an array of objects with `mint_account` and `new_uri` fi
 ]
 ```
 
+### Sign
+
+Sign all token metadata for a given candy machine id and creator keypair.
+
+#### Usage
+
+```bash
+metaboss sign -k <CREATOR_KEYPAIR> --candy-machine-id <CANDY_MACHINE_ID>
+```
 
 
 ### Snapshot

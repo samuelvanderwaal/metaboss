@@ -3,8 +3,8 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 #[structopt(name = "Metaboss", about = "Metaplex NFT 'Swiss Army Knife' tool.")]
 pub struct Opt {
-    #[structopt(short, long, default_value = "https://api.devnet.solana.com")]
-    pub rpc: String,
+    #[structopt(short, long)]
+    pub rpc: Option<String>,
 
     #[structopt(subcommand)]
     pub cmd: Command,
@@ -100,6 +100,17 @@ pub enum Command {
         /// Path to file containing list of mint accounts and their new update authorities.
         #[structopt(short, long)]
         json_file: String,
+    },
+    /// Sign all metadata accounts associated with a candy machine id with provided creator key.
+    #[structopt(name = "sign")]
+    Sign {
+        /// Path to the creator's keypair file.
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Candy Machine ID to filter accounts by.
+        #[structopt(short, long)]
+        candy_machine_id: String,
     },
     /// Get a snapshot of current holders of NFTs by either candy machine ID or update authority.
     #[structopt(name = "snapshot")]

@@ -135,12 +135,12 @@ pub fn get_snapshot(
 
 fn get_mints_by_update_authority(
     client: &RpcClient,
-    candy_machine_id: &String,
+    update_authority: &String,
 ) -> Result<Vec<(Pubkey, Account)>> {
     let config = RpcProgramAccountsConfig {
         filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
             offset: 1, // key
-            bytes: MemcmpEncodedBytes::Binary(candy_machine_id.to_string()),
+            bytes: MemcmpEncodedBytes::Binary(update_authority.to_string()),
             encoding: None,
         })]),
         account_config: RpcAccountInfoConfig {
@@ -158,7 +158,7 @@ fn get_mints_by_update_authority(
     Ok(accounts)
 }
 
-fn get_cm_owned_accounts(
+pub fn get_cm_owned_accounts(
     client: &RpcClient,
     candy_machine_id: &String,
 ) -> Result<Vec<(Pubkey, Account)>> {

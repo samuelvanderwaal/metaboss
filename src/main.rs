@@ -1,17 +1,36 @@
 use anyhow::Result;
-use solana_client::rpc_client::RpcClient;
-use structopt::StructOpt;
-
 use metaboss::decode::{decode_metadata, decode_metadata_all};
 use metaboss::opt::{Command, Opt};
+use metaboss::sign::sign;
 use metaboss::snapshot::{get_mints, get_snapshot};
 use metaboss::update_metadata::*;
+use solana_client::rpc_client::RpcClient;
+use solana_sdk::commitment_config::CommitmentConfig;
+use std::str::FromStr;
+use structopt::StructOpt;
+
+use metaboss::parse::parse_solana_config;
 
 fn main() -> Result<()> {
+    let sol_config = parse_solana_config();
+
+    let (mut rpc, commitment) = if let Some(config) = sol_config {
+        (config.json_rpc_url, config.commitment)
+    } else {
+        (
+            "https://api.devnet.solana.com".to_string(),
+            "confirmed".to_string(),
+        )
+    };
+
     let options = Opt::from_args();
 
-    let client = RpcClient::new(options.rpc.clone());
+    if let Some(cli_rpc) = options.rpc {
+        rpc = cli_rpc.clone();
+    }
+    let commitment = CommitmentConfig::from_str(&commitment)?;
 
+    let client = RpcClient::new_with_commitment(rpc, commitment);
     match options.cmd {
         Command::Decode {
             ref mint_account,
@@ -44,6 +63,10 @@ fn main() -> Result<()> {
             ref keypair,
             ref json_file,
         } => set_update_authority_all(&client, keypair, json_file)?,
+        Command::Sign {
+            ref keypair,
+            ref candy_machine_id,
+        } => sign(&client, keypair, candy_machine_id)?,
         Command::Snapshot {
             ref update_authority,
             ref candy_machine_id,
