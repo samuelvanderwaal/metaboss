@@ -8,7 +8,7 @@ pub fn parse_keypair(path: &String) -> Result<Keypair> {
         .trim_start_matches("[")
         .trim_end_matches("]")
         .split(",")
-        .map(|c| c.parse().unwrap())
+        .map(|c| c.trim().parse::<u8>().unwrap())
         .collect();
     let keypair = Keypair::from_bytes(&secret)?;
     Ok(keypair)
