@@ -11,14 +11,10 @@ pub struct SolanaConfig {
 }
 
 pub fn parse_keypair(path: &String) -> Result<Keypair> {
-    let secret: Vec<u8> = fs::read_to_string(path)
-        .context("Can't find key file")?
-        .trim_start_matches("[")
-        .trim_end_matches("]")
-        .split(",")
-        .map(|c| c.parse::<u8>().unwrap())
-        .collect();
-    let keypair = Keypair::from_bytes(&secret)?;
+    let secret_string = fs::read_to_string(path).context("Can't find key file")?;
+    let secret_bytes: Vec<u8> = serde_json::from_str(&secret_string)?;
+
+    let keypair = Keypair::from_bytes(&secret_bytes)?;
     Ok(keypair)
 }
 
@@ -40,4 +36,24 @@ pub fn parse_solana_config() -> Option<SolanaConfig> {
         Err(_) => return None,
     };
     serde_yaml::from_reader(&conf_file).ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_white_space_keys() {
+        // Arrange
+        let whitespace_key_path = String::from("./test/test_key_whitespace.txt");
+        let newline_key_path = String::from("./test/test_key_newline.txt");
+
+        // Act
+        let whitespace_res = parse_keypair(&whitespace_key_path);
+        let newline_res = parse_keypair(&newline_key_path);
+
+        // Assert
+        assert!(whitespace_res.is_ok());
+        assert!(newline_res.is_ok());
+    }
 }
