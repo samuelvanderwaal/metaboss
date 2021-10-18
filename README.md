@@ -134,7 +134,8 @@ This creates a JSON file named: `<CANDY_MACHINE_ID/UPDATE_AUTHORITY>_mint_accoun
 
 ### Set Update Authority
 
-**Warning: This command modifies your NFT. Use with caution.**
+**Warning: This command modifies your NFT and is for advanced users. Ensure you understand what the command does and
+how it affects your NFT. Use with caution.**
 
 Set the update authority on a single NFT's metadata account.
 
@@ -150,7 +151,8 @@ Outputs a TxId to the command line so you can check the result.
 
 ### Set Update Authority All
 
-**Warning: This command modifies your NFT. Use with caution.**
+**Warning: This command modifies your NFT and is for advanced users. Ensure you understand what the command does and
+how it affects your NFT. Use with caution.**
 
 Set the update authority on a list NFT's metadata accounts.
 
@@ -181,9 +183,13 @@ Outputs a TxId to the command line so you can check the result.
 
 ### Update NFT
 
-**Warning: This command modifies your NFT. Use with caution.**
+**Warning: This command modifies your NFT and is for advanced users. Ensure you understand what the command does and
+how it affects your NFT. Use with caution.**
 
-Update all [Data](https://github.com/metaplex-foundation/metaplex/blob/f1962b5d6f32b6dc3e77cd8fee07cf9e404c38e8/rust/token-metadata/program/src/state.rs#L73) fields on a single NFT's metadata account by reading new values from a URI JSON file.
+Update all [Data](https://github.com/metaplex-foundation/metaplex/blob/f1962b5d6f32b6dc3e77cd8fee07cf9e404c38e8/rust/token-metadata/program/src/state.rs#L73) fields on a single NFT's metadata account by reading new values from a URI JSON file. 
+
+**Warning: If your NFT was minted from a candy machine and you wish to keep it as a verified creator, you *must add the
+candy machine as a creator to your URI with verified set to true.***
 
 #### Usage
 
@@ -197,9 +203,13 @@ Outputs a TxId to the command line so you can check the result.
 
 ### Update NFT All
 
-**Warning: This command modifies your NFT. Use with caution.**
+**Warning: This command modifies your NFT and is for advanced users. Ensure you understand what the command does and
+how it affects your NFT. Use with caution.**
 
 Update all [Data](https://github.com/metaplex-foundation/metaplex/blob/f1962b5d6f32b6dc3e77cd8fee07cf9e404c38e8/rust/token-metadata/program/src/state.rs#L73) fields on a list of NFTs' metadata accounts by reading new values from provided new URIs.
+
+**Warning: If your NFTs were minted from a candy machine and you wish to keep it as a verified creator, you *must add the
+candy machine as a creator to your URI with verified set to true.***
 
 ```bash
 metaboss update_nft_all --keypair <PATH_TO_KEYPAIR> --json-file <PATH_TO_JSON_FILE>
