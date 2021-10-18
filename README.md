@@ -188,7 +188,7 @@ how it affects your NFT. Use with caution.**
 
 Update all [Data](https://github.com/metaplex-foundation/metaplex/blob/f1962b5d6f32b6dc3e77cd8fee07cf9e404c38e8/rust/token-metadata/program/src/state.rs#L73) fields on a single NFT's metadata account by reading new values for it *from* a URI JSON file. 
 
-**Warning: If your NFT was minted from a candy machine, this command will currently remove your candy machine as a creator. If you do not wish to do this, do not use this command. The next release will have a more granular update option.**
+**Warning: If your NFT was minted from a candy machine, this command will remove your candy machine as a creator. If you do not wish to do this, do not use this command. The next release will have a more granular update option.**
 
 #### Usage
 
@@ -207,7 +207,7 @@ how it affects your NFT. Use with caution.**
 
 Update all [Data](https://github.com/metaplex-foundation/metaplex/blob/f1962b5d6f32b6dc3e77cd8fee07cf9e404c38e8/rust/token-metadata/program/src/state.rs#L73) fields on a list of NFTs' metadata accounts by reading new values for it *from* provided new URIs.
 
-**Warning: If your NFTs were minted from a candy machine, this command will currently remove your candy machine as a creator. If you do not wish to do this, do not use this command. The next release will have a more granular update option.**
+**Warning: If your NFTs were minted from a candy machine, this command will remove your candy machine as a creator. If you do not wish to do this, do not use this command. The next release will have a more granular update option.**
 
 ```bash
 metaboss update_nft_all --keypair <PATH_TO_KEYPAIR> --json-file <PATH_TO_JSON_FILE>
