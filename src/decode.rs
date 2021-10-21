@@ -61,7 +61,7 @@ pub fn decode_metadata(
     Ok(())
 }
 
-fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {
+pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {
     let pubkey = match Pubkey::from_str(&mint_account) {
         Ok(pubkey) => pubkey,
         Err(_) => return Err(DecodeError::PubkeyParseFailed),

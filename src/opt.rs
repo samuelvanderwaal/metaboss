@@ -49,7 +49,7 @@ pub enum Command {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
-    /// Change an NFT's URI to point to a new metadata JSON file.
+    /// Update all data fields on a NFT.
     #[structopt(name = "update_nft")]
     UpdateNFT {
         /// Path to the update_authority keypair file.
@@ -60,20 +60,35 @@ pub enum Command {
         #[structopt(short, long)]
         mint_account: String,
 
-        /// New URI with values to update the data struct with.
+        /// File containing new NFT data
         #[structopt(short, long)]
-        new_uri: String,
+        json_file: String,
     },
-    /// Change an NFT's URI to point to a new metadata JSON file.
-    #[structopt(name = "update_nft_all")]
-    UpdateNFTAll {
+    /// Change an NFT's URI to point to a new metadata JSON file
+    #[structopt(name = "set_new_uri")]
+    SetNewURI {
         /// Path to the update_authority keypair file.
         #[structopt(short, long)]
         keypair: String,
 
-        /// Path to file containing list of mint accounts and their new URIs.
+        /// Mint account to update.
         #[structopt(short, long)]
-        json_file: String,
+        mint_account: String,
+
+        /// New URI
+        #[structopt(short, long)]
+        new_uri: String,
+    },
+    /// Set primary_sale_happened on the NFT.
+    #[structopt(name = "set_primary_sale_happened")]
+    SetPrimarySaleHappened {
+        /// Path to the update_authority keypair file.
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Mint account to update.
+        #[structopt(short, long)]
+        mint_account: String,
     },
     /// Set the update authority on a single NFT's metadata account.
     #[structopt(name = "set_update_authority")]

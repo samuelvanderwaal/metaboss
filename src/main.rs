@@ -48,17 +48,22 @@ fn main() -> Result<()> {
         Command::UpdateNFT {
             ref keypair,
             ref mint_account,
-            ref new_uri,
-        } => update_nft(&client, keypair, mint_account, new_uri)?,
-        Command::UpdateNFTAll {
-            ref keypair,
             ref json_file,
-        } => update_nft_all(&client, keypair, json_file)?,
+        } => update_nft(&client, keypair, mint_account, json_file)?,
+        Command::SetNewURI {
+            ref keypair,
+            ref mint_account,
+            ref new_uri,
+        } => set_new_uri(&client, keypair, mint_account, new_uri)?,
         Command::SetUpdateAuthority {
             ref keypair,
             ref mint_account,
             ref new_update_authority,
         } => set_update_authority(&client, keypair, mint_account, new_update_authority)?,
+        Command::SetPrimarySaleHappened {
+            ref keypair,
+            ref mint_account,
+        } => set_primary_sale_happened(&client, keypair, mint_account)?,
         Command::SetUpdateAuthorityAll {
             ref keypair,
             ref json_file,

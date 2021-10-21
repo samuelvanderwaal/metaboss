@@ -1,3 +1,4 @@
+#![allow(unused)]
 use anyhow::{anyhow, Result};
 use metaplex_token_metadata::{
     instruction::update_metadata_accounts,
@@ -11,7 +12,7 @@ use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
 use std::{fs, str::FromStr};
 
 use crate::constants::*;
-use crate::decode::get_metadata_pda;
+use crate::decode::{decode, get_metadata_pda};
 use crate::parse::parse_keypair;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -26,38 +27,66 @@ pub struct NewUpdateAuthority {
     new_update_authority: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NFTData {
+    pub name: String,
+    /// The symbol for the asset
+    pub symbol: String,
+    /// URI pointing to JSON representing the asset
+    pub uri: String,
+    /// Royalty basis points that goes to creators in secondary sales (0-10000)
+    pub seller_fee_basis_points: u16,
+    /// Array of creators, optional
+    pub creators: Option<Vec<JSONCreator>>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct JSONCreator {
+    pub address: String,
+    pub verified: bool,
+    pub share: u8,
+}
+
 pub fn update_nft(
     client: &RpcClient,
     keypair: &String,
     mint_account: &String,
-    new_uri: &String,
+    json_file: &String,
 ) -> Result<()> {
     let keypair = parse_keypair(keypair)?;
     let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint_pubkey = Pubkey::from_str(mint_account)?;
     let metadata_account = get_metadata_pda(mint_pubkey);
 
+    let f = fs::File::open(json_file)?;
+    let new_data: NFTData = serde_json::from_reader(f)?;
+
     let update_authority = keypair.pubkey();
 
-    let body: Value = reqwest::blocking::get(new_uri)?.json()?;
+    // let creators_json = body
+    //     .get("properties")
+    //     .ok_or_else(|| anyhow!("Bad JSON"))?
+    //     .get("creators")
+    //     .ok_or_else(|| anyhow!("Bad JSON"))?;
 
-    let creators_json = body
-        .get("properties")
-        .ok_or_else(|| anyhow!("Bad JSON"))?
-        .get("creators")
-        .ok_or_else(|| anyhow!("Bad JSON"))?;
+    // let creators = parse_creators(&creators_json)?;
 
-    let creators = parse_creators(&creators_json)?;
+    // let name = parse_name(&body)?;
+    // let symbol = parse_symbol(&body)?;
+    // let seller_fee_basis_points = parse_seller_fee_basis_points(&body)?;
 
-    let name = parse_name(&body)?;
-    let symbol = parse_symbol(&body)?;
-    let seller_fee_basis_points = parse_seller_fee_basis_points(&body)?;
+    let creators = new_data
+        .creators
+        .ok_or(anyhow!("No creators specified in json file!"))?
+        .iter()
+        .map(convert_creator)
+        .collect::<Result<Vec<Creator>>>()?;
 
     let data = Data {
-        name,
-        symbol,
-        uri: new_uri.to_string(),
-        seller_fee_basis_points,
+        name: new_data.name,
+        symbol: new_data.symbol,
+        uri: new_data.uri,
+        seller_fee_basis_points: new_data.seller_fee_basis_points,
         creators: Some(creators),
     };
 
@@ -83,14 +112,77 @@ pub fn update_nft(
     Ok(())
 }
 
-pub fn update_nft_all(client: &RpcClient, keypair: &String, json_file: &String) -> Result<()> {
-    let file = fs::File::open(json_file)?;
-    let items: Vec<NewUri> = serde_json::from_reader(file)?;
+pub fn set_new_uri(
+    client: &RpcClient,
+    keypair: &String,
+    mint_account: &String,
+    new_uri: &String,
+) -> Result<()> {
+    let keypair = parse_keypair(keypair)?;
+    let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
+    let mint_pubkey = Pubkey::from_str(mint_account)?;
+    let update_authority = keypair.pubkey();
 
-    for item in items.iter() {
-        println!("Updating metadata for mint account: {}", item.mint_account);
-        update_nft(client, keypair, &item.mint_account, &item.new_uri)?;
-    }
+    let metadata_account = get_metadata_pda(mint_pubkey);
+    let metadata = decode(client, mint_account)?;
+
+    let mut data = metadata.data;
+    data.uri = new_uri.to_string();
+
+    let ix = update_metadata_accounts(
+        program_id,
+        metadata_account,
+        update_authority,
+        None,
+        Some(data),
+        None,
+    );
+
+    let (recent_blockhash, _) = client.get_recent_blockhash()?;
+    let tx = Transaction::new_signed_with_payer(
+        &[ix],
+        Some(&update_authority),
+        &[&keypair],
+        recent_blockhash,
+    );
+
+    let sig = client.send_and_confirm_transaction(&tx)?;
+    println!("Tx sig: {:?}", sig);
+
+    Ok(())
+}
+
+pub fn set_primary_sale_happened(
+    client: &RpcClient,
+    keypair: &String,
+    mint_account: &String,
+) -> Result<()> {
+    let keypair = parse_keypair(keypair)?;
+    let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
+    let mint_pubkey = Pubkey::from_str(mint_account)?;
+
+    let update_authority = keypair.pubkey();
+
+    let metadata_account = get_metadata_pda(mint_pubkey);
+
+    let ix = update_metadata_accounts(
+        program_id,
+        metadata_account,
+        update_authority,
+        None,
+        None,
+        Some(false),
+    );
+    let (recent_blockhash, _) = client.get_recent_blockhash()?;
+    let tx = Transaction::new_signed_with_payer(
+        &[ix],
+        Some(&update_authority),
+        &[&keypair],
+        recent_blockhash,
+    );
+
+    let sig = client.send_and_confirm_transaction(&tx)?;
+    println!("Tx sig: {:?}", sig);
 
     Ok(())
 }
@@ -142,7 +234,7 @@ pub fn set_update_authority_all(
 
     for item in items.iter() {
         println!("Updating metadata for mint account: {}", item.mint_account);
-        update_nft(
+        set_update_authority(
             client,
             keypair,
             &item.mint_account,
@@ -151,6 +243,14 @@ pub fn set_update_authority_all(
     }
 
     Ok(())
+}
+
+fn convert_creator(c: &JSONCreator) -> Result<Creator> {
+    Ok(Creator {
+        address: Pubkey::from_str(&c.address)?,
+        verified: c.verified,
+        share: c.share,
+    })
 }
 
 fn parse_creators(creators_json: &Value) -> Result<Vec<Creator>> {
