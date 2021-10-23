@@ -1,7 +1,11 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
+use metaplex_token_metadata::state::{Creator, Data};
 use serde::{Deserialize, Serialize};
+use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::keypair::Keypair;
-use std::{env, fs, path::Path};
+use std::{env, fs, path::Path, str::FromStr};
+
+use crate::data::{NFTCreator, NFTData};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct SolanaConfig {
@@ -38,6 +42,32 @@ pub fn parse_solana_config() -> Option<SolanaConfig> {
     serde_yaml::from_reader(&conf_file).ok()
 }
 
+fn convert_creator(c: &NFTCreator) -> Result<Creator> {
+    Ok(Creator {
+        address: Pubkey::from_str(&c.address)?,
+        verified: c.verified,
+        share: c.share,
+    })
+}
+
+pub fn convert_local_to_remote_data(local: NFTData) -> Result<Data> {
+    let creators = local
+        .creators
+        .ok_or(anyhow!("No creators specified in json file!"))?
+        .iter()
+        .map(convert_creator)
+        .collect::<Result<Vec<Creator>>>()?;
+
+    let data = Data {
+        name: local.name,
+        symbol: local.symbol,
+        uri: local.uri,
+        seller_fee_basis_points: local.seller_fee_basis_points,
+        creators: Some(creators),
+    };
+    Ok(data)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -45,8 +75,8 @@ mod tests {
     #[test]
     fn parses_white_space_keys() {
         // Arrange
-        let whitespace_key_path = String::from("./test/test_key_whitespace.txt");
-        let newline_key_path = String::from("./test/test_key_newline.txt");
+        let whitespace_key_path = String::from("./tests/test_key_whitespace.txt");
+        let newline_key_path = String::from("./tests/test_key_newline.txt");
 
         // Act
         let whitespace_res = parse_keypair(&whitespace_key_path);

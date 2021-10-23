@@ -9,7 +9,7 @@ use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
 
 use crate::parse::parse_keypair;
-use crate::snapshot::get_cm_owned_accounts;
+use crate::snapshot::get_cm_creator_accounts;
 
 pub fn sign(
     client: &RpcClient,
@@ -38,7 +38,7 @@ pub fn sign(
         return Ok(());
     }
 
-    let accounts = get_cm_owned_accounts(client, candy_machine_id)?;
+    let accounts = get_cm_creator_accounts(client, candy_machine_id)?;
     let mut accounts_to_sign = Vec::new();
 
     for (pubkey, account) in &accounts {
