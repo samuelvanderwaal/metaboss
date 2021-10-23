@@ -109,8 +109,12 @@ pub enum Command {
         keypair: String,
 
         /// Candy Machine ID to filter accounts by.
-        #[structopt(short, long)]
+        #[structopt(short, long, required_unless = "mint")]
         candy_machine_id: String,
+
+        /// Mint for a single metadata account.
+        #[structopt(short, long)]
+        mint: String,
     },
     /// Get a snapshot of current holders of NFTs by either candy machine ID or update authority.
     #[structopt(name = "snapshot")]

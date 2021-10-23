@@ -66,7 +66,8 @@ fn main() -> Result<()> {
         Command::Sign {
             ref keypair,
             ref candy_machine_id,
-        } => sign(&client, keypair, candy_machine_id)?,
+            ref mint,
+        } => sign(&client, keypair, candy_machine_id, mint)?,
         Command::Snapshot {
             ref update_authority,
             ref candy_machine_id,
