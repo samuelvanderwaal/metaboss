@@ -49,6 +49,28 @@ pub enum Command {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
+    /// Get all candy machine state and config accounts for a given update authority.
+    #[structopt(name = "get_cm_accounts")]
+    GetCMAccounts {
+        /// Update authority to filter accounts by.
+        #[structopt(short, long)]
+        update_authority: String,
+
+        /// Path to directory to save output files.
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
+    /// Mint a new NFT.
+    #[structopt(name = "mint_nft")]
+    MintNFT {
+        /// Path to the update_authority keypair file.
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// On-chain formatted metadata for the new NFT.
+        #[structopt(short, long)]
+        json_file: String,
+    },
     /// Update all data fields on a NFT.
     #[structopt(name = "update_nft")]
     UpdateNFT {

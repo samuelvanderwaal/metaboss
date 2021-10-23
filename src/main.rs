@@ -1,15 +1,17 @@
 use anyhow::Result;
-use metaboss::decode::{decode_metadata, decode_metadata_all};
-use metaboss::opt::{Command, Opt};
-use metaboss::sign::sign;
-use metaboss::snapshot::{get_mints, get_snapshot};
-use metaboss::update_metadata::*;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
 use std::str::FromStr;
+use std::time::Duration;
 use structopt::StructOpt;
 
+use metaboss::decode::{decode_metadata, decode_metadata_all};
+use metaboss::mint::mint_nft;
+use metaboss::opt::{Command, Opt};
 use metaboss::parse::parse_solana_config;
+use metaboss::sign::sign;
+use metaboss::snapshot::{get_cm_accounts, get_mints, get_snapshot};
+use metaboss::update_metadata::*;
 
 fn main() -> Result<()> {
     let sol_config = parse_solana_config();
@@ -30,7 +32,9 @@ fn main() -> Result<()> {
     }
     let commitment = CommitmentConfig::from_str(&commitment)?;
 
-    let client = RpcClient::new_with_commitment(rpc, commitment);
+    let timeout = Duration::from_secs(60);
+
+    let client = RpcClient::new_with_timeout_and_commitment(rpc, timeout, commitment);
     match options.cmd {
         Command::Decode {
             ref mint_account,
@@ -45,6 +49,14 @@ fn main() -> Result<()> {
             ref candy_machine_id,
             ref output,
         } => get_mints(&client, update_authority, candy_machine_id, output)?,
+        Command::GetCMAccounts {
+            ref update_authority,
+            ref output,
+        } => get_cm_accounts(&client, update_authority, output)?,
+        Command::MintNFT {
+            ref keypair,
+            ref json_file,
+        } => mint_nft(&client, keypair, json_file)?,
         Command::UpdateNFT {
             ref keypair,
             ref mint_account,

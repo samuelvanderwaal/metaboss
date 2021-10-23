@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 use solana_client::rpc_client::RpcClient;
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::pubkey::Pubkey;
-use std::fs;
+use std::fs::File;
 use std::str::FromStr;
 
 use crate::constants::*;
@@ -24,7 +24,7 @@ pub fn decode_metadata_all(
     json_file: &String,
     output: &String,
 ) -> AnyResult<()> {
-    let file = fs::File::open(json_file)?;
+    let file = File::open(json_file)?;
     let mint_accounts: Vec<String> = serde_json::from_reader(file)?;
 
     for mint_account in &mint_accounts {
@@ -41,7 +41,7 @@ pub fn decode_metadata_all(
 
         let json_metadata = decode_to_json(metadata)?;
 
-        let mut file = fs::File::create(format!("{}/{}.json", output, mint_account))?;
+        let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
         serde_json::to_writer(&mut file, &json_metadata)?;
     }
 
@@ -56,7 +56,7 @@ pub fn decode_metadata(
     let metadata = decode(client, mint_account)?;
     let json_metadata = decode_to_json(metadata)?;
 
-    let mut file = fs::File::create(format!("{}/{}.json", output, mint_account))?;
+    let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
     serde_json::to_writer(&mut file, &json_metadata)?;
     Ok(())
 }
