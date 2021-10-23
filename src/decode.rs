@@ -50,15 +50,38 @@ pub fn decode_metadata_all(
 
 pub fn decode_metadata(
     client: &RpcClient,
-    mint_account: &String,
+    account: Option<&String>,
+    list_path: Option<&String>,
     output: &String,
 ) -> AnyResult<()> {
-    let metadata = decode(client, mint_account)?;
-    let json_metadata = decode_to_json(metadata)?;
+    if !is_only_one_option(account, list_path) {
+        return Err(anyhow!(
+            "Please specify either a mint account or a list of mint accounts, but not both."
+        ));
+    }
 
-    let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
-    serde_json::to_writer(&mut file, &json_metadata)?;
+    if let Some(mint_account) = account {
+        let metadata = decode(client, &mint_account)?;
+        let json_metadata = decode_to_json(metadata)?;
+        let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
+        serde_json::to_writer(&mut file, &json_metadata)?;
+    } else if let Some(list_path) = list_path {
+        decode_metadata_all(client, &list_path, output)?;
+    } else {
+        return Err(anyhow!(
+            "Please specify either a mint account or a list of mint accounts, but not both."
+        ));
+    };
+
     Ok(())
+}
+
+fn is_only_one_option<T>(option1: Option<T>, option2: Option<T>) -> bool {
+    match (option1, option2) {
+        (Some(_), None) | (None, Some(_)) => true,
+        (Some(a), Some(b)) => false,
+        (None, None) => false,
+    }
 }
 
 pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {
