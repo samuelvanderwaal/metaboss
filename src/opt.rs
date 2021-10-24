@@ -13,34 +13,44 @@ pub struct Opt {
 
 #[derive(Debug, StructOpt)]
 pub enum Command {
+    /// Decode on-chain data into JSON format.
     #[structopt(name = "decode")]
     Decode {
         #[structopt(subcommand)]
         decode_subcommands: DecodeSubcommands,
     },
+    /// Mint new NFTs from JSON files.
     #[structopt(name = "mint")]
     Mint {
         #[structopt(subcommand)]
         mint_subcommands: MintSubcommands,
     },
+    /// Sign metadata for an unverified creator.
     #[structopt(name = "sign")]
     Sign {
         #[structopt(subcommand)]
         sign_subcommands: SignSubcommands,
     },
+    /// Get snapshots of various blockchain states.
+    #[structopt(name = "snapshot")]
+    Snapshot {
+        #[structopt(subcommand)]
+        snapshot_subcommands: SnapshotSubcommands,
+    },
 }
 
 #[derive(Debug, StructOpt)]
 pub enum DecodeSubcommands {
+    /// Decode a mint account's metadata
     #[structopt(name = "mint")]
     Mint {
-        /// Mint account to decode.
+        /// Single mint account to decode.
         #[structopt(short, long)]
         account: Option<String>,
 
-        /// File path to list of mint accounts to decode.
+        /// Path to JSON file containing a list of mint accounts to decode.
         #[structopt(short, long)]
-        list_path: Option<String>,
+        list_file: Option<String>,
 
         /// Path to directory to save output files.
         #[structopt(short, long, default_value = ".")]
@@ -105,6 +115,24 @@ pub enum SignSubcommands {
         /// Directory of mint accounts to sign.
         #[structopt(short, long)]
         mint_accounts_file: Option<String>,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum SnapshotSubcommands {
+    #[structopt(name = "holders")]
+    Holders {
+        /// Update authority to filter accounts by.
+        #[structopt(short, long)]
+        update_authority: Option<String>,
+
+        /// Candy Machine ID to filter accounts by.
+        #[structopt(short, long)]
+        candy_machine_id: Option<String>,
+
+        /// Path to directory to save output files.
+        #[structopt(short, long, default_value = ".")]
+        output: String,
     },
 }
 

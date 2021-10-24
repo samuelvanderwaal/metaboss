@@ -16,7 +16,6 @@ use crate::parse::is_only_one_option;
 pub struct JSONCreator {
     pub address: String,
     pub verified: bool,
-    // In percentages, NOT basis points ;) Watch out!
     pub share: u8,
 }
 

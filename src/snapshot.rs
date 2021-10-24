@@ -25,8 +25,9 @@ use crate::constants::*;
 #[derive(Debug, Serialize, Clone)]
 struct Holder {
     owner_wallet: String,
-    token_address: String,
+    associated_token_address: String,
     mint_account: String,
+    metadata_account: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -87,7 +88,7 @@ pub fn get_mints(
     Ok(())
 }
 
-pub fn get_snapshot(
+pub fn snapshot_holders(
     client: &RpcClient,
     update_authority: &Option<String>,
     candy_machine_id: &Option<String>,
@@ -105,12 +106,12 @@ pub fn get_snapshot(
 
     let mut nft_holders: Vec<Holder> = Vec::new();
 
-    for (pubkey, account) in accounts {
-        println!("metadata: {:?}", pubkey);
+    for (metadata_pubkey, account) in accounts {
         let metadata: Metadata = try_from_slice_unchecked(&account.data)?;
-        println!("mint: {:?}", metadata.mint);
+
         let token_accounts = get_holder_token_accounts(client, metadata.mint.to_string())?;
-        for (token_address, account) in token_accounts {
+
+        for (associated_token_address, account) in token_accounts {
             let data = parse_account_data(
                 &metadata.mint,
                 &TOKEN_PROGRAM_ID,
@@ -124,11 +125,12 @@ pub fn get_snapshot(
             // Only include current holder of the NFT.
             if amount == 1 {
                 let owner_wallet = parse_owner(&data)?;
-                let token_address = token_address.to_string();
+                let associated_token_address = associated_token_address.to_string();
                 let holder = Holder {
                     owner_wallet,
-                    token_address,
+                    associated_token_address,
                     mint_account: metadata.mint.to_string(),
+                    metadata_account: metadata_pubkey.to_string(),
                 };
                 nft_holders.push(holder);
             }
