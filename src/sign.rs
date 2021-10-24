@@ -1,18 +1,50 @@
-use anyhow::Result;
+use std::str::FromStr;
+
+use anyhow::{anyhow, Result};
 use metaplex_token_metadata::{
     instruction::sign_metadata, state::Metadata, ID as METAPLEX_PROGRAM_ID,
 };
 use solana_client::rpc_client::RpcClient;
 use solana_program::borsh::try_from_slice_unchecked;
-use solana_sdk::{signer::Signer, transaction::Transaction};
+use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
 
+use crate::decode::get_metadata_pda;
 use crate::parse::parse_keypair;
 use crate::snapshot::get_cm_creator_accounts;
 
-pub fn sign(client: &RpcClient, keypair: &String, candy_machine_id: &String) -> Result<()> {
+pub fn sign(
+    client: &RpcClient,
+    keypair: &String,
+    candy_machine_id: &Option<String>,
+    mint_account: &Option<String>,
+) -> Result<()> {
     let keypair = parse_keypair(keypair)?;
+    
+    if !mint_account.is_none() {
+        let mint_pubkey = match Pubkey::from_str(mint_account.as_ref().unwrap()) {
+            Ok(f) => f,
+            Err(_) => return Err(anyhow!("Invalid mint public key: {}", mint_account.as_ref().unwrap())),
+        };
+        println!("pk: {}", mint_pubkey);
+        let metadata_account = get_metadata_pda(mint_pubkey);
+        let ix = sign_metadata(METAPLEX_PROGRAM_ID, metadata_account, keypair.pubkey());
+        let (recent_blockhash, _) = client.get_recent_blockhash()?;
+        let tx = Transaction::new_signed_with_payer(
+            &[ix],
+            Some(&keypair.pubkey()),
+            &[&keypair],
+            recent_blockhash,
+        );
+        let sig = client.send_and_confirm_transaction(&tx)?;
+        println!("{}", sig);
+        return Ok(());
+    }
 
-    let accounts = get_cm_creator_accounts(client, candy_machine_id)?;
+    if candy_machine_id.is_none() {
+        return Err(anyhow!("Candy machine ID is required"));
+    }
+
+    let accounts = get_cm_creator_accounts(client, candy_machine_id.as_ref().unwrap())?;
     let mut accounts_to_sign = Vec::new();
 
     for (pubkey, account) in &accounts {
