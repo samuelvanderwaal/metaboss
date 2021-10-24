@@ -10,6 +10,7 @@ use std::str::FromStr;
 
 use crate::constants::*;
 use crate::errors::*;
+use crate::parse::is_only_one_option;
 
 #[derive(Debug, Serialize)]
 pub struct JSONCreator {
@@ -54,7 +55,7 @@ pub fn decode_metadata(
     list_path: Option<&String>,
     output: &String,
 ) -> AnyResult<()> {
-    if !is_only_one_option(account, list_path) {
+    if !is_only_one_option(&account, &list_path) {
         return Err(anyhow!(
             "Please specify either a mint account or a list of mint accounts, but not both."
         ));
@@ -74,14 +75,6 @@ pub fn decode_metadata(
     };
 
     Ok(())
-}
-
-fn is_only_one_option<T>(option1: Option<T>, option2: Option<T>) -> bool {
-    match (option1, option2) {
-        (Some(_), None) | (None, Some(_)) => true,
-        (Some(a), Some(b)) => false,
-        (None, None) => false,
-    }
 }
 
 pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {

@@ -23,6 +23,11 @@ pub enum Command {
         #[structopt(subcommand)]
         mint_subcommands: MintSubcommands,
     },
+    #[structopt(name = "sign")]
+    Sign {
+        #[structopt(subcommand)]
+        sign_subcommands: SignSubcommands,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -72,6 +77,34 @@ pub enum MintSubcommands {
         /// Directory of on-chain formatted metadata files for the new NFTs.
         #[structopt(short = "d", long)]
         nft_data_dir: String,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum SignSubcommands {
+    #[structopt(name = "one")]
+    One {
+        /// Path to the creator's keypair file.
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Mint account to sign.
+        #[structopt(short, long)]
+        account: String,
+    },
+    #[structopt(name = "all")]
+    All {
+        /// Path to the creator's keypair file.
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Candy Machine ID to filter accounts by.
+        #[structopt(short, long)]
+        candy_machine_id: Option<String>,
+
+        /// Directory of mint accounts to sign.
+        #[structopt(short, long)]
+        mint_accounts_file: Option<String>,
     },
 }
 

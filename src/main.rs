@@ -9,7 +9,7 @@ use metaboss::decode::{decode_metadata, decode_metadata_all};
 use metaboss::mint::{mint_list, mint_one};
 use metaboss::opt::*;
 use metaboss::parse::parse_solana_config;
-use metaboss::sign::sign;
+use metaboss::sign::{sign_all, sign_one};
 use metaboss::snapshot::{get_cm_accounts, get_mints, get_snapshot};
 use metaboss::update_metadata::*;
 
@@ -38,6 +38,7 @@ fn main() -> Result<()> {
     match options.cmd {
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
         Command::Mint { mint_subcommands } => process_mint(&client, mint_subcommands)?,
+        Command::Sign { sign_subcommands } => process_sign(&client, sign_subcommands)?,
     }
 
     Ok(())
@@ -66,6 +67,17 @@ fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()> {
             receiver,
             nft_data_dir,
         } => mint_list(&client, keypair, receiver, nft_data_dir),
+    }
+}
+
+fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()> {
+    match commands {
+        SignSubcommands::One { keypair, account } => sign_one(&client, keypair, account),
+        SignSubcommands::All {
+            keypair,
+            candy_machine_id,
+            mint_accounts_file,
+        } => sign_all(&client, &keypair, candy_machine_id, mint_accounts_file),
     }
 }
 //     Command::Decode {
