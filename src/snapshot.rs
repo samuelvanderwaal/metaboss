@@ -160,7 +160,7 @@ fn get_mints_by_update_authority(
     let config = RpcProgramAccountsConfig {
         filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
             offset: 1, // key
-            bytes: MemcmpEncodedBytes::Binary(update_authority.to_string()),
+            bytes: MemcmpEncodedBytes::Base58(update_authority.to_string()),
             encoding: None,
         })]),
         account_config: RpcAccountInfoConfig {
@@ -223,7 +223,7 @@ fn get_cm_accounts_by_update_authority(
     let config = RpcProgramAccountsConfig {
         filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
             offset: 8, // key
-            bytes: MemcmpEncodedBytes::Binary(update_authority.to_string()),
+            bytes: MemcmpEncodedBytes::Base58(update_authority.to_string()),
             encoding: None,
         })]),
         account_config: RpcAccountInfoConfig {
@@ -259,7 +259,7 @@ pub fn get_cm_creator_accounts(
             2 + // seller fee basis points
             1 + // whether or not there is a creators vec
             4, // creators
-            bytes: MemcmpEncodedBytes::Binary(candy_machine_id.to_string()),
+            bytes: MemcmpEncodedBytes::Base58(candy_machine_id.to_string()),
             encoding: None,
         })]),
         account_config: RpcAccountInfoConfig {
@@ -283,7 +283,7 @@ fn get_holder_token_accounts(
 ) -> Result<Vec<(Pubkey, Account)>> {
     let filter1 = RpcFilterType::Memcmp(Memcmp {
         offset: 0,
-        bytes: MemcmpEncodedBytes::Binary(mint_account),
+        bytes: MemcmpEncodedBytes::Base58(mint_account),
         encoding: None,
     });
     let filter2 = RpcFilterType::DataSize(165);
