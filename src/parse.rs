@@ -68,6 +68,14 @@ pub fn convert_local_to_remote_data(local: NFTData) -> Result<Data> {
     Ok(data)
 }
 
+pub fn is_only_one_option<T>(option1: &Option<T>, option2: &Option<T>) -> bool {
+    match (option1, option2) {
+        (Some(_), None) | (None, Some(_)) => true,
+        (Some(_), Some(_)) => false,
+        (None, None) => false,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

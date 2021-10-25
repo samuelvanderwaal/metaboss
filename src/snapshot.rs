@@ -21,12 +21,14 @@ use spl_token::ID as TOKEN_PROGRAM_ID;
 use std::{fs::File, str::FromStr};
 
 use crate::constants::*;
+use crate::parse::is_only_one_option;
 
 #[derive(Debug, Serialize, Clone)]
 struct Holder {
     owner_wallet: String,
-    token_address: String,
+    associated_token_address: String,
     mint_account: String,
+    metadata_account: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -47,19 +49,25 @@ struct CandyMachineAccount {
     data_len: usize,
 }
 
-pub fn get_mints(
+pub fn snapshot_mints(
     client: &RpcClient,
-    update_authority: &Option<String>,
-    candy_machine_id: &Option<String>,
-    output: &String,
+    candy_machine_id: Option<String>,
+    update_authority: Option<String>,
+    output: String,
 ) -> Result<()> {
-    let accounts = if let Some(update_authority) = update_authority {
-        get_mints_by_update_authority(client, update_authority)?
-    } else if let Some(candy_machine_id) = candy_machine_id {
-        get_cm_creator_accounts(client, candy_machine_id)?
+    if !is_only_one_option(&candy_machine_id, &update_authority) {
+        return Err(anyhow!(
+            "Please specify either a candy machine id or an update authority, but not both."
+        ));
+    }
+
+    let accounts = if let Some(ref update_authority) = update_authority {
+        get_mints_by_update_authority(client, &update_authority)?
+    } else if let Some(ref candy_machine_id) = candy_machine_id {
+        get_cm_creator_accounts(client, &candy_machine_id)?
     } else {
         return Err(anyhow!(
-            "Must specify either --update-authority or --candy-machine-id"
+            "Please specify either a candy machine id or an update authority, but not both."
         ));
     };
 
@@ -87,7 +95,7 @@ pub fn get_mints(
     Ok(())
 }
 
-pub fn get_snapshot(
+pub fn snapshot_holders(
     client: &RpcClient,
     update_authority: &Option<String>,
     candy_machine_id: &Option<String>,
@@ -105,12 +113,12 @@ pub fn get_snapshot(
 
     let mut nft_holders: Vec<Holder> = Vec::new();
 
-    for (pubkey, account) in accounts {
-        println!("metadata: {:?}", pubkey);
+    for (metadata_pubkey, account) in accounts {
         let metadata: Metadata = try_from_slice_unchecked(&account.data)?;
-        println!("mint: {:?}", metadata.mint);
+
         let token_accounts = get_holder_token_accounts(client, metadata.mint.to_string())?;
-        for (token_address, account) in token_accounts {
+
+        for (associated_token_address, account) in token_accounts {
             let data = parse_account_data(
                 &metadata.mint,
                 &TOKEN_PROGRAM_ID,
@@ -124,11 +132,12 @@ pub fn get_snapshot(
             // Only include current holder of the NFT.
             if amount == 1 {
                 let owner_wallet = parse_owner(&data)?;
-                let token_address = token_address.to_string();
+                let associated_token_address = associated_token_address.to_string();
                 let holder = Holder {
                     owner_wallet,
-                    token_address,
+                    associated_token_address,
                     mint_account: metadata.mint.to_string(),
+                    metadata_account: metadata_pubkey.to_string(),
                 };
                 nft_holders.push(holder);
             }
@@ -145,7 +154,7 @@ pub fn get_snapshot(
         ));
     };
 
-    let mut file = File::create(format!("{}/{}_snapshot.json", output, prefix))?;
+    let mut file = File::create(format!("{}/{}_holders.json", output, prefix))?;
     serde_json::to_writer(&mut file, &nft_holders)?;
 
     Ok(())
@@ -158,7 +167,7 @@ fn get_mints_by_update_authority(
     let config = RpcProgramAccountsConfig {
         filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
             offset: 1, // key
-            bytes: MemcmpEncodedBytes::Binary(update_authority.to_string()),
+            bytes: MemcmpEncodedBytes::Base58(update_authority.to_string()),
             encoding: None,
         })]),
         account_config: RpcAccountInfoConfig {
@@ -176,7 +185,7 @@ fn get_mints_by_update_authority(
     Ok(accounts)
 }
 
-pub fn get_cm_accounts(
+pub fn snapshot_cm_accounts(
     client: &RpcClient,
     update_authority: &String,
     output: &String,
@@ -221,7 +230,7 @@ fn get_cm_accounts_by_update_authority(
     let config = RpcProgramAccountsConfig {
         filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
             offset: 8, // key
-            bytes: MemcmpEncodedBytes::Binary(update_authority.to_string()),
+            bytes: MemcmpEncodedBytes::Base58(update_authority.to_string()),
             encoding: None,
         })]),
         account_config: RpcAccountInfoConfig {
@@ -257,7 +266,7 @@ pub fn get_cm_creator_accounts(
             2 + // seller fee basis points
             1 + // whether or not there is a creators vec
             4, // creators
-            bytes: MemcmpEncodedBytes::Binary(candy_machine_id.to_string()),
+            bytes: MemcmpEncodedBytes::Base58(candy_machine_id.to_string()),
             encoding: None,
         })]),
         account_config: RpcAccountInfoConfig {
@@ -281,7 +290,7 @@ fn get_holder_token_accounts(
 ) -> Result<Vec<(Pubkey, Account)>> {
     let filter1 = RpcFilterType::Memcmp(Memcmp {
         offset: 0,
-        bytes: MemcmpEncodedBytes::Binary(mint_account),
+        bytes: MemcmpEncodedBytes::Base58(mint_account),
         encoding: None,
     });
     let filter2 = RpcFilterType::DataSize(165);

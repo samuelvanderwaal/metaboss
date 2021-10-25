@@ -1,66 +1,121 @@
-use std::str::FromStr;
-
 use anyhow::{anyhow, Result};
 use metaplex_token_metadata::{
     instruction::sign_metadata, state::Metadata, ID as METAPLEX_PROGRAM_ID,
 };
 use solana_client::rpc_client::RpcClient;
 use solana_program::borsh::try_from_slice_unchecked;
-use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
+use solana_sdk::{
+    pubkey::Pubkey,
+    signature::Signature,
+    signer::{keypair::Keypair, Signer},
+    transaction::Transaction,
+};
+use std::{fs::File, str::FromStr};
 
 use crate::decode::get_metadata_pda;
-use crate::parse::parse_keypair;
+use crate::parse::{is_only_one_option, parse_keypair};
 use crate::snapshot::get_cm_creator_accounts;
 
-pub fn sign(
+pub fn sign_one(client: &RpcClient, keypair: String, account: String) -> Result<()> {
+    let creator = parse_keypair(&keypair)?;
+    let account_pubkey = Pubkey::from_str(&account)?;
+
+    let metadata_pubkey = get_metadata_pda(account_pubkey);
+
+    let sig = sign(client, &creator, metadata_pubkey)?;
+    println!("{}", sig);
+
+    Ok(())
+}
+
+pub fn sign_all(
     client: &RpcClient,
     keypair: &String,
-    candy_machine_id: &Option<String>,
-    mint_account: &Option<String>,
+    candy_machine_id: Option<String>,
+    mint_accounts_file: Option<String>,
 ) -> Result<()> {
-    let keypair = parse_keypair(keypair)?;
-    
-    if !mint_account.is_none() {
-        let mint_pubkey = match Pubkey::from_str(mint_account.as_ref().unwrap()) {
-            Ok(f) => f,
-            Err(_) => return Err(anyhow!("Invalid mint public key: {}", mint_account.as_ref().unwrap())),
-        };
-        println!("pk: {}", mint_pubkey);
-        let metadata_account = get_metadata_pda(mint_pubkey);
-        let ix = sign_metadata(METAPLEX_PROGRAM_ID, metadata_account, keypair.pubkey());
-        let (recent_blockhash, _) = client.get_recent_blockhash()?;
-        let tx = Transaction::new_signed_with_payer(
-            &[ix],
-            Some(&keypair.pubkey()),
-            &[&keypair],
-            recent_blockhash,
-        );
-        let sig = client.send_and_confirm_transaction(&tx)?;
-        println!("{}", sig);
-        return Ok(());
+    let creator = parse_keypair(keypair)?;
+
+    if !is_only_one_option(&candy_machine_id, &mint_accounts_file) {
+        return Err(anyhow!(
+            "Must specify exactly one of --candy-machine-id or --mint-data-dir"
+        ));
     }
 
-    if candy_machine_id.is_none() {
-        return Err(anyhow!("Candy machine ID is required"));
+    if let Some(candy_machine_id) = candy_machine_id {
+        sign_candy_machine_accounts(client, &candy_machine_id, creator)?;
+    } else if let Some(mint_accounts_file) = mint_accounts_file {
+        let file = File::open(mint_accounts_file)?;
+        let mint_accounts: Vec<String> = serde_json::from_reader(&file)?;
+
+        sign_mint_accounts(client, &creator, mint_accounts)?;
+    } else {
+        unreachable!();
     }
 
-    let accounts = get_cm_creator_accounts(client, candy_machine_id.as_ref().unwrap())?;
-    let mut accounts_to_sign = Vec::new();
+    Ok(())
+}
 
-    for (pubkey, account) in &accounts {
-        // let creators = get_creators_metadata(account.data.clone())?;
+pub fn sign(client: &RpcClient, creator: &Keypair, metadata_pubkey: Pubkey) -> Result<Signature> {
+    let (recent_blockhash, _) = client.get_recent_blockhash()?;
+    let ix = sign_metadata(METAPLEX_PROGRAM_ID, metadata_pubkey, creator.pubkey());
+    let tx = Transaction::new_signed_with_payer(
+        &[ix],
+        Some(&creator.pubkey()),
+        &[creator],
+        recent_blockhash,
+    );
+    let sig = client.send_and_confirm_transaction(&tx)?;
+    Ok(sig)
+}
+
+pub fn sign_mint_accounts(
+    client: &RpcClient,
+    creator: &Keypair,
+    mint_accounts: Vec<String>,
+) -> Result<()> {
+    for mint_account in mint_accounts {
+        let account_pubkey = Pubkey::from_str(&mint_account)?;
+        let metadata_pubkey = get_metadata_pda(account_pubkey);
+
+        // Try to sign all accounts, print any errors that crop up.
+        match sign(client, &creator, metadata_pubkey) {
+            Ok(sig) => println!("{}", sig),
+            Err(e) => println!("{}", e),
+        }
+    }
+
+    Ok(())
+}
+
+pub fn sign_candy_machine_accounts(
+    client: &RpcClient,
+    candy_machine_id: &String,
+    signing_creator: Keypair,
+) -> Result<()> {
+    let accounts = get_cm_creator_accounts(client, candy_machine_id)?;
+
+    let mut signed_at_least_one_account = false;
+
+    // Only sign accounts that have not been signed yet
+    for (metadata_pubkey, account) in &accounts {
         let metadata: Metadata = try_from_slice_unchecked(&account.data.clone())?;
-        if let Some(creators) = metadata.data.creators {
-            let mut verified = true;
-            for creator in creators {
-                if !creator.verified {
-                    println!("Found creator unverified for account: {}", pubkey);
-                    verified = false;
-                }
-            }
 
-            if !verified {
-                accounts_to_sign.push((pubkey.clone(), account.clone()));
+        if let Some(creators) = metadata.data.creators {
+            // Check whether the specific creator has already signed the account
+            for creator in creators {
+                if creator.address == signing_creator.pubkey() && !creator.verified {
+                    println!(
+                        "Found creator unverified for mint account: {}",
+                        metadata.mint
+                    );
+                    println!("Signing...");
+
+                    let sig = sign(client, &signing_creator, *metadata_pubkey)?;
+                    println!("{}", sig);
+
+                    signed_at_least_one_account = true;
+                }
             }
         } else {
             // No creators for that token, nothing to sign.
@@ -68,23 +123,9 @@ pub fn sign(
         }
     }
 
-    if accounts_to_sign.is_empty() {
+    if !signed_at_least_one_account {
         println!("No unverified metadata for this creator and candy machine.");
         return Ok(());
-    }
-
-    println!("Signing all unverified metadata...");
-    for (pubkey, _) in &accounts_to_sign {
-        let (recent_blockhash, _) = client.get_recent_blockhash()?;
-        let ix = sign_metadata(METAPLEX_PROGRAM_ID, *pubkey, keypair.pubkey());
-        let tx = Transaction::new_signed_with_payer(
-            &[ix],
-            Some(&keypair.pubkey()),
-            &[&keypair],
-            recent_blockhash,
-        );
-        let sig = client.send_and_confirm_transaction(&tx)?;
-        println!("{}", sig);
     }
 
     Ok(())

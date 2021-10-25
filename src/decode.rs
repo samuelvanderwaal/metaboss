@@ -10,12 +10,12 @@ use std::str::FromStr;
 
 use crate::constants::*;
 use crate::errors::*;
+use crate::parse::is_only_one_option;
 
 #[derive(Debug, Serialize)]
 pub struct JSONCreator {
     pub address: String,
     pub verified: bool,
-    // In percentages, NOT basis points ;) Watch out!
     pub share: u8,
 }
 
@@ -50,14 +50,30 @@ pub fn decode_metadata_all(
 
 pub fn decode_metadata(
     client: &RpcClient,
-    mint_account: &String,
+    account: Option<&String>,
+    list_path: Option<&String>,
     output: &String,
 ) -> AnyResult<()> {
-    let metadata = decode(client, mint_account)?;
-    let json_metadata = decode_to_json(metadata)?;
+    // Explicitly warn the user if they provide incorrect options combinations
+    if !is_only_one_option(&account, &list_path) {
+        return Err(anyhow!(
+            "Please specify either a mint account or a list of mint accounts, but not both."
+        ));
+    }
 
-    let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
-    serde_json::to_writer(&mut file, &json_metadata)?;
+    if let Some(mint_account) = account {
+        let metadata = decode(client, &mint_account)?;
+        let json_metadata = decode_to_json(metadata)?;
+        let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
+        serde_json::to_writer(&mut file, &json_metadata)?;
+    } else if let Some(list_path) = list_path {
+        decode_metadata_all(client, &list_path, output)?;
+    } else {
+        return Err(anyhow!(
+            "Please specify either a mint account or a list of mint accounts, but not both."
+        ));
+    };
+
     Ok(())
 }
 
