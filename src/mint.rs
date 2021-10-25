@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Result};
 use glob::glob;
 use metaplex_token_metadata::instruction::{create_master_edition, create_metadata_accounts};
 use solana_client::rpc_client::RpcClient;

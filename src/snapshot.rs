@@ -178,7 +178,7 @@ fn get_mints_by_update_authority(
     Ok(accounts)
 }
 
-pub fn get_cm_accounts(
+pub fn snapshot_cm_accounts(
     client: &RpcClient,
     update_authority: &String,
     output: &String,

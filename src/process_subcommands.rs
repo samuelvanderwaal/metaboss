@@ -5,7 +5,7 @@ use crate::decode::decode_metadata;
 use crate::mint::{mint_list, mint_one};
 use crate::opt::*;
 use crate::sign::{sign_all, sign_one};
-use crate::snapshot::{get_cm_accounts, get_mints, snapshot_holders};
+use crate::snapshot::{snapshot_cm_accounts, snapshot_holders};
 use crate::update_metadata::*;
 
 pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result<()> {
@@ -34,6 +34,34 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
     }
 }
 
+pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result<()> {
+    match commands {
+        UpdateSubcommands::Data {
+            keypair,
+            account,
+            new_data_file,
+        } => update_data(&client, &keypair, &account, &new_data_file),
+        UpdateSubcommands::Uri {
+            keypair,
+            account,
+            new_uri,
+        } => update_uri(&client, &keypair, &account, &new_uri),
+    }
+}
+
+pub fn process_set(client: &RpcClient, commands: SetSubcommands) -> Result<()> {
+    match commands {
+        SetSubcommands::PrimarySaleHappened { keypair, account } => {
+            set_primary_sale_happened(&client, &keypair, &account)
+        }
+        SetSubcommands::UpdateAuthority {
+            keypair,
+            account,
+            new_update_authority,
+        } => set_update_authority(&client, &keypair, &account, &new_update_authority),
+    }
+}
+
 pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()> {
     match commands {
         SignSubcommands::One { keypair, account } => sign_one(&client, keypair, account),
@@ -52,5 +80,9 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
             candy_machine_id,
             output,
         } => snapshot_holders(&client, &update_authority, &candy_machine_id, &output),
+        SnapshotSubcommands::CMAccounts {
+            update_authority,
+            output,
+        } => snapshot_cm_accounts(&client, &update_authority, &output),
     }
 }
