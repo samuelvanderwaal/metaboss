@@ -3,7 +3,7 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 #[structopt(name = "Metaboss", about = "Metaplex NFT 'Swiss Army Knife' tool.")]
 pub struct Opt {
-    /// RPC endpoint url to override using the Solana config or the hard-coded default.
+    /// RPC endpoint url to override using the Solana config or the hard-coded default
     #[structopt(short, long)]
     pub rpc: Option<String>,
 
@@ -13,19 +13,19 @@ pub struct Opt {
 
 #[derive(Debug, StructOpt)]
 pub enum Command {
-    /// Decode on-chain data into JSON format.
+    /// Decode on-chain data into JSON format
     #[structopt(name = "decode")]
     Decode {
         #[structopt(subcommand)]
         decode_subcommands: DecodeSubcommands,
     },
-    /// Mint new NFTs from JSON files.
+    /// Mint new NFTs from JSON files
     #[structopt(name = "mint")]
     Mint {
         #[structopt(subcommand)]
         mint_subcommands: MintSubcommands,
     },
-    /// Update various aspects of NFTs.
+    /// Update various aspects of NFTs
     #[structopt(name = "update")]
     Update {
         #[structopt(subcommand)]
@@ -37,13 +37,13 @@ pub enum Command {
         #[structopt(subcommand)]
         set_subcommands: SetSubcommands,
     },
-    /// Sign metadata for an unverified creator.
+    /// Sign metadata for an unverified creator
     #[structopt(name = "sign")]
     Sign {
         #[structopt(subcommand)]
         sign_subcommands: SignSubcommands,
     },
-    /// Get snapshots of various blockchain states.
+    /// Get snapshots of various blockchain states
     #[structopt(name = "snapshot")]
     Snapshot {
         #[structopt(subcommand)]
@@ -56,11 +56,11 @@ pub enum DecodeSubcommands {
     /// Decode a mint account's metadata
     #[structopt(name = "mint")]
     Mint {
-        /// Single mint account to decode.
+        /// Single mint account to decode
         #[structopt(short, long)]
         account: Option<String>,
 
-        /// Path to JSON file containing a list of mint accounts to decode.
+        /// Path to JSON file containing a list of mint accounts to decode
         #[structopt(short, long)]
         list_file: Option<String>,
 
@@ -74,7 +74,7 @@ pub enum DecodeSubcommands {
 pub enum MintSubcommands {
     #[structopt(name = "one")]
     One {
-        /// Path to the update_authority keypair file.
+        /// Path to the update_authority keypair file
         #[structopt(short, long)]
         keypair: String,
 
@@ -82,57 +82,23 @@ pub enum MintSubcommands {
         #[structopt(short, long)]
         receiver: Option<String>,
 
-        /// On-chain formatted metadata for the new NFT.
+        /// On-chain formatted metadata for the new NFT
         #[structopt(short = "d", long)]
         nft_data_file: String,
     },
     #[structopt(name = "list")]
     List {
-        /// Path to the update_authority keypair file.
+        /// Path to the update_authority keypair file
         #[structopt(short, long)]
         keypair: String,
 
-        /// Receiving address, if different from update authority.
+        /// Receiving address, if different from update authority
         #[structopt(short, long)]
         receiver: Option<String>,
 
-        /// Directory of on-chain formatted metadata files for the new NFTs.
+        /// Directory of on-chain formatted metadata files for the new NFTs
         #[structopt(short = "d", long)]
         nft_data_dir: String,
-    },
-}
-
-#[derive(Debug, StructOpt)]
-pub enum UpdateSubcommands {
-    /// Update the data struct on a NFT
-    #[structopt(name = "data")]
-    Data {
-        /// Path to the creator's keypair file.
-        #[structopt(short, long)]
-        keypair: String,
-
-        /// Mint account of corresponding metadata to update
-        #[structopt(short, long)]
-        account: String,
-
-        /// Path to JSON file containing new data
-        #[structopt(short, long)]
-        new_data_file: String,
-    },
-    /// Update the metadata URI, keeping the rest of the data the same
-    #[structopt(name = "uri")]
-    Uri {
-        /// Path to the creator's keypair file.
-        #[structopt(short, long)]
-        keypair: String,
-
-        /// Mint account of corresponding metadata to update
-        #[structopt(short, long)]
-        account: String,
-
-        /// New uri
-        #[structopt(short = "u", long)]
-        new_uri: String,
     },
 }
 
@@ -141,7 +107,7 @@ pub enum SetSubcommands {
     /// Set primary sale happened to true
     #[structopt(name = "primary-sale-happened")]
     PrimarySaleHappened {
-        /// Path to the creator's keypair file.
+        /// Path to the creator's keypair file
         #[structopt(short, long)]
         keypair: String,
 
@@ -152,7 +118,7 @@ pub enum SetSubcommands {
     /// Set update authority to a new account
     #[structopt(name = "update-authority")]
     UpdateAuthority {
-        /// Path to the creator's keypair file.
+        /// Path to the creator's keypair file
         #[structopt(short, long)]
         keypair: String,
 
@@ -168,27 +134,29 @@ pub enum SetSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum SignSubcommands {
+    /// Sign the metadata for a single mint account
     #[structopt(name = "one")]
     One {
-        /// Path to the creator's keypair file.
+        /// Path to the creator's keypair file
         #[structopt(short, long)]
         keypair: String,
 
-        /// Mint account to sign.
+        /// Mint account to sign
         #[structopt(short, long)]
         account: String,
     },
+    /// Sign all metadata from a JSON list or for a given candy machine id
     #[structopt(name = "all")]
     All {
-        /// Path to the creator's keypair file.
+        /// Path to the creator's keypair file
         #[structopt(short, long)]
         keypair: String,
 
-        /// Candy Machine ID to filter accounts by.
+        /// Candy Machine ID to filter accounts by
         #[structopt(short, long)]
         candy_machine_id: Option<String>,
 
-        /// Directory of mint accounts to sign.
+        /// Path to JSON file with list of mint accounts to sign
         #[structopt(short, long)]
         mint_accounts_file: Option<String>,
     },
@@ -211,7 +179,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
-    ///Snapshot all candy machine config and state accounts by update_authority
+    ///Snapshot all candy machine config and state accounts for a given update_authority
     #[structopt(name = "cm-accounts")]
     CMAccounts {
         /// Update authority to filter accounts by.
@@ -221,5 +189,54 @@ pub enum SnapshotSubcommands {
         /// Path to directory to save output files.
         #[structopt(short, long, default_value = ".")]
         output: String,
+    },
+    /// Snapshot all mint accounts for a given candy machine id or update authority
+    #[structopt(name = "mints")]
+    Mints {
+        /// Candy Machine ID to filter accounts by
+        #[structopt(short, long)]
+        candy_machine_id: Option<String>,
+
+        /// Update authority to filter accounts by.
+        #[structopt(short, long)]
+        update_authority: Option<String>,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum UpdateSubcommands {
+    /// Update the data struct on a NFT
+    #[structopt(name = "data")]
+    Data {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+
+        /// Path to JSON file containing new data
+        #[structopt(short, long)]
+        new_data_file: String,
+    },
+    /// Update the metadata URI, keeping the rest of the data the same
+    #[structopt(name = "uri")]
+    Uri {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+
+        /// New uri
+        #[structopt(short = "u", long)]
+        new_uri: String,
     },
 }

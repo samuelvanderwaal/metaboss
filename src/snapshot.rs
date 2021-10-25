@@ -21,6 +21,7 @@ use spl_token::ID as TOKEN_PROGRAM_ID;
 use std::{fs::File, str::FromStr};
 
 use crate::constants::*;
+use crate::parse::is_only_one_option;
 
 #[derive(Debug, Serialize, Clone)]
 struct Holder {
@@ -48,19 +49,25 @@ struct CandyMachineAccount {
     data_len: usize,
 }
 
-pub fn get_mints(
+pub fn snapshot_mints(
     client: &RpcClient,
-    update_authority: &Option<String>,
-    candy_machine_id: &Option<String>,
-    output: &String,
+    candy_machine_id: Option<String>,
+    update_authority: Option<String>,
+    output: String,
 ) -> Result<()> {
-    let accounts = if let Some(update_authority) = update_authority {
-        get_mints_by_update_authority(client, update_authority)?
-    } else if let Some(candy_machine_id) = candy_machine_id {
-        get_cm_creator_accounts(client, candy_machine_id)?
+    if !is_only_one_option(&candy_machine_id, &update_authority) {
+        return Err(anyhow!(
+            "Please specify either a candy machine id or an update authority, but not both."
+        ));
+    }
+
+    let accounts = if let Some(ref update_authority) = update_authority {
+        get_mints_by_update_authority(client, &update_authority)?
+    } else if let Some(ref candy_machine_id) = candy_machine_id {
+        get_cm_creator_accounts(client, &candy_machine_id)?
     } else {
         return Err(anyhow!(
-            "Must specify either --update-authority or --candy-machine-id"
+            "Please specify either a candy machine id or an update authority, but not both."
         ));
     };
 
@@ -147,7 +154,7 @@ pub fn snapshot_holders(
         ));
     };
 
-    let mut file = File::create(format!("{}/{}_snapshot.json", output, prefix))?;
+    let mut file = File::create(format!("{}/{}_holders.json", output, prefix))?;
     serde_json::to_writer(&mut file, &nft_holders)?;
 
     Ok(())

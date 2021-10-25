@@ -54,6 +54,7 @@ pub fn decode_metadata(
     list_path: Option<&String>,
     output: &String,
 ) -> AnyResult<()> {
+    // Explicitly warn the user if they provide incorrect options combinations
     if !is_only_one_option(&account, &list_path) {
         return Err(anyhow!(
             "Please specify either a mint account or a list of mint accounts, but not both."
