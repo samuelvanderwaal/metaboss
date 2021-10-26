@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Latest Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+          override: true
+
+      - name: Build
+        id: build
+        shell: bash
+        run: |
+          if [[ "${RUNNER_OS}" == "Linux" ]]; then
+            echo "Installing libudev-dev"
+            sudo apt install libudev-dev
+          fi
+          
+          cargo build --all --release
+          
+          binary_extension=""
+          if [[ "${RUNNER_OS}" == "Windows" ]]; then
+            binary_extension=".exe"
+          fi
+          binary_path="metaboss-${{ matrix.os }}${binary_extension}"
+          mv "target/release/metaboss${binary_extension}" "${binary_path}"
+          echo "::set-output name=binary_path::${binary_path}"
+          
+          strip "${binary_path}"
+
+      - name: Publish Artifacts
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}
+          path: ${{ steps.build.outputs.binary_path }}
+
+      - name: Release Tags
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: ${{ steps.build.outputs.binary_path }}
