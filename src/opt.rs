@@ -72,6 +72,7 @@ pub enum DecodeSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum MintSubcommands {
+    /// Mint a single NFT from a JSON file
     #[structopt(name = "one")]
     One {
         /// Path to the update_authority keypair file
@@ -85,8 +86,13 @@ pub enum MintSubcommands {
         /// On-chain formatted metadata for the new NFT
         #[structopt(short = "d", long)]
         nft_data_file: String,
+
+        /// Mint the NFT with immutable data fields
+        #[structopt(short, long)]
+        immutable: bool,
     },
     #[structopt(name = "list")]
+    /// Mint a list of NFTs from a directory of JSON files
     List {
         /// Path to the update_authority keypair file
         #[structopt(short, long)]
@@ -99,6 +105,10 @@ pub enum MintSubcommands {
         /// Directory of on-chain formatted metadata files for the new NFTs
         #[structopt(short = "d", long)]
         nft_data_dir: String,
+
+        /// Mint the NFT with immutable data fields
+        #[structopt(short, long)]
+        immutable: bool,
     },
 }
 

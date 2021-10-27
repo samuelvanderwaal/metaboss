@@ -25,12 +25,14 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             keypair,
             receiver,
             nft_data_file,
-        } => mint_one(&client, &keypair, &receiver, nft_data_file),
+            immutable,
+        } => mint_one(&client, &keypair, &receiver, nft_data_file, immutable),
         MintSubcommands::List {
             keypair,
             receiver,
             nft_data_dir,
-        } => mint_list(&client, keypair, receiver, nft_data_dir),
+            immutable,
+        } => mint_list(&client, keypair, receiver, nft_data_dir, immutable),
     }
 }
 

@@ -27,6 +27,7 @@ pub fn mint_list(
     keypair: String,
     receiver: Option<String>,
     list_dir: String,
+    immutable: bool,
 ) -> Result<()> {
     let path = Path::new(&list_dir).join("*.json");
     let pattern = path.to_str().ok_or(anyhow!("Invalid directory path"))?;
@@ -35,7 +36,13 @@ pub fn mint_list(
         match res {
             Ok(path) => {
                 let file_path = path.to_str().ok_or(anyhow!("Invalid directory path"))?;
-                mint_one(client, &keypair, &receiver, file_path.to_string())?;
+                mint_one(
+                    client,
+                    &keypair,
+                    &receiver,
+                    file_path.to_string(),
+                    immutable,
+                )?;
             }
             Err(e) => return Err(anyhow!("GlobError on path: {}", e)),
         }
@@ -49,6 +56,7 @@ pub fn mint_one(
     keypair: &String,
     receiver: &Option<String>,
     nft_data_file: String,
+    immutable: bool,
 ) -> Result<()> {
     let keypair = parse_keypair(&keypair)?;
 
@@ -61,8 +69,8 @@ pub fn mint_one(
     let f = File::open(nft_data_file)?;
     let nft_data: NFTData = serde_json::from_reader(f)?;
 
-    let tx_id = mint(client, keypair, receiver, nft_data)?;
-    println!("Tx id: {:?}", tx_id);
+    let (tx_id, mint_account) = mint(client, keypair, receiver, nft_data, immutable)?;
+    println!("Tx id: {:?}\nMint account: {:?}", tx_id, mint_account);
 
     Ok(())
 }
@@ -72,7 +80,8 @@ pub fn mint(
     funder: Keypair,
     receiver: Pubkey,
     nft_data: NFTData,
-) -> Result<Signature> {
+    immutable: bool,
+) -> Result<(Signature, Pubkey)> {
     let metaplex_program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint = Keypair::new();
 
@@ -108,7 +117,14 @@ pub fn mint(
         create_associated_token_account(&funder.pubkey(), &receiver, &mint.pubkey());
 
     // Mint to instruction
-    let mint_to_ix = mint_to(&TOKEN_PROGRAM_ID, &mint.pubkey(), &assoc, &receiver, &[], 1)?;
+    let mint_to_ix = mint_to(
+        &TOKEN_PROGRAM_ID,
+        &mint.pubkey(),
+        &assoc,
+        &funder.pubkey(),
+        &[],
+        1,
+    )?;
 
     // Derive metadata account
     let metadata_seeds = &[
@@ -142,7 +158,7 @@ pub fn mint(
         data.creators,
         data.seller_fee_basis_points,
         true,
-        true,
+        !immutable,
     );
 
     let create_master_edition_account_ix = create_master_edition(
@@ -175,5 +191,5 @@ pub fn mint(
 
     let tx_id = client.send_and_confirm_transaction(&tx)?;
 
-    Ok(tx_id)
+    Ok((tx_id, mint.pubkey()))
 }

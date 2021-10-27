@@ -77,7 +77,6 @@ Linux, MacOS and Windows binaries available in [releases](https://github.com/sam
 
 
 
-
 ## Examples
 
 ### Update the URI of an existing NFT
@@ -85,6 +84,8 @@ Linux, MacOS and Windows binaries available in [releases](https://github.com/sam
 ```bash
 metaboss update uri -k ~/.config/solana/devnet.json -a CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp -u https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls
 ```
+
+
 
 ### Mint a new NFT
 
@@ -118,6 +119,8 @@ Call command. In this case we do not set `--receiver` so we mint directly to the
 metaboss mint one -k ~/.config/solana/devnet.json -d ./new_nft.json
 ```
 
+
+
 ### Snapshot Candy Machine Mint Accounts
 
 We call the command with no output specified so it creates the file in the current directory.
@@ -149,7 +152,7 @@ Metaboss will try to read your Solana config settings for both the RPC endpoint 
 
 Running Metaboss with the `--rpc` option will override the above with whatever RPC endpoint the user provides. 
 
-#### Usage
+##### Usage
 
 ```bash
 metaboss -r https://api.mainnet-beta.solana.com <SUBCOMMAND>
@@ -170,7 +173,7 @@ The Decode subcommand retrieves binary data from accounts on chain and decodes i
 
  Decodes a mint account's metadata into a JSON file. It accepts either a single account or a list of accounts.
 
-#### Usage
+##### Usage
 
 ```bash
 metaboss decode mint --account <MINT_ACCOUNT> -o <OUPUT_DIRECTORY>
@@ -190,9 +193,13 @@ The JSON list file should be an array of mint accounts to be decoded:
 
 The command will write each metadata JSON file to the output directory as a separate file with the mint account as the name: e.g. `CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp.json`. The output option defaults to the current directory.
 
+
+
 ### Help
 
 Displays list of commands and options for the program.
+
+
 
 ### Mint
 
@@ -202,7 +209,7 @@ Mint new NFTs from JSON files.
 
 Mint a single NFT from a JSON file.
 
-**Usage**
+##### Usage
 
 ```bash
 metaboss mint one --keypair <KEYPAIR> --nft-data-file <PATH_TO_NFT_DATA_FILE> --receiver <RECEIVER_ADDRESS>
@@ -235,13 +242,17 @@ If `receiver` is set, the NFT will be minted directly to the receiver's address,
 
 Mint multiple NFTs from a list of JSON files.
 
-**Usage**
+##### Usage
 
 ```bash
 metaboss mint list --keypair <KEYPAIR> --nft-data-dir <PATH_TO_NFT_DATA_FILE> --receiver <RECEIVER_ADDRESS>
 ```
 
 This command functions the same as `mint one` except instead of a single JSON file, provide a path to a directory with multiple JSON files, one for each NFT to be minted. 
+
+By default, new NFTs are minted as mutable, to make them immutable use the `--immutable` option.
+
+
 
 ### Set
 
@@ -271,13 +282,15 @@ metaboss set primary-sale-happened --keypair <PATH_TO_KEYPAIR> --account <MINT_A
 
 ### Sign
 
+**Warning: These commands modify your NFT and are for advanced users. Use with caution.**
+
 Sign metadata for an unverified creator.
 
 #### Sign One
 
 Sign the metadata for a single mint account.
 
-**Usage**
+##### Usage
 
 ```bash
 metaboss sign one --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT>
@@ -289,7 +302,7 @@ Outputs a TxId to the command line so you can check the result.
 
 Sign all metadata from a JSON list or for a given candy machine id.
 
-**Usage**
+##### Usage
 
 ```bash
 metaboss sign all --keypair <PATH_TO_KEYPAIR> --candy-machine-id <CANDY_MACHINE_ID>
@@ -400,8 +413,6 @@ Snapshot all mint accounts for a given candy machine id or update authority
 
 ##### Usage
 
-
-
 ```bash
 metaboss snapshot mints --candy-machine-id <CANDY_MACHINE_ID> --output <OUTPUT_DIR>
 ```
@@ -434,7 +445,7 @@ Update various aspects of an NFT.
 
 Update the `Data` struct on a NFT from a JSON file.
 
-**Usage**
+##### Usage
 
 ```bash
 metaboss update data --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT> --new-data-file <PATH_TO_NEW_DATA_FILE>
@@ -479,7 +490,7 @@ Outputs a TxId to the command line so you can check the result.
 
 Update the metadata URI, keeping the rest of the `Data` struct the same.
 
-**Usage**
+##### Usage
 
 ```bash
 metaboss update uri --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT> --new-uri <NEW_URI>

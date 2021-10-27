@@ -108,7 +108,7 @@ pub fn set_primary_sale_happened(
         update_authority,
         None,
         None,
-        Some(false),
+        Some(true),
     );
     let (recent_blockhash, _) = client.get_recent_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
