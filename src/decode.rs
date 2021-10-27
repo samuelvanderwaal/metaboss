@@ -1,21 +1,21 @@
 use anyhow::{anyhow, Result as AnyResult};
+use metaplex_token_metadata::state::{Key, Metadata};
 use serde::Serialize;
 use serde_json::{json, Value};
 use solana_client::rpc_client::RpcClient;
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::pubkey::Pubkey;
-use spl_token_metadata::state::{Key, Metadata};
-use std::fs;
+use std::fs::File;
 use std::str::FromStr;
 
 use crate::constants::*;
 use crate::errors::*;
+use crate::parse::is_only_one_option;
 
 #[derive(Debug, Serialize)]
 pub struct JSONCreator {
     pub address: String,
     pub verified: bool,
-    // In percentages, NOT basis points ;) Watch out!
     pub share: u8,
 }
 
@@ -24,7 +24,7 @@ pub fn decode_metadata_all(
     json_file: &String,
     output: &String,
 ) -> AnyResult<()> {
-    let file = fs::File::open(json_file)?;
+    let file = File::open(json_file)?;
     let mint_accounts: Vec<String> = serde_json::from_reader(file)?;
 
     for mint_account in &mint_accounts {
@@ -41,7 +41,7 @@ pub fn decode_metadata_all(
 
         let json_metadata = decode_to_json(metadata)?;
 
-        let mut file = fs::File::create(format!("{}/{}.json", output, mint_account))?;
+        let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
         serde_json::to_writer(&mut file, &json_metadata)?;
     }
 
@@ -50,18 +50,34 @@ pub fn decode_metadata_all(
 
 pub fn decode_metadata(
     client: &RpcClient,
-    mint_account: &String,
+    account: Option<&String>,
+    list_path: Option<&String>,
     output: &String,
 ) -> AnyResult<()> {
-    let metadata = decode(client, mint_account)?;
-    let json_metadata = decode_to_json(metadata)?;
+    // Explicitly warn the user if they provide incorrect options combinations
+    if !is_only_one_option(&account, &list_path) {
+        return Err(anyhow!(
+            "Please specify either a mint account or a list of mint accounts, but not both."
+        ));
+    }
 
-    let mut file = fs::File::create(format!("{}/{}.json", output, mint_account))?;
-    serde_json::to_writer(&mut file, &json_metadata)?;
+    if let Some(mint_account) = account {
+        let metadata = decode(client, &mint_account)?;
+        let json_metadata = decode_to_json(metadata)?;
+        let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
+        serde_json::to_writer(&mut file, &json_metadata)?;
+    } else if let Some(list_path) = list_path {
+        decode_metadata_all(client, &list_path, output)?;
+    } else {
+        return Err(anyhow!(
+            "Please specify either a mint account or a list of mint accounts, but not both."
+        ));
+    };
+
     Ok(())
 }
 
-fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {
+pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {
     let pubkey = match Pubkey::from_str(&mint_account) {
         Ok(pubkey) => pubkey,
         Err(_) => return Err(DecodeError::PubkeyParseFailed),

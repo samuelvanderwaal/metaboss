@@ -1,20 +1,27 @@
 [package]
 name = "metaboss"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2018"
 
 [dependencies]
 anyhow = "1.0.44"
+borsh = "0.9.1"
+glob = "0.3.0"
+metaplex-token-metadata = "0.0.1"
 reqwest = "0.11.5"
 serde = "1.0.130"
 serde_json = "1.0.68"
+serde_yaml = "0.8.21"
 solana-account-decoder = "1.8.0"
-solana-client = "1.8.0"
+solana-client = "1.8.1"
 solana-program = "1.8.0"
 solana-sdk = "1.8.0"
+spl-associated-token-account = "1.0.3"
 spl-token = "3.2.0"
-spl-token-metadata = "0.0.1"
 structopt = "0.3.23"
 thiserror = "1.0.30"
 
 [features]
+
+[dev-dependencies]
+assert_cmd = "2.0.2"
