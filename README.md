@@ -91,7 +91,6 @@ metaboss update uri -k ~/.config/solana/devnet.json -a CQNKXw1rw2eWwi812Exk4cKUj
 Prepare a JSON file.
 
 ```json
-// new_nft.json
 {
     "name": "TestNFT2",
     "symbol": "TNFT",
@@ -138,8 +137,6 @@ The file `BHZWQEtGRMs7voC7vDyVQCXawB1P6UvxG899ATGwxmaR_mint_accounts.json` is cr
   "4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh"
 ]
 ```
-
-Looks like this is a new candy machine with only one token minted. 
 
 
 
