@@ -24,11 +24,10 @@ Current supported features:
 
 * Update just the URI for a NFT
 
-  
 
 Suggestions and PRs welcome!
 
-
+**Note: This is experimental software for a young ecosystem. Use at your own risk. The author is not responsible for misuse of the software or failing to test specific commands before using on production NFTs.**
 
 ## Install From Source
 

@@ -106,7 +106,7 @@ pub enum MintSubcommands {
         #[structopt(short = "d", long)]
         nft_data_dir: String,
 
-        /// Mint the NFT with immutable data fields
+        /// Mint the NFTs with immutable data fields
         #[structopt(short, long)]
         immutable: bool,
     },
