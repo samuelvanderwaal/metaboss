@@ -31,7 +31,9 @@ Suggestions and PRs welcome!
 ## Contact
 
 Email: sam@vanderwaal.dev
-Twitter: @samvwaal
+
+Twitter: [@samvwaal](https://twitter.com/samvwaal)
+
 Discord: @archaeopteryx#7615
 
 ## Install From Source
