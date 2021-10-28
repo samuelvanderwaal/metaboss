@@ -16,7 +16,15 @@ pub struct SolanaConfig {
 
 pub fn parse_keypair(path: &String) -> Result<Keypair> {
     let secret_string = fs::read_to_string(path).context("Can't find key file")?;
-    let secret_bytes: Vec<u8> = serde_json::from_str(&secret_string)?;
+
+    // Try to decode the secret string as a JSON array of ints first and then as a base58 encoded string to support Phantom private keys.
+    let secret_bytes: Vec<u8> = match serde_json::from_str(&secret_string) {
+        Ok(bytes) => bytes,
+        Err(_) => match bs58::decode(&secret_string.trim()).into_vec() {
+            Ok(bytes) => bytes,
+            Err(_) => return Err(anyhow!("Unsupported key type!")),
+        },
+    };
 
     let keypair = Keypair::from_bytes(&secret_bytes)?;
     Ok(keypair)

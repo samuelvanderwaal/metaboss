@@ -1552,6 +1552,7 @@ dependencies = [
  "anyhow",
  "assert_cmd",
  "borsh",
+ "bs58 0.4.0",
  "glob",
  "metaplex-token-metadata",
  "reqwest",
