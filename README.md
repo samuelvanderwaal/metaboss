@@ -1,33 +1,38 @@
 # Metaboss
 
-The Solana Metaplex NFT 'Swiss Army Knife' tool. 
+The Solana Metaplex NFT 'Swiss Army Knife' tool.
 
 Current supported features:
 
-* Decode the metadata of a token mint account
+-   Decode the metadata of a token mint account
 
-* Mint new NFTs from a JSON file
+-   Mint new NFTs from a JSON file
 
-* Set `primary_sale_happened` bool on an NFT's metadata
+-   Set `primary_sale_happened` bool on an NFT's metadata
 
-* Set `update_authorty` address on an NFT's metadata
+-   Set `update_authorty` address on an NFT's metadata
 
-* Verify a creator by signing the metadata accounts for all tokens in a list, for a given candy machine id or a single mint account
+-   Verify a creator by signing the metadata accounts for all tokens in a list, for a given candy machine id or a single mint account
 
-* Get a snapshot of current NFT holders for a given candy machine ID or update authority
+-   Get a snapshot of current NFT holders for a given candy machine ID or update authority
 
-* Get a list of mint accounts for a given candy machine ID or update authority
+-   Get a list of mint accounts for a given candy machine ID or update authority
 
-* Get a list of all candy machine state and config accounts for a given update authority
+-   Get a list of all candy machine state and config accounts for a given update authority
 
-* Update all metadata Data struct fields for a NFT
+-   Update all metadata Data struct fields for a NFT
 
-* Update just the URI for a NFT
-
+-   Update just the URI for a NFT
 
 Suggestions and PRs welcome!
 
 **Note: This is experimental software for a young ecosystem. Use at your own risk. The author is not responsible for misuse of the software or failing to test specific commands before using on production NFTs.**
+
+## Contact
+
+Email: sam@vanderwaal.dev
+Twitter: @samvwaal
+Discord: @archaeopteryx#7615
 
 ## Install From Source
 
@@ -68,13 +73,9 @@ or
 cargo build --release
 ```
 
-
-
 ## Binaries
 
 Linux, MacOS and Windows binaries available in [releases](https://github.com/samuelvanderwaal/metaboss/releases), thanks to CI work done by [Kartik Soneji](https://github.com/KartikSoneji).
-
-
 
 ## Examples
 
@@ -83,8 +84,6 @@ Linux, MacOS and Windows binaries available in [releases](https://github.com/sam
 ```bash
 metaboss update uri -k ~/.config/solana/devnet.json -a CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp -u https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls
 ```
-
-
 
 ### Mint a new NFT
 
@@ -117,8 +116,6 @@ Call command. In this case we do not set `--receiver` so we mint directly to the
 metaboss mint one -k ~/.config/solana/devnet.json -d ./new_nft.json
 ```
 
-
-
 ### Snapshot Candy Machine Mint Accounts
 
 We call the command with no output specified so it creates the file in the current directory.
@@ -131,22 +128,20 @@ The file `BHZWQEtGRMs7voC7vDyVQCXawB1P6UvxG899ATGwxmaR_mint_accounts.json` is cr
 
 ```json
 [
-  "D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28",
-  "4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW",
-  "J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz",
-  "4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh"
+    "D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28",
+    "4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW",
+    "J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz",
+    "4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh"
 ]
 ```
 
-
-
 ## Options
 
--r, --rpc <rpc> The RPC endpoint to use for commands. 
+-r, --rpc <rpc> The RPC endpoint to use for commands.
 
-Metaboss will try to read your Solana config settings for both the RPC endpoint and also the Commitment setting by reading from `$HOME/.config/solana/cli/config.yml`. If it can't find a config file it defaults to using ` https://api.devnet.solana.com` and `confirmed`. 
+Metaboss will try to read your Solana config settings for both the RPC endpoint and also the Commitment setting by reading from `$HOME/.config/solana/cli/config.yml`. If it can't find a config file it defaults to using ` https://api.devnet.solana.com` and `confirmed`.
 
-Running Metaboss with the `--rpc` option will override the above with whatever RPC endpoint the user provides. 
+Running Metaboss with the `--rpc` option will override the above with whatever RPC endpoint the user provides.
 
 ##### Usage
 
@@ -156,9 +151,6 @@ metaboss -r https://api.mainnet-beta.solana.com <SUBCOMMAND>
 
 Please don't abuse public APIs or you may get rate-limited. If you have heavy work to do, use a private RPC such as from [QuickNode](https://www.quicknode.com/) or [Triton](https://rpcpool.com/#/).
 
-
-
-
 ## Subcommands
 
 ### Decode
@@ -167,7 +159,7 @@ The Decode subcommand retrieves binary data from accounts on chain and decodes i
 
 #### Decode Mint
 
- Decodes a mint account's metadata into a JSON file. It accepts either a single account or a list of accounts.
+Decodes a mint account's metadata into a JSON file. It accepts either a single account or a list of accounts.
 
 ##### Usage
 
@@ -189,13 +181,9 @@ The JSON list file should be an array of mint accounts to be decoded:
 
 The command will write each metadata JSON file to the output directory as a separate file with the mint account as the name: e.g. `CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp.json`. The output option defaults to the current directory.
 
-
-
 ### Help
 
 Displays list of commands and options for the program.
-
-
 
 ### Mint
 
@@ -229,7 +217,6 @@ Example JSON file:
         }
     ]
 }
-
 ```
 
 If `receiver` is set, the NFT will be minted directly to the receiver's address, otherwise it is minted to `keypair`. Observant users may note that with a simple bash script this allows airdrops to be deployed with Metaboss.
@@ -244,11 +231,9 @@ Mint multiple NFTs from a list of JSON files.
 metaboss mint list --keypair <KEYPAIR> --nft-data-dir <PATH_TO_NFT_DATA_FILE> --receiver <RECEIVER_ADDRESS>
 ```
 
-This command functions the same as `mint one` except instead of a single JSON file, provide a path to a directory with multiple JSON files, one for each NFT to be minted. 
+This command functions the same as `mint one` except instead of a single JSON file, provide a path to a directory with multiple JSON files, one for each NFT to be minted.
 
 By default, new NFTs are minted as mutable, to make them immutable use the `--immutable` option.
-
-
 
 ### Set
 
@@ -268,13 +253,11 @@ Outputs a TxId to the command line so you can check the result.
 
 #### Set Update-Authority
 
-Set `update_authority` to a different public key. 
+Set `update_authority` to a different public key.
 
 ```bash
 metaboss set primary-sale-happened --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT> --new-update-authority <NEW_UPDATE_AUTHORITY>
 ```
-
-
 
 ### Sign
 
@@ -320,8 +303,6 @@ For the latter usage, the mint accounts file should be a JSON file with a list o
 
 Outputs a TxId to the command line so you can check the result.
 
-
-
 ### Snapshot
 
 Get snapshots of various blockchain states.
@@ -363,8 +344,6 @@ Creates a JSON file in the output directory with the name format of `<UPDATE_AUT
 }
 ```
 
-
-
 #### Snapshot Holders
 
 Snapshot all current holders of NFTs filtered by candy_machine_id or update_authority
@@ -383,10 +362,10 @@ metaboss snapshot holders --update_authority <UPDATE_AUTHORITY> --output <OUTPUT
 
 Creates a JSON file in the output directory with the name format of `<CANDY_MACHINE_ID/UPDATE_AUTHORITY>_holders.json` consisting of an array of objects with the following fields:
 
-* owner wallet -- the holder of the token
-* associated token account -- the token account the NFT is stored at
-* mint account -- the token mint account for the NFT
-* metadata account -- the metadata account decorating the mint account that defines the NFT
+-   owner wallet -- the holder of the token
+-   associated token account -- the token account the NFT is stored at
+-   mint account -- the token mint account for the NFT
+-   metadata account -- the metadata account decorating the mint account that defines the NFT
 
 Example file:
 
@@ -400,8 +379,6 @@ Example file:
     }
 ]
 ```
-
-
 
 #### Snapshot Mints
 
@@ -423,13 +400,11 @@ Creates a JSON file in the output directory with the name format of `<CANDY_MACH
 
 ```json
 [
- "CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp", 			    "5pgGJ5npeMxBzTiQctDgoofEVGSwZMYm3QMz4F4NDShz",
- "8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o"
+    "CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp",
+    "5pgGJ5npeMxBzTiQctDgoofEVGSwZMYm3QMz4F4NDShz",
+    "8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o"
 ]
-
 ```
-
-
 
 ### Update
 
@@ -447,7 +422,7 @@ Update the `Data` struct on a NFT from a JSON file.
 metaboss update data --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT> --new-data-file <PATH_TO_NEW_DATA_FILE>
 ```
 
-The JSON file should include all the fields of the metadata `Data` struct and should match `creator` `verified` bools for existing creators. E.g. if your NFT was minted by the Metaplex Candy Machine program, and you wish to keep your candy machine as a verified creator *you must add the candy machine to your creators array with `verified` set to `true`*. 
+The JSON file should include all the fields of the metadata `Data` struct and should match `creator` `verified` bools for existing creators. E.g. if your NFT was minted by the Metaplex Candy Machine program, and you wish to keep your candy machine as a verified creator _you must add the candy machine to your creators array with `verified` set to `true`_.
 
 **Make sure you understand how the Metaplex Metadata `Data` struct works and how this command will affect your NFT. Always test on `devnet` before running on mainnet. **
 
@@ -475,10 +450,7 @@ The JSON file should include all the fields of the metadata `Data` struct and sh
         }
     ]
 }
-
 ```
-
-
 
 Outputs a TxId to the command line so you can check the result.
 
@@ -491,4 +463,3 @@ Update the metadata URI, keeping the rest of the `Data` struct the same.
 ```bash
 metaboss update uri --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT> --new-uri <NEW_URI>
 ```
-
