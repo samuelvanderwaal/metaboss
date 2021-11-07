@@ -36,6 +36,10 @@ Twitter: [@samvwaal](https://twitter.com/samvwaal)
 
 Discord: @archaeopteryx#7615
 
+## Binaries
+
+Linux, MacOS and Windows binaries available in [releases](https://github.com/samuelvanderwaal/metaboss/releases), thanks to CI work done by [Kartik Soneji](https://github.com/KartikSoneji).
+
 ## Install From Source
 
 Install [Rust](https://www.rust-lang.org/tools/install).
@@ -74,10 +78,6 @@ or
 ```bash
 cargo build --release
 ```
-
-## Binaries
-
-Linux, MacOS and Windows binaries available in [releases](https://github.com/samuelvanderwaal/metaboss/releases), thanks to CI work done by [Kartik Soneji](https://github.com/KartikSoneji).
 
 ## Examples
 
