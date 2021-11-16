@@ -165,19 +165,27 @@ pub fn set_update_authority_all(
     client: &RpcClient,
     keypair: &String,
     json_file: &String,
+    new_update_authority: &String,
 ) -> Result<()> {
     let file = File::open(json_file)?;
-    let items: Vec<NewUpdateAuthority> = serde_json::from_reader(file)?;
+    let items: Vec<String> = serde_json::from_reader(file)?;
 
     for item in items.iter() {
-        println!("Updating metadata for mint account: {}", item.mint_account);
-        set_update_authority(
+        println!("Updating metadata for mint account: {}", item);
+
+        // If someone uses a json list that contains a mint account that has already
+        //  been updated this will throw an error. We print that error and continue
+        let _ = match set_update_authority(
             client,
             keypair,
-            &item.mint_account,
-            &item.new_update_authority,
-        )?;
+            &item,
+            &new_update_authority,
+        ) {
+            Ok(_) => {}
+            Err(error) => {
+                println!("Error occurred! {}", error)
+            }
+        };
     }
-
     Ok(())
 }

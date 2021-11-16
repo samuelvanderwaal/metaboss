@@ -140,6 +140,21 @@ pub enum SetSubcommands {
         #[structopt(short = "u", long)]
         new_update_authority: String,
     },
+    /// Set update authority on multiple accounts to a new account
+    #[structopt(name = "batch-update-authority")]
+    UpdateMultipleAuthorities {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Mint accounts of corresponding metadata to update
+        #[structopt(short, long)]
+        accounts: String,
+
+        /// New update authority address
+        #[structopt(short = "u", long)]
+        new_update_authority: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]
