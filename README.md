@@ -31,8 +31,14 @@ Suggestions and PRs welcome!
 ## Contact
 
 Email: sam@vanderwaal.dev
-Twitter: @samvwaal
+
+Twitter: [@samvwaal](https://twitter.com/samvwaal)
+
 Discord: @archaeopteryx#7615
+
+## Binaries
+
+Linux, MacOS and Windows binaries available in [releases](https://github.com/samuelvanderwaal/metaboss/releases), thanks to CI work done by [Kartik Soneji](https://github.com/KartikSoneji).
 
 ## Install From Source
 
@@ -72,10 +78,6 @@ or
 ```bash
 cargo build --release
 ```
-
-## Binaries
-
-Linux, MacOS and Windows binaries available in [releases](https://github.com/samuelvanderwaal/metaboss/releases), thanks to CI work done by [Kartik Soneji](https://github.com/KartikSoneji).
 
 ## Examples
 
