@@ -357,7 +357,7 @@ metaboss snapshot holders --candy-machine-id <CANDY_MACHINE_ID> --output <OUTPUT
 or
 
 ```bash
-metaboss snapshot holders --update_authority <UPDATE_AUTHORITY> --output <OUTPUT_DIR>
+metaboss snapshot holders --update-authority <UPDATE_AUTHORITY> --output <OUTPUT_DIR>
 ```
 
 Creates a JSON file in the output directory with the name format of `<CANDY_MACHINE_ID/UPDATE_AUTHORITY>_holders.json` consisting of an array of objects with the following fields:
@@ -393,7 +393,7 @@ metaboss snapshot mints --candy-machine-id <CANDY_MACHINE_ID> --output <OUTPUT_D
 or
 
 ```bash
-metaboss snapshot mints --update_authority <UPDATE_AUTHORITY> --output <OUTPUT_DIR>
+metaboss snapshot mints --update-authority <UPDATE_AUTHORITY> --output <OUTPUT_DIR>
 ```
 
 Creates a JSON file in the output directory with the name format of `<CANDY_MACHINE_ID/UPDATE_AUTHORITY>_mint_accounts.json` consisting of an array of mint accounts.
