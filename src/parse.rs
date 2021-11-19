@@ -93,13 +93,16 @@ mod tests {
         // Arrange
         let whitespace_key_path = String::from("./tests/test_key_whitespace.txt");
         let newline_key_path = String::from("./tests/test_key_newline.txt");
+        let phantom_key_path = String::from("./tests/test_key_phantom.txt");
 
         // Act
         let whitespace_res = parse_keypair(&whitespace_key_path);
         let newline_res = parse_keypair(&newline_key_path);
+        let phantom_res = parse_keypair(&phantom_key_path);
 
         // Assert
         assert!(whitespace_res.is_ok());
         assert!(newline_res.is_ok());
+        assert!(phantom_res.is_ok());
     }
 }
