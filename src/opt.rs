@@ -147,9 +147,9 @@ pub enum SetSubcommands {
         #[structopt(short, long)]
         keypair: String,
 
-        /// Mint accounts of corresponding metadata to update
-        #[structopt(short, long)]
-        accounts: String,
+        /// Path to JSON mint accounts file
+        #[structopt(short = "a", long)]
+        mint_accounts_file: String,
 
         /// New update authority address
         #[structopt(short = "u", long)]

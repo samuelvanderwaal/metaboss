@@ -258,8 +258,28 @@ Outputs a TxId to the command line so you can check the result.
 Set `update_authority` to a different public key.
 
 ```bash
-metaboss set primary-sale-happened --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT> --new-update-authority <NEW_UPDATE_AUTHORITY>
+metaboss set update-authority --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT> --new-update-authority <NEW_UPDATE_AUTHORITY>
 ```
+
+#### Set Update-Authority-All
+
+Set `update_authority` to a different public key for a list of NFTs.
+
+```bash
+metaboss set update-authority-all --keypair <PATH_TO_KEYPAIR> --mint-accounts-file <PATH_TO_MINT_ACCOUNTS> --new-update-authority <NEW_UPDATE_AUTHORITY>
+```
+
+The mint accounts file should be a JSON file with an array of NFT mint accounts to be updated:
+
+```json
+[
+    "C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG",
+    "8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o",
+    "CK2npuck3WTRNFXSdZv8YjudJJEa69EVGd6GFfeSzfGP"
+]
+```
+
+
 
 ### Sign
 

@@ -5,7 +5,7 @@ use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
 use std::{fs::File, str::FromStr};
 
 use crate::constants::*;
-use crate::data::{NFTData, NewUpdateAuthority};
+use crate::data::NFTData;
 use crate::decode::{decode, get_metadata_pda};
 use crate::parse::{convert_local_to_remote_data, parse_keypair};
 
@@ -175,12 +175,7 @@ pub fn set_update_authority_all(
 
         // If someone uses a json list that contains a mint account that has already
         //  been updated this will throw an error. We print that error and continue
-        let _ = match set_update_authority(
-            client,
-            keypair,
-            &item,
-            &new_update_authority,
-        ) {
+        let _ = match set_update_authority(client, keypair, &item, &new_update_authority) {
             Ok(_) => {}
             Err(error) => {
                 println!("Error occurred! {}", error)
