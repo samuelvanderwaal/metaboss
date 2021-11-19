@@ -141,8 +141,8 @@ pub enum SetSubcommands {
         new_update_authority: String,
     },
     /// Set update authority on multiple accounts to a new account
-    #[structopt(name = "batch-update-authority")]
-    UpdateMultipleAuthorities {
+    #[structopt(name = "update-authority-all")]
+    UpdateAuthorityAll {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
         keypair: String,

@@ -63,7 +63,7 @@ pub fn process_set(client: &RpcClient, commands: SetSubcommands) -> Result<()> {
         } => {
             set_update_authority(&client, &keypair, &account, &new_update_authority)
         }
-        SetSubcommands::UpdateMultipleAuthorities {
+        SetSubcommands::UpdateAuthorityAll {
             keypair,
             accounts,
             new_update_authority
