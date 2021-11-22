@@ -28,7 +28,7 @@ fn main() -> Result<()> {
     }
     let commitment = CommitmentConfig::from_str(&commitment)?;
 
-    let timeout = Duration::from_secs(60);
+    let timeout = Duration::from_secs(options.timeout);
 
     let client = RpcClient::new_with_timeout_and_commitment(rpc, timeout, commitment);
     match options.cmd {

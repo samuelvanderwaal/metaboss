@@ -7,6 +7,10 @@ pub struct Opt {
     #[structopt(short, long)]
     pub rpc: Option<String>,
 
+    /// Timeout to override default value of 60 seconds
+    #[structopt(short, long, default_value = "60")]
+    pub timeout: u64,
+
     #[structopt(subcommand)]
     pub cmd: Command,
 }

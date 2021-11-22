@@ -145,6 +145,10 @@ Metaboss will try to read your Solana config settings for both the RPC endpoint 
 
 Running Metaboss with the `--rpc` option will override the above with whatever RPC endpoint the user provides.
 
+-t, --timeout <timeout> The timeout in seconds to use for RPC calls.
+
+This defaults to 60 seconds which should be fine for most cases but can be overriden if needed.
+
 ##### Usage
 
 ```bash
