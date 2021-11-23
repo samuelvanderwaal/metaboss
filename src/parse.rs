@@ -31,10 +31,16 @@ pub fn parse_keypair(path: &String) -> Result<Keypair> {
 }
 
 pub fn parse_solana_config() -> Option<SolanaConfig> {
-    let key = "HOME";
-    let home = match env::var_os(key) {
-        Some(val) => val,
-        None => return None,
+    let home = if cfg!(unix) {
+        env::var_os("HOME").expect("Coulnd't find UNIX home key.")
+    } else if cfg!(windows) {
+        let drive = env::var_os("HOMEDRIVE").expect("Coulnd't find Windows home drive key.");
+        let path = env::var_os("HOMEPATH").expect("Coulnd't find Windows home path key.");
+        Path::new(&drive).join(&path).as_os_str().to_owned()
+    } else if cfg!(target_os = "macos") {
+        env::var_os("HOME").expect("Coulnd't find MacOS home key.")
+    } else {
+        panic!("Unsupported OS!");
     };
 
     let config_path = Path::new(&home)
