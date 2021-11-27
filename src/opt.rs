@@ -268,4 +268,19 @@ pub enum UpdateSubcommands {
         #[structopt(short = "u", long)]
         new_uri: String,
     },
+    /// Update the sellerFeeBasisPoints, keeping the rest of the data the same
+    #[structopt(name = "sellerfeebasispoints")]
+    SellerFeeBasisPoints {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+
+        /// New uri
+        #[structopt(short = "s", long)]
+        new_basis_points: u16,
+    },
 }

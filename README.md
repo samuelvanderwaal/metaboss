@@ -489,3 +489,15 @@ Update the metadata URI, keeping the rest of the `Data` struct the same.
 ```bash
 metaboss update uri --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT> --new-uri <NEW_URI>
 ```
+Outputs a TxId to the command line so you can check the result.
+
+#### Update Seller Fee Basis Points
+
+Update the data sellerFeeBasisPoints, keeping the rest of the `Data` struct the same.
+
+##### Usage
+
+```bash
+metaboss update sellerfeebasispoints --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT> -s <NEW_PRICE>
+```
+Outputs a TxId to the command line so you can check the result.

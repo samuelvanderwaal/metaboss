@@ -48,6 +48,11 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             account,
             new_uri,
         } => update_uri(&client, &keypair, &account, &new_uri),
+        UpdateSubcommands::SellerFeeBasisPoints {
+            keypair,
+            account,
+            new_basis_points,
+        } => update_seller_fee_basis(&client, &keypair, &account, new_basis_points),
     }
 }
 
