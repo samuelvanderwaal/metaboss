@@ -11,7 +11,7 @@ use solana_sdk::{
 use std::{fs::File, path::Path, str::FromStr};
 
 use crate::constants::*;
-use crate::data::{NFTData, UpdateNFTData};
+use crate::data::{NFTData, UpdateNFTData, UpdateUriData};
 use crate::decode::{decode, get_metadata_pda};
 use crate::parse::{convert_local_to_remote_data, parse_keypair};
 
@@ -128,15 +128,46 @@ pub fn update_data(
     Ok(())
 }
 
-pub fn update_uri(
+pub fn update_uri_one(
     client: &RpcClient,
     keypair: &String,
     mint_account: &String,
     new_uri: &String,
 ) -> Result<()> {
     let keypair = parse_keypair(keypair)?;
-    let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
+
+    update_uri(client, &keypair, &mint_account, new_uri)?;
+
+    Ok(())
+}
+
+pub fn update_uri_all(client: &RpcClient, keypair: &String, json_file: &String) -> Result<()> {
+    let keypair = parse_keypair(keypair)?;
+
+    let f = File::open(json_file)?;
+    let update_uris: Vec<UpdateUriData> = serde_json::from_reader(f)?;
+
+    update_uris.par_iter().for_each(|data| {
+        match update_uri(client, &keypair, &data.mint_account, &data.new_uri) {
+            Ok(_) => (),
+            Err(e) => {
+                eprintln!("Failed to update uri: {:?} error: {}", data, e);
+                return;
+            }
+        }
+    });
+
+    Ok(())
+}
+
+pub fn update_uri(
+    client: &RpcClient,
+    keypair: &Keypair,
+    mint_account: &String,
+    new_uri: &String,
+) -> Result<()> {
     let mint_pubkey = Pubkey::from_str(mint_account)?;
+    let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let update_authority = keypair.pubkey();
 
     let metadata_account = get_metadata_pda(mint_pubkey);
@@ -158,7 +189,7 @@ pub fn update_uri(
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&update_authority),
-        &[&keypair],
+        &[keypair],
         recent_blockhash,
     );
 

@@ -50,7 +50,10 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             keypair,
             account,
             new_uri,
-        } => update_uri(&client, &keypair, &account, &new_uri),
+        } => update_uri_one(&client, &keypair, &account, &new_uri),
+        UpdateSubcommands::UriAll { keypair, json_file } => {
+            update_uri_all(&client, &keypair, &json_file)
+        }
     }
 }
 

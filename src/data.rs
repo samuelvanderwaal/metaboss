@@ -22,6 +22,12 @@ pub struct UpdateNFTData {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateUriData {
+    pub mint_account: String,
+    pub new_uri: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct NFTCreator {
     pub address: String,
     pub verified: bool,

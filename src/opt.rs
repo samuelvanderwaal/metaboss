@@ -279,4 +279,15 @@ pub enum UpdateSubcommands {
         #[structopt(short = "u", long)]
         new_uri: String,
     },
+    /// Update the metadata URI on a list of mint accounts
+    #[structopt(name = "uri")]
+    UriAll {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// JSON file with list of mint accounts and new URIs
+        #[structopt(short = "u", long)]
+        json_file: String,
+    },
 }
