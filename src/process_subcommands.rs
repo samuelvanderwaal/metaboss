@@ -42,7 +42,10 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             keypair,
             account,
             new_data_file,
-        } => update_data(&client, &keypair, &account, &new_data_file),
+        } => update_data_one(&client, &keypair, &account, &new_data_file),
+        UpdateSubcommands::DataAll { keypair, data_dir } => {
+            update_data_all(&client, &keypair, &data_dir)
+        }
         UpdateSubcommands::Uri {
             keypair,
             account,

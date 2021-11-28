@@ -125,7 +125,7 @@ pub fn snapshot_holders(
         let metadata: Metadata = match try_from_slice_unchecked(&account.data) {
             Ok(metadata) => metadata,
             Err(_) => {
-                println!("Account {} has no metadata", metadata_pubkey);
+                eprintln!("Account {} has no metadata", metadata_pubkey);
                 return;
             }
         };
@@ -133,7 +133,7 @@ pub fn snapshot_holders(
         let token_accounts = match get_holder_token_accounts(client, metadata.mint.to_string()) {
             Ok(token_accounts) => token_accounts,
             Err(_) => {
-                println!("Account {} has no token accounts", metadata_pubkey);
+                eprintln!("Account {} has no token accounts", metadata_pubkey);
                 return;
             }
         };
@@ -149,7 +149,7 @@ pub fn snapshot_holders(
             ) {
                 Ok(data) => data,
                 Err(err) => {
-                    println!("Account {} has no data: {}", associated_token_address, err);
+                    eprintln!("Account {} has no data: {}", associated_token_address, err);
                     return;
                 }
             };
@@ -157,7 +157,7 @@ pub fn snapshot_holders(
             let amount = match parse_token_amount(&data) {
                 Ok(amount) => amount,
                 Err(err) => {
-                    println!(
+                    eprintln!(
                         "Account {} has no amount: {}",
                         associated_token_address, err
                     );
@@ -170,7 +170,7 @@ pub fn snapshot_holders(
                 let owner_wallet = match parse_owner(&data) {
                     Ok(owner_wallet) => owner_wallet,
                     Err(err) => {
-                        println!("Account {} has no owner: {}", associated_token_address, err);
+                        eprintln!("Account {} has no owner: {}", associated_token_address, err);
                         return;
                     }
                 };

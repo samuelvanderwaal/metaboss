@@ -41,15 +41,15 @@ pub fn mint_list(
     paths.par_iter().for_each(|path| {
         match mint_one(client, &keypair, &receiver, path, immutable) {
             Ok(_) => (),
-            Err(e) => println!("Failed to mint {:?}: {}", &path, e),
+            Err(e) => eprintln!("Failed to mint {:?}: {}", &path, e),
         }
     });
 
     // TODO: handle errors in a better way and log instead of print.
     if !errors.is_empty() {
-        println!("Failed to read some of the files with the following errors:");
+        eprintln!("Failed to read some of the files with the following errors:");
         for error in errors {
-            println!("{}", error);
+            eprintln!("{}", error);
         }
     }
 

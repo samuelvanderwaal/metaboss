@@ -1,32 +1,110 @@
-use anyhow::Result;
-use metaplex_token_metadata::instruction::update_metadata_accounts;
+use anyhow::{anyhow, Result};
+use glob::glob;
+use metaplex_token_metadata::{instruction::update_metadata_accounts, state::Data};
 use rayon::prelude::*;
 use solana_client::rpc_client::RpcClient;
-use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
-use std::{fs::File, str::FromStr};
+use solana_sdk::{
+    pubkey::Pubkey,
+    signer::{keypair::Keypair, Signer},
+    transaction::Transaction,
+};
+use std::{fs::File, path::Path, str::FromStr};
 
 use crate::constants::*;
-use crate::data::NFTData;
+use crate::data::{NFTData, UpdateNFTData};
 use crate::decode::{decode, get_metadata_pda};
 use crate::parse::{convert_local_to_remote_data, parse_keypair};
 
-pub fn update_data(
+pub fn update_data_one(
     client: &RpcClient,
     keypair: &String,
     mint_account: &String,
     json_file: &String,
 ) -> Result<()> {
     let keypair = parse_keypair(keypair)?;
+    let f = File::open(json_file)?;
+    let new_data: NFTData = serde_json::from_reader(f)?;
+
+    let data = convert_local_to_remote_data(new_data)?;
+
+    update_data(client, &keypair, mint_account, data)?;
+
+    Ok(())
+}
+
+pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) -> Result<()> {
+    let keypair = parse_keypair(keypair)?;
+
+    let path = Path::new(&data_dir).join("*.json");
+    let pattern = path.to_str().ok_or(anyhow!("Invalid directory path"))?;
+
+    let (paths, errors): (Vec<_>, Vec<_>) = glob(pattern)?.into_iter().partition(Result::is_ok);
+
+    let paths: Vec<_> = paths.into_iter().map(Result::unwrap).collect();
+    let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
+
+    paths.par_iter().for_each(|path| {
+        let f = match File::open(path) {
+            Ok(f) => f,
+            Err(e) => {
+                eprintln!("Failed to open file: {:?} error: {}", path, e);
+                return;
+            }
+        };
+
+        let update_nft_data: UpdateNFTData = match serde_json::from_reader(f) {
+            Ok(data) => data,
+            Err(e) => {
+                eprintln!(
+                    "Failed to parse JSON data from file: {:?} error: {}",
+                    path, e
+                );
+                return;
+            }
+        };
+
+        let data = match convert_local_to_remote_data(update_nft_data.nft_data) {
+            Ok(data) => data,
+            Err(e) => {
+                eprintln!(
+                    "Failed to convert local data to remote data: {:?} error: {}",
+                    path, e
+                );
+                return;
+            }
+        };
+
+        match update_data(client, &keypair, &update_nft_data.mint_account, data) {
+            Ok(_) => (),
+            Err(e) => {
+                eprintln!("Failed to update data: {:?} error: {}", path, e);
+                return;
+            }
+        }
+    });
+
+    // TODO: handle errors in a better way and log instead of print.
+    if !errors.is_empty() {
+        eprintln!("Failed to read some of the files with the following errors:");
+        for error in errors {
+            eprintln!("{}", error);
+        }
+    }
+
+    Ok(())
+}
+
+pub fn update_data(
+    client: &RpcClient,
+    keypair: &Keypair,
+    mint_account: &String,
+    data: Data,
+) -> Result<()> {
     let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint_pubkey = Pubkey::from_str(mint_account)?;
     let metadata_account = get_metadata_pda(mint_pubkey);
 
-    let f = File::open(json_file)?;
-    let new_data: NFTData = serde_json::from_reader(f)?;
-
     let update_authority = keypair.pubkey();
-
-    let data = convert_local_to_remote_data(new_data)?;
 
     let ix = update_metadata_accounts(
         program_id,
@@ -40,7 +118,7 @@ pub fn update_data(
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&update_authority),
-        &[&keypair],
+        &[keypair],
         recent_blockhash,
     );
 

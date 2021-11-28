@@ -115,7 +115,7 @@ pub fn sign_candy_machine_accounts(
         let metadata: Metadata = match try_from_slice_unchecked(&account.data.clone()) {
             Ok(metadata) => metadata,
             Err(_) => {
-                println!("Account {} has no metadata", metadata_pubkey);
+                eprintln!("Account {} has no metadata", metadata_pubkey);
                 return;
             }
         };
@@ -133,7 +133,7 @@ pub fn sign_candy_machine_accounts(
                     let sig = match sign(client, &signing_creator, *metadata_pubkey) {
                         Ok(sig) => sig,
                         Err(e) => {
-                            println!("Error signing: {}", e);
+                            eprintln!("Error signing: {}", e);
                             return;
                         }
                     };

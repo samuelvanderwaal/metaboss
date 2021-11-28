@@ -33,11 +33,11 @@ pub fn decode_metadata_all(
             Ok(m) => m,
             Err(err) => match err {
                 DecodeError::MissingAccount(account) => {
-                    println!("No account data found for mint account: {}!", account);
+                    eprintln!("No account data found for mint account: {}!", account);
                     return;
                 }
                 err => {
-                    println!(
+                    eprintln!(
                         "Failed to decode metadata for mint account: {}, error: {}",
                         mint_account, err
                     );
@@ -49,7 +49,7 @@ pub fn decode_metadata_all(
         let json_metadata = match decode_to_json(metadata) {
             Ok(j) => j,
             Err(err) => {
-                println!(
+                eprintln!(
                     "Failed to decode metadata to JSON for mint account: {}, error: {}",
                     mint_account, err
                 );
@@ -60,7 +60,7 @@ pub fn decode_metadata_all(
         let mut file = match File::create(format!("{}/{}.json", output, mint_account)) {
             Ok(f) => f,
             Err(err) => {
-                println!(
+                eprintln!(
                     "Failed to create JSON file for mint account: {}, error: {}",
                     mint_account, err
                 );
@@ -71,7 +71,7 @@ pub fn decode_metadata_all(
         match serde_json::to_writer(&mut file, &json_metadata) {
             Ok(_) => (),
             Err(err) => {
-                println!(
+                eprintln!(
                     "Failed to write JSON file for mint account: {}, error: {}",
                     mint_account, err
                 );
