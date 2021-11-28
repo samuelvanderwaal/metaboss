@@ -1,5 +1,6 @@
 use anyhow::Result;
 use metaplex_token_metadata::instruction::update_metadata_accounts;
+use rayon::prelude::*;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
 use std::{fs::File, str::FromStr};
@@ -170,7 +171,8 @@ pub fn set_update_authority_all(
     let file = File::open(json_file)?;
     let items: Vec<String> = serde_json::from_reader(file)?;
 
-    for item in items.iter() {
+    // for item in items.iter() {
+    items.par_iter().for_each(|item| {
         println!("Updating metadata for mint account: {}", item);
 
         // If someone uses a json list that contains a mint account that has already
@@ -181,6 +183,7 @@ pub fn set_update_authority_all(
                 println!("Error occurred! {}", error)
             }
         };
-    }
+    });
+
     Ok(())
 }
