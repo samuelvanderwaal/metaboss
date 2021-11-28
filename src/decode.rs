@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result as AnyResult};
 use metaplex_token_metadata::state::{Key, Metadata};
+use rayon::prelude::*;
 use serde::Serialize;
 use serde_json::{json, Value};
 use solana_client::rpc_client::RpcClient;
@@ -27,23 +28,57 @@ pub fn decode_metadata_all(
     let file = File::open(json_file)?;
     let mint_accounts: Vec<String> = serde_json::from_reader(file)?;
 
-    for mint_account in &mint_accounts {
+    mint_accounts.par_iter().for_each(|mint_account| {
         let metadata = match decode(client, mint_account) {
             Ok(m) => m,
             Err(err) => match err {
                 DecodeError::MissingAccount(account) => {
                     println!("No account data found for mint account: {}!", account);
-                    continue;
+                    return;
                 }
-                _ => return Err(anyhow!(err)),
+                err => {
+                    println!(
+                        "Failed to decode metadata for mint account: {}, error: {}",
+                        mint_account, err
+                    );
+                    return;
+                }
             },
         };
 
-        let json_metadata = decode_to_json(metadata)?;
+        let json_metadata = match decode_to_json(metadata) {
+            Ok(j) => j,
+            Err(err) => {
+                println!(
+                    "Failed to decode metadata to JSON for mint account: {}, error: {}",
+                    mint_account, err
+                );
+                return;
+            }
+        };
 
-        let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
-        serde_json::to_writer(&mut file, &json_metadata)?;
-    }
+        let mut file = match File::create(format!("{}/{}.json", output, mint_account)) {
+            Ok(f) => f,
+            Err(err) => {
+                println!(
+                    "Failed to create JSON file for mint account: {}, error: {}",
+                    mint_account, err
+                );
+                return;
+            }
+        };
+
+        match serde_json::to_writer(&mut file, &json_metadata) {
+            Ok(_) => (),
+            Err(err) => {
+                println!(
+                    "Failed to write JSON file for mint account: {}, error: {}",
+                    mint_account, err
+                );
+                return;
+            }
+        }
+    });
 
     Ok(())
 }
