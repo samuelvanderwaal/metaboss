@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result};
 use metaplex_token_metadata::{
     instruction::sign_metadata, state::Metadata, ID as METAPLEX_PROGRAM_ID,
 };
+use rayon::prelude::*;
 use solana_client::rpc_client::RpcClient;
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::{
@@ -10,7 +11,11 @@ use solana_sdk::{
     signer::{keypair::Keypair, Signer},
     transaction::Transaction,
 };
-use std::{fs::File, str::FromStr};
+use std::{
+    fs::File,
+    str::FromStr,
+    sync::{Arc, Mutex},
+};
 
 use crate::decode::get_metadata_pda;
 use crate::parse::{is_only_one_option, parse_keypair};
@@ -74,8 +79,15 @@ pub fn sign_mint_accounts(
     creator: &Keypair,
     mint_accounts: Vec<String>,
 ) -> Result<()> {
-    for mint_account in mint_accounts {
-        let account_pubkey = Pubkey::from_str(&mint_account)?;
+    mint_accounts.par_iter().for_each(|mint_account| {
+        let account_pubkey = match Pubkey::from_str(&mint_account) {
+            Ok(pubkey) => pubkey,
+            Err(err) => {
+                eprintln!("Invalid public key: {}, error: {}", mint_account, err);
+                return;
+            }
+        };
+
         let metadata_pubkey = get_metadata_pda(account_pubkey);
 
         // Try to sign all accounts, print any errors that crop up.
@@ -83,7 +95,7 @@ pub fn sign_mint_accounts(
             Ok(sig) => println!("{}", sig),
             Err(e) => println!("{}", e),
         }
-    }
+    });
 
     Ok(())
 }
@@ -95,11 +107,18 @@ pub fn sign_candy_machine_accounts(
 ) -> Result<()> {
     let accounts = get_cm_creator_accounts(client, candy_machine_id)?;
 
-    let mut signed_at_least_one_account = false;
-
     // Only sign accounts that have not been signed yet
-    for (metadata_pubkey, account) in &accounts {
-        let metadata: Metadata = try_from_slice_unchecked(&account.data.clone())?;
+    let signed_at_least_one_account = Arc::new(Mutex::new(false));
+
+    accounts.par_iter().for_each(|(metadata_pubkey, account)| {
+        let signed_at_least_one_account = signed_at_least_one_account.clone();
+        let metadata: Metadata = match try_from_slice_unchecked(&account.data.clone()) {
+            Ok(metadata) => metadata,
+            Err(_) => {
+                println!("Account {} has no metadata", metadata_pubkey);
+                return;
+            }
+        };
 
         if let Some(creators) = metadata.data.creators {
             // Check whether the specific creator has already signed the account
@@ -111,19 +130,26 @@ pub fn sign_candy_machine_accounts(
                     );
                     println!("Signing...");
 
-                    let sig = sign(client, &signing_creator, *metadata_pubkey)?;
+                    let sig = match sign(client, &signing_creator, *metadata_pubkey) {
+                        Ok(sig) => sig,
+                        Err(e) => {
+                            println!("Error signing: {}", e);
+                            return;
+                        }
+                    };
+
                     println!("{}", sig);
 
-                    signed_at_least_one_account = true;
+                    *signed_at_least_one_account.lock().unwrap() = true;
                 }
             }
         } else {
             // No creators for that token, nothing to sign.
-            continue;
+            return;
         }
-    }
+    });
 
-    if !signed_at_least_one_account {
+    if !*signed_at_least_one_account.lock().unwrap() {
         println!("No unverified metadata for this creator and candy machine.");
         return Ok(());
     }
