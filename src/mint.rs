@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use glob::glob;
 use metaplex_token_metadata::instruction::{create_master_edition, create_metadata_accounts};
+use rayon::prelude::*;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
     pubkey::Pubkey,
@@ -32,30 +33,34 @@ pub fn mint_list(
     let path = Path::new(&list_dir).join("*.json");
     let pattern = path.to_str().ok_or(anyhow!("Invalid directory path"))?;
 
-    for res in glob(pattern)? {
-        match res {
-            Ok(path) => {
-                let file_path = path.to_str().ok_or(anyhow!("Invalid directory path"))?;
-                mint_one(
-                    client,
-                    &keypair,
-                    &receiver,
-                    file_path.to_string(),
-                    immutable,
-                )?;
-            }
-            Err(e) => return Err(anyhow!("GlobError on path: {}", e)),
+    let (paths, errors): (Vec<_>, Vec<_>) = glob(pattern)?.into_iter().partition(Result::is_ok);
+
+    let paths: Vec<_> = paths.into_iter().map(Result::unwrap).collect();
+    let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
+
+    paths.par_iter().for_each(|path| {
+        match mint_one(client, &keypair, &receiver, path, immutable) {
+            Ok(_) => (),
+            Err(e) => println!("Failed to mint {:?}: {}", &path, e),
+        }
+    });
+
+    // TODO: handle errors in a better way and log instead of print.
+    if !errors.is_empty() {
+        println!("Failed to read some of the files with the following errors:");
+        for error in errors {
+            println!("{}", error);
         }
     }
 
     Ok(())
 }
 
-pub fn mint_one(
+pub fn mint_one<P: AsRef<Path>>(
     client: &RpcClient,
     keypair: &String,
     receiver: &Option<String>,
-    nft_data_file: String,
+    nft_data_file: P,
     immutable: bool,
 ) -> Result<()> {
     let keypair = parse_keypair(&keypair)?;

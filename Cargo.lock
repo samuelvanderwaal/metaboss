@@ -1555,6 +1555,7 @@ dependencies = [
  "bs58 0.4.0",
  "glob",
  "metaplex-token-metadata",
+ "num_cpus",
  "rayon",
  "reqwest",
  "serde",
