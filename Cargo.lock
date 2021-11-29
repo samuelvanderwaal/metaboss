@@ -1554,8 +1554,10 @@ dependencies = [
  "borsh",
  "bs58 0.4.0",
  "glob",
+ "lazy_static",
  "metaplex-token-metadata",
  "num_cpus",
+ "ratelimit",
  "rayon",
  "reqwest",
  "serde",
@@ -2155,6 +2157,12 @@ checksum = "d51e9f596de227fda2ea6c84607f5558e196eeaf43c986b724ba4fb8fdf497e7"
 dependencies = [
  "rand_core 0.6.3",
 ]
+
+[[package]]
+name = "ratelimit"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c4777eb47471c2a42bee8b553b22b8e5c496f657dc6f8b8e29bd69662f31e7e"
 
 [[package]]
 name = "rayon"

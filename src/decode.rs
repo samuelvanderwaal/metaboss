@@ -11,6 +11,7 @@ use std::str::FromStr;
 
 use crate::constants::*;
 use crate::errors::*;
+use crate::limiter::create_rate_limiter;
 use crate::parse::is_only_one_option;
 
 #[derive(Debug, Serialize)]
@@ -27,8 +28,18 @@ pub fn decode_metadata_all(
 ) -> AnyResult<()> {
     let file = File::open(json_file)?;
     let mint_accounts: Vec<String> = serde_json::from_reader(file)?;
+    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
 
+    let handle = create_rate_limiter();
+
+    println!("Decoding accounts...");
     mint_accounts.par_iter().for_each(|mint_account| {
+        let mut handle = handle.clone();
+
+        if use_rate_limit {
+            handle.wait();
+        }
+
         let metadata = match decode(client, mint_account) {
             Ok(m) => m,
             Err(err) => match err {
