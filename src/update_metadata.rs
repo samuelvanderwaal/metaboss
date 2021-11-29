@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use glob::glob;
+use indicatif::ParallelProgressIterator;
 use metaplex_token_metadata::{instruction::update_metadata_accounts, state::Data};
 use rayon::prelude::*;
 use solana_client::rpc_client::RpcClient;
@@ -43,7 +44,8 @@ pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) 
     let paths: Vec<_> = paths.into_iter().map(Result::unwrap).collect();
     let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
 
-    paths.par_iter().for_each(|path| {
+    println!("Updating...");
+    paths.par_iter().progress().for_each(|path| {
         let f = match File::open(path) {
             Ok(f) => f,
             Err(e) => {
@@ -280,8 +282,8 @@ pub fn set_update_authority_all(
     let file = File::open(json_file)?;
     let items: Vec<String> = serde_json::from_reader(file)?;
 
-    // for item in items.iter() {
-    items.par_iter().for_each(|item| {
+    println!("Setting update_authority...");
+    items.par_iter().progress().for_each(|item| {
         println!("Updating metadata for mint account: {}", item);
 
         // If someone uses a json list that contains a mint account that has already

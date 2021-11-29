@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use indicatif::ParallelProgressIterator;
 use metaplex_token_metadata::{
     instruction::sign_metadata, state::Metadata, ID as METAPLEX_PROGRAM_ID,
 };
@@ -79,23 +80,26 @@ pub fn sign_mint_accounts(
     creator: &Keypair,
     mint_accounts: Vec<String>,
 ) -> Result<()> {
-    mint_accounts.par_iter().for_each(|mint_account| {
-        let account_pubkey = match Pubkey::from_str(&mint_account) {
-            Ok(pubkey) => pubkey,
-            Err(err) => {
-                eprintln!("Invalid public key: {}, error: {}", mint_account, err);
-                return;
+    mint_accounts
+        .par_iter()
+        .progress()
+        .for_each(|mint_account| {
+            let account_pubkey = match Pubkey::from_str(&mint_account) {
+                Ok(pubkey) => pubkey,
+                Err(err) => {
+                    eprintln!("Invalid public key: {}, error: {}", mint_account, err);
+                    return;
+                }
+            };
+
+            let metadata_pubkey = get_metadata_pda(account_pubkey);
+
+            // Try to sign all accounts, print any errors that crop up.
+            match sign(client, &creator, metadata_pubkey) {
+                Ok(sig) => println!("{}", sig),
+                Err(e) => println!("{}", e),
             }
-        };
-
-        let metadata_pubkey = get_metadata_pda(account_pubkey);
-
-        // Try to sign all accounts, print any errors that crop up.
-        match sign(client, &creator, metadata_pubkey) {
-            Ok(sig) => println!("{}", sig),
-            Err(e) => println!("{}", e),
-        }
-    });
+        });
 
     Ok(())
 }
@@ -110,44 +114,47 @@ pub fn sign_candy_machine_accounts(
     // Only sign accounts that have not been signed yet
     let signed_at_least_one_account = Arc::new(Mutex::new(false));
 
-    accounts.par_iter().for_each(|(metadata_pubkey, account)| {
-        let signed_at_least_one_account = signed_at_least_one_account.clone();
-        let metadata: Metadata = match try_from_slice_unchecked(&account.data.clone()) {
-            Ok(metadata) => metadata,
-            Err(_) => {
-                eprintln!("Account {} has no metadata", metadata_pubkey);
+    accounts
+        .par_iter()
+        .progress()
+        .for_each(|(metadata_pubkey, account)| {
+            let signed_at_least_one_account = signed_at_least_one_account.clone();
+            let metadata: Metadata = match try_from_slice_unchecked(&account.data.clone()) {
+                Ok(metadata) => metadata,
+                Err(_) => {
+                    eprintln!("Account {} has no metadata", metadata_pubkey);
+                    return;
+                }
+            };
+
+            if let Some(creators) = metadata.data.creators {
+                // Check whether the specific creator has already signed the account
+                for creator in creators {
+                    if creator.address == signing_creator.pubkey() && !creator.verified {
+                        println!(
+                            "Found creator unverified for mint account: {}",
+                            metadata.mint
+                        );
+                        println!("Signing...");
+
+                        let sig = match sign(client, &signing_creator, *metadata_pubkey) {
+                            Ok(sig) => sig,
+                            Err(e) => {
+                                eprintln!("Error signing: {}", e);
+                                return;
+                            }
+                        };
+
+                        println!("{}", sig);
+
+                        *signed_at_least_one_account.lock().unwrap() = true;
+                    }
+                }
+            } else {
+                // No creators for that token, nothing to sign.
                 return;
             }
-        };
-
-        if let Some(creators) = metadata.data.creators {
-            // Check whether the specific creator has already signed the account
-            for creator in creators {
-                if creator.address == signing_creator.pubkey() && !creator.verified {
-                    println!(
-                        "Found creator unverified for mint account: {}",
-                        metadata.mint
-                    );
-                    println!("Signing...");
-
-                    let sig = match sign(client, &signing_creator, *metadata_pubkey) {
-                        Ok(sig) => sig,
-                        Err(e) => {
-                            eprintln!("Error signing: {}", e);
-                            return;
-                        }
-                    };
-
-                    println!("{}", sig);
-
-                    *signed_at_least_one_account.lock().unwrap() = true;
-                }
-            }
-        } else {
-            // No creators for that token, nothing to sign.
-            return;
-        }
-    });
+        });
 
     if !*signed_at_least_one_account.lock().unwrap() {
         println!("No unverified metadata for this creator and candy machine.");

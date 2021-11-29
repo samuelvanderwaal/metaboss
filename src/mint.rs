@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use glob::glob;
+use indicatif::ParallelProgressIterator;
 use metaplex_token_metadata::instruction::{create_master_edition, create_metadata_accounts};
 use rayon::prelude::*;
 use solana_client::rpc_client::RpcClient;
@@ -38,7 +39,7 @@ pub fn mint_list(
     let paths: Vec<_> = paths.into_iter().map(Result::unwrap).collect();
     let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
 
-    paths.par_iter().for_each(|path| {
+    paths.par_iter().progress().for_each(|path| {
         match mint_one(client, &keypair, &receiver, path, immutable) {
             Ok(_) => (),
             Err(e) => eprintln!("Failed to mint {:?}: {}", &path, e),

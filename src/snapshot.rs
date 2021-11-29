@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use indicatif::ParallelProgressIterator;
 use metaplex_token_metadata::state::Metadata;
 use metaplex_token_metadata::ID as TOKEN_METADATA_PROGRAM_ID;
 use rayon::prelude::*;
@@ -66,6 +67,7 @@ pub fn snapshot_mints(
         ));
     }
 
+    println!("Getting accounts...");
     let accounts = if let Some(ref update_authority) = update_authority {
         get_mints_by_update_authority(client, &update_authority)?
     } else if let Some(ref candy_machine_id) = candy_machine_id {
@@ -76,6 +78,7 @@ pub fn snapshot_mints(
         ));
     };
 
+    println!("Getting metadata and writing to file...");
     let mut mint_accounts: Vec<String> = Vec::new();
 
     for (_, account) in accounts {
@@ -106,6 +109,7 @@ pub fn snapshot_holders(
     candy_machine_id: &Option<String>,
     output: &String,
 ) -> Result<()> {
+    println!("Getting accounts...");
     let accounts = if let Some(update_authority) = update_authority {
         get_mints_by_update_authority(client, update_authority)?
     } else if let Some(candy_machine_id) = candy_machine_id {
@@ -116,75 +120,80 @@ pub fn snapshot_holders(
         ));
     };
 
+    println!("Finding current holders...");
     let nft_holders: Arc<Mutex<Vec<Holder>>> = Arc::new(Mutex::new(Vec::new()));
 
     // for (metadata_pubkey, account) in accounts {
-    accounts.par_iter().for_each(|(metadata_pubkey, account)| {
-        let nft_holders = nft_holders.clone();
+    accounts
+        .par_iter()
+        .progress()
+        .for_each(|(metadata_pubkey, account)| {
+            let nft_holders = nft_holders.clone();
 
-        let metadata: Metadata = match try_from_slice_unchecked(&account.data) {
-            Ok(metadata) => metadata,
-            Err(_) => {
-                eprintln!("Account {} has no metadata", metadata_pubkey);
-                return;
-            }
-        };
-
-        let token_accounts = match get_holder_token_accounts(client, metadata.mint.to_string()) {
-            Ok(token_accounts) => token_accounts,
-            Err(_) => {
-                eprintln!("Account {} has no token accounts", metadata_pubkey);
-                return;
-            }
-        };
-
-        for (associated_token_address, account) in token_accounts {
-            let data = match parse_account_data(
-                &metadata.mint,
-                &TOKEN_PROGRAM_ID,
-                &account.data,
-                Some(AccountAdditionalData {
-                    spl_token_decimals: Some(0),
-                }),
-            ) {
-                Ok(data) => data,
-                Err(err) => {
-                    eprintln!("Account {} has no data: {}", associated_token_address, err);
+            let metadata: Metadata = match try_from_slice_unchecked(&account.data) {
+                Ok(metadata) => metadata,
+                Err(_) => {
+                    eprintln!("Account {} has no metadata", metadata_pubkey);
                     return;
                 }
             };
 
-            let amount = match parse_token_amount(&data) {
-                Ok(amount) => amount,
-                Err(err) => {
-                    eprintln!(
-                        "Account {} has no amount: {}",
-                        associated_token_address, err
-                    );
+            let token_accounts = match get_holder_token_accounts(client, metadata.mint.to_string())
+            {
+                Ok(token_accounts) => token_accounts,
+                Err(_) => {
+                    eprintln!("Account {} has no token accounts", metadata_pubkey);
                     return;
                 }
             };
 
-            // Only include current holder of the NFT.
-            if amount == 1 {
-                let owner_wallet = match parse_owner(&data) {
-                    Ok(owner_wallet) => owner_wallet,
+            for (associated_token_address, account) in token_accounts {
+                let data = match parse_account_data(
+                    &metadata.mint,
+                    &TOKEN_PROGRAM_ID,
+                    &account.data,
+                    Some(AccountAdditionalData {
+                        spl_token_decimals: Some(0),
+                    }),
+                ) {
+                    Ok(data) => data,
                     Err(err) => {
-                        eprintln!("Account {} has no owner: {}", associated_token_address, err);
+                        eprintln!("Account {} has no data: {}", associated_token_address, err);
                         return;
                     }
                 };
-                let associated_token_address = associated_token_address.to_string();
-                let holder = Holder {
-                    owner_wallet,
-                    associated_token_address,
-                    mint_account: metadata.mint.to_string(),
-                    metadata_account: metadata_pubkey.to_string(),
+
+                let amount = match parse_token_amount(&data) {
+                    Ok(amount) => amount,
+                    Err(err) => {
+                        eprintln!(
+                            "Account {} has no amount: {}",
+                            associated_token_address, err
+                        );
+                        return;
+                    }
                 };
-                nft_holders.lock().unwrap().push(holder);
+
+                // Only include current holder of the NFT.
+                if amount == 1 {
+                    let owner_wallet = match parse_owner(&data) {
+                        Ok(owner_wallet) => owner_wallet,
+                        Err(err) => {
+                            eprintln!("Account {} has no owner: {}", associated_token_address, err);
+                            return;
+                        }
+                    };
+                    let associated_token_address = associated_token_address.to_string();
+                    let holder = Holder {
+                        owner_wallet,
+                        associated_token_address,
+                        mint_account: metadata.mint.to_string(),
+                        metadata_account: metadata_pubkey.to_string(),
+                    };
+                    nft_holders.lock().unwrap().push(holder);
+                }
             }
-        }
-    });
+        });
 
     let prefix = if let Some(update_authority) = update_authority {
         update_authority
