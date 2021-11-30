@@ -1,5 +1,8 @@
 use anyhow::{anyhow, Result as AnyResult};
+use indicatif::ParallelProgressIterator;
+use log::{debug, error, info};
 use metaplex_token_metadata::state::{Key, Metadata};
+use rayon::prelude::*;
 use serde::Serialize;
 use serde_json::{json, Value};
 use solana_client::rpc_client::RpcClient;
@@ -10,6 +13,7 @@ use std::str::FromStr;
 
 use crate::constants::*;
 use crate::errors::*;
+use crate::limiter::create_rate_limiter;
 use crate::parse::is_only_one_option;
 
 #[derive(Debug, Serialize)]
@@ -26,24 +30,83 @@ pub fn decode_metadata_all(
 ) -> AnyResult<()> {
     let file = File::open(json_file)?;
     let mint_accounts: Vec<String> = serde_json::from_reader(file)?;
+    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
 
-    for mint_account in &mint_accounts {
-        let metadata = match decode(client, mint_account) {
-            Ok(m) => m,
-            Err(err) => match err {
-                DecodeError::MissingAccount(account) => {
-                    println!("No account data found for mint account: {}!", account);
-                    continue;
+    let handle = create_rate_limiter();
+
+    info!("Decoding accounts...");
+    println!("Decoding accounts...");
+    mint_accounts
+        .par_iter()
+        .progress()
+        .for_each(|mint_account| {
+            let mut handle = handle.clone();
+
+            if use_rate_limit {
+                handle.wait();
+            }
+
+            debug!("Decoding metadata for mint account: {}", mint_account);
+            let metadata = match decode(client, mint_account) {
+                Ok(m) => m,
+                Err(err) => match err {
+                    DecodeError::ClientError(kind) => {
+                        error!("Client Error: {}!", kind);
+                        return;
+                    }
+                    DecodeError::PubkeyParseFailed(address) => {
+                        error!("Failed to parse pubkey from mint address: {}", address);
+                        return;
+                    }
+                    err => {
+                        error!(
+                            "Failed to decode metadata for mint account: {}, error: {}",
+                            mint_account, err
+                        );
+                        return;
+                    }
+                },
+            };
+
+            debug!(
+                "Converting metadata into JSON for mint account {}",
+                mint_account
+            );
+            let json_metadata = match decode_to_json(metadata) {
+                Ok(j) => j,
+                Err(err) => {
+                    error!(
+                        "Failed to decode metadata to JSON for mint account: {}, error: {}",
+                        mint_account, err
+                    );
+                    return;
                 }
-                _ => return Err(anyhow!(err)),
-            },
-        };
+            };
 
-        let json_metadata = decode_to_json(metadata)?;
+            debug!("Creating file for mint account: {}", mint_account);
+            let mut file = match File::create(format!("{}/{}.json", output, mint_account)) {
+                Ok(f) => f,
+                Err(err) => {
+                    error!(
+                        "Failed to create JSON file for mint account: {}, error: {}",
+                        mint_account, err
+                    );
+                    return;
+                }
+            };
 
-        let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
-        serde_json::to_writer(&mut file, &json_metadata)?;
-    }
+            debug!("Writing to file for mint account: {}", mint_account);
+            match serde_json::to_writer(&mut file, &json_metadata) {
+                Ok(_) => (),
+                Err(err) => {
+                    error!(
+                        "Failed to write JSON file for mint account: {}, error: {}",
+                        mint_account, err
+                    );
+                    return;
+                }
+            }
+        });
 
     Ok(())
 }
@@ -80,14 +143,14 @@ pub fn decode_metadata(
 pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {
     let pubkey = match Pubkey::from_str(&mint_account) {
         Ok(pubkey) => pubkey,
-        Err(_) => return Err(DecodeError::PubkeyParseFailed),
+        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.clone())),
     };
     let metadata_pda = get_metadata_pda(pubkey);
 
     let account_data = match client.get_account_data(&metadata_pda) {
         Ok(data) => data,
-        Err(_) => {
-            return Err(DecodeError::MissingAccount(mint_account.to_string()));
+        Err(err) => {
+            return Err(DecodeError::ClientError(err.kind));
         }
     };
 

@@ -1,3 +1,4 @@
+use solana_client::client_error::ClientErrorKind;
 use std::io;
 use thiserror::Error;
 
@@ -6,8 +7,11 @@ pub enum DecodeError {
     #[error("no account data found")]
     MissingAccount(String),
 
+    #[error("failed to get account data")]
+    ClientError(ClientErrorKind),
+
     #[error("failed to parse string into Pubkey")]
-    PubkeyParseFailed,
+    PubkeyParseFailed(String),
 
     #[error("failed to decode metadata")]
     DecodeMetadataFailed(String),

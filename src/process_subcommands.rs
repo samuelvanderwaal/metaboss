@@ -26,7 +26,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             receiver,
             nft_data_file,
             immutable,
-        } => mint_one(&client, &keypair, &receiver, nft_data_file, immutable),
+        } => mint_one(&client, &keypair, &receiver, &nft_data_file, immutable),
         MintSubcommands::List {
             keypair,
             receiver,
@@ -42,12 +42,18 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             keypair,
             account,
             new_data_file,
-        } => update_data(&client, &keypair, &account, &new_data_file),
+        } => update_data_one(&client, &keypair, &account, &new_data_file),
+        UpdateSubcommands::DataAll { keypair, data_dir } => {
+            update_data_all(&client, &keypair, &data_dir)
+        }
         UpdateSubcommands::Uri {
             keypair,
             account,
             new_uri,
-        } => update_uri(&client, &keypair, &account, &new_uri),
+        } => update_uri_one(&client, &keypair, &account, &new_uri),
+        UpdateSubcommands::UriAll { keypair, json_file } => {
+            update_uri_all(&client, &keypair, &json_file)
+        }
     }
 }
 

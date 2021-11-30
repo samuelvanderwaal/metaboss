@@ -818,6 +818,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "env_logger"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b2cf0344971ee6c64c31be0d530793fba457d322dfec2810c453d0ef228f9c3"
+dependencies = [
+ "atty",
+ "humantime",
+ "log",
+ "regex",
+ "termcolor",
+]
+
+[[package]]
 name = "failure"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1303,7 +1316,20 @@ checksum = "7baab56125e25686df467fe470785512329883aab42696d661247aca2a2896e4"
 dependencies = [
  "console 0.14.1",
  "lazy_static",
- "number_prefix",
+ "number_prefix 0.3.0",
+ "regex",
+]
+
+[[package]]
+name = "indicatif"
+version = "0.16.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d207dc617c7a380ab07ff572a6e52fa202a2a8f355860ac9c38e23f8196be1b"
+dependencies = [
+ "console 0.14.1",
+ "lazy_static",
+ "number_prefix 0.4.0",
+ "rayon",
  "regex",
 ]
 
@@ -1547,14 +1573,21 @@ dependencies = [
 
 [[package]]
 name = "metaboss"
-version = "0.2.3"
+version = "0.3.0-beta"
 dependencies = [
  "anyhow",
  "assert_cmd",
  "borsh",
  "bs58 0.4.0",
+ "env_logger 0.9.0",
  "glob",
+ "indicatif 0.16.2",
+ "lazy_static",
+ "log",
  "metaplex-token-metadata",
+ "num_cpus",
+ "ratelimit",
+ "rayon",
  "reqwest",
  "serde",
  "serde_json",
@@ -1755,6 +1788,12 @@ name = "number_prefix"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "17b02fc0ff9a9e4b35b3342880f48e896ebf69f2967921fe8646bf5b7125956a"
+
+[[package]]
+name = "number_prefix"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "830b246a0e5f20af87141b25c173cd1b609bd7779a4617d6ec582abaf90870f3"
 
 [[package]]
 name = "object"
@@ -2153,6 +2192,12 @@ checksum = "d51e9f596de227fda2ea6c84607f5558e196eeaf43c986b724ba4fb8fdf497e7"
 dependencies = [
  "rand_core 0.6.3",
 ]
+
+[[package]]
+name = "ratelimit"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c4777eb47471c2a42bee8b553b22b8e5c496f657dc6f8b8e29bd69662f31e7e"
 
 [[package]]
 name = "rayon"
@@ -2650,7 +2695,7 @@ dependencies = [
  "bincode",
  "bs58 0.3.1",
  "clap",
- "indicatif",
+ "indicatif 0.15.0",
  "jsonrpc-core",
  "log",
  "net2",
@@ -2792,7 +2837,7 @@ version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d0397bbbbf03e7a40db4d722d417d876e8b6cecb0cc4f757dbd82313bca33e54"
 dependencies = [
- "env_logger",
+ "env_logger 0.8.4",
  "lazy_static",
  "log",
 ]
@@ -2814,7 +2859,7 @@ version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca2af9cec93596c79479874772d974105c6ea388858f431d8defaa3f42d9da3c"
 dependencies = [
- "env_logger",
+ "env_logger 0.8.4",
  "gethostname",
  "lazy_static",
  "log",

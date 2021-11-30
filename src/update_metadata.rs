@@ -1,31 +1,114 @@
-use anyhow::Result;
-use metaplex_token_metadata::instruction::update_metadata_accounts;
+use anyhow::{anyhow, Result};
+use glob::glob;
+use indicatif::ParallelProgressIterator;
+use log::{error, info};
+use metaplex_token_metadata::{instruction::update_metadata_accounts, state::Data};
+use rayon::prelude::*;
 use solana_client::rpc_client::RpcClient;
-use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
-use std::{fs::File, str::FromStr};
+use solana_sdk::{
+    pubkey::Pubkey,
+    signer::{keypair::Keypair, Signer},
+    transaction::Transaction,
+};
+use std::{fs::File, path::Path, str::FromStr};
 
 use crate::constants::*;
-use crate::data::NFTData;
+use crate::data::{NFTData, UpdateNFTData, UpdateUriData};
 use crate::decode::{decode, get_metadata_pda};
 use crate::parse::{convert_local_to_remote_data, parse_keypair};
 
-pub fn update_data(
+pub fn update_data_one(
     client: &RpcClient,
     keypair: &String,
     mint_account: &String,
     json_file: &String,
 ) -> Result<()> {
     let keypair = parse_keypair(keypair)?;
+    let f = File::open(json_file)?;
+    let new_data: NFTData = serde_json::from_reader(f)?;
+
+    let data = convert_local_to_remote_data(new_data)?;
+
+    update_data(client, &keypair, mint_account, data)?;
+
+    Ok(())
+}
+
+pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) -> Result<()> {
+    let keypair = parse_keypair(keypair)?;
+
+    let path = Path::new(&data_dir).join("*.json");
+    let pattern = path.to_str().ok_or(anyhow!("Invalid directory path"))?;
+
+    let (paths, errors): (Vec<_>, Vec<_>) = glob(pattern)?.into_iter().partition(Result::is_ok);
+
+    let paths: Vec<_> = paths.into_iter().map(Result::unwrap).collect();
+    let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
+
+    info!("Updating...");
+    println!("Updating...");
+    paths.par_iter().progress().for_each(|path| {
+        let f = match File::open(path) {
+            Ok(f) => f,
+            Err(e) => {
+                error!("Failed to open file: {:?} error: {}", path, e);
+                return;
+            }
+        };
+
+        let update_nft_data: UpdateNFTData = match serde_json::from_reader(f) {
+            Ok(data) => data,
+            Err(e) => {
+                error!(
+                    "Failed to parse JSON data from file: {:?} error: {}",
+                    path, e
+                );
+                return;
+            }
+        };
+
+        let data = match convert_local_to_remote_data(update_nft_data.nft_data) {
+            Ok(data) => data,
+            Err(e) => {
+                error!(
+                    "Failed to convert local data to remote data: {:?} error: {}",
+                    path, e
+                );
+                return;
+            }
+        };
+
+        match update_data(client, &keypair, &update_nft_data.mint_account, data) {
+            Ok(_) => (),
+            Err(e) => {
+                error!("Failed to update data: {:?} error: {}", path, e);
+                return;
+            }
+        }
+    });
+
+    // TODO: handle errors in a better way and log instead of print.
+    if !errors.is_empty() {
+        error!("Failed to read some of the files with the following errors:");
+        for error in errors {
+            error!("{}", error);
+        }
+    }
+
+    Ok(())
+}
+
+pub fn update_data(
+    client: &RpcClient,
+    keypair: &Keypair,
+    mint_account: &String,
+    data: Data,
+) -> Result<()> {
     let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint_pubkey = Pubkey::from_str(mint_account)?;
     let metadata_account = get_metadata_pda(mint_pubkey);
 
-    let f = File::open(json_file)?;
-    let new_data: NFTData = serde_json::from_reader(f)?;
-
     let update_authority = keypair.pubkey();
-
-    let data = convert_local_to_remote_data(new_data)?;
 
     let ix = update_metadata_accounts(
         program_id,
@@ -39,25 +122,57 @@ pub fn update_data(
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&update_authority),
-        &[&keypair],
+        &[keypair],
         recent_blockhash,
     );
 
     let sig = client.send_and_confirm_transaction(&tx)?;
+    info!("Tx sig: {:?}", sig);
     println!("Tx sig: {:?}", sig);
 
     Ok(())
 }
 
-pub fn update_uri(
+pub fn update_uri_one(
     client: &RpcClient,
     keypair: &String,
     mint_account: &String,
     new_uri: &String,
 ) -> Result<()> {
     let keypair = parse_keypair(keypair)?;
-    let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
+
+    update_uri(client, &keypair, &mint_account, new_uri)?;
+
+    Ok(())
+}
+
+pub fn update_uri_all(client: &RpcClient, keypair: &String, json_file: &String) -> Result<()> {
+    let keypair = parse_keypair(keypair)?;
+
+    let f = File::open(json_file)?;
+    let update_uris: Vec<UpdateUriData> = serde_json::from_reader(f)?;
+
+    update_uris.par_iter().for_each(|data| {
+        match update_uri(client, &keypair, &data.mint_account, &data.new_uri) {
+            Ok(_) => (),
+            Err(e) => {
+                error!("Failed to update uri: {:?} error: {}", data, e);
+                return;
+            }
+        }
+    });
+
+    Ok(())
+}
+
+pub fn update_uri(
+    client: &RpcClient,
+    keypair: &Keypair,
+    mint_account: &String,
+    new_uri: &String,
+) -> Result<()> {
     let mint_pubkey = Pubkey::from_str(mint_account)?;
+    let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let update_authority = keypair.pubkey();
 
     let metadata_account = get_metadata_pda(mint_pubkey);
@@ -79,11 +194,12 @@ pub fn update_uri(
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&update_authority),
-        &[&keypair],
+        &[keypair],
         recent_blockhash,
     );
 
     let sig = client.send_and_confirm_transaction(&tx)?;
+    info!("Tx sig: {:?}", sig);
     println!("Tx sig: {:?}", sig);
 
     Ok(())
@@ -119,6 +235,7 @@ pub fn set_primary_sale_happened(
     );
 
     let sig = client.send_and_confirm_transaction(&tx)?;
+    info!("Tx sig: {:?}", sig);
     println!("Tx sig: {:?}", sig);
 
     Ok(())
@@ -156,6 +273,7 @@ pub fn set_update_authority(
     );
 
     let sig = client.send_and_confirm_transaction(&tx)?;
+    info!("Tx sig: {:?}", sig);
     println!("Tx sig: {:?}", sig);
 
     Ok(())
@@ -170,17 +288,19 @@ pub fn set_update_authority_all(
     let file = File::open(json_file)?;
     let items: Vec<String> = serde_json::from_reader(file)?;
 
-    for item in items.iter() {
-        println!("Updating metadata for mint account: {}", item);
+    info!("Setting update_authority...");
+    items.par_iter().progress().for_each(|item| {
+        info!("Updating metadata for mint account: {}", item);
 
         // If someone uses a json list that contains a mint account that has already
         //  been updated this will throw an error. We print that error and continue
         let _ = match set_update_authority(client, keypair, &item, &new_update_authority) {
             Ok(_) => {}
             Err(error) => {
-                println!("Error occurred! {}", error)
+                error!("Error occurred! {}", error)
             }
         };
-    }
+    });
+
     Ok(())
 }
