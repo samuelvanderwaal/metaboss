@@ -11,6 +11,10 @@ pub struct Opt {
     #[structopt(short, long, default_value = "60")]
     pub timeout: u64,
 
+    /// Log level
+    #[structopt(short, long, default_value = "warn")]
+    pub log_level: String,
+
     #[structopt(subcommand)]
     pub cmd: Command,
 }

@@ -9,4 +9,5 @@ pub mod parse;
 pub mod process_subcommands;
 pub mod sign;
 pub mod snapshot;
+pub mod spinner;
 pub mod update_metadata;

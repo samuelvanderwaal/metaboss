@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use glob::glob;
 use indicatif::ParallelProgressIterator;
+use log::{error, info};
 use metaplex_token_metadata::instruction::{create_master_edition, create_metadata_accounts};
 use rayon::prelude::*;
 use solana_client::rpc_client::RpcClient;
@@ -42,15 +43,15 @@ pub fn mint_list(
     paths.par_iter().progress().for_each(|path| {
         match mint_one(client, &keypair, &receiver, path, immutable) {
             Ok(_) => (),
-            Err(e) => eprintln!("Failed to mint {:?}: {}", &path, e),
+            Err(e) => error!("Failed to mint {:?}: {}", &path, e),
         }
     });
 
-    // TODO: handle errors in a better way and log instead of print.
+    // TODO: handle errors in a better way.
     if !errors.is_empty() {
-        eprintln!("Failed to read some of the files with the following errors:");
+        error!("Failed to read some of the files with the following errors:");
         for error in errors {
-            eprintln!("{}", error);
+            error!("{}", error);
         }
     }
 
@@ -77,6 +78,7 @@ pub fn mint_one<P: AsRef<Path>>(
 
     let (tx_id, mint_account) = mint(client, keypair, receiver, nft_data, immutable)?;
     println!("Tx id: {:?}\nMint account: {:?}", tx_id, mint_account);
+    info!("Tx id: {:?}\nMint account: {:?}", tx_id, mint_account);
 
     Ok(())
 }

@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result as AnyResult};
 use indicatif::ParallelProgressIterator;
+use log::{debug, error, info};
 use metaplex_token_metadata::state::{Key, Metadata};
 use rayon::prelude::*;
 use serde::Serialize;
@@ -33,6 +34,7 @@ pub fn decode_metadata_all(
 
     let handle = create_rate_limiter();
 
+    info!("Decoding accounts...");
     println!("Decoding accounts...");
     mint_accounts
         .par_iter()
@@ -44,19 +46,20 @@ pub fn decode_metadata_all(
                 handle.wait();
             }
 
+            debug!("Decoding metadata for mint account: {}", mint_account);
             let metadata = match decode(client, mint_account) {
                 Ok(m) => m,
                 Err(err) => match err {
                     DecodeError::ClientError(kind) => {
-                        eprintln!("Client Error: {}!", kind);
+                        error!("Client Error: {}!", kind);
                         return;
                     }
                     DecodeError::PubkeyParseFailed(address) => {
-                        eprintln!("Failed to parse pubkey from mint address: {}", address);
+                        error!("Failed to parse pubkey from mint address: {}", address);
                         return;
                     }
                     err => {
-                        eprintln!(
+                        error!(
                             "Failed to decode metadata for mint account: {}, error: {}",
                             mint_account, err
                         );
@@ -65,10 +68,14 @@ pub fn decode_metadata_all(
                 },
             };
 
+            debug!(
+                "Converting metadata into JSON for mint account {}",
+                mint_account
+            );
             let json_metadata = match decode_to_json(metadata) {
                 Ok(j) => j,
                 Err(err) => {
-                    eprintln!(
+                    error!(
                         "Failed to decode metadata to JSON for mint account: {}, error: {}",
                         mint_account, err
                     );
@@ -76,10 +83,11 @@ pub fn decode_metadata_all(
                 }
             };
 
+            debug!("Creating file for mint account: {}", mint_account);
             let mut file = match File::create(format!("{}/{}.json", output, mint_account)) {
                 Ok(f) => f,
                 Err(err) => {
-                    eprintln!(
+                    error!(
                         "Failed to create JSON file for mint account: {}, error: {}",
                         mint_account, err
                     );
@@ -87,10 +95,11 @@ pub fn decode_metadata_all(
                 }
             };
 
+            debug!("Writing to file for mint account: {}", mint_account);
             match serde_json::to_writer(&mut file, &json_metadata) {
                 Ok(_) => (),
                 Err(err) => {
-                    eprintln!(
+                    error!(
                         "Failed to write JSON file for mint account: {}, error: {}",
                         mint_account, err
                     );

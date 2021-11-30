@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use glob::glob;
 use indicatif::ParallelProgressIterator;
+use log::{error, info};
 use metaplex_token_metadata::{instruction::update_metadata_accounts, state::Data};
 use rayon::prelude::*;
 use solana_client::rpc_client::RpcClient;
@@ -44,12 +45,13 @@ pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) 
     let paths: Vec<_> = paths.into_iter().map(Result::unwrap).collect();
     let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
 
+    info!("Updating...");
     println!("Updating...");
     paths.par_iter().progress().for_each(|path| {
         let f = match File::open(path) {
             Ok(f) => f,
             Err(e) => {
-                eprintln!("Failed to open file: {:?} error: {}", path, e);
+                error!("Failed to open file: {:?} error: {}", path, e);
                 return;
             }
         };
@@ -57,7 +59,7 @@ pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) 
         let update_nft_data: UpdateNFTData = match serde_json::from_reader(f) {
             Ok(data) => data,
             Err(e) => {
-                eprintln!(
+                error!(
                     "Failed to parse JSON data from file: {:?} error: {}",
                     path, e
                 );
@@ -68,7 +70,7 @@ pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) 
         let data = match convert_local_to_remote_data(update_nft_data.nft_data) {
             Ok(data) => data,
             Err(e) => {
-                eprintln!(
+                error!(
                     "Failed to convert local data to remote data: {:?} error: {}",
                     path, e
                 );
@@ -79,7 +81,7 @@ pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) 
         match update_data(client, &keypair, &update_nft_data.mint_account, data) {
             Ok(_) => (),
             Err(e) => {
-                eprintln!("Failed to update data: {:?} error: {}", path, e);
+                error!("Failed to update data: {:?} error: {}", path, e);
                 return;
             }
         }
@@ -87,9 +89,9 @@ pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) 
 
     // TODO: handle errors in a better way and log instead of print.
     if !errors.is_empty() {
-        eprintln!("Failed to read some of the files with the following errors:");
+        error!("Failed to read some of the files with the following errors:");
         for error in errors {
-            eprintln!("{}", error);
+            error!("{}", error);
         }
     }
 
@@ -125,6 +127,7 @@ pub fn update_data(
     );
 
     let sig = client.send_and_confirm_transaction(&tx)?;
+    info!("Tx sig: {:?}", sig);
     println!("Tx sig: {:?}", sig);
 
     Ok(())
@@ -153,7 +156,7 @@ pub fn update_uri_all(client: &RpcClient, keypair: &String, json_file: &String) 
         match update_uri(client, &keypair, &data.mint_account, &data.new_uri) {
             Ok(_) => (),
             Err(e) => {
-                eprintln!("Failed to update uri: {:?} error: {}", data, e);
+                error!("Failed to update uri: {:?} error: {}", data, e);
                 return;
             }
         }
@@ -196,6 +199,7 @@ pub fn update_uri(
     );
 
     let sig = client.send_and_confirm_transaction(&tx)?;
+    info!("Tx sig: {:?}", sig);
     println!("Tx sig: {:?}", sig);
 
     Ok(())
@@ -231,6 +235,7 @@ pub fn set_primary_sale_happened(
     );
 
     let sig = client.send_and_confirm_transaction(&tx)?;
+    info!("Tx sig: {:?}", sig);
     println!("Tx sig: {:?}", sig);
 
     Ok(())
@@ -268,6 +273,7 @@ pub fn set_update_authority(
     );
 
     let sig = client.send_and_confirm_transaction(&tx)?;
+    info!("Tx sig: {:?}", sig);
     println!("Tx sig: {:?}", sig);
 
     Ok(())
@@ -282,16 +288,16 @@ pub fn set_update_authority_all(
     let file = File::open(json_file)?;
     let items: Vec<String> = serde_json::from_reader(file)?;
 
-    println!("Setting update_authority...");
+    info!("Setting update_authority...");
     items.par_iter().progress().for_each(|item| {
-        println!("Updating metadata for mint account: {}", item);
+        info!("Updating metadata for mint account: {}", item);
 
         // If someone uses a json list that contains a mint account that has already
         //  been updated this will throw an error. We print that error and continue
         let _ = match set_update_authority(client, keypair, &item, &new_update_authority) {
             Ok(_) => {}
             Err(error) => {
-                println!("Error occurred! {}", error)
+                error!("Error occurred! {}", error)
             }
         };
     });

@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use indicatif::ParallelProgressIterator;
+use log::{error, info};
 use metaplex_token_metadata::state::Metadata;
 use metaplex_token_metadata::ID as TOKEN_METADATA_PROGRAM_ID;
 use rayon::prelude::*;
@@ -28,6 +29,7 @@ use std::{
 
 use crate::constants::*;
 use crate::parse::is_only_one_option;
+use crate::spinner::*;
 
 #[derive(Debug, Serialize, Clone)]
 struct Holder {
@@ -67,7 +69,7 @@ pub fn snapshot_mints(
         ));
     }
 
-    println!("Getting accounts...");
+    let spinner = create_spinner("Getting accounts...");
     let accounts = if let Some(ref update_authority) = update_authority {
         get_mints_by_update_authority(client, &update_authority)?
     } else if let Some(ref candy_machine_id) = candy_machine_id {
@@ -77,7 +79,9 @@ pub fn snapshot_mints(
             "Please specify either a candy machine id or an update authority, but not both."
         ));
     };
+    spinner.finish();
 
+    info!("Getting metadata and writing to file...");
     println!("Getting metadata and writing to file...");
     let mut mint_accounts: Vec<String> = Vec::new();
 
@@ -109,7 +113,7 @@ pub fn snapshot_holders(
     candy_machine_id: &Option<String>,
     output: &String,
 ) -> Result<()> {
-    println!("Getting accounts...");
+    let spinner = create_spinner("Getting accounts...");
     let accounts = if let Some(update_authority) = update_authority {
         get_mints_by_update_authority(client, update_authority)?
     } else if let Some(candy_machine_id) = candy_machine_id {
@@ -119,11 +123,12 @@ pub fn snapshot_holders(
             "Must specify either --update-authority or --candy-machine-id"
         ));
     };
+    spinner.finish_with_message("Getting accounts...Done!");
 
+    info!("Finding current holders...");
     println!("Finding current holders...");
     let nft_holders: Arc<Mutex<Vec<Holder>>> = Arc::new(Mutex::new(Vec::new()));
 
-    // for (metadata_pubkey, account) in accounts {
     accounts
         .par_iter()
         .progress()
@@ -133,7 +138,7 @@ pub fn snapshot_holders(
             let metadata: Metadata = match try_from_slice_unchecked(&account.data) {
                 Ok(metadata) => metadata,
                 Err(_) => {
-                    eprintln!("Account {} has no metadata", metadata_pubkey);
+                    error!("Account {} has no metadata", metadata_pubkey);
                     return;
                 }
             };
@@ -142,7 +147,7 @@ pub fn snapshot_holders(
             {
                 Ok(token_accounts) => token_accounts,
                 Err(_) => {
-                    eprintln!("Account {} has no token accounts", metadata_pubkey);
+                    error!("Account {} has no token accounts", metadata_pubkey);
                     return;
                 }
             };
@@ -158,7 +163,7 @@ pub fn snapshot_holders(
                 ) {
                     Ok(data) => data,
                     Err(err) => {
-                        eprintln!("Account {} has no data: {}", associated_token_address, err);
+                        error!("Account {} has no data: {}", associated_token_address, err);
                         return;
                     }
                 };
@@ -166,7 +171,7 @@ pub fn snapshot_holders(
                 let amount = match parse_token_amount(&data) {
                     Ok(amount) => amount,
                     Err(err) => {
-                        eprintln!(
+                        error!(
                             "Account {} has no amount: {}",
                             associated_token_address, err
                         );
@@ -179,7 +184,7 @@ pub fn snapshot_holders(
                     let owner_wallet = match parse_owner(&data) {
                         Ok(owner_wallet) => owner_wallet,
                         Err(err) => {
-                            eprintln!("Account {} has no owner: {}", associated_token_address, err);
+                            error!("Account {} has no owner: {}", associated_token_address, err);
                             return;
                         }
                     };

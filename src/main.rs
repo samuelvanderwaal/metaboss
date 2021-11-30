@@ -1,4 +1,9 @@
+#[macro_use]
+extern crate log;
+
 use anyhow::Result;
+use env_logger::{Builder, Target};
+use log::LevelFilter;
 use metaboss::constants::PUBLIC_RPC_URLS;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
@@ -11,19 +16,30 @@ use metaboss::opt::*;
 use metaboss::parse::parse_solana_config;
 use metaboss::process_subcommands::*;
 
+fn setup_logging(log_level: String) -> Result<()> {
+    let level = LevelFilter::from_str(log_level.as_str())?;
+    Builder::new()
+        .filter_level(level)
+        .target(Target::Stdout)
+        .init();
+    Ok(())
+}
+
 fn main() -> Result<()> {
+    let options = Opt::from_args();
+
+    setup_logging(options.log_level)?;
+
     let sol_config = parse_solana_config();
 
     let (mut rpc, commitment) = if let Some(config) = sol_config {
         (config.json_rpc_url, config.commitment)
     } else {
-        eprintln!(
+        error!(
             "Could not find a valid Solana-CLI config file. Please specify a RPC manually with '-r' or set up your Solana-CLI config file."
         );
         std::process::exit(1);
     };
-
-    let options = Opt::from_args();
 
     if let Some(cli_rpc) = options.rpc {
         rpc = cli_rpc.clone();
@@ -31,10 +47,9 @@ fn main() -> Result<()> {
 
     // Set rate limiting if the user specified a public RPC.
     if PUBLIC_RPC_URLS.contains(&rpc.as_str()) {
-        eprintln!(
-            r#"
-            WARNING: Using a public RPC URL is not recommended for heavy tasks as you will be rate-limited and suffer a performance hit.
-            Please use a private RPC endpoint for best performance results."#
+        warn!(
+            "Using a public RPC URL is not recommended for heavy tasks as you will be rate-limited and suffer a performance hit.
+        Please use a private RPC endpoint for best performance results."
         );
         *USE_RATE_LIMIT.write().unwrap() = true;
     }
@@ -54,5 +69,6 @@ fn main() -> Result<()> {
         } => process_snapshot(&client, snapshot_subcommands)?,
     }
 
+    println!("Done!");
     Ok(())
 }
