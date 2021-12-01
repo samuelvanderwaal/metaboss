@@ -36,27 +36,6 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
     }
 }
 
-pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result<()> {
-    match commands {
-        UpdateSubcommands::Data {
-            keypair,
-            account,
-            new_data_file,
-        } => update_data_one(&client, &keypair, &account, &new_data_file),
-        UpdateSubcommands::DataAll { keypair, data_dir } => {
-            update_data_all(&client, &keypair, &data_dir)
-        }
-        UpdateSubcommands::Uri {
-            keypair,
-            account,
-            new_uri,
-        } => update_uri_one(&client, &keypair, &account, &new_uri),
-        UpdateSubcommands::UriAll { keypair, json_file } => {
-            update_uri_all(&client, &keypair, &json_file)
-        }
-    }
-}
-
 pub fn process_set(client: &RpcClient, commands: SetSubcommands) -> Result<()> {
     match commands {
         SetSubcommands::PrimarySaleHappened { keypair, account } => {
@@ -107,5 +86,26 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
             update_authority,
             output,
         } => snapshot_mints(&client, candy_machine_id, update_authority, output),
+    }
+}
+
+pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result<()> {
+    match commands {
+        UpdateSubcommands::Data {
+            keypair,
+            account,
+            new_data_file,
+        } => update_data_one(&client, &keypair, &account, &new_data_file),
+        UpdateSubcommands::DataAll { keypair, data_dir } => {
+            update_data_all(&client, &keypair, &data_dir)
+        }
+        UpdateSubcommands::Uri {
+            keypair,
+            account,
+            new_uri,
+        } => update_uri_one(&client, &keypair, &account, &new_uri),
+        UpdateSubcommands::UriAll { keypair, json_file } => {
+            update_uri_all(&client, &keypair, &json_file)
+        }
     }
 }

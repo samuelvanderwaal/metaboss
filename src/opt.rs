@@ -284,7 +284,7 @@ pub enum UpdateSubcommands {
         new_uri: String,
     },
     /// Update the metadata URI on a list of mint accounts
-    #[structopt(name = "uri")]
+    #[structopt(name = "uri-all")]
     UriAll {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
