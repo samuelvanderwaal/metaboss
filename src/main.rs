@@ -4,17 +4,17 @@ extern crate log;
 use anyhow::Result;
 use env_logger::{Builder, Target};
 use log::LevelFilter;
-use metaboss::constants::PUBLIC_RPC_URLS;
+use metaboss_lib::constants::PUBLIC_RPC_URLS;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
 use std::str::FromStr;
 use std::time::Duration;
 use structopt::StructOpt;
 
-use metaboss::constants::*;
-use metaboss::opt::*;
-use metaboss::parse::parse_solana_config;
-use metaboss::process_subcommands::*;
+use metaboss_lib::constants::*;
+use metaboss_lib::opt::*;
+use metaboss_lib::parse::parse_solana_config;
+use metaboss_lib::process_subcommands::*;
 
 fn setup_logging(log_level: String) -> Result<()> {
     let level = LevelFilter::from_str(log_level.as_str())?;
