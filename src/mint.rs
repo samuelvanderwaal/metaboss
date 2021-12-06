@@ -53,6 +53,19 @@ pub fn mint_list(
             immutable,
             primary_sale_happened,
         )?;
+    } else if let Some(external_metadata_uris) = external_metadata_uris {
+        mint_from_uris(
+            client,
+            keypair,
+            receiver,
+            external_metadata_uris,
+            immutable,
+            primary_sale_happened,
+        )?;
+    } else {
+        return Err(anyhow!(
+            "Either --list-dir or --external-metadata-uris must be specified"
+        ));
     }
 
     Ok(())
@@ -104,10 +117,13 @@ pub fn mint_from_uris(
     client: &RpcClient,
     keypair: String,
     receiver: Option<String>,
-    external_metadata_uris: Vec<String>,
+    external_metadata_uris_path: String,
     immutable: bool,
     primary_sale_happened: bool,
-) {
+) -> Result<()> {
+    let f = File::open(external_metadata_uris_path)?;
+    let external_metadata_uris: Vec<String> = serde_json::from_reader(f)?;
+
     external_metadata_uris
         .par_iter()
         .progress()
@@ -125,8 +141,9 @@ pub fn mint_from_uris(
                 Err(e) => error!("Failed to mint {:?}: {}", &uri, e),
             }
         });
-}
 
+    Ok(())
+}
 pub fn mint_one<P: AsRef<Path>>(
     client: &RpcClient,
     keypair: &String,
