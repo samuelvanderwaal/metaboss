@@ -93,7 +93,11 @@ pub enum MintSubcommands {
 
         /// On-chain formatted metadata for the new NFT
         #[structopt(short = "d", long)]
-        nft_data_file: String,
+        nft_data_file: Option<String>,
+
+        /// Link to external metadata to use to create the NFT
+        #[structopt(short = "u", long)]
+        external_metadata_uri: Option<String>,
 
         /// Mint the NFT with immutable data fields
         #[structopt(short, long)]
@@ -116,7 +120,11 @@ pub enum MintSubcommands {
 
         /// Directory of on-chain formatted metadata files for the new NFTs
         #[structopt(short = "d", long)]
-        nft_data_dir: String,
+        nft_data_dir: Option<String>,
+
+        /// List of external metadata links to use to create the NFTs
+        #[structopt(short = "u", long)]
+        external_metadata_uris: Option<String>,
 
         /// Mint the NFTs with immutable data fields
         #[structopt(short, long)]
