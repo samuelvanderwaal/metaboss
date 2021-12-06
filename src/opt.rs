@@ -98,6 +98,10 @@ pub enum MintSubcommands {
         /// Mint the NFT with immutable data fields
         #[structopt(short, long)]
         immutable: bool,
+
+        /// Mint the NFT with primary_sale_happened set to true
+        #[structopt(short, long)]
+        primary_sale_happened: bool,
     },
     #[structopt(name = "list")]
     /// Mint a list of NFTs from a directory of JSON files
@@ -117,6 +121,10 @@ pub enum MintSubcommands {
         /// Mint the NFTs with immutable data fields
         #[structopt(short, long)]
         immutable: bool,
+
+        /// Mint the NFTs with primary_sale_happened set to true
+        #[structopt(short, long)]
+        primary_sale_happened: bool,
     },
 }
 

@@ -26,13 +26,29 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             receiver,
             nft_data_file,
             immutable,
-        } => mint_one(&client, &keypair, &receiver, &nft_data_file, immutable),
+            primary_sale_happened,
+        } => mint_one(
+            &client,
+            &keypair,
+            &receiver,
+            &nft_data_file,
+            immutable,
+            primary_sale_happened,
+        ),
         MintSubcommands::List {
             keypair,
             receiver,
             nft_data_dir,
             immutable,
-        } => mint_list(&client, keypair, receiver, nft_data_dir, immutable),
+            primary_sale_happened,
+        } => mint_list(
+            &client,
+            keypair,
+            receiver,
+            nft_data_dir,
+            immutable,
+            primary_sale_happened,
+        ),
     }
 }
 

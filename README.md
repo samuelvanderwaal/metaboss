@@ -193,7 +193,9 @@ Displays list of commands and options for the program.
 
 ### Mint
 
-Mint new NFTs from JSON files.
+Mint new NFTs from JSON files. 
+
+For both subcommands the `--immutable` flag sets the NFT data to be immutable and the `--primary-sale-happened` flag sets the primary sale happened bool to true.
 
 #### Mint One
 
@@ -203,6 +205,10 @@ Mint a single NFT from a JSON file.
 
 ```bash
 metaboss mint one --keypair <KEYPAIR> --nft-data-file <PATH_TO_NFT_DATA_FILE> --receiver <RECEIVER_ADDRESS>
+```
+
+```bash
+metaboss mint one --keypair <KEYPAIR> --nft-data-file <PATH_TO_NFT_DATA_FILE> --receiver <RECEIVER_ADDRESS> --immutable --primary-sale-happened
 ```
 
 The JSON files should contain all the necessary data required to create an NFT's metadata fields. Creator `verified` fields must be false unless the creator is also the `keypair`.
@@ -235,6 +241,10 @@ Mint multiple NFTs from a list of JSON files.
 
 ```bash
 metaboss mint list --keypair <KEYPAIR> --nft-data-dir <PATH_TO_NFT_DATA_FILE> --receiver <RECEIVER_ADDRESS>
+```
+
+```bash
+metaboss mint list --keypair <KEYPAIR> --nft-data-dir <PATH_TO_NFT_DATA_FILE> --receiver <RECEIVER_ADDRESS> --immutable --primary-sale-happened
 ```
 
 This command functions the same as `mint one` except instead of a single JSON file, provide a path to a directory with multiple JSON files, one for each NFT to be minted.
