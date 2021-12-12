@@ -287,7 +287,7 @@ git checkout main
 <h5 id="usage-1"><a class="header" href="#usage-1">Usage</a></h5>
 <pre><code class="language-bash">metaboss mint one --keypair &lt;KEYPAIR&gt; --nft-data-file &lt;PATH_TO_NFT_DATA_FILE&gt; --receiver &lt;RECEIVER_ADDRESS&gt;
 </code></pre>
-<pre><code class="language-bash">metaboss mint one --keypair &lt;KEYPAIR&gt; --nft-data-file &lt;PATH_TO_NFT_DATA_FILE&gt; --receiver &lt;RECEIVER_ADDRESS&gt; --immutable --primary-sale-happened
+<pre><code class="language-bash">metaboss mint one --keypair &lt;KEYPAIR&gt; --external-metadata-uri &lt;EXTERNAL_METADATA_URI&gt; --receiver &lt;RECEIVER_ADDRESS&gt; --immutable --primary-sale-happened
 </code></pre>
 <p>The JSON files should contain all the necessary data required to create an NFT's metadata fields. Creator <code>verified</code> fields must be false unless the creator is also the <code>keypair</code>.</p>
 <p>Example JSON file:</p>
@@ -305,15 +305,17 @@ git checkout main
     ]
 }
 </code></pre>
+<p>The --external-metadata-uri option takes a URI to an external metadata file such as an Arweave link pointing to a JSON file.</p>
 <p>If <code>receiver</code> is set, the NFT will be minted directly to the receiver's address, otherwise it is minted to <code>keypair</code>. Observant users may note that with a simple bash script this allows airdrops to be deployed with Metaboss.</p>
 <h4 id="mint-list"><a class="header" href="#mint-list">Mint List</a></h4>
 <p>Mint multiple NFTs from a list of JSON files.</p>
 <h5 id="usage-2"><a class="header" href="#usage-2">Usage</a></h5>
 <pre><code class="language-bash">metaboss mint list --keypair &lt;KEYPAIR&gt; --nft-data-dir &lt;PATH_TO_NFT_DATA_FILE&gt; --receiver &lt;RECEIVER_ADDRESS&gt;
 </code></pre>
-<pre><code class="language-bash">metaboss mint list --keypair &lt;KEYPAIR&gt; --nft-data-dir &lt;PATH_TO_NFT_DATA_FILE&gt; --receiver &lt;RECEIVER_ADDRESS&gt; --immutable --primary-sale-happened
-</code></pre>
 <p>This command functions the same as <code>mint one</code> except instead of a single JSON file, provide a path to a directory with multiple JSON files, one for each NFT to be minted.</p>
+<pre><code class="language-bash">metaboss mint list --keypair &lt;KEYPAIR&gt; --external-metadata-uris &lt;PATH_TO_JSON_FILE&gt; --receiver &lt;RECEIVER_ADDRESS&gt; --immutable --primary-sale-happened
+</code></pre>
+<p>To mint from URIs provide the path to a JSON file containing a list of URIs.</p>
 <p>By default, new NFTs are minted as mutable, to make them immutable use the <code>--immutable</code> option.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="set"><a class="header" href="#set">Set</a></h2>
 <p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution.</strong></p>
