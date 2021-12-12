@@ -6,7 +6,7 @@ pub fn create_spinner(msg: &'static str) -> ProgressBar {
     spinner.set_style(
         ProgressStyle::default_spinner()
             .tick_strings(&["▹▹▹▹▹", "▸▹▹▹▹", "▹▸▹▹▹", "▹▹▸▹▹", "▹▹▹▸▹", "▹▹▹▹▸", ""])
-            .template("{spinner:.blue} {msg}"),
+            .template("{spinner:.blue}{msg}"),
     );
     spinner.set_message(msg);
     spinner

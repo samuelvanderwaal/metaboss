@@ -1,11 +1,12 @@
 use anyhow::{anyhow, Result};
 use glob::glob;
-use indicatif::ParallelProgressIterator;
 use log::{error, info};
 use metaplex_token_metadata::instruction::{
     create_master_edition, create_metadata_accounts, update_metadata_accounts,
 };
 use rayon::prelude::*;
+use reqwest;
+use serde_json::Value;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
     pubkey::Pubkey,
@@ -22,12 +23,54 @@ use spl_token::{
 use std::{fs::File, path::Path, str::FromStr};
 
 use crate::data::NFTData;
-use crate::parse::parse_keypair;
+use crate::parse::*;
 use crate::{constants::*, parse::convert_local_to_remote_data};
 
 const MINT_LAYOUT: u64 = 82;
 
 pub fn mint_list(
+    client: &RpcClient,
+    keypair: String,
+    receiver: Option<String>,
+    list_dir: Option<String>,
+    external_metadata_uris: Option<String>,
+    immutable: bool,
+    primary_sale_happened: bool,
+) -> Result<()> {
+    if !is_only_one_option(&list_dir, &external_metadata_uris) {
+        return Err(anyhow!(
+            "Only one of --list-dir or --external-metadata-uris can be specified"
+        ));
+    }
+
+    if let Some(list_dir) = list_dir {
+        mint_from_files(
+            client,
+            keypair,
+            receiver,
+            list_dir,
+            immutable,
+            primary_sale_happened,
+        )?;
+    } else if let Some(external_metadata_uris) = external_metadata_uris {
+        mint_from_uris(
+            client,
+            keypair,
+            receiver,
+            external_metadata_uris,
+            immutable,
+            primary_sale_happened,
+        )?;
+    } else {
+        return Err(anyhow!(
+            "Either --list-dir or --external-metadata-uris must be specified"
+        ));
+    }
+
+    Ok(())
+}
+
+pub fn mint_from_files(
     client: &RpcClient,
     keypair: String,
     receiver: Option<String>,
@@ -43,12 +86,13 @@ pub fn mint_list(
     let paths: Vec<_> = paths.into_iter().map(Result::unwrap).collect();
     let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
 
-    paths.par_iter().progress().for_each(|path| {
+    paths.par_iter().for_each(|path| {
         match mint_one(
             client,
             &keypair,
             &receiver,
-            path,
+            Some(path),
+            None,
             immutable,
             primary_sale_happened,
         ) {
@@ -68,14 +112,52 @@ pub fn mint_list(
     Ok(())
 }
 
+pub fn mint_from_uris(
+    client: &RpcClient,
+    keypair: String,
+    receiver: Option<String>,
+    external_metadata_uris_path: String,
+    immutable: bool,
+    primary_sale_happened: bool,
+) -> Result<()> {
+    let f = File::open(external_metadata_uris_path)?;
+    let external_metadata_uris: Vec<String> = serde_json::from_reader(f)?;
+
+    external_metadata_uris
+        .par_iter()
+        // .progress()
+        .for_each(|uri| {
+            match mint_one(
+                client,
+                &keypair,
+                &receiver,
+                None::<String>,
+                Some(uri),
+                immutable,
+                primary_sale_happened,
+            ) {
+                Ok(_) => (),
+                Err(e) => error!("Failed to mint {:?}: {}", &uri, e),
+            }
+        });
+
+    Ok(())
+}
 pub fn mint_one<P: AsRef<Path>>(
     client: &RpcClient,
     keypair: &String,
     receiver: &Option<String>,
-    nft_data_file: P,
+    nft_data_file: Option<P>,
+    external_metadata_uri: Option<&String>,
     immutable: bool,
     primary_sale_happened: bool,
 ) -> Result<()> {
+    if !is_only_one_option(&nft_data_file, &external_metadata_uri) {
+        return Err(anyhow!(
+            "You must supply either --nft_data_file or --external-metadata-uris but not both"
+        ));
+    }
+
     let keypair = parse_keypair(&keypair)?;
 
     let receiver = if let Some(address) = receiver {
@@ -84,8 +166,32 @@ pub fn mint_one<P: AsRef<Path>>(
         keypair.pubkey()
     };
 
-    let f = File::open(nft_data_file)?;
-    let nft_data: NFTData = serde_json::from_reader(f)?;
+    let nft_data: NFTData = if let Some(nft_data_file) = nft_data_file {
+        let f = File::open(nft_data_file)?;
+        serde_json::from_reader(f)?
+    } else if let Some(external_metadata_uri) = external_metadata_uri {
+        let body: Value = reqwest::blocking::get(external_metadata_uri)?.json()?;
+        let creators_json = body
+            .get("properties")
+            .ok_or_else(|| anyhow!("Bad JSON"))?
+            .get("creators")
+            .ok_or_else(|| anyhow!("Bad JSON"))?;
+        let name = parse_name(&body)?;
+        let creators = parse_creators(&creators_json)?;
+        let symbol = parse_symbol(&body)?;
+        let seller_fee_basis_points = parse_seller_fee_basis_points(&body)?;
+        NFTData {
+            name,
+            symbol,
+            creators: Some(creators),
+            uri: external_metadata_uri.to_string(),
+            seller_fee_basis_points,
+        }
+    } else {
+        return Err(anyhow!(
+            "You must supply either --nft_data_file or --external-metadata-uris but not both"
+        ));
+    };
 
     let (tx_id, mint_account) = mint(
         client,
@@ -95,8 +201,9 @@ pub fn mint_one<P: AsRef<Path>>(
         immutable,
         primary_sale_happened,
     )?;
-    println!("Tx id: {:?}\nMint account: {:?}", tx_id, mint_account);
-    info!("Tx id: {:?}\nMint account: {:?}", tx_id, mint_account);
+    info!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account);
+    let message = format!("Tx id: {:?}\nMint account: {:?}!", &tx_id, &mint_account,);
+    println!("{}", message);
 
     Ok(())
 }

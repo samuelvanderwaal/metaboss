@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use metaplex_token_metadata::state::{Creator, Data};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::keypair::Keypair;
 use std::{env, fs, path::Path, str::FromStr};
@@ -64,6 +65,62 @@ fn convert_creator(c: &NFTCreator) -> Result<Creator> {
     })
 }
 
+pub fn parse_creators(creators_json: &Value) -> Result<Vec<NFTCreator>> {
+    let mut creators = Vec::new();
+
+    for creator in creators_json
+        .as_array()
+        .ok_or(anyhow!("Invalid creators array!"))?
+    {
+        let address = creator
+            .get("address")
+            .ok_or(anyhow!("Invalid address!"))?
+            .as_str()
+            .ok_or(anyhow!("Invalid address!"))?
+            .to_string();
+        let share = creator
+            .get("share")
+            .ok_or(anyhow!("Invalid share!"))?
+            .as_u64()
+            .ok_or(anyhow!("Invalid share!"))? as u8;
+        creators.push(NFTCreator {
+            address,
+            verified: false,
+            share,
+        });
+    }
+    Ok(creators)
+}
+
+pub fn parse_name(body: &Value) -> Result<String> {
+    let name = body
+        .get("name")
+        .ok_or(anyhow!("Invalid name!"))?
+        .as_str()
+        .ok_or(anyhow!("Invalid name!"))?
+        .to_string();
+    Ok(name)
+}
+
+pub fn parse_symbol(body: &Value) -> Result<String> {
+    let symbol = body
+        .get("symbol")
+        .ok_or(anyhow!("Invalid symbol!"))?
+        .as_str()
+        .ok_or(anyhow!("Invalid symbol!"))?
+        .to_string();
+    Ok(symbol)
+}
+
+pub fn parse_seller_fee_basis_points(body: &Value) -> Result<u16> {
+    let seller_fee_basis_points =
+        body.get("seller_fee_basis_points")
+            .ok_or(anyhow!("Invalid seller_fee_basis_points!"))?
+            .as_u64()
+            .ok_or(anyhow!("Invalid seller_fee_basis_points!"))? as u16;
+    Ok(seller_fee_basis_points)
+}
+
 pub fn convert_local_to_remote_data(local: NFTData) -> Result<Data> {
     let creators = local
         .creators
@@ -82,7 +139,7 @@ pub fn convert_local_to_remote_data(local: NFTData) -> Result<Data> {
     Ok(data)
 }
 
-pub fn is_only_one_option<T>(option1: &Option<T>, option2: &Option<T>) -> bool {
+pub fn is_only_one_option<T, U>(option1: &Option<T>, option2: &Option<U>) -> bool {
     match (option1, option2) {
         (Some(_), None) | (None, Some(_)) => true,
         (Some(_), Some(_)) => false,
