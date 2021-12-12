@@ -1,6 +1,5 @@
 use anyhow::{anyhow, Result};
 use glob::glob;
-use indicatif::ParallelProgressIterator;
 use log::{error, info};
 use metaplex_token_metadata::instruction::{
     create_master_edition, create_metadata_accounts, update_metadata_accounts,
@@ -87,7 +86,7 @@ pub fn mint_from_files(
     let paths: Vec<_> = paths.into_iter().map(Result::unwrap).collect();
     let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
 
-    paths.par_iter().progress().for_each(|path| {
+    paths.par_iter().for_each(|path| {
         match mint_one(
             client,
             &keypair,
@@ -126,7 +125,7 @@ pub fn mint_from_uris(
 
     external_metadata_uris
         .par_iter()
-        .progress()
+        // .progress()
         .for_each(|uri| {
             match mint_one(
                 client,
@@ -202,8 +201,9 @@ pub fn mint_one<P: AsRef<Path>>(
         immutable,
         primary_sale_happened,
     )?;
-    println!("Tx id: {:?}\nMint account: {:?}", tx_id, mint_account);
-    info!("Tx id: {:?}\nMint account: {:?}", tx_id, mint_account);
+    info!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account);
+    let message = format!("Tx id: {:?}\nMint account: {:?}!", &tx_id, &mint_account,);
+    println!("{}", message);
 
     Ok(())
 }
