@@ -32,18 +32,18 @@ fn main() -> Result<()> {
 
     let sol_config = parse_solana_config();
 
-    let (mut rpc, commitment) = if let Some(config) = sol_config {
-        (config.json_rpc_url, config.commitment)
+    let (rpc, commitment) = if let Some(cli_rpc) = options.rpc {
+        (cli_rpc.clone(), String::from("confirmed"))
     } else {
-        error!(
+        if let Some(config) = sol_config {
+            (config.json_rpc_url, config.commitment)
+        } else {
+            error!(
             "Could not find a valid Solana-CLI config file. Please specify a RPC manually with '-r' or set up your Solana-CLI config file."
         );
-        std::process::exit(1);
+            std::process::exit(1);
+        }
     };
-
-    if let Some(cli_rpc) = options.rpc {
-        rpc = cli_rpc.clone();
-    }
 
     // Set rate limiting if the user specified a public RPC.
     if PUBLIC_RPC_URLS.contains(&rpc.as_str()) {
