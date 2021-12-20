@@ -273,7 +273,7 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         new_data_file: String,
     },
-    /// UPdate the data struct on a list of NFTs
+    /// Update the data struct on a list of NFTs
     #[structopt(name = "data-all")]
     DataAll {
         /// Path to the creator's keypair file
