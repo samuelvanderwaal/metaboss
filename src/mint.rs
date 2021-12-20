@@ -6,6 +6,7 @@ use metaplex_token_metadata::instruction::{
 };
 use rayon::prelude::*;
 use reqwest;
+use retry::{delay::Fixed, retry};
 use serde_json::Value;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
@@ -335,7 +336,11 @@ pub fn mint(
         recent_blockhash,
     );
 
-    let tx_id = client.send_and_confirm_transaction(&tx)?;
+    // Send tx with retries.
+    let res = retry(Fixed::from_millis(100), || {
+        client.send_and_confirm_transaction(&tx)
+    });
+    let sig = res?;
 
-    Ok((tx_id, mint.pubkey()))
+    Ok((sig, mint.pubkey()))
 }

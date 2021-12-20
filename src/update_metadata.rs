@@ -4,6 +4,7 @@ use indicatif::ParallelProgressIterator;
 use log::{error, info};
 use metaplex_token_metadata::{instruction::update_metadata_accounts, state::Data};
 use rayon::prelude::*;
+use retry::{delay::Fixed, retry};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
     pubkey::Pubkey,
@@ -126,7 +127,12 @@ pub fn update_data(
         recent_blockhash,
     );
 
-    let sig = client.send_and_confirm_transaction(&tx)?;
+    // Send tx with retries.
+    let res = retry(Fixed::from_millis(100), || {
+        client.send_and_confirm_transaction(&tx)
+    });
+    let sig = res?;
+
     info!("Tx sig: {:?}", sig);
     println!("Tx sig: {:?}", sig);
 
