@@ -23,7 +23,7 @@ Features:
 
 -   Get a snapshot of current NFT holders for a given candy machine ID or update authority
 
-... and more! See the [docs](https://vanderwaal.dev/metaboss/) for full features and usage instructions.
+... and more! See the [docs](https://metaboss.rs) for full features and usage instructions.
 
 
 Suggestions and PRs welcome!
