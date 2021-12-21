@@ -28,7 +28,7 @@ use std::{
 };
 
 use crate::constants::*;
-use crate::parse::is_only_one_option;
+use crate::parse::{first_creator_is_verified, is_only_one_option};
 use crate::spinner::*;
 
 #[derive(Debug, Serialize, Clone)]
@@ -88,7 +88,9 @@ pub fn snapshot_mints(
     for (_, account) in accounts {
         let metadata: Metadata = try_from_slice_unchecked(&account.data)?;
 
-        mint_accounts.push(metadata.mint.to_string());
+        if first_creator_is_verified(&metadata.data.creators) {
+            mint_accounts.push(metadata.mint.to_string());
+        }
     }
 
     let prefix = if let Some(update_authority) = update_authority {
@@ -142,6 +144,11 @@ pub fn snapshot_holders(
                     return;
                 }
             };
+
+            // Check that first creator is verified
+            if !first_creator_is_verified(&metadata.data.creators) {
+                return;
+            }
 
             let token_accounts = match get_holder_token_accounts(client, metadata.mint.to_string())
             {

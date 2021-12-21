@@ -15,6 +15,16 @@ pub struct SolanaConfig {
     pub commitment: String,
 }
 
+pub fn first_creator_is_verified(creators_opt: &Option<Vec<Creator>>) -> bool {
+    // Only add mints with a verified creator.
+    if let Some(creators) = creators_opt {
+        if creators[0].verified {
+            return true;
+        }
+    }
+    false
+}
+
 pub fn parse_keypair(path: &String) -> Result<Keypair> {
     let secret_string = fs::read_to_string(path).context("Can't find key file")?;
 
