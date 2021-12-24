@@ -1,6 +1,7 @@
 pub mod constants;
 pub mod data;
 pub mod decode;
+pub mod derive;
 pub mod errors;
 pub mod limiter;
 pub mod mint;

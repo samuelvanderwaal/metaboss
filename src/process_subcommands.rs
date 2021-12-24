@@ -2,6 +2,7 @@ use anyhow::Result;
 use solana_client::rpc_client::RpcClient;
 
 use crate::decode::decode_metadata;
+use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
 use crate::mint::{mint_list, mint_one};
 use crate::opt::*;
 use crate::sign::{sign_all, sign_one};
@@ -17,6 +18,15 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
         } => decode_metadata(client, account.as_ref(), list_file.as_ref(), output)?,
     }
     Ok(())
+}
+
+pub fn process_derive(commands: DeriveSubcommands) {
+    match commands {
+        DeriveSubcommands::Pda { seeds, program_id } => get_generic_pda(seeds, program_id),
+        DeriveSubcommands::Metadata { mint_account } => get_metadata_pda(mint_account),
+        DeriveSubcommands::Edition { mint_account } => get_edition_pda(mint_account),
+        DeriveSubcommands::CMV2Creator { candy_machine_id } => get_cmv2_pda(candy_machine_id),
+    }
 }
 
 pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()> {
@@ -95,8 +105,9 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
         SnapshotSubcommands::Holders {
             update_authority,
             candy_machine_id,
+            v2,
             output,
-        } => snapshot_holders(&client, &update_authority, &candy_machine_id, &output),
+        } => snapshot_holders(&client, &update_authority, &candy_machine_id, v2, &output),
         SnapshotSubcommands::CMAccounts {
             update_authority,
             output,
@@ -104,8 +115,9 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
         SnapshotSubcommands::Mints {
             candy_machine_id,
             update_authority,
+            v2,
             output,
-        } => snapshot_mints(&client, candy_machine_id, update_authority, output),
+        } => snapshot_mints(&client, candy_machine_id, update_authority, v2, output),
     }
 }
 

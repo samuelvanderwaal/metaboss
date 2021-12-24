@@ -27,6 +27,11 @@ pub enum Command {
         #[structopt(subcommand)]
         decode_subcommands: DecodeSubcommands,
     },
+    /// Derive PDAs for various account types
+    Derive {
+        #[structopt(subcommand)]
+        derive_subcommands: DeriveSubcommands,
+    },
     /// Mint new NFTs from JSON files
     #[structopt(name = "mint")]
     Mint {
@@ -76,6 +81,27 @@ pub enum DecodeSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum DeriveSubcommands {
+    /// Derive generic PDA from seeds and program id
+    #[structopt(name = "pda")]
+    Pda {
+        /// Seeds to derive PDA from
+        seeds: String,
+        /// Program id to derive PDA from
+        program_id: String,
+    },
+    /// Derive Metadata PDA
+    #[structopt(name = "metadata")]
+    Metadata { mint_account: String },
+    /// Derive Edition PDA
+    #[structopt(name = "edition")]
+    Edition { mint_account: String },
+    /// Derive CMV2 PDA
+    #[structopt(name = "cmv2-creator")]
+    CMV2Creator { candy_machine_id: String },
 }
 
 #[derive(Debug, StructOpt)]
@@ -224,6 +250,10 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long)]
         candy_machine_id: Option<String>,
 
+        /// Candy machine v2 id
+        #[structopt(long = "v2")]
+        v2: bool,
+
         /// Path to directory to save output files.
         #[structopt(short, long, default_value = ".")]
         output: String,
@@ -249,6 +279,10 @@ pub enum SnapshotSubcommands {
         /// Update authority to filter accounts by.
         #[structopt(short, long)]
         update_authority: Option<String>,
+
+        /// Candy machine v2 id
+        #[structopt(long = "v2")]
+        v2: bool,
 
         /// Path to directory to save output file
         #[structopt(short, long, default_value = ".")]

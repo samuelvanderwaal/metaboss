@@ -6,7 +6,7 @@ use metaplex_token_metadata::instruction::{
 };
 use rayon::prelude::*;
 use reqwest;
-use retry::{delay::Fixed, retry};
+use retry::{delay::Exponential, retry};
 use serde_json::Value;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
@@ -203,7 +203,7 @@ pub fn mint_one<P: AsRef<Path>>(
         primary_sale_happened,
     )?;
     info!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account);
-    let message = format!("Tx id: {:?}\nMint account: {:?}!", &tx_id, &mint_account,);
+    let message = format!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account,);
     println!("{}", message);
 
     Ok(())
@@ -337,9 +337,10 @@ pub fn mint(
     );
 
     // Send tx with retries.
-    let res = retry(Fixed::from_millis(100), || {
-        client.send_and_confirm_transaction(&tx)
-    });
+    let res = retry(
+        Exponential::from_millis_with_factor(250, 2.0).take(3),
+        || client.send_and_confirm_transaction(&tx),
+    );
     let sig = res?;
 
     Ok((sig, mint.pubkey()))

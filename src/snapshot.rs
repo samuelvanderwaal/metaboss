@@ -4,6 +4,7 @@ use log::{error, info};
 use metaplex_token_metadata::state::Metadata;
 use metaplex_token_metadata::ID as TOKEN_METADATA_PROGRAM_ID;
 use rayon::prelude::*;
+use retry::{delay::Exponential, retry};
 use serde::Serialize;
 use solana_account_decoder::{
     parse_account_data::{parse_account_data, AccountAdditionalData, ParsedAccount},
@@ -28,6 +29,7 @@ use std::{
 };
 
 use crate::constants::*;
+use crate::derive::derive_cmv2_pda;
 use crate::parse::is_only_one_option;
 use crate::spinner::*;
 
@@ -61,6 +63,7 @@ pub fn snapshot_mints(
     client: &RpcClient,
     candy_machine_id: Option<String>,
     update_authority: Option<String>,
+    v2: bool,
     output: String,
 ) -> Result<()> {
     if !is_only_one_option(&candy_machine_id, &update_authority) {
@@ -73,7 +76,15 @@ pub fn snapshot_mints(
     let accounts = if let Some(ref update_authority) = update_authority {
         get_mints_by_update_authority(client, &update_authority)?
     } else if let Some(ref candy_machine_id) = candy_machine_id {
-        get_cm_creator_accounts(client, &candy_machine_id)?
+        // Support v2 cm ids
+        if v2 {
+            let cm_pubkey = Pubkey::from_str(&candy_machine_id)
+                .expect("Failed to parse pubkey from candy_machine_id!");
+            let cmv2_id = derive_cmv2_pda(&cm_pubkey);
+            get_cm_creator_accounts(client, &cmv2_id.to_string())?
+        } else {
+            get_cm_creator_accounts(client, &candy_machine_id)?
+        }
     } else {
         return Err(anyhow!(
             "Please specify either a candy machine id or an update authority, but not both."
@@ -111,13 +122,22 @@ pub fn snapshot_holders(
     client: &RpcClient,
     update_authority: &Option<String>,
     candy_machine_id: &Option<String>,
+    v2: bool,
     output: &String,
 ) -> Result<()> {
     let spinner = create_spinner("Getting accounts...");
     let accounts = if let Some(update_authority) = update_authority {
         get_mints_by_update_authority(client, update_authority)?
     } else if let Some(candy_machine_id) = candy_machine_id {
-        get_cm_creator_accounts(client, candy_machine_id)?
+        // Support v2 cm ids
+        if v2 {
+            let cm_pubkey = Pubkey::from_str(&candy_machine_id)
+                .expect("Failed to parse pubkey from candy_machine_id!");
+            let cmv2_id = derive_cmv2_pda(&cm_pubkey);
+            get_cm_creator_accounts(client, &cmv2_id.to_string())?
+        } else {
+            get_cm_creator_accounts(client, &candy_machine_id)?
+        }
     } else {
         return Err(anyhow!(
             "Must specify either --update-authority or --candy-machine-id"
@@ -143,8 +163,10 @@ pub fn snapshot_holders(
                 }
             };
 
-            let token_accounts = match get_holder_token_accounts(client, metadata.mint.to_string())
-            {
+            let token_accounts = match retry(
+                Exponential::from_millis_with_factor(250, 2.0).take(3),
+                || get_holder_token_accounts(client, metadata.mint.to_string()),
+            ) {
                 Ok(token_accounts) => token_accounts,
                 Err(_) => {
                     error!("Account {} has no token accounts", metadata_pubkey);

@@ -4,14 +4,19 @@ use indicatif::ParallelProgressIterator;
 use log::{error, info};
 use metaplex_token_metadata::{instruction::update_metadata_accounts, state::Data};
 use rayon::prelude::*;
-use retry::{delay::Fixed, retry};
+use retry::{delay::Exponential, retry};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
     pubkey::Pubkey,
     signer::{keypair::Keypair, Signer},
     transaction::Transaction,
 };
-use std::{fs::File, path::Path, str::FromStr};
+use std::{
+    fs::File,
+    path::Path,
+    str::FromStr,
+    sync::{Arc, Mutex},
+};
 
 use crate::constants::*;
 use crate::data::{NFTData, UpdateNFTData, UpdateUriData};
@@ -46,9 +51,12 @@ pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) 
     let paths: Vec<_> = paths.into_iter().map(Result::unwrap).collect();
     let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
 
+    let failed_mints: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+
     info!("Updating...");
     println!("Updating...");
     paths.par_iter().progress().for_each(|path| {
+        let failed_mints = failed_mints.clone();
         let f = match File::open(path) {
             Ok(f) => f,
             Err(e) => {
@@ -83,16 +91,26 @@ pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) 
             Ok(_) => (),
             Err(e) => {
                 error!("Failed to update data: {:?} error: {}", path, e);
+                failed_mints
+                    .lock()
+                    .unwrap()
+                    .push(update_nft_data.mint_account);
                 return;
             }
         }
     });
 
-    // TODO: handle errors in a better way and log instead of print.
     if !errors.is_empty() {
         error!("Failed to read some of the files with the following errors:");
         for error in errors {
             error!("{}", error);
+        }
+    }
+
+    if !failed_mints.lock().unwrap().is_empty() {
+        error!("Failed to update the following mints:");
+        for mint in failed_mints.lock().unwrap().iter() {
+            error!("{}", mint);
         }
     }
 
@@ -128,9 +146,10 @@ pub fn update_data(
     );
 
     // Send tx with retries.
-    let res = retry(Fixed::from_millis(100), || {
-        client.send_and_confirm_transaction(&tx)
-    });
+    let res = retry(
+        Exponential::from_millis_with_factor(250, 2.0).take(3),
+        || client.send_and_confirm_transaction(&tx),
+    );
     let sig = res?;
 
     info!("Tx sig: {:?}", sig);
