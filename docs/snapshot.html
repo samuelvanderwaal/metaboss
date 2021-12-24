@@ -174,13 +174,18 @@
 }
 </code></pre>
 <h4 id="snapshot-holders"><a class="header" href="#snapshot-holders">Snapshot Holders</a></h4>
-<p>Snapshot all current holders of NFTs filtered by candy_machine_id or update_authority</p>
+<p>Snapshot all current holders of NFTs filtered by candy_machine_id or update_authority.</p>
 <h5 id="usage-1"><a class="header" href="#usage-1">Usage</a></h5>
 <pre><code class="language-bash">metaboss snapshot holders --candy-machine-id &lt;CANDY_MACHINE_ID&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot holders --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
+<p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with candy machine id.</strong>
+Candy machine v2 has a separate creator id from the candy machine account id. </p>
+<pre><code class="language-bash">metaboss snapshot holders --candy-machine-id &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
+</code></pre>
+<p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
 <p>Creates a JSON file in the output directory with the name format of <code>&lt;CANDY_MACHINE_ID/UPDATE_AUTHORITY&gt;_holders.json</code> consisting of an array of objects with the following fields:</p>
 <ul>
 <li>owner wallet -- the holder of the token</li>
@@ -206,6 +211,11 @@
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot mints --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
+<p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with candy machine id.</strong>
+Candy machine v2 has a separate creator id from the candy machine account id.</p>
+<pre><code class="language-bash">metaboss snapshot mints --candy-machine-id &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
+</code></pre>
+<p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
 <p>Creates a JSON file in the output directory with the name format of <code>&lt;CANDY_MACHINE_ID/UPDATE_AUTHORITY&gt;_mint_accounts.json</code> consisting of an array of mint accounts.</p>
 <pre><code class="language-json">[
     &quot;CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp&quot;,
