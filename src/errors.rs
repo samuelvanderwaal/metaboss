@@ -10,6 +10,9 @@ pub enum DecodeError {
     #[error("failed to get account data")]
     ClientError(ClientErrorKind),
 
+    #[error("network request failed after three attempts")]
+    NetworkError(String),
+
     #[error("failed to parse string into Pubkey")]
     PubkeyParseFailed(String),
 

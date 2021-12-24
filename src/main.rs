@@ -60,6 +60,7 @@ fn main() -> Result<()> {
     let client = RpcClient::new_with_timeout_and_commitment(rpc, timeout, commitment);
     match options.cmd {
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
+        Command::Derive { derive_subcommands } => process_derive(derive_subcommands),
         Command::Mint { mint_subcommands } => process_mint(&client, mint_subcommands)?,
         Command::Update { update_subcommands } => process_update(&client, update_subcommands)?,
         Command::Set { set_subcommands } => process_set(&client, set_subcommands)?,

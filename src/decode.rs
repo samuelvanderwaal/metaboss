@@ -3,6 +3,7 @@ use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
 use metaplex_token_metadata::state::{Key, Metadata};
 use rayon::prelude::*;
+use retry::{delay::Exponential, retry};
 use serde::Serialize;
 use serde_json::{json, Value};
 use solana_client::rpc_client::RpcClient;
@@ -147,10 +148,13 @@ pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, Dec
     };
     let metadata_pda = get_metadata_pda(pubkey);
 
-    let account_data = match client.get_account_data(&metadata_pda) {
+    let account_data = match retry(
+        Exponential::from_millis_with_factor(250, 2.0).take(3),
+        || client.get_account_data(&metadata_pda),
+    ) {
         Ok(data) => data,
         Err(err) => {
-            return Err(DecodeError::ClientError(err.kind));
+            return Err(DecodeError::NetworkError(err.to_string()));
         }
     };
 

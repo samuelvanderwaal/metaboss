@@ -5,6 +5,7 @@ use metaplex_token_metadata::{
     instruction::sign_metadata, state::Metadata, ID as METAPLEX_PROGRAM_ID,
 };
 use rayon::prelude::*;
+use retry::{delay::Exponential, retry};
 use solana_client::rpc_client::RpcClient;
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::{
@@ -34,6 +35,7 @@ pub fn sign_one(client: &RpcClient, keypair: String, account: String) -> Result<
         metadata_pubkey,
         &creator.pubkey()
     );
+
     let sig = sign(client, &creator, metadata_pubkey)?;
     info!("Tx sig: {}", sig);
     println!("Tx sig: {}", sig);
@@ -78,7 +80,14 @@ pub fn sign(client: &RpcClient, creator: &Keypair, metadata_pubkey: Pubkey) -> R
         &[creator],
         recent_blockhash,
     );
-    let sig = client.send_and_confirm_transaction(&tx)?;
+
+    // Send tx with retries.
+    let res = retry(
+        Exponential::from_millis_with_factor(250, 2.0).take(3),
+        || client.send_and_confirm_transaction(&tx),
+    );
+    let sig = res?;
+
     Ok(sig)
 }
 
