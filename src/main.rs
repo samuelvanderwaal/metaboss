@@ -59,6 +59,7 @@ fn main() -> Result<()> {
 
     let client = RpcClient::new_with_timeout_and_commitment(rpc, timeout, commitment);
     match options.cmd {
+        Command::Burn { burn_subcommands } => process_burn(&client, burn_subcommands)?,
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
         Command::Derive { derive_subcommands } => process_derive(derive_subcommands),
         Command::Mint { mint_subcommands } => process_mint(&client, mint_subcommands)?,
