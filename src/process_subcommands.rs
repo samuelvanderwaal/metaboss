@@ -95,8 +95,9 @@ pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()>
         SignSubcommands::All {
             keypair,
             candy_machine_id,
+            v2,
             mint_accounts_file,
-        } => sign_all(&client, &keypair, candy_machine_id, mint_accounts_file),
+        } => sign_all(&client, &keypair, candy_machine_id, v2, mint_accounts_file),
     }
 }
 

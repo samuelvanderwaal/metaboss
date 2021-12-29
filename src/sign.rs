@@ -21,6 +21,7 @@ use std::{
 };
 
 use crate::decode::get_metadata_pda;
+use crate::derive::derive_cmv2_pda;
 use crate::parse::{is_only_one_option, parse_keypair};
 use crate::snapshot::get_cm_creator_accounts;
 
@@ -47,6 +48,7 @@ pub fn sign_all(
     client: &RpcClient,
     keypair: &String,
     candy_machine_id: Option<String>,
+    v2: bool,
     mint_accounts_file: Option<String>,
 ) -> Result<()> {
     let creator = parse_keypair(keypair)?;
@@ -58,7 +60,14 @@ pub fn sign_all(
     }
 
     if let Some(candy_machine_id) = candy_machine_id {
-        sign_candy_machine_accounts(client, &candy_machine_id, creator)?;
+        if v2 {
+            let cm_pubkey = Pubkey::from_str(&candy_machine_id)
+                .expect("Failed to parse pubkey from candy_machine_id!");
+            let cmv2_id = derive_cmv2_pda(&cm_pubkey);
+            sign_candy_machine_accounts(client, &cmv2_id.to_string(), creator)?
+        } else {
+            sign_candy_machine_accounts(client, &candy_machine_id, creator)?
+        }
     } else if let Some(mint_accounts_file) = mint_accounts_file {
         let file = File::open(mint_accounts_file)?;
         let mint_accounts: Vec<String> = serde_json::from_reader(&file)?;

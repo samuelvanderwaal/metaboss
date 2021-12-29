@@ -1,3 +1,6 @@
+v0.3.4
+* Added support for v2 candy machine ids for `sign all`
+
 v0.3.3
 
 * Added exponential backoff retries to network requests: 250 ms, 500 ms, 1000 ms then fails.

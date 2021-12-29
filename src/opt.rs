@@ -231,6 +231,10 @@ pub enum SignSubcommands {
         #[structopt(short, long)]
         candy_machine_id: Option<String>,
 
+        /// Candy machine v2 id
+        #[structopt(long = "v2")]
+        v2: bool,
+
         /// Path to JSON file with list of mint accounts to sign
         #[structopt(short, long)]
         mint_accounts_file: Option<String>,
