@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Examples - Metaboss</title>
+        <title>Derive - Metaboss</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html" class="active"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="base_options.html"><strong aria-hidden="true">4.</strong> Base Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">6.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">7.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">8.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">9.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">10.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">11.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">12.</strong> Update</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">13.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="base_options.html"><strong aria-hidden="true">4.</strong> Base Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">6.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html" class="active"><strong aria-hidden="true">7.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">8.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">9.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">10.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">11.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">12.</strong> Update</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">13.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -142,56 +142,35 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
-<h3 id="update-the-uri-of-an-existing-nft"><a class="header" href="#update-the-uri-of-an-existing-nft">Update the URI of an existing NFT</a></h3>
-<pre><code class="language-bash">metaboss update uri -k ~/.config/solana/devnet.json -a CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp -u https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls
+                        <h2 id="derive"><a class="header" href="#derive">Derive</a></h2>
+<h3 id="derive-candy-machine-v2-creator"><a class="header" href="#derive-candy-machine-v2-creator">Derive Candy Machine V2 Creator</a></h3>
+<p>Derive the candy machine creator PDA from the candy machine id.</p>
+<h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
+<pre><code class="language-bash">metaboss derive cmv2-creator &lt;candy_machine_id&gt;
 </code></pre>
-<h3 id="mint-a-new-nft"><a class="header" href="#mint-a-new-nft">Mint a new NFT</a></h3>
-<p>Prepare a JSON file.</p>
-<pre><code class="language-json">{
-    &quot;name&quot;: &quot;TestNFT2&quot;,
-    &quot;symbol&quot;: &quot;TNFT&quot;,
-    &quot;uri&quot;: &quot;https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw&quot;,
-    &quot;seller_fee_basis_points&quot;: 200,
-    &quot;creators&quot;: [
-        {
-            &quot;address&quot;: &quot;AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ&quot;,
-            &quot;verified&quot;: false,
-            &quot;share&quot;: 50
-        },
-        {
-            &quot;address&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
-            &quot;verified&quot;: false,
-            &quot;share&quot;: 50
-        }
-    ]
-}
+<h3 id="derive-edition"><a class="header" href="#derive-edition">Derive Edition</a></h3>
+<p>Derive the edition PDA from the mint account.</p>
+<pre><code class="language-bash">metaboss derive edition &lt;mint_account&gt;
 </code></pre>
-<p>Call command. In this case we do not set <code>--receiver</code> so we mint directly to the <code>keypair</code> address.</p>
-<pre><code class="language-bash">metaboss mint one -k ~/.config/solana/devnet.json -d ./new_nft.json
+<h3 id="derive-metadata"><a class="header" href="#derive-metadata">Derive Metadata</a></h3>
+<p>Derive the metadata PDA from the mint account.</p>
+<pre><code class="language-bash">metaboss derive metadata &lt;mint_account&gt;
 </code></pre>
-<h3 id="snapshot-candy-machine-mint-accounts"><a class="header" href="#snapshot-candy-machine-mint-accounts">Snapshot Candy Machine Mint Accounts</a></h3>
-<p>We call the command with no output specified so it creates the file in the current directory.</p>
-<pre><code class="language-bash">metaboss snapshot mints -c BHZWQEtGRMs7voC7vDyVQCXawB1P6UvxG899ATGwxmaR
-</code></pre>
-<p>The file <code>BHZWQEtGRMs7voC7vDyVQCXawB1P6UvxG899ATGwxmaR_mint_accounts.json</code> is created with the contents:</p>
-<pre><code class="language-json">[
-    &quot;D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28&quot;,
-    &quot;4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW&quot;,
-    &quot;J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz&quot;,
-    &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
-]
+<h3 id="derive-pda"><a class="header" href="#derive-pda">Derive PDA</a></h3>
+<p>Derive a generic PDA from a list of seeds and a program id.</p>
+<h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
+<pre><code class="language-bash">metaboss derive pda &lt;seed1&gt;,&lt;seed2&gt;,&lt;seed3&gt; &lt;program_id&gt;
 </code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="quick_start.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="decode.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="base_options.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="mint.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -201,11 +180,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="quick_start.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="decode.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="base_options.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="mint.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="base_options.html"><strong aria-hidden="true">4.</strong> Base Options</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">5.</strong> Decode</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">6.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html" class="active"><strong aria-hidden="true">7.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">8.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">9.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">10.</strong> Update</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">11.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="base_options.html"><strong aria-hidden="true">4.</strong> Base Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">6.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">7.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">8.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html" class="active"><strong aria-hidden="true">9.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">10.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">11.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">12.</strong> Update</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">13.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -145,16 +145,16 @@
                         <h2 id="set"><a class="header" href="#set">Set</a></h2>
 <p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution.</strong></p>
 <p>Set non-Data struct values for a NFT.</p>
-<h4 id="set-primary-sale-happened"><a class="header" href="#set-primary-sale-happened">Set Primary-Sale-Happened</a></h4>
+<h3 id="set-primary-sale-happened"><a class="header" href="#set-primary-sale-happened">Set Primary-Sale-Happened</a></h3>
 <p>Set <code>primary_sale_happened</code> to be <code>true</code>.</p>
 <pre><code class="language-bash">metaboss set primary-sale-happened --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
 <p>Outputs a TxId to the command line so you can check the result.</p>
-<h4 id="set-update-authority"><a class="header" href="#set-update-authority">Set Update-Authority</a></h4>
+<h3 id="set-update-authority"><a class="header" href="#set-update-authority">Set Update-Authority</a></h3>
 <p>Set <code>update_authority</code> to a different public key.</p>
 <pre><code class="language-bash">metaboss set update-authority --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-update-authority &lt;NEW_UPDATE_AUTHORITY&gt;
 </code></pre>
-<h4 id="set-update-authority-all"><a class="header" href="#set-update-authority-all">Set Update-Authority-All</a></h4>
+<h3 id="set-update-authority-all"><a class="header" href="#set-update-authority-all">Set Update-Authority-All</a></h3>
 <p>Set <code>update_authority</code> to a different public key for a list of NFTs.</p>
 <pre><code class="language-bash">metaboss set update-authority-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-accounts-file &lt;PATH_TO_MINT_ACCOUNTS&gt; --new-update-authority &lt;NEW_UPDATE_AUTHORITY&gt;
 </code></pre>

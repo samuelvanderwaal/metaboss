@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="base_options.html"><strong aria-hidden="true">4.</strong> Base Options</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">5.</strong> Decode</a></li><li class="chapter-item expanded "><a href="mint.html" class="active"><strong aria-hidden="true">6.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">7.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">8.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">9.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">10.</strong> Update</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">11.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="base_options.html"><strong aria-hidden="true">4.</strong> Base Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">6.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">7.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html" class="active"><strong aria-hidden="true">8.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">9.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">10.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">11.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">12.</strong> Update</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">13.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -145,9 +145,9 @@
                         <h2 id="mint"><a class="header" href="#mint">Mint</a></h2>
 <p>Mint new NFTs from JSON files. </p>
 <p>For both subcommands the <code>--immutable</code> flag sets the NFT data to be immutable and the <code>--primary-sale-happened</code> flag sets the primary sale happened bool to true.</p>
-<h4 id="mint-one"><a class="header" href="#mint-one">Mint One</a></h4>
+<h3 id="mint-one"><a class="header" href="#mint-one">Mint One</a></h3>
 <p>Mint a single NFT from a JSON file.</p>
-<h5 id="usage"><a class="header" href="#usage">Usage</a></h5>
+<h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
 <pre><code class="language-bash">metaboss mint one --keypair &lt;KEYPAIR&gt; --nft-data-file &lt;PATH_TO_NFT_DATA_FILE&gt; --receiver &lt;RECEIVER_ADDRESS&gt;
 </code></pre>
 <pre><code class="language-bash">metaboss mint one --keypair &lt;KEYPAIR&gt; --external-metadata-uri &lt;EXTERNAL_METADATA_URI&gt; --receiver &lt;RECEIVER_ADDRESS&gt; --immutable --primary-sale-happened
@@ -170,9 +170,9 @@
 </code></pre>
 <p>The --external-metadata-uri option takes a URI to an external metadata file such as an Arweave link pointing to a JSON file.</p>
 <p>If <code>receiver</code> is set, the NFT will be minted directly to the receiver's address, otherwise it is minted to <code>keypair</code>. Observant users may note that with a simple bash script this allows airdrops to be deployed with Metaboss.</p>
-<h4 id="mint-list"><a class="header" href="#mint-list">Mint List</a></h4>
+<h3 id="mint-list"><a class="header" href="#mint-list">Mint List</a></h3>
 <p>Mint multiple NFTs from a list of JSON files.</p>
-<h5 id="usage-1"><a class="header" href="#usage-1">Usage</a></h5>
+<h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
 <pre><code class="language-bash">metaboss mint list --keypair &lt;KEYPAIR&gt; --nft-data-dir &lt;PATH_TO_NFT_DATA_FILE&gt; --receiver &lt;RECEIVER_ADDRESS&gt;
 </code></pre>
 <p>This command functions the same as <code>mint one</code> except instead of a single JSON file, provide a path to a directory with multiple JSON files, one for each NFT to be minted.</p>
@@ -185,7 +185,7 @@
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="decode.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="derive.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
@@ -199,7 +199,7 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="decode.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="derive.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
