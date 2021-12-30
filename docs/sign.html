@@ -156,6 +156,14 @@
 <h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
 <pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --candy-machine-id &lt;CANDY_MACHINE_ID&gt;
 </code></pre>
+<p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with candy machine id.</strong>
+Candy machine v2 has a separate creator id from the candy machine account id. </p>
+<pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --candy-machine-id &lt;CANDY_MACHINE_ID&gt; --v2
+</code></pre>
+<p>or you can use the candy machine creator id which will be the first creator in the creators array.</p>
+<pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --candy-machine-id &lt;FIRST_CREATOR&gt;
+</code></pre>
+<p>With a mint acconts JSON list:</p>
 <pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-accounts-file &lt;PATH_TO_MINT_ACCOUNTS_FILE&gt;
 </code></pre>
 <p>For the latter usage, the mint accounts file should be a JSON file with a list of mint accounts to be signed:</p>
