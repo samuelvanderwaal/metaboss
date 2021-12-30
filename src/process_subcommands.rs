@@ -12,11 +12,7 @@ use crate::update_metadata::*;
 
 pub fn process_burn(client: &RpcClient, commands: BurnSubcommands) -> Result<()> {
     match commands {
-        BurnSubcommands::One {
-            keypair,
-            owner_wallet,
-            account,
-        } => burn_one(client, keypair, owner_wallet, account),
+        BurnSubcommands::One { keypair, account } => burn_one(client, keypair, account),
     }
 }
 

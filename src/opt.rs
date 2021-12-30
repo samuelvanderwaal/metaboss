@@ -78,10 +78,6 @@ pub enum BurnSubcommands {
         #[structopt(short, long)]
         keypair: String,
 
-        /// Owner wallet address
-        #[structopt(short, long)]
-        owner_wallet: String,
-
         /// Token mint account
         #[structopt(short, long)]
         account: String,
