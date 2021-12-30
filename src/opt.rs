@@ -21,6 +21,12 @@ pub struct Opt {
 
 #[derive(Debug, StructOpt)]
 pub enum Command {
+    /// Burn token
+    #[structopt(name = "burn")]
+    Burn {
+        #[structopt(subcommand)]
+        burn_subcommands: BurnSubcommands,
+    },
     /// Decode on-chain data into JSON format
     #[structopt(name = "decode")]
     Decode {
@@ -61,6 +67,20 @@ pub enum Command {
     Snapshot {
         #[structopt(subcommand)]
         snapshot_subcommands: SnapshotSubcommands,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum BurnSubcommands {
+    #[structopt(name = "one")]
+    One {
+        /// Path to the authority & funder keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Token mint account
+        #[structopt(short, long)]
+        account: String,
     },
 }
 

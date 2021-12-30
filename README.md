@@ -45,6 +45,8 @@ cargo install metaboss
 
 ### Install From Source
 
+Requires Rust 1.56 or later.
+
 Install [Rust](https://www.rust-lang.org/tools/install).
 
 ```bash

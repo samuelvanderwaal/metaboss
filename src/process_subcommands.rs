@@ -1,6 +1,7 @@
 use anyhow::Result;
 use solana_client::rpc_client::RpcClient;
 
+use crate::burn::burn_one;
 use crate::decode::decode_metadata;
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
 use crate::mint::{mint_list, mint_one};
@@ -8,6 +9,12 @@ use crate::opt::*;
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
 use crate::update_metadata::*;
+
+pub fn process_burn(client: &RpcClient, commands: BurnSubcommands) -> Result<()> {
+    match commands {
+        BurnSubcommands::One { keypair, account } => burn_one(client, keypair, account),
+    }
+}
 
 pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result<()> {
     match commands {

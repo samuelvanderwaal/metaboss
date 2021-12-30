@@ -53,7 +53,7 @@ fn derive_generic_pda(seeds: Vec<&[u8]>, program_id: Pubkey) -> Pubkey {
     pda
 }
 
-fn derive_metadata_pda(pubkey: &Pubkey) -> Pubkey {
+pub fn derive_metadata_pda(pubkey: &Pubkey) -> Pubkey {
     let metaplex_pubkey = id();
 
     let seeds = &[
