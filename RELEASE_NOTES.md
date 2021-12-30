@@ -1,5 +1,6 @@
 v0.3.4
 * Added support for v2 candy machine ids for `sign all`
+* Add `burn one` function for burning NFT SPL token and clearing Metadata account.
 
 v0.3.3
 
