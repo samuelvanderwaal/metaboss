@@ -263,6 +263,10 @@ pub enum SignSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum SnapshotSubcommands {
+    /// Snapshot all current candy machines
+    #[structopt(name = "candies")]
+    Candies,
+
     /// Snapshot all current holders of NFTs by candy_machine_id or update_authority
     #[structopt(name = "holders")]
     Holders {

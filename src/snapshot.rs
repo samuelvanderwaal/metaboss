@@ -59,6 +59,15 @@ struct CandyMachineAccount {
     data_len: usize,
 }
 
+pub fn snapshot_candies(client: &RpcClient) -> Result<()> {
+    let accounts = get_cmv1_config_accounts(&client)?;
+
+    let mut file = File::create(format!("cmv1_config_accounts.json"))?;
+    serde_json::to_writer(&mut file, &accounts)?;
+
+    Ok(())
+}
+
 pub fn snapshot_mints(
     client: &RpcClient,
     candy_machine_id: Option<String>,
@@ -305,6 +314,37 @@ pub fn snapshot_cm_accounts(
     serde_json::to_writer(&mut file, &candy_machine_program_accounts)?;
 
     Ok(())
+}
+
+fn get_cmv1_config_accounts(client: &RpcClient) -> Result<Vec<(Pubkey, Account)>> {
+    let candy_pubkey = Pubkey::from_str("cndyAnrLdpjq1Ssp1z8xxDsB8dxe7u4HL5Nxi2K5WXZ")?;
+
+    // 8 byte anchor discriminator for Config type
+    let hash_config = [155, 12, 170, 224, 30, 250, 204, 130];
+
+    let filter1 = RpcFilterType::Memcmp(Memcmp {
+        offset: 0,
+        bytes: MemcmpEncodedBytes::Bytes(hash_config.to_vec()),
+        encoding: None,
+    });
+
+    let account_config = RpcAccountInfoConfig {
+        encoding: Some(UiAccountEncoding::Base64),
+        data_slice: None,
+        commitment: Some(CommitmentConfig {
+            commitment: CommitmentLevel::Confirmed,
+        }),
+    };
+
+    let config = RpcProgramAccountsConfig {
+        filters: Some(vec![filter1]),
+        account_config,
+        with_context: None,
+    };
+
+    let holders = client.get_program_accounts_with_config(&candy_pubkey, config)?;
+
+    Ok(holders)
 }
 
 fn get_cm_accounts_by_update_authority(

@@ -7,7 +7,7 @@ use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata
 use crate::mint::{mint_list, mint_one};
 use crate::opt::*;
 use crate::sign::{sign_all, sign_one};
-use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
+use crate::snapshot::{snapshot_candies, snapshot_cm_accounts, snapshot_holders, snapshot_mints};
 use crate::update_metadata::*;
 
 pub fn process_burn(client: &RpcClient, commands: BurnSubcommands) -> Result<()> {
@@ -110,6 +110,7 @@ pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()>
 
 pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Result<()> {
     match commands {
+        SnapshotSubcommands::Candies => snapshot_candies(client),
         SnapshotSubcommands::Holders {
             update_authority,
             candy_machine_id,
