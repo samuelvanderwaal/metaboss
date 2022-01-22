@@ -4,15 +4,15 @@ use structopt::StructOpt;
 #[structopt(name = "Metaboss", about = "Metaplex NFT 'Swiss Army Knife' tool.")]
 pub struct Opt {
     /// RPC endpoint url to override using the Solana config or the hard-coded default
-    #[structopt(short, long)]
+    #[structopt(short, long, global = true)]
     pub rpc: Option<String>,
 
     /// Timeout to override default value of 60 seconds
-    #[structopt(short, long, default_value = "60")]
+    #[structopt(short, long, global = true, default_value = "60")]
     pub timeout: u64,
 
     /// Log level
-    #[structopt(short, long, default_value = "warn")]
+    #[structopt(short, long, global = true, default_value = "warn")]
     pub log_level: String,
 
     #[structopt(subcommand)]
