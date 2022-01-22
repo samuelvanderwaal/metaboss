@@ -28,6 +28,7 @@ pub fn update_data_one(
     keypair: &String,
     mint_account: &String,
     json_file: &String,
+    new_update_authority: Option<Pubkey>
 ) -> Result<()> {
     let keypair = parse_keypair(keypair)?;
     let f = File::open(json_file)?;
@@ -35,12 +36,17 @@ pub fn update_data_one(
 
     let data = convert_local_to_remote_data(new_data)?;
 
-    update_data(client, &keypair, mint_account, data)?;
+    update_data(client, &keypair, mint_account, data, new_update_authority)?;
 
     Ok(())
 }
 
-pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) -> Result<()> {
+pub fn update_data_all(
+    client: &RpcClient, 
+    keypair: &String, 
+    data_dir: &String, 
+    new_update_authority: Option<Pubkey>
+) -> Result<()> {
     let keypair = parse_keypair(keypair)?;
 
     let path = Path::new(&data_dir).join("*.json");
@@ -87,7 +93,7 @@ pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) 
             }
         };
 
-        match update_data(client, &keypair, &update_nft_data.mint_account, data) {
+        match update_data(client, &keypair, &update_nft_data.mint_account, data, new_update_authority) {
             Ok(_) => (),
             Err(e) => {
                 error!("Failed to update data: {:?} error: {}", path, e);
@@ -122,12 +128,14 @@ pub fn update_data(
     keypair: &Keypair,
     mint_account: &String,
     data: Data,
+    new_update_authority: Option<Pubkey>
 ) -> Result<()> {
     let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint_pubkey = Pubkey::from_str(mint_account)?;
     let metadata_account = get_metadata_pda(mint_pubkey);
+    let mut x: Option<f32> = None;
 
-    let update_authority = keypair.pubkey();
+    let update_authority = new_update_authority.unwrap_or(keypair.pubkey());
 
     let ix = update_metadata_accounts(
         program_id,
