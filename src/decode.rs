@@ -185,7 +185,7 @@ fn decode_to_json(metadata: Metadata) -> AnyResult<Value> {
         "symbol": metadata.data.symbol.to_string().trim_matches(char::from(0)),
         "seller_fee_basis_points": metadata.data.seller_fee_basis_points,
         "uri": metadata.data.uri.to_string().trim_matches(char::from(0)),
-        "creators": [creators],
+        "creators": creators,
     });
 
     let json_metadata = json!({
