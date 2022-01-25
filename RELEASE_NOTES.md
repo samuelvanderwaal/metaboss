@@ -1,3 +1,8 @@
+v0.3.5
+* Make timeout, rpc and log-level global options.
+* Increase default timeout to 90 seconds to accommodate longer `getProgramAccount` calls.
+* Default to GenesysGo devnet node instead of failing if no rpc provided and no config file found.
+
 v0.3.4
 * Added support for v2 candy machine ids for `sign all`
 * Add `burn one` function for burning NFT SPL token and clearing Metadata account.

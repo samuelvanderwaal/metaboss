@@ -8,7 +8,7 @@ pub struct Opt {
     pub rpc: Option<String>,
 
     /// Timeout to override default value of 60 seconds
-    #[structopt(short, long, global = true, default_value = "60")]
+    #[structopt(short, long, global = true, default_value = "90")]
     pub timeout: u64,
 
     /// Log level

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Quick Start - Metaboss</title>
+        <title>Global Options - Metaboss</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html" class="active"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">4.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">6.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">7.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">8.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">9.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">10.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">11.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">12.</strong> Update</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">13.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="global_options.html" class="active"><strong aria-hidden="true">4.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">6.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">7.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">8.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">9.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">10.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">11.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">12.</strong> Update</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">13.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -142,27 +142,33 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
-<p>Install</p>
-<pre><code class="language-bash">cargo install metaboss
+                        <h2 id="global-options"><a class="header" href="#global-options">Global Options</a></h2>
+<p>These are the options that apply to all subcommands and can be passed in at any level.</p>
+<pre><code class="language-bash">metaboss &lt;option&gt; &lt;subcommand&gt; &lt;subcommand&gt;
 </code></pre>
-<p>or grab a <a href="https://github.com/samuelvanderwaal/metaboss/releases">binary</a></p>
-<p>See Usage</p>
-<pre><code class="language-bash">metaboss -h
+<pre><code class="language-bash">metaboss &lt;subcommand&gt; &lt;option&gt; &lt;subcommand&gt;
 </code></pre>
-<p>Decode a mint account's metadata:</p>
-<pre><code class="language-bash">metaboss decode mint -a 23gaZq8578xHozMWADsmZ2hAFqZ15iyHmQtRw14meds2
+<pre><code class="language-bash">metaboss &lt;subcommand&gt; &lt;subcommand&gt; &lt;option&gt;
+</code></pre>
+<h2 id="options"><a class="header" href="#options">Options</a></h2>
+<p>-r, --rpc <rpc> The RPC endpoint to use for commands.</p>
+<p>Metaboss will try to read your Solana config settings for both the RPC endpoint and also the Commitment setting by reading from <code>$HOME/.config/solana/cli/config.yml</code>. If it can't find a config file it defaults to using <code>https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/</code> and <code>confirmed</code>.</p>
+<p>Running Metaboss with the <code>--rpc</code> option will override the above with whatever RPC endpoint the user provides.</p>
+<p>-t, --timeout <timeout> The timeout in seconds to use for RPC calls.</p>
+<p>This defaults to 90 seconds which should be fine for most cases but can be overriden if needed.</p>
+<p>Example:</p>
+<pre><code class="language-bash">metaboss snapshot holders -r https://ssc-dao.genesysgo.net/ -t 120 -u DC2mkgwhy56w3viNtHDjJQmc7SGu2QX785bS4aexojwX
 </code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="overview.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="examples.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="examples.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="burn.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -172,11 +178,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="overview.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="examples.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="examples.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="burn.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

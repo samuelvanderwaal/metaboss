@@ -38,10 +38,13 @@ fn main() -> Result<()> {
         if let Some(config) = sol_config {
             (config.json_rpc_url, config.commitment)
         } else {
-            error!(
-            "Could not find a valid Solana-CLI config file. Please specify a RPC manually with '-r' or set up your Solana-CLI config file."
+            info!(
+            "Could not find a valid Solana-CLI config file. Defaulting to https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/ devenet node."
         );
-            std::process::exit(1);
+            (
+                String::from("https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/"),
+                String::from("confirmed"),
+            )
         }
     };
 
