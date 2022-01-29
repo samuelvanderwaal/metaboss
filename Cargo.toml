@@ -1,6 +1,6 @@
 [package]
 name = "metaboss"
-version = "0.3.5"
+version = "0.3.6-beta"
 edition = "2021"
 description="The Metaplex NFT-standard Swiss Army Knife tool."
 repository="https://github.com/samuelvanderwaal/metaboss"
@@ -8,6 +8,7 @@ license = "Apache-2.0"
 
 [dependencies]
 anyhow = "1.0.44"
+anchor-client = "0.19.0"
 borsh = "0.9.1"
 bs58 = "0.4.0"
 env_logger = "0.9.0"
@@ -16,6 +17,7 @@ indicatif = { version = "0.16.2", features = ["rayon"] }
 lazy_static = "1.4.0"
 log = "0.4.14"
 metaplex-token-metadata = "0.0.1"
+mpl-candy-machine = { version = "2.0.1", features = ["no-entrypoint"] }
 num_cpus = "1.13.0"
 ratelimit = "0.4.4"
 rayon = "1.5.1"

@@ -13,3 +13,4 @@ pub mod sign;
 pub mod snapshot;
 pub mod spinner;
 pub mod update_metadata;
+pub mod withdraw;

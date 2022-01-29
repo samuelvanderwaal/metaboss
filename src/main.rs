@@ -60,7 +60,7 @@ fn main() -> Result<()> {
     let commitment = CommitmentConfig::from_str(&commitment)?;
     let timeout = Duration::from_secs(options.timeout);
 
-    let client = RpcClient::new_with_timeout_and_commitment(rpc, timeout, commitment);
+    let client = RpcClient::new_with_timeout_and_commitment(rpc.clone(), timeout, commitment);
     match options.cmd {
         Command::Burn { burn_subcommands } => process_burn(&client, burn_subcommands)?,
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
@@ -72,6 +72,9 @@ fn main() -> Result<()> {
         Command::Snapshot {
             snapshot_subcommands,
         } => process_snapshot(&client, snapshot_subcommands)?,
+        Command::Withdraw {
+            withdraw_subcommands,
+        } => process_withdraw(rpc, withdraw_subcommands)?,
     }
 
     println!("Done!");

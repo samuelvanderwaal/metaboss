@@ -9,6 +9,7 @@ use crate::opt::*;
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
 use crate::update_metadata::*;
+use crate::withdraw::{withdraw, WithdrawArgs};
 
 pub fn process_burn(client: &RpcClient, commands: BurnSubcommands) -> Result<()> {
     match commands {
@@ -147,5 +148,18 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
         UpdateSubcommands::UriAll { keypair, json_file } => {
             update_uri_all(&client, &keypair, &json_file)
         }
+    }
+}
+
+pub fn process_withdraw(rpc_url: String, commands: WithdrawSubcommands) -> Result<()> {
+    match commands {
+        WithdrawSubcommands::CMV2 {
+            candy_machine_id,
+            keypair,
+        } => withdraw(WithdrawArgs {
+            rpc_url,
+            keypair,
+            candy_machine_id,
+        }),
     }
 }
