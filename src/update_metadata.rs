@@ -137,7 +137,7 @@ pub fn update_data(
         Some(data),
         None,
     );
-    let (recent_blockhash, _) = client.get_recent_blockhash()?;
+    let recent_blockhash = client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&update_authority),
@@ -215,7 +215,7 @@ pub fn update_uri(
         None,
     );
 
-    let (recent_blockhash, _) = client.get_recent_blockhash()?;
+    let recent_blockhash = client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&update_authority),
@@ -251,7 +251,7 @@ pub fn set_primary_sale_happened(
         None,
         Some(true),
     );
-    let (recent_blockhash, _) = client.get_recent_blockhash()?;
+    let recent_blockhash = client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&update_authority),
@@ -289,7 +289,7 @@ pub fn set_update_authority(
         None,
         None,
     );
-    let (recent_blockhash, _) = client.get_recent_blockhash()?;
+    let recent_blockhash = client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&update_authority),

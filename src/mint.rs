@@ -328,7 +328,7 @@ pub fn mint(
         instructions.push(ix);
     }
 
-    let (recent_blockhash, _) = client.get_recent_blockhash()?;
+    let recent_blockhash = client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
         &instructions,
         Some(&funder.pubkey()),
