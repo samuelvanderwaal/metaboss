@@ -1,3 +1,9 @@
+v0.4.0
+* Change decode default format to data struct to match input required from `update-metadata` command
+
+v0.3.6
+* Add withdraw command for candy machine v2
+
 v0.3.5
 * Make timeout, rpc and log-level global options.
 * Increase default timeout to 90 seconds to accommodate longer `getProgramAccount` calls.

@@ -1688,7 +1688,7 @@ dependencies = [
 
 [[package]]
 name = "metaboss"
-version = "0.3.6"
+version = "0.4.0-beta"
 dependencies = [
  "anchor-client",
  "anyhow",

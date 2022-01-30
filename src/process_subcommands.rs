@@ -21,9 +21,10 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
     match commands {
         DecodeSubcommands::Mint {
             account,
+            full,
             list_file,
             ref output,
-        } => decode_metadata(client, account.as_ref(), list_file.as_ref(), output)?,
+        } => decode_metadata(client, account.as_ref(), full, list_file.as_ref(), output)?,
     }
     Ok(())
 }

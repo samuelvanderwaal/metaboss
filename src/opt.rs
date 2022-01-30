@@ -98,6 +98,10 @@ pub enum DecodeSubcommands {
         #[structopt(short, long)]
         account: Option<String>,
 
+        /// Use this to write the full metadata struct to the output
+        #[structopt(long)]
+        full: bool,
+
         /// Path to JSON file containing a list of mint accounts to decode
         #[structopt(short, long)]
         list_file: Option<String>,

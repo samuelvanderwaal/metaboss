@@ -27,6 +27,7 @@ pub struct JSONCreator {
 pub fn decode_metadata_all(
     client: &RpcClient,
     json_file: &String,
+    full: bool,
     output: &String,
 ) -> AnyResult<()> {
     let file = File::open(json_file)?;
@@ -73,7 +74,7 @@ pub fn decode_metadata_all(
                 "Converting metadata into JSON for mint account {}",
                 mint_account
             );
-            let json_metadata = match decode_to_json(metadata) {
+            let json_metadata = match decode_to_json(metadata, full) {
                 Ok(j) => j,
                 Err(err) => {
                     error!(
@@ -115,6 +116,7 @@ pub fn decode_metadata_all(
 pub fn decode_metadata(
     client: &RpcClient,
     account: Option<&String>,
+    full: bool,
     list_path: Option<&String>,
     output: &String,
 ) -> AnyResult<()> {
@@ -127,11 +129,11 @@ pub fn decode_metadata(
 
     if let Some(mint_account) = account {
         let metadata = decode(client, &mint_account)?;
-        let json_metadata = decode_to_json(metadata)?;
+        let json_metadata = decode_to_json(metadata, full)?;
         let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
         serde_json::to_writer(&mut file, &json_metadata)?;
     } else if let Some(list_path) = list_path {
-        decode_metadata_all(client, &list_path, output)?;
+        decode_metadata_all(client, &list_path, full, output)?;
     } else {
         return Err(anyhow!(
             "Please specify either a mint account or a list of mint accounts, but not both."
@@ -166,7 +168,7 @@ pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, Dec
     Ok(metadata)
 }
 
-fn decode_to_json(metadata: Metadata) -> AnyResult<Value> {
+fn decode_to_json(metadata: Metadata, full: bool) -> AnyResult<Value> {
     let mut creators: Vec<JSONCreator> = Vec::new();
 
     if let Some(c) = metadata.data.creators {
@@ -188,11 +190,15 @@ fn decode_to_json(metadata: Metadata) -> AnyResult<Value> {
         "creators": creators,
     });
 
+    if !full {
+        return Ok(data_json);
+    }
+
     let json_metadata = json!({
         "key": parse_key(metadata.key),
         "update_authority": metadata.update_authority.to_string(),
-        "mint": metadata.mint.to_string(),
-        "data": data_json,
+        "mint_account": metadata.mint.to_string(),
+        "nft_data": data_json,
         "primary_sale_happened": metadata.primary_sale_happened,
         "is_mutable": metadata.is_mutable,
         "edition_nonce": metadata.edition_nonce,
