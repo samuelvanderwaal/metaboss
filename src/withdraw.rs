@@ -50,8 +50,8 @@ pub fn withdraw(args: WithdrawArgs) -> Result<()> {
     let sol = account.lamports as f64 / LAMPORTS_PER_SOL as f64;
 
     println!(
-        "Withdrawing {sol} SOL from candy machine {}",
-        &candy_machine
+        "Withdrawing {} SOL from candy machine {}",
+        sol, &candy_machine
     );
     let sig = program
         .request()
