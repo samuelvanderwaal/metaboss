@@ -1,5 +1,5 @@
 use anyhow::Result;
-use metaplex_token_metadata::{
+use mpl_token_metadata::{
     id,
     instruction::update_metadata_accounts,
     state::{Data, Metadata},

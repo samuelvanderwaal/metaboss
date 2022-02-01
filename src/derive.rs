@@ -1,4 +1,4 @@
-use metaplex_token_metadata::id;
+use mpl_token_metadata::id;
 use solana_sdk::pubkey::Pubkey;
 use std::{convert::AsRef, str::FromStr};
 

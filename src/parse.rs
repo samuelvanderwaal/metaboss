@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Context, Result};
-use metaplex_token_metadata::state::{Creator, Data};
+use mpl_token_metadata::state::{Creator, Data};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use solana_sdk::pubkey::Pubkey;

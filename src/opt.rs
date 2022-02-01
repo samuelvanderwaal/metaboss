@@ -234,6 +234,26 @@ pub enum SetSubcommands {
         #[structopt(short = "u", long)]
         new_update_authority: String,
     },
+    /// Set is-mutable to false, preventing any future updates to the NFT
+    #[structopt(name = "immutable")]
+    Immutable {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        mint_account: String,
+    },
+    ImmutableAll {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Path to JSON mint accounts file
+        #[structopt(short, long)]
+        mint_accounts_file: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]

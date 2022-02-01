@@ -95,6 +95,14 @@ pub fn process_set(client: &RpcClient, commands: SetSubcommands) -> Result<()> {
             &mint_accounts_file,
             &new_update_authority,
         ),
+        SetSubcommands::Immutable {
+            keypair,
+            mint_account,
+        } => set_immutable(&client, &keypair, &mint_account),
+        SetSubcommands::ImmutableAll {
+            keypair,
+            mint_accounts_file,
+        } => set_immutable_all(&client, &keypair, &mint_accounts_file),
     }
 }
 

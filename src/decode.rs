@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result as AnyResult};
 use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
-use metaplex_token_metadata::state::{Key, Metadata};
+use mpl_token_metadata::state::{Key, Metadata};
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
 use serde::Serialize;
@@ -231,5 +231,7 @@ fn parse_key(key: Key) -> String {
         Key::ReservationListV2 => String::from("ReservationListV2"),
         Key::MasterEditionV2 => String::from("MasterEditionV2"),
         Key::EditionMarker => String::from("EditionMarker"),
+        Key::UseAuthorityRecord => String::from("UseAuthorityRecord"),
+        Key::CollectionAuthorityRecord => String::from("CollectionAuthorityRecord"),
     }
 }

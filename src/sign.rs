@@ -1,9 +1,7 @@
 use anyhow::{anyhow, Result};
 use indicatif::ParallelProgressIterator;
 use log::{error, info};
-use metaplex_token_metadata::{
-    instruction::sign_metadata, state::Metadata, ID as METAPLEX_PROGRAM_ID,
-};
+use mpl_token_metadata::{instruction::sign_metadata, state::Metadata, ID as METAPLEX_PROGRAM_ID};
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
 use solana_client::rpc_client::RpcClient;

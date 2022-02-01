@@ -1,5 +1,10 @@
 v0.4.0
 * Change decode default format to data struct to match input required from `update-metadata` command
+* Add `set immutable` and `set immutable` all commands
+* Updated to use `mpl-token-metadata v1.1.0`
+
+TODO:
+* Set primary sale and set immutable, fix progress bar by not writing to log within par_iter loop
 
 v0.3.6
 * Add withdraw command for candy machine v2

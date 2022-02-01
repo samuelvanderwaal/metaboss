@@ -1,8 +1,8 @@
 use anyhow::{anyhow, Result};
 use indicatif::ParallelProgressIterator;
 use log::{error, info};
-use metaplex_token_metadata::state::Metadata;
-use metaplex_token_metadata::ID as TOKEN_METADATA_PROGRAM_ID;
+use mpl_token_metadata::state::Metadata;
+use mpl_token_metadata::ID as TOKEN_METADATA_PROGRAM_ID;
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
 use serde::Serialize;
