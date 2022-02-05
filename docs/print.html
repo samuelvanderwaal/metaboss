@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="base_options.html"><strong aria-hidden="true">4.</strong> Base Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">6.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">7.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">8.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">9.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">10.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">11.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">12.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">13.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">14.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">4.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">6.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">7.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">8.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">9.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">10.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">11.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">12.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">13.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">14.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -196,6 +196,9 @@
 <p>or</p>
 <pre><code class="language-bash">git clone https://github.com/samuelvanderwaal/metaboss.git
 </code></pre>
+<p>On Ubuntu you may need some additional packages:</p>
+<pre><code>sudo apt install libssl-dev libudev-dev pkg-config
+</code></pre>
 <p>Change directory and check out the <code>main</code> branch:</p>
 <pre><code class="language-bash">cd metaboss
 git checkout main
@@ -257,18 +260,22 @@ git checkout main
     &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
 ]
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="base-options"><a class="header" href="#base-options">Base Options</a></h2>
-<p>These are the options you pass directly to the metaboss command before the subcommands.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="global-options"><a class="header" href="#global-options">Global Options</a></h2>
+<p>These are the options that apply to all subcommands and can be passed in at any level.</p>
 <pre><code class="language-bash">metaboss &lt;option&gt; &lt;subcommand&gt; &lt;subcommand&gt;
+</code></pre>
+<pre><code class="language-bash">metaboss &lt;subcommand&gt; &lt;option&gt; &lt;subcommand&gt;
+</code></pre>
+<pre><code class="language-bash">metaboss &lt;subcommand&gt; &lt;subcommand&gt; &lt;option&gt;
 </code></pre>
 <h2 id="options"><a class="header" href="#options">Options</a></h2>
 <p>-r, --rpc <rpc> The RPC endpoint to use for commands.</p>
-<p>Metaboss will try to read your Solana config settings for both the RPC endpoint and also the Commitment setting by reading from <code>$HOME/.config/solana/cli/config.yml</code>. If it can't find a config file it defaults to using <code> https://api.devnet.solana.com</code> and <code>confirmed</code>.</p>
+<p>Metaboss will try to read your Solana config settings for both the RPC endpoint and also the Commitment setting by reading from <code>$HOME/.config/solana/cli/config.yml</code>. If it can't find a config file it defaults to using <code>https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/</code> and <code>confirmed</code>.</p>
 <p>Running Metaboss with the <code>--rpc</code> option will override the above with whatever RPC endpoint the user provides.</p>
 <p>-t, --timeout <timeout> The timeout in seconds to use for RPC calls.</p>
-<p>This defaults to 60 seconds which should be fine for most cases but can be overriden if needed.</p>
+<p>This defaults to 90 seconds which should be fine for most cases but can be overriden if needed.</p>
 <p>Example:</p>
-<pre><code class="language-bash">metaboss -r https://api.devnet.solana.com -t 120 snapshot holders -u DC2mkgwhy56w3viNtHDjJQmc7SGu2QX785bS4aexojwX
+<pre><code class="language-bash">metaboss snapshot holders -r https://ssc-dao.genesysgo.net/ -t 120 -u DC2mkgwhy56w3viNtHDjJQmc7SGu2QX785bS4aexojwX
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="burn"><a class="header" href="#burn">Burn</a></h2>
 <h3 id="burn-one"><a class="header" href="#burn-one">Burn One</a></h3>
@@ -289,6 +296,7 @@ git checkout main
 <pre><code class="language-json">[&quot;xSy...&quot;, &quot;Cnb...&quot; ...]
 </code></pre>
 <p>The command will write each metadata JSON file to the output directory as a separate file with the mint account as the name: e.g. <code>CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp.json</code>. The output option defaults to the current directory.</p>
+<p>As of v0.4.0, the default output will only be the <code>Data</code> struct matching the input format of the <code>update data</code> and <code>update data-all</code> commands. To get the full <code>Metadata</code> struct, use the <code>--full</code> option.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="derive"><a class="header" href="#derive">Derive</a></h2>
 <h3 id="derive-candy-machine-v2-creator"><a class="header" href="#derive-candy-machine-v2-creator">Derive Candy Machine V2 Creator</a></h3>
 <p>Derive the candy machine creator PDA from the candy machine id.</p>
@@ -433,9 +441,10 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 }
 </code></pre>
 <h3 id="snapshot-holders"><a class="header" href="#snapshot-holders">Snapshot Holders</a></h3>
-<p>Snapshot all current holders of NFTs filtered by candy_machine_id or update_authority.</p>
+<p>Snapshot all current holders of NFTs filtered by verified candy_machine_id/first creator or update_authority.
+<strong>Note:</strong> Update authority can be faked so use that option with caution.</p>
 <h4 id="usage-9"><a class="header" href="#usage-9">Usage</a></h4>
-<pre><code class="language-bash">metaboss snapshot holders --candy-machine-id &lt;CANDY_MACHINE_ID&gt; --output &lt;OUTPUT_DIR&gt;
+<pre><code class="language-bash">metaboss snapshot holders --candy-machine-id &lt;CANDY_MACHINE_ID/CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot holders --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
@@ -463,9 +472,9 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 ]
 </code></pre>
 <h3 id="snapshot-mints"><a class="header" href="#snapshot-mints">Snapshot Mints</a></h3>
-<p>Snapshot all mint accounts for a given candy machine id or update authority</p>
+<p>Snapshot all mint accounts for a given verified candy machine id/first creator or update authority</p>
 <h4 id="usage-10"><a class="header" href="#usage-10">Usage</a></h4>
-<pre><code class="language-bash">metaboss snapshot mints --candy-machine-id &lt;CANDY_MACHINE_ID&gt; --output &lt;OUTPUT_DIR&gt;
+<pre><code class="language-bash">metaboss snapshot mints --candy-machine-id &lt;CANDY_MACHINE_ID/CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot mints --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
@@ -588,7 +597,9 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <div style="break-before: page; page-break-before: always;"></div><h2 id="contact"><a class="header" href="#contact">Contact</a></h2>
 <p>Email: sam@vanderwaal.dev</p>
 <p>Twitter: <a href="https://twitter.com/samvwaal">@samvwaal</a></p>
-<p>Discord: @archaeopteryx#7615</p>
+<p>Discord: </p>
+<p>@archaeopteryx#7615</p>
+<p><a href="https://discord.gg/t75ZFq2Tyt">Metaboss Server</a></p>
 
                     </main>
 
