@@ -16,6 +16,7 @@ pub const PUBLIC_RPC_URLS: &'static [&'static str] = &[
     "https://api.testnet.solana.com",
     "https://api.mainnet-beta.solana.com",
     "https://solana-api.projectserum.com",
+    "https://ssc-dao.genesysgo.net",
 ];
 
 pub const MAX_REQUESTS: u64 = 40;
