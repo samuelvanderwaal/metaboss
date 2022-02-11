@@ -243,7 +243,7 @@ pub enum SetSubcommands {
 
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
-        mint_account: String,
+        account: String,
     },
     ImmutableAll {
         /// Path to the creator's keypair file
