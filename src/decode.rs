@@ -33,7 +33,6 @@ pub fn decode_metadata_all(
     let file = File::open(json_file)?;
     let mint_accounts: Vec<String> = serde_json::from_reader(file)?;
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-
     let handle = create_rate_limiter();
 
     info!("Decoding accounts...");
@@ -43,7 +42,6 @@ pub fn decode_metadata_all(
         .progress()
         .for_each(|mint_account| {
             let mut handle = handle.clone();
-
             if use_rate_limit {
                 handle.wait();
             }

@@ -24,6 +24,7 @@ use spl_token::{
 use std::{fs::File, path::Path, str::FromStr};
 
 use crate::data::NFTData;
+use crate::limiter::create_rate_limiter;
 use crate::parse::*;
 use crate::{constants::*, parse::convert_local_to_remote_data};
 
@@ -79,6 +80,9 @@ pub fn mint_from_files(
     immutable: bool,
     primary_sale_happened: bool,
 ) -> Result<()> {
+    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
+    let handle = create_rate_limiter();
+
     let path = Path::new(&list_dir).join("*.json");
     let pattern = path.to_str().ok_or(anyhow!("Invalid directory path"))?;
 
@@ -88,6 +92,11 @@ pub fn mint_from_files(
     let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();
 
     paths.par_iter().for_each(|path| {
+        let mut handle = handle.clone();
+        if use_rate_limit {
+            handle.wait();
+        }
+
         match mint_one(
             client,
             &keypair,

@@ -18,8 +18,10 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use crate::constants::*;
 use crate::decode::get_metadata_pda;
 use crate::derive::derive_cmv2_pda;
+use crate::limiter::create_rate_limiter;
 use crate::parse::{is_only_one_option, parse_keypair};
 use crate::snapshot::get_cm_creator_accounts;
 
@@ -103,10 +105,18 @@ pub fn sign_mint_accounts(
     creator: &Keypair,
     mint_accounts: Vec<String>,
 ) -> Result<()> {
+    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
+    let handle = create_rate_limiter();
+
     mint_accounts
         .par_iter()
         .progress()
         .for_each(|mint_account| {
+            let mut handle = handle.clone();
+            if use_rate_limit {
+                handle.wait();
+            }
+
             let account_pubkey = match Pubkey::from_str(&mint_account) {
                 Ok(pubkey) => pubkey,
                 Err(err) => {

@@ -30,6 +30,7 @@ use std::{
 
 use crate::constants::*;
 use crate::derive::derive_cmv2_pda;
+use crate::limiter::create_rate_limiter;
 use crate::parse::{first_creator_is_verified, is_only_one_option};
 use crate::spinner::*;
 
@@ -127,6 +128,9 @@ pub fn snapshot_holders(
     v2: bool,
     output: &String,
 ) -> Result<()> {
+    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
+    let handle = create_rate_limiter();
+
     let spinner = create_spinner("Getting accounts...");
     let accounts = if let Some(update_authority) = update_authority {
         get_mints_by_update_authority(client, update_authority)?
@@ -155,6 +159,11 @@ pub fn snapshot_holders(
         .par_iter()
         .progress()
         .for_each(|(metadata_pubkey, account)| {
+            let mut handle = handle.clone();
+            if use_rate_limit {
+                handle.wait();
+            }
+
             let nft_holders = nft_holders.clone();
 
             let metadata: Metadata = match try_from_slice_unchecked(&account.data) {

@@ -24,6 +24,7 @@ use std::{
 use crate::constants::*;
 use crate::data::{NFTData, UpdateNFTData, UpdateUriData};
 use crate::decode::{decode, get_metadata_pda};
+use crate::limiter::create_rate_limiter;
 use crate::parse::{convert_local_to_remote_data, parse_keypair};
 
 pub fn update_data_one(
@@ -44,8 +45,10 @@ pub fn update_data_one(
 }
 
 pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) -> Result<()> {
-    let keypair = parse_keypair(keypair)?;
+    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
+    let handle = create_rate_limiter();
 
+    let keypair = parse_keypair(keypair)?;
     let path = Path::new(&data_dir).join("*.json");
     let pattern = path.to_str().ok_or(anyhow!("Invalid directory path"))?;
 
@@ -59,6 +62,11 @@ pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) 
     info!("Updating...");
     println!("Updating...");
     paths.par_iter().progress().for_each(|path| {
+        let mut handle = handle.clone();
+        if use_rate_limit {
+            handle.wait();
+        }
+
         let failed_mints = failed_mints.clone();
         let f = match File::open(path) {
             Ok(f) => f,
@@ -175,12 +183,20 @@ pub fn update_uri_one(
 }
 
 pub fn update_uri_all(client: &RpcClient, keypair: &String, json_file: &String) -> Result<()> {
+    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
+    let handle = create_rate_limiter();
+
     let keypair = parse_keypair(keypair)?;
 
     let f = File::open(json_file)?;
     let update_uris: Vec<UpdateUriData> = serde_json::from_reader(f)?;
 
     update_uris.par_iter().for_each(|data| {
+        let mut handle = handle.clone();
+        if use_rate_limit {
+            handle.wait();
+        }
+
         match update_uri(client, &keypair, &data.mint_account, &data.new_uri) {
             Ok(_) => (),
             Err(e) => {
@@ -313,11 +329,19 @@ pub fn set_update_authority_all(
     json_file: &String,
     new_update_authority: &String,
 ) -> Result<()> {
+    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
+    let handle = create_rate_limiter();
+
     let file = File::open(json_file)?;
     let items: Vec<String> = serde_json::from_reader(file)?;
 
     info!("Setting update_authority...");
     items.par_iter().progress().for_each(|item| {
+        let mut handle = handle.clone();
+        if use_rate_limit {
+            handle.wait();
+        }
+
         // If someone uses a json list that contains a mint account that has already
         //  been updated this will throw an error. We print that error and continue
         let _ = match set_update_authority(client, keypair, &item, &new_update_authority) {
@@ -365,11 +389,19 @@ pub fn set_immutable(client: &RpcClient, keypair: &String, account: &String) -> 
 }
 
 pub fn set_immutable_all(client: &RpcClient, keypair: &String, json_file: &String) -> Result<()> {
+    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
+    let handle = create_rate_limiter();
+
     let file = File::open(json_file)?;
     let items: Vec<String> = serde_json::from_reader(file)?;
 
     info!("Setting immutable...");
     items.par_iter().progress().for_each(|item| {
+        let mut handle = handle.clone();
+        if use_rate_limit {
+            handle.wait();
+        }
+
         // If someone uses a json list that contains a mint account that has already
         //  been updated this will throw an error. We print that error and continue
         let _ = match set_immutable(client, keypair, &item) {
