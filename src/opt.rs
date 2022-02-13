@@ -394,7 +394,7 @@ pub enum UpdateSubcommands {
         #[structopt(short = "s", long)]
         new_share: u8,
 
-        /// Index position for changing the address
+        /// Index position for changing the address [default: 0]
         #[structopt(short, long, default_value = "0")]
         position: u64,
     },

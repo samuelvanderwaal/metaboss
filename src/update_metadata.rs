@@ -81,12 +81,14 @@ pub fn update_creator_by_position(
 
     let parsed_keypair = parse_keypair(keypair)?;
     let data_with_old_creators = decode(client, mint_account)?.data;
-
+    let new_creator_pb = Pubkey::from_str(&new_creator)?;
+    let is_verified = parsed_keypair.pubkey().eq(&new_creator_pb);
     let new_creator = Creator {
-        address: Pubkey::from_str(&new_creator)?,
+        address: new_creator_pb,
         share: *new_share,
-        verified: true,
+        verified: is_verified,
     };
+
     let new_creators = match data_with_old_creators.creators {
         Some(mut old_creators) => {
             let _creator = std::mem::replace(&mut old_creators[*position as usize], new_creator);
