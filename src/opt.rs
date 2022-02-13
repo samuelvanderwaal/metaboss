@@ -360,6 +360,21 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         new_name: String,
     },
+    /// Update the name field inside the data struct on an NFT
+    #[structopt(name = "symbol")]
+    Symbol {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+
+        /// New name for the metadata
+        #[structopt(short = "s", long)]
+        new_symbol: String,
+    },
     /// Update the data struct on a NFT
     #[structopt(name = "data")]
     Data {

@@ -145,6 +145,11 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             account,
             new_name,
         } => update_name_one(&client, &keypair, &account, &new_name),
+        UpdateSubcommands::Symbol {
+            keypair,
+            account,
+            new_symbol,
+        } => update_symbol_one(&client, &keypair, &account, &new_symbol),
         UpdateSubcommands::Data {
             keypair,
             account,

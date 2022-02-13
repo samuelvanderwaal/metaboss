@@ -47,6 +47,26 @@ pub fn update_name_one(
     Ok(())
 }
 
+pub fn update_symbol_one(
+    client: &RpcClient,
+    keypair: &String,
+    mint_account: &String,
+    new_symbol: &String,
+) -> Result<()> {
+    let parsed_keypair = parse_keypair(keypair)?;
+    let data_with_old_symbol = decode(client, mint_account)?.data;
+    let new_data: Data = Data {
+        creators: data_with_old_symbol.creators,
+        seller_fee_basis_points: data_with_old_symbol.seller_fee_basis_points,
+        name: data_with_old_symbol.name,
+        symbol: new_symbol.to_owned(),
+        uri: data_with_old_symbol.uri,
+    };
+
+    update_data(client, &parsed_keypair, mint_account, new_data)?;
+    Ok(())
+}
+
 pub fn update_data_one(
     client: &RpcClient,
     keypair: &String,
