@@ -4,7 +4,7 @@ use indicatif::ParallelProgressIterator;
 use log::{error, info};
 use mpl_token_metadata::{
     instruction::{update_metadata_accounts, update_metadata_accounts_v2},
-    state::Data,
+    state::{Creator, Data},
 };
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
@@ -61,6 +61,46 @@ pub fn update_symbol_one(
         name: data_with_old_symbol.name,
         symbol: new_symbol.to_owned(),
         uri: data_with_old_symbol.uri,
+    };
+
+    update_data(client, &parsed_keypair, mint_account, new_data)?;
+    Ok(())
+}
+
+pub fn update_creator_by_position(
+    client: &RpcClient,
+    keypair: &String,
+    mint_account: &String,
+    new_creator: &String,
+    new_share: &u8,
+    position: &u64,
+) -> Result<()> {
+    if new_share > &100 && new_share < &0 {
+        error!("Invalid creator share")
+    }
+
+    let parsed_keypair = parse_keypair(keypair)?;
+    let data_with_old_creators = decode(client, mint_account)?.data;
+
+    let new_creator = Creator {
+        address: Pubkey::from_str(&new_creator)?,
+        share: *new_share,
+        verified: true,
+    };
+    let new_creators = match data_with_old_creators.creators {
+        Some(mut old_creators) => {
+            let _creator = std::mem::replace(&mut old_creators[*position as usize], new_creator);
+            old_creators
+        }
+        None => vec![new_creator],
+    };
+
+    let new_data: Data = Data {
+        creators: Some(new_creators),
+        seller_fee_basis_points: data_with_old_creators.seller_fee_basis_points,
+        name: data_with_old_creators.name,
+        symbol: data_with_old_creators.symbol,
+        uri: data_with_old_creators.uri,
     };
 
     update_data(client, &parsed_keypair, mint_account, new_data)?;

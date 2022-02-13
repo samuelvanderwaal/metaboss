@@ -150,6 +150,20 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             account,
             new_symbol,
         } => update_symbol_one(&client, &keypair, &account, &new_symbol),
+        UpdateSubcommands::Creators {
+            keypair,
+            account,
+            new_creator,
+            new_share,
+            position,
+        } => update_creator_by_position(
+            &client,
+            &keypair,
+            &account,
+            &new_creator,
+            &new_share,
+            &position,
+        ),
         UpdateSubcommands::Data {
             keypair,
             account,
