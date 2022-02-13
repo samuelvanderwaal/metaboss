@@ -27,6 +27,26 @@ use crate::decode::{decode, get_metadata_pda};
 use crate::limiter::create_rate_limiter;
 use crate::parse::{convert_local_to_remote_data, parse_keypair};
 
+pub fn update_name_one(
+    client: &RpcClient,
+    keypair: &String,
+    mint_account: &String,
+    new_name: &String,
+) -> Result<()> {
+    let parsed_keypair = parse_keypair(keypair)?;
+    let data_with_old_name = decode(client, mint_account)?.data;
+    let new_data: Data = Data {
+        creators: data_with_old_name.creators,
+        seller_fee_basis_points: data_with_old_name.seller_fee_basis_points,
+        name: new_name.to_owned(),
+        symbol: data_with_old_name.symbol,
+        uri: data_with_old_name.uri,
+    };
+
+    update_data(client, &parsed_keypair, mint_account, new_data)?;
+    Ok(())
+}
+
 pub fn update_data_one(
     client: &RpcClient,
     keypair: &String,
