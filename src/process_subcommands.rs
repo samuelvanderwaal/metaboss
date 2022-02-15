@@ -2,6 +2,7 @@ use anyhow::Result;
 use solana_client::rpc_client::RpcClient;
 
 use crate::burn::burn_one;
+use crate::collections::{approve_delegate, revoke_delegate};
 use crate::decode::decode_metadata;
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
 use crate::mint::{mint_list, mint_one};
@@ -10,6 +11,21 @@ use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
 use crate::update_metadata::*;
 use crate::withdraw::{withdraw, WithdrawArgs};
+
+pub fn process_collections(client: &RpcClient, commands: CollectionsSubcommands) -> Result<()> {
+    match commands {
+        CollectionsSubcommands::ApproveAuthority {
+            keypair,
+            collection_mint,
+            delegate_authority,
+        } => approve_delegate(client, keypair, collection_mint, delegate_authority),
+        CollectionsSubcommands::RevokeAuthority {
+            keypair,
+            collection_mint,
+            delegate_authority,
+        } => revoke_delegate(client, keypair, collection_mint, delegate_authority),
+    }
+}
 
 pub fn process_burn(client: &RpcClient, commands: BurnSubcommands) -> Result<()> {
     match commands {

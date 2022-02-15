@@ -21,6 +21,12 @@ pub struct Opt {
 
 #[derive(Debug, StructOpt)]
 pub enum Command {
+    /// NFT collections commands
+    #[structopt(name = "collections")]
+    Collections {
+        #[structopt(subcommand)]
+        collections_subcommands: CollectionsSubcommands,
+    },
     /// Burn token
     #[structopt(name = "burn")]
     Burn {
@@ -86,6 +92,38 @@ pub enum BurnSubcommands {
         /// Token mint account
         #[structopt(short, long)]
         account: String,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum CollectionsSubcommands {
+    #[structopt(name = "approve-authority")]
+    ApproveAuthority {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Collection mint address
+        #[structopt(short, long)]
+        collection_mint: String,
+
+        /// Delegate authority address
+        #[structopt(short, long)]
+        delegate_authority: String,
+    },
+    #[structopt(name = "revoke-authority")]
+    RevokeAuthority {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Collection mint address
+        #[structopt(short, long)]
+        collection_mint: String,
+
+        /// Delegate authority address
+        #[structopt(short, long)]
+        delegate_authority: String,
     },
 }
 

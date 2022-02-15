@@ -1,4 +1,5 @@
 pub mod burn;
+pub mod collections;
 pub mod constants;
 pub mod data;
 pub mod decode;
