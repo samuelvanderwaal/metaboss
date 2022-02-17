@@ -1689,7 +1689,7 @@ dependencies = [
  "lazy_static",
  "log",
  "mpl-candy-machine",
- "mpl-token-metadata 1.2.3",
+ "mpl-token-metadata 1.2.4",
  "num_cpus",
  "ratelimit",
  "rayon",
@@ -1781,7 +1781,7 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-metadata"
-version = "1.2.3"
+version = "1.2.4"
 dependencies = [
  "arrayref",
  "borsh",
