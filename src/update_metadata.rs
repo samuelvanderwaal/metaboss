@@ -76,7 +76,14 @@ pub fn update_creator_by_position(
     position: &u64,
 ) -> Result<()> {
     if new_share > &100 && new_share < &0 {
-        error!("Invalid creator share")
+        error!("Invalid creator share");
+        std::process::exit(1);
+    }
+
+    // Creators cannot be greater than 5
+    if position > &4u64 {
+        error!("Invalid position provided");
+        std::process::exit(1);
     }
 
     let parsed_keypair = parse_keypair(keypair)?;
@@ -91,8 +98,25 @@ pub fn update_creator_by_position(
 
     let new_creators = match data_with_old_creators.creators {
         Some(mut old_creators) => {
-            let _creator = std::mem::replace(&mut old_creators[*position as usize], new_creator);
-            old_creators
+            // Checking for replacing the creator
+            if *position as usize <= old_creators.len() {
+                let _creator =
+                    std::mem::replace(&mut old_creators[*position as usize], new_creator);
+                old_creators
+            }
+            // Checking if the index is greater than total creators length by 1
+            else if *position as usize == old_creators.len() + 1 {
+                old_creators[*position as usize] = new_creator;
+                old_creators
+            }
+            // Error out if invalid
+            else {
+                error!(
+                    "Position index greater than last creator index. Last creator index {}",
+                    old_creators.len()
+                );
+                std::process::exit(1);
+            }
         }
         None => vec![new_creator],
     };
