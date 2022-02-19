@@ -163,7 +163,7 @@ pub enum MintSubcommands {
         primary_sale_happened: bool,
 
         /// Sign NFT after minting it
-        #[structopt(short, long)]
+        #[structopt(long)]
         sign: bool,
     },
     #[structopt(name = "list")]
@@ -194,7 +194,7 @@ pub enum MintSubcommands {
         primary_sale_happened: bool,
 
         /// Sign NFTs after minting them
-        #[structopt(short, long)]
+        #[structopt(long)]
         sign: bool,
     },
 }

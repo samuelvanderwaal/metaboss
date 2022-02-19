@@ -47,6 +47,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             external_metadata_uri,
             immutable,
             primary_sale_happened,
+            sign,
         } => mint_one(
             &client,
             &keypair,
@@ -55,6 +56,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             external_metadata_uri.as_ref(),
             immutable,
             primary_sale_happened,
+            sign,
         ),
         MintSubcommands::List {
             keypair,
@@ -63,6 +65,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             external_metadata_uris,
             immutable,
             primary_sale_happened,
+            sign,
         } => mint_list(
             &client,
             keypair,
@@ -71,6 +74,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             external_metadata_uris,
             immutable,
             primary_sale_happened,
+            sign,
         ),
     }
 }
