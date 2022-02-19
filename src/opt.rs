@@ -103,7 +103,7 @@ pub enum DecodeSubcommands {
         full: bool,
 
         /// Path to JSON file containing a list of mint accounts to decode
-        #[structopt(short, long)]
+        #[structopt(short = "L", long)]
         list_file: Option<String>,
 
         /// Path to directory to save output files.
@@ -143,7 +143,7 @@ pub enum MintSubcommands {
         keypair: String,
 
         /// Receiving address, if different from update authority.
-        #[structopt(short, long)]
+        #[structopt(short = "R", long)]
         receiver: Option<String>,
 
         /// On-chain formatted metadata for the new NFT
@@ -174,7 +174,7 @@ pub enum MintSubcommands {
         keypair: String,
 
         /// Receiving address, if different from update authority
-        #[structopt(short, long)]
+        #[structopt(short = "R", long)]
         receiver: Option<String>,
 
         /// Directory of on-chain formatted metadata files for the new NFTs
