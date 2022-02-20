@@ -97,8 +97,14 @@ pub fn snapshot_mints(
     println!("Getting metadata and writing to file...");
     let mut mint_accounts: Vec<String> = Vec::new();
 
-    for (_, account) in accounts {
-        let metadata: Metadata = try_from_slice_unchecked(&account.data)?;
+    for (pubkey, account) in accounts {
+        let metadata: Metadata = match try_from_slice_unchecked(&account.data) {
+            Ok(metadata) => metadata,
+            Err(_) => {
+                error!("Failed to parse metadata for account {}", pubkey);
+                continue;
+            }
+        };
 
         if first_creator_is_verified(&metadata.data.creators) {
             mint_accounts.push(metadata.mint.to_string());

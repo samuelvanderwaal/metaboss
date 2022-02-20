@@ -9,10 +9,7 @@ pub fn create_rate_limiter() -> Handle {
     let mut limiter = ratelimit::Builder::new()
         .capacity(num_cpus as u32)
         .quantum(1)
-        .interval(Duration::new(
-            0,
-            (TIME_PER_MAX_REQUESTS_NS / MAX_REQUESTS) as u32 + TIME_BUFFER_NS,
-        ))
+        .interval(Duration::new(0, *RPC_DELAY_NS.read().unwrap()))
         .build();
 
     let handle = limiter.make_handle();
