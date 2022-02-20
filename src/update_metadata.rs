@@ -72,17 +72,17 @@ pub fn update_creator_by_position(
     keypair: &String,
     mint_account: &String,
     new_creator: &String,
-    new_share: &u8,
-    position: &u64,
+    new_share: u8,
+    position: usize,
 ) -> Result<()> {
-    if new_share > &100 && new_share < &0 {
+    if new_share > 100 {
         error!("Invalid creator share");
         std::process::exit(1);
     }
 
     // Creators cannot be greater than 5
-    if position > &4u64 {
-        error!("Invalid position provided");
+    if position > 4 {
+        error!("Invalid position provided; max number of five creators are allowed");
         std::process::exit(1);
     }
 
@@ -92,28 +92,27 @@ pub fn update_creator_by_position(
     let is_verified = parsed_keypair.pubkey().eq(&new_creator_pb);
     let new_creator = Creator {
         address: new_creator_pb,
-        share: *new_share,
+        share: new_share,
         verified: is_verified,
     };
 
     let new_creators = match data_with_old_creators.creators {
         Some(mut old_creators) => {
             // Checking for replacing the creator
-            if *position as usize <= old_creators.len() {
-                let _creator =
-                    std::mem::replace(&mut old_creators[*position as usize], new_creator);
+            if position < old_creators.len() {
+                let _creator = std::mem::replace(&mut old_creators[position], new_creator);
                 old_creators
             }
-            // Checking if the index is greater than total creators length by 1
-            else if *position as usize == old_creators.len() + 1 {
-                old_creators[*position as usize] = new_creator;
+            // Checking if the index is the next available slot
+            else if position == old_creators.len() {
+                old_creators.push(new_creator);
                 old_creators
             }
             // Error out if invalid
             else {
                 error!(
                     "Position index greater than last creator index. Last creator index {}",
-                    old_creators.len()
+                    old_creators.len() - 1
                 );
                 std::process::exit(1);
             }

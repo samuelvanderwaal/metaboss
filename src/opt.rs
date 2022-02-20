@@ -396,7 +396,7 @@ pub enum UpdateSubcommands {
 
         /// Index position for changing the address
         #[structopt(short, long, default_value = "0")]
-        position: u64,
+        position: usize,
     },
     /// Update the data struct on a NFT
     #[structopt(name = "data")]

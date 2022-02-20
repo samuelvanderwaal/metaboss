@@ -161,8 +161,8 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             &keypair,
             &account,
             &new_creator,
-            &new_share,
-            &position,
+            new_share,
+            position,
         ),
         UpdateSubcommands::Data {
             keypair,
