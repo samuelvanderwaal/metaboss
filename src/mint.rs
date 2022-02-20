@@ -27,6 +27,7 @@ use crate::data::NFTData;
 use crate::limiter::create_rate_limiter;
 use crate::parse::*;
 use crate::{constants::*, parse::convert_local_to_remote_data};
+use crate::sign::sign_one;
 
 const MINT_LAYOUT: u64 = 82;
 
@@ -38,6 +39,7 @@ pub fn mint_list(
     external_metadata_uris: Option<String>,
     immutable: bool,
     primary_sale_happened: bool,
+    sign: bool,
 ) -> Result<()> {
     if !is_only_one_option(&list_dir, &external_metadata_uris) {
         return Err(anyhow!(
@@ -53,6 +55,7 @@ pub fn mint_list(
             list_dir,
             immutable,
             primary_sale_happened,
+            sign,
         )?;
     } else if let Some(external_metadata_uris) = external_metadata_uris {
         mint_from_uris(
@@ -62,6 +65,7 @@ pub fn mint_list(
             external_metadata_uris,
             immutable,
             primary_sale_happened,
+            sign,
         )?;
     } else {
         return Err(anyhow!(
@@ -79,6 +83,7 @@ pub fn mint_from_files(
     list_dir: String,
     immutable: bool,
     primary_sale_happened: bool,
+    sign: bool,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_rate_limiter();
@@ -105,6 +110,7 @@ pub fn mint_from_files(
             None,
             immutable,
             primary_sale_happened,
+            sign,
         ) {
             Ok(_) => (),
             Err(e) => error!("Failed to mint {:?}: {}", &path, e),
@@ -129,6 +135,7 @@ pub fn mint_from_uris(
     external_metadata_uris_path: String,
     immutable: bool,
     primary_sale_happened: bool,
+    sign: bool,
 ) -> Result<()> {
     let f = File::open(external_metadata_uris_path)?;
     let external_metadata_uris: Vec<String> = serde_json::from_reader(f)?;
@@ -145,6 +152,7 @@ pub fn mint_from_uris(
                 Some(uri),
                 immutable,
                 primary_sale_happened,
+                sign,
             ) {
                 Ok(_) => (),
                 Err(e) => error!("Failed to mint {:?}: {}", &uri, e),
@@ -161,6 +169,7 @@ pub fn mint_one<P: AsRef<Path>>(
     external_metadata_uri: Option<&String>,
     immutable: bool,
     primary_sale_happened: bool,
+    sign: bool,
 ) -> Result<()> {
     if !is_only_one_option(&nft_data_file, &external_metadata_uri) {
         return Err(anyhow!(
@@ -168,12 +177,12 @@ pub fn mint_one<P: AsRef<Path>>(
         ));
     }
 
-    let keypair = parse_keypair(&keypair)?;
+    let parsed_keypair = parse_keypair(&keypair)?;
 
     let receiver = if let Some(address) = receiver {
         Pubkey::from_str(&address)?
     } else {
-        keypair.pubkey()
+        parsed_keypair.pubkey()
     };
 
     let nft_data: NFTData = if let Some(nft_data_file) = nft_data_file {
@@ -205,7 +214,7 @@ pub fn mint_one<P: AsRef<Path>>(
 
     let (tx_id, mint_account) = mint(
         client,
-        keypair,
+        parsed_keypair,
         receiver,
         nft_data,
         immutable,
@@ -214,6 +223,10 @@ pub fn mint_one<P: AsRef<Path>>(
     info!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account);
     let message = format!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account,);
     println!("{}", message);
+    if sign {
+        //TODO: Error handling
+        sign_one(client, keypair.clone(), mint_account.to_string())?;
+    }
 
     Ok(())
 }
