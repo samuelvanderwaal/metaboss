@@ -39,13 +39,20 @@ fn main() -> Result<()> {
             (config.json_rpc_url, config.commitment)
         } else {
             info!(
-            "Could not find a valid Solana-CLI config file. Defaulting to https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/ devenet node."
+            "Could not find a valid Solana-CLI config file. Defaulting to https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/ devnet node."
         );
             (
                 String::from("https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/"),
                 String::from("confirmed"),
             )
         }
+    };
+
+    // Remove trailing slash
+    let rpc = if rpc.ends_with('/') {
+        rpc.trim_end_matches('/').to_string()
+    } else {
+        rpc
     };
 
     // Set rate limiting if the user specified a public RPC.
@@ -55,6 +62,9 @@ fn main() -> Result<()> {
         Please use a private RPC endpoint for best performance results."
         );
         *USE_RATE_LIMIT.write().unwrap() = true;
+    } else if RATE_LIMIT_DELAYS.contains_key(&rpc.as_str()) {
+        *USE_RATE_LIMIT.write().unwrap() = true;
+        *RPC_DELAY_NS.write().unwrap() = RATE_LIMIT_DELAYS[&rpc.as_str()];
     }
 
     let commitment = CommitmentConfig::from_str(&commitment)?;
