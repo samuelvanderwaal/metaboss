@@ -144,6 +144,30 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
 
 pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result<()> {
     match commands {
+        UpdateSubcommands::Name {
+            keypair,
+            account,
+            new_name,
+        } => update_name_one(&client, &keypair, &account, &new_name),
+        UpdateSubcommands::Symbol {
+            keypair,
+            account,
+            new_symbol,
+        } => update_symbol_one(&client, &keypair, &account, &new_symbol),
+        UpdateSubcommands::Creators {
+            keypair,
+            account,
+            new_creator,
+            new_share,
+            position,
+        } => update_creator_by_position(
+            &client,
+            &keypair,
+            &account,
+            &new_creator,
+            new_share,
+            position,
+        ),
         UpdateSubcommands::Data {
             keypair,
             account,

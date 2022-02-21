@@ -353,6 +353,59 @@ pub enum SnapshotSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum UpdateSubcommands {
+    /// Update the name field inside the data struct on an NFT
+    #[structopt(name = "name")]
+    Name {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+
+        /// New name for the metadata
+        #[structopt(short, long)]
+        new_name: String,
+    },
+    /// Update the symbol field inside the data struct on an NFT
+    #[structopt(name = "symbol")]
+    Symbol {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+
+        /// New name for the metadata
+        #[structopt(short = "s", long)]
+        new_symbol: String,
+    },
+    /// Update the creators field by position inside the data struct on an NFT
+    #[structopt(name = "creators")]
+    Creators {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: String,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+
+        /// New name for the metadata
+        #[structopt(short = "c", long)]
+        new_creator: String,
+
+        /// New share percentage for the creator
+        #[structopt(short = "s", long)]
+        new_share: u8,
+
+        /// Index position for changing the address
+        #[structopt(short, long, default_value = "0")]
+        position: usize,
+    },
     /// Update the data struct on a NFT
     #[structopt(name = "data")]
     Data {

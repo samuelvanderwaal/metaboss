@@ -4,7 +4,7 @@ use indicatif::ParallelProgressIterator;
 use log::{error, info};
 use mpl_token_metadata::{
     instruction::{update_metadata_accounts, update_metadata_accounts_v2},
-    state::Data,
+    state::{Creator, Data},
 };
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
@@ -26,6 +26,111 @@ use crate::data::{NFTData, UpdateNFTData, UpdateUriData};
 use crate::decode::{decode, get_metadata_pda};
 use crate::limiter::create_rate_limiter;
 use crate::parse::{convert_local_to_remote_data, parse_keypair};
+
+pub fn update_name_one(
+    client: &RpcClient,
+    keypair: &String,
+    mint_account: &String,
+    new_name: &String,
+) -> Result<()> {
+    let parsed_keypair = parse_keypair(keypair)?;
+    let data_with_old_name = decode(client, mint_account)?.data;
+    let new_data: Data = Data {
+        creators: data_with_old_name.creators,
+        seller_fee_basis_points: data_with_old_name.seller_fee_basis_points,
+        name: new_name.to_owned(),
+        symbol: data_with_old_name.symbol,
+        uri: data_with_old_name.uri,
+    };
+
+    update_data(client, &parsed_keypair, mint_account, new_data)?;
+    Ok(())
+}
+
+pub fn update_symbol_one(
+    client: &RpcClient,
+    keypair: &String,
+    mint_account: &String,
+    new_symbol: &String,
+) -> Result<()> {
+    let parsed_keypair = parse_keypair(keypair)?;
+    let data_with_old_symbol = decode(client, mint_account)?.data;
+    let new_data: Data = Data {
+        creators: data_with_old_symbol.creators,
+        seller_fee_basis_points: data_with_old_symbol.seller_fee_basis_points,
+        name: data_with_old_symbol.name,
+        symbol: new_symbol.to_owned(),
+        uri: data_with_old_symbol.uri,
+    };
+
+    update_data(client, &parsed_keypair, mint_account, new_data)?;
+    Ok(())
+}
+
+pub fn update_creator_by_position(
+    client: &RpcClient,
+    keypair: &String,
+    mint_account: &String,
+    new_creator: &String,
+    new_share: u8,
+    position: usize,
+) -> Result<()> {
+    if new_share > 100 {
+        error!("Invalid creator share");
+        std::process::exit(1);
+    }
+
+    // Creators cannot be greater than 5
+    if position > 4 {
+        error!("Invalid position provided; max number of five creators are allowed");
+        std::process::exit(1);
+    }
+
+    let parsed_keypair = parse_keypair(keypair)?;
+    let data_with_old_creators = decode(client, mint_account)?.data;
+    let new_creator_pb = Pubkey::from_str(&new_creator)?;
+    let is_verified = parsed_keypair.pubkey().eq(&new_creator_pb);
+    let new_creator = Creator {
+        address: new_creator_pb,
+        share: new_share,
+        verified: is_verified,
+    };
+
+    let new_creators = match data_with_old_creators.creators {
+        Some(mut old_creators) => {
+            // Checking for replacing the creator
+            if position < old_creators.len() {
+                let _creator = std::mem::replace(&mut old_creators[position], new_creator);
+                old_creators
+            }
+            // Checking if the index is the next available slot
+            else if position == old_creators.len() {
+                old_creators.push(new_creator);
+                old_creators
+            }
+            // Error out if invalid
+            else {
+                error!(
+                    "Position index greater than last creator index. Last creator index {}",
+                    old_creators.len() - 1
+                );
+                std::process::exit(1);
+            }
+        }
+        None => vec![new_creator],
+    };
+
+    let new_data: Data = Data {
+        creators: Some(new_creators),
+        seller_fee_basis_points: data_with_old_creators.seller_fee_basis_points,
+        name: data_with_old_creators.name,
+        symbol: data_with_old_creators.symbol,
+        uri: data_with_old_creators.uri,
+    };
+
+    update_data(client, &parsed_keypair, mint_account, new_data)?;
+    Ok(())
+}
 
 pub fn update_data_one(
     client: &RpcClient,
