@@ -1,3 +1,11 @@
+v0.4.2
+* Update metadata by name, symbol & creator
+* Add `sign` option to mint commands
+* Change rate limiting for GenesysGo and allow custom rate limits
+
+v0.4.1
+* Hot fix: add rate-limiting to all par_iter functions
+
 v0.4.0
 * Change decode default format to data struct to match input required from `update-metadata` command
 * Add `set immutable` and `set immutable` all commands
