@@ -250,11 +250,11 @@ pub fn snapshot_holders(
         });
 
     let prefix = if let Some(update_authority) = update_authority {
-        update_authority
+        update_authority.clone()
     } else if let Some(candy_machine_id) = candy_machine_id {
-        candy_machine_id
+        candy_machine_id.clone()
     } else if let Some(mint_accounts_file) = mint_accounts_file {
-        mint_accounts_file
+        str::replace(mint_accounts_file, ".json", "")
     } else {
         return Err(anyhow!(
             "Must specify either --update-authority or --candy-machine-id or --mint-accounts-file"
@@ -277,38 +277,35 @@ fn get_mint_account_infos(
     let address_account_pairs: Arc<Mutex<Vec<(Pubkey, Account)>>> =
         Arc::new(Mutex::new(Vec::new()));
 
-    mint_accounts
-        .par_iter()
-        .progress()
-        .for_each(|mint_account| {
-            let mut handle = handle.clone();
-            if use_rate_limit {
-                handle.wait();
+    mint_accounts.par_iter().for_each(|mint_account| {
+        let mut handle = handle.clone();
+        if use_rate_limit {
+            handle.wait();
+        }
+
+        let mint_pubkey = match Pubkey::from_str(mint_account) {
+            Ok(pubkey) => pubkey,
+            Err(_) => {
+                error!("Invalid mint address {}", mint_account);
+                return;
             }
+        };
 
-            let mint_pubkey = match Pubkey::from_str(mint_account) {
-                Ok(pubkey) => pubkey,
-                Err(_) => {
-                    error!("Invalid mint address {}", mint_account);
-                    return;
-                }
-            };
+        let metadata_pubkey = get_metadata_pda(mint_pubkey);
 
-            let metadata_pubkey = get_metadata_pda(mint_pubkey);
+        let account_info = match client.get_account(&metadata_pubkey) {
+            Ok(account) => account,
+            Err(_) => {
+                error!("Error in fetching metadata for mint {}", mint_account);
+                return;
+            }
+        };
 
-            let account_info = match client.get_account(&metadata_pubkey) {
-                Ok(account) => account,
-                Err(_) => {
-                    error!("Error in fetching metadata for mint {}", mint_account);
-                    return;
-                }
-            };
-
-            address_account_pairs
-                .lock()
-                .unwrap()
-                .push((mint_pubkey, account_info))
-        });
+        address_account_pairs
+            .lock()
+            .unwrap()
+            .push((mint_pubkey, account_info))
+    });
 
     let res = address_account_pairs.lock().unwrap().clone();
     Ok(res)
