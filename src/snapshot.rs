@@ -28,11 +28,11 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::constants::*;
 use crate::derive::derive_cmv2_pda;
 use crate::limiter::create_rate_limiter;
 use crate::parse::{first_creator_is_verified, is_only_one_option};
 use crate::spinner::*;
+use crate::{constants::*, decode::get_metadata_pda};
 
 #[derive(Debug, Serialize, Clone)]
 struct Holder {
@@ -131,6 +131,7 @@ pub fn snapshot_holders(
     client: &RpcClient,
     update_authority: &Option<String>,
     candy_machine_id: &Option<String>,
+    mint_accounts_file: &Option<String>,
     v2: bool,
     output: &String,
 ) -> Result<()> {
@@ -150,9 +151,13 @@ pub fn snapshot_holders(
         } else {
             get_cm_creator_accounts(client, &candy_machine_id)?
         }
+    } else if let Some(mint_accounts_file) = mint_accounts_file {
+        let file = File::open(mint_accounts_file)?;
+        let mint_accounts: Vec<String> = serde_json::from_reader(&file)?;
+        get_mint_account_infos(client, mint_accounts)?
     } else {
         return Err(anyhow!(
-            "Must specify either --update-authority or --candy-machine-id"
+            "Must specify either --update-authority or --candy-machine-id or --mint-accounts-file"
         ));
     };
     spinner.finish_with_message("Getting accounts...Done!");
@@ -245,12 +250,14 @@ pub fn snapshot_holders(
         });
 
     let prefix = if let Some(update_authority) = update_authority {
-        update_authority
+        update_authority.clone()
     } else if let Some(candy_machine_id) = candy_machine_id {
-        candy_machine_id
+        candy_machine_id.clone()
+    } else if let Some(mint_accounts_file) = mint_accounts_file {
+        str::replace(mint_accounts_file, ".json", "")
     } else {
         return Err(anyhow!(
-            "Must specify either --update-authority or --candy-machine-id"
+            "Must specify either --update-authority or --candy-machine-id or --mint-accounts-file"
         ));
     };
 
@@ -258,6 +265,50 @@ pub fn snapshot_holders(
     serde_json::to_writer(&mut file, &nft_holders)?;
 
     Ok(())
+}
+
+fn get_mint_account_infos(
+    client: &RpcClient,
+    mint_accounts: Vec<String>,
+) -> Result<Vec<(Pubkey, Account)>> {
+    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
+    let handle = create_rate_limiter();
+
+    let address_account_pairs: Arc<Mutex<Vec<(Pubkey, Account)>>> =
+        Arc::new(Mutex::new(Vec::new()));
+
+    mint_accounts.par_iter().for_each(|mint_account| {
+        let mut handle = handle.clone();
+        if use_rate_limit {
+            handle.wait();
+        }
+
+        let mint_pubkey = match Pubkey::from_str(mint_account) {
+            Ok(pubkey) => pubkey,
+            Err(_) => {
+                error!("Invalid mint address {}", mint_account);
+                return;
+            }
+        };
+
+        let metadata_pubkey = get_metadata_pda(mint_pubkey);
+
+        let account_info = match client.get_account(&metadata_pubkey) {
+            Ok(account) => account,
+            Err(_) => {
+                error!("Error in fetching metadata for mint {}", mint_account);
+                return;
+            }
+        };
+
+        address_account_pairs
+            .lock()
+            .unwrap()
+            .push((mint_pubkey, account_info))
+    });
+
+    let res = address_account_pairs.lock().unwrap().clone();
+    Ok(res)
 }
 
 fn get_mints_by_update_authority(

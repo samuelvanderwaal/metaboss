@@ -126,9 +126,10 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
         SnapshotSubcommands::Holders {
             update_authority,
             candy_machine_id,
+            mint_accounts_file,
             v2,
             output,
-        } => snapshot_holders(&client, &update_authority, &candy_machine_id, v2, &output),
+        } => snapshot_holders(&client, &update_authority, &candy_machine_id, &mint_accounts_file, v2, &output),
         SnapshotSubcommands::CMAccounts {
             update_authority,
             output,

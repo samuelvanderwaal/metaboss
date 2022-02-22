@@ -315,6 +315,10 @@ pub enum SnapshotSubcommands {
         #[structopt(long = "v2")]
         v2: bool,
 
+        /// Path to JSON file with list of mint accounts to sign
+        #[structopt(short, long)]
+        mint_accounts_file: Option<String>,
+
         /// Path to directory to save output files.
         #[structopt(short, long, default_value = ".")]
         output: String,
