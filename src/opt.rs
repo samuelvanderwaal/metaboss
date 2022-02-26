@@ -106,6 +106,10 @@ pub enum DecodeSubcommands {
         #[structopt(short = "L", long)]
         list_file: Option<String>,
 
+        /// Decode into raw bytes
+        #[structopt(long)]
+        raw: bool,
+
         /// Path to directory to save output files.
         #[structopt(short, long, default_value = ".")]
         output: String,

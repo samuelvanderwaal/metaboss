@@ -23,8 +23,16 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
             account,
             full,
             list_file,
+            raw,
             ref output,
-        } => decode_metadata(client, account.as_ref(), full, list_file.as_ref(), output)?,
+        } => decode_metadata(
+            client,
+            account.as_ref(),
+            full,
+            list_file.as_ref(),
+            raw,
+            output,
+        )?,
     }
     Ok(())
 }
@@ -129,7 +137,14 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
             mint_accounts_file,
             v2,
             output,
-        } => snapshot_holders(&client, &update_authority, &candy_machine_id, &mint_accounts_file, v2, &output),
+        } => snapshot_holders(
+            &client,
+            &update_authority,
+            &candy_machine_id,
+            &mint_accounts_file,
+            v2,
+            &output,
+        ),
         SnapshotSubcommands::CMAccounts {
             update_authority,
             output,
