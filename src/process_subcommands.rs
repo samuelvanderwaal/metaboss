@@ -23,8 +23,16 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
             account,
             full,
             list_file,
+            raw,
             ref output,
-        } => decode_metadata(client, account.as_ref(), full, list_file.as_ref(), output)?,
+        } => decode_metadata(
+            client,
+            account.as_ref(),
+            full,
+            list_file.as_ref(),
+            raw,
+            output,
+        )?,
     }
     Ok(())
 }

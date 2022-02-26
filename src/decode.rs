@@ -116,6 +116,7 @@ pub fn decode_metadata(
     account: Option<&String>,
     full: bool,
     list_path: Option<&String>,
+    raw: bool,
     output: &String,
 ) -> AnyResult<()> {
     // Explicitly warn the user if they provide incorrect options combinations
@@ -126,6 +127,11 @@ pub fn decode_metadata(
     }
 
     if let Some(mint_account) = account {
+        if raw {
+            let data = decode_raw(client, mint_account)?;
+            println!("{:?}", data);
+            return Ok(());
+        }
         let metadata = decode(client, &mint_account)?;
         let json_metadata = decode_to_json(metadata, full)?;
         let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
@@ -139,6 +145,25 @@ pub fn decode_metadata(
     };
 
     Ok(())
+}
+
+pub fn decode_raw(client: &RpcClient, mint_account: &String) -> Result<Vec<u8>, DecodeError> {
+    let pubkey = match Pubkey::from_str(&mint_account) {
+        Ok(pubkey) => pubkey,
+        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.clone())),
+    };
+    let metadata_pda = get_metadata_pda(pubkey);
+
+    let account_data = match retry(
+        Exponential::from_millis_with_factor(250, 2.0).take(3),
+        || client.get_account_data(&metadata_pda),
+    ) {
+        Ok(data) => data,
+        Err(err) => {
+            return Err(DecodeError::NetworkError(err.to_string()));
+        }
+    };
+    Ok(account_data)
 }
 
 pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {
