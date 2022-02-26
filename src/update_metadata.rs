@@ -72,14 +72,8 @@ pub fn update_creator_by_position(
     keypair: &String,
     mint_account: &String,
     new_creator: &String,
-    new_share: u8,
     position: usize,
 ) -> Result<()> {
-    if new_share > 100 {
-        error!("Invalid creator share");
-        std::process::exit(1);
-    }
-
     // Creators cannot be greater than 5
     if position > 4 {
         error!("Invalid position provided; max number of five creators are allowed");
@@ -90,9 +84,9 @@ pub fn update_creator_by_position(
     let data_with_old_creators = decode(client, mint_account)?.data;
     let new_creator_pb = Pubkey::from_str(&new_creator)?;
     let is_verified = parsed_keypair.pubkey().eq(&new_creator_pb);
-    let new_creator = Creator {
+    let mut new_creator = Creator {
         address: new_creator_pb,
-        share: new_share,
+        share: 0,
         verified: is_verified,
     };
 
@@ -100,11 +94,24 @@ pub fn update_creator_by_position(
         Some(mut old_creators) => {
             // Checking for replacing the creator
             if position < old_creators.len() {
-                let _creator = std::mem::replace(&mut old_creators[position], new_creator);
+                let old_creator = &mut old_creators[position];
+                new_creator.share = old_creator.share;
+                let _creator = std::mem::replace(old_creator, new_creator);
                 old_creators
             }
             // Checking if the index is the next available slot
             else if position == old_creators.len() {
+                if let Some(old_creators_total_share) =
+                    old_creators
+                        .iter()
+                        .map(|c| c.share)
+                        .reduce(|mut acc, share| {
+                            acc = acc + share;
+                            acc
+                        })
+                {
+                    new_creator.share = 100u8 - old_creators_total_share;
+                }
                 old_creators.push(new_creator);
                 old_creators
             }

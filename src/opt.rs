@@ -277,16 +277,20 @@ pub enum SignSubcommands {
         #[structopt(short, long)]
         account: String,
     },
-    /// Sign all metadata from a JSON list or for a given candy machine id
+    /// Sign all metadata from a JSON list or for a given candy machine id / creator
     #[structopt(name = "all")]
     All {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
         keypair: String,
 
-        /// Candy Machine ID to filter accounts by
+        /// Creator to filter accounts by (for CM v2 use --v2 if candy_machine account is passed)
         #[structopt(short, long)]
-        candy_machine_id: Option<String>,
+        creator: Option<String>,
+
+        /// CM creator index to filter by
+        #[structopt(short, long, default_value = "0")]
+        position: usize,
 
         /// Candy machine v2 id
         #[structopt(long = "v2")]
@@ -300,16 +304,20 @@ pub enum SignSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum SnapshotSubcommands {
-    /// Snapshot all current holders of NFTs by candy_machine_id or update_authority
+    /// Snapshot all current holders of NFTs by candy_machine_id / creator or update_authority
     #[structopt(name = "holders")]
     Holders {
         /// Update authority to filter accounts by.
         #[structopt(short, long)]
         update_authority: Option<String>,
 
-        /// Candy Machine ID to filter accounts by.
+        /// Creator to filter accounts by (for CM v2 use --v2 if candy_machine account is passed)
         #[structopt(short, long)]
-        candy_machine_id: Option<String>,
+        creator: Option<String>,
+
+        /// CM creator index to filter by
+        #[structopt(short, long, default_value = "0")]
+        position: usize,
 
         /// Candy machine v2 id
         #[structopt(long = "v2")]
@@ -334,12 +342,16 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
-    /// Snapshot all mint accounts for a given candy machine id or update authority
+    /// Snapshot all mint accounts for a given candy_machine_id / creatoro or update authority
     #[structopt(name = "mints")]
     Mints {
-        /// Candy Machine ID to filter accounts by
+        /// Creator to filter accounts by (for CM v2 use --v2 if candy_machine account is passed)
         #[structopt(short, long)]
-        candy_machine_id: Option<String>,
+        creator: Option<String>,
+
+        /// CM creator index to filter by
+        #[structopt(short, long, default_value = "0")]
+        position: usize,
 
         /// Update authority to filter accounts by.
         #[structopt(short, long)]
@@ -401,10 +413,6 @@ pub enum UpdateSubcommands {
         /// New name for the metadata
         #[structopt(short = "c", long)]
         new_creator: String,
-
-        /// New share percentage for the creator
-        #[structopt(short = "s", long)]
-        new_share: u8,
 
         /// Index position for changing the address
         #[structopt(short, long, default_value = "0")]

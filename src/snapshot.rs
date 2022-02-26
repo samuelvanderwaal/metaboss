@@ -62,12 +62,13 @@ struct CandyMachineAccount {
 
 pub fn snapshot_mints(
     client: &RpcClient,
-    candy_machine_id: Option<String>,
+    creator: &Option<String>,
+    position: usize,
     update_authority: Option<String>,
     v2: bool,
     output: String,
 ) -> Result<()> {
-    if !is_only_one_option(&candy_machine_id, &update_authority) {
+    if !is_only_one_option(&creator, &update_authority) {
         return Err(anyhow!(
             "Please specify either a candy machine id or an update authority, but not both."
         ));
@@ -76,15 +77,15 @@ pub fn snapshot_mints(
     let spinner = create_spinner("Getting accounts...");
     let accounts = if let Some(ref update_authority) = update_authority {
         get_mints_by_update_authority(client, &update_authority)?
-    } else if let Some(ref candy_machine_id) = candy_machine_id {
+    } else if let Some(ref creator) = creator {
         // Support v2 cm ids
         if v2 {
-            let cm_pubkey = Pubkey::from_str(&candy_machine_id)
-                .expect("Failed to parse pubkey from candy_machine_id!");
-            let cmv2_id = derive_cmv2_pda(&cm_pubkey);
-            get_cm_creator_accounts(client, &cmv2_id.to_string())?
+            let creator_pubkey =
+                Pubkey::from_str(&creator).expect("Failed to parse pubkey from creator!");
+            let cmv2_creator = derive_cmv2_pda(&creator_pubkey);
+            get_cm_creator_accounts(client, &cmv2_creator.to_string(), position)?
         } else {
-            get_cm_creator_accounts(client, &candy_machine_id)?
+            get_cm_creator_accounts(client, &creator, position)?
         }
     } else {
         return Err(anyhow!(
@@ -113,8 +114,8 @@ pub fn snapshot_mints(
 
     let prefix = if let Some(update_authority) = update_authority {
         update_authority
-    } else if let Some(candy_machine_id) = candy_machine_id {
-        candy_machine_id
+    } else if let Some(creator) = creator {
+        creator.clone()
     } else {
         return Err(anyhow!(
             "Must specify either --update-authority or --candy-machine-id"
@@ -130,7 +131,8 @@ pub fn snapshot_mints(
 pub fn snapshot_holders(
     client: &RpcClient,
     update_authority: &Option<String>,
-    candy_machine_id: &Option<String>,
+    creator: &Option<String>,
+    position: usize,
     mint_accounts_file: &Option<String>,
     v2: bool,
     output: &String,
@@ -141,15 +143,15 @@ pub fn snapshot_holders(
     let spinner = create_spinner("Getting accounts...");
     let accounts = if let Some(update_authority) = update_authority {
         get_mints_by_update_authority(client, update_authority)?
-    } else if let Some(candy_machine_id) = candy_machine_id {
+    } else if let Some(creator) = creator {
         // Support v2 cm ids
         if v2 {
-            let cm_pubkey = Pubkey::from_str(&candy_machine_id)
-                .expect("Failed to parse pubkey from candy_machine_id!");
-            let cmv2_id = derive_cmv2_pda(&cm_pubkey);
-            get_cm_creator_accounts(client, &cmv2_id.to_string())?
+            let creator_pubkey =
+                Pubkey::from_str(&creator).expect("Failed to parse pubkey from creator!");
+            let cmv2_creator = derive_cmv2_pda(&creator_pubkey);
+            get_cm_creator_accounts(client, &cmv2_creator.to_string(), position)?
         } else {
-            get_cm_creator_accounts(client, &candy_machine_id)?
+            get_cm_creator_accounts(client, &creator, position)?
         }
     } else if let Some(mint_accounts_file) = mint_accounts_file {
         let file = File::open(mint_accounts_file)?;
@@ -251,8 +253,8 @@ pub fn snapshot_holders(
 
     let prefix = if let Some(update_authority) = update_authority {
         update_authority.clone()
-    } else if let Some(candy_machine_id) = candy_machine_id {
-        candy_machine_id.clone()
+    } else if let Some(creator) = creator {
+        creator.clone()
     } else if let Some(mint_accounts_file) = mint_accounts_file {
         str::replace(mint_accounts_file, ".json", "")
     } else {
@@ -401,8 +403,14 @@ fn get_cm_accounts_by_update_authority(
 
 pub fn get_cm_creator_accounts(
     client: &RpcClient,
-    candy_machine_id: &String,
+    creator: &String,
+    position: usize,
 ) -> Result<Vec<(Pubkey, Account)>> {
+    if position > 4 {
+        error!("CM Creator position cannot be greator than 4");
+        std::process::exit(1);
+    }
+
     let config = RpcProgramAccountsConfig {
         filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
             offset: 1 + // key
@@ -416,8 +424,14 @@ pub fn get_cm_creator_accounts(
             MAX_SYMBOL_LENGTH + // symbol
             2 + // seller fee basis points
             1 + // whether or not there is a creators vec
-            4, // creators
-            bytes: MemcmpEncodedBytes::Base58(candy_machine_id.to_string()),
+            4 + // creators
+            position * // index for each creator
+            (
+                32 + // address
+                1 + // verified
+                1 // share
+            ),
+            bytes: MemcmpEncodedBytes::Base58(creator.to_string()),
             encoding: None,
         })]),
         account_config: RpcAccountInfoConfig {
