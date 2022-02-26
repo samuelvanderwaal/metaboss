@@ -414,10 +414,6 @@ pub enum UpdateSubcommands {
         #[structopt(short = "c", long)]
         new_creator: String,
 
-        /// New share percentage for the creator
-        #[structopt(short = "s", long)]
-        new_share: u8,
-
         /// Index position for changing the address
         #[structopt(short, long, default_value = "0")]
         position: usize,
