@@ -47,32 +47,38 @@ pub fn sign_one(client: &RpcClient, keypair: String, account: String) -> Result<
 pub fn sign_all(
     client: &RpcClient,
     keypair: &String,
-    candy_machine_id: Option<String>,
+    creator: &Option<String>,
+    position: usize,
     v2: bool,
     mint_accounts_file: Option<String>,
 ) -> Result<()> {
-    let creator = parse_keypair(keypair)?;
+    let creator_keypair = parse_keypair(keypair)?;
 
-    if !is_only_one_option(&candy_machine_id, &mint_accounts_file) {
+    if !is_only_one_option(&creator, &mint_accounts_file) {
         return Err(anyhow!(
             "Must specify exactly one of --candy-machine-id or --mint-data-dir"
         ));
     }
 
-    if let Some(candy_machine_id) = candy_machine_id {
+    if let Some(creator) = creator {
         if v2 {
-            let cm_pubkey = Pubkey::from_str(&candy_machine_id)
-                .expect("Failed to parse pubkey from candy_machine_id!");
-            let cmv2_id = derive_cmv2_pda(&cm_pubkey);
-            sign_candy_machine_accounts(client, &cmv2_id.to_string(), creator)?
+            let creator_pubkey =
+                Pubkey::from_str(&creator).expect("Failed to parse pubkey from creator!");
+            let cmv2_creator = derive_cmv2_pda(&creator_pubkey);
+            sign_candy_machine_accounts(
+                client,
+                &cmv2_creator.to_string(),
+                creator_keypair,
+                position,
+            )?
         } else {
-            sign_candy_machine_accounts(client, &candy_machine_id, creator)?
+            sign_candy_machine_accounts(client, &creator, creator_keypair, position)?
         }
     } else if let Some(mint_accounts_file) = mint_accounts_file {
         let file = File::open(mint_accounts_file)?;
         let mint_accounts: Vec<String> = serde_json::from_reader(&file)?;
 
-        sign_mint_accounts(client, &creator, mint_accounts)?;
+        sign_mint_accounts(client, &creator_keypair, mint_accounts)?;
     } else {
         unreachable!();
     }
@@ -139,10 +145,11 @@ pub fn sign_mint_accounts(
 
 pub fn sign_candy_machine_accounts(
     client: &RpcClient,
-    candy_machine_id: &String,
+    creator: &String,
     signing_creator: Keypair,
+    position: usize,
 ) -> Result<()> {
-    let accounts = get_cm_creator_accounts(client, candy_machine_id)?;
+    let accounts = get_cm_creator_accounts(client, creator, position)?;
 
     // Only sign accounts that have not been signed yet
     let signed_at_least_one_account = Arc::new(Mutex::new(false));

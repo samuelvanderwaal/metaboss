@@ -122,10 +122,18 @@ pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()>
         SignSubcommands::One { keypair, account } => sign_one(&client, keypair, account),
         SignSubcommands::All {
             keypair,
-            candy_machine_id,
+            creator,
+            position,
             v2,
             mint_accounts_file,
-        } => sign_all(&client, &keypair, candy_machine_id, v2, mint_accounts_file),
+        } => sign_all(
+            &client,
+            &keypair,
+            &creator,
+            position,
+            v2,
+            mint_accounts_file,
+        ),
     }
 }
 
@@ -133,14 +141,16 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
     match commands {
         SnapshotSubcommands::Holders {
             update_authority,
-            candy_machine_id,
+            creator,
+            position,
             mint_accounts_file,
             v2,
             output,
         } => snapshot_holders(
             &client,
             &update_authority,
-            &candy_machine_id,
+            &creator,
+            position,
             &mint_accounts_file,
             v2,
             &output,
@@ -150,11 +160,12 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
             output,
         } => snapshot_cm_accounts(&client, &update_authority, &output),
         SnapshotSubcommands::Mints {
-            candy_machine_id,
+            creator,
+            position,
             update_authority,
             v2,
             output,
-        } => snapshot_mints(&client, candy_machine_id, update_authority, v2, output),
+        } => snapshot_mints(&client, &creator, position, update_authority, v2, output),
     }
 }
 
@@ -174,16 +185,8 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             keypair,
             account,
             new_creator,
-            new_share,
             position,
-        } => update_creator_by_position(
-            &client,
-            &keypair,
-            &account,
-            &new_creator,
-            new_share,
-            position,
-        ),
+        } => update_creator_by_position(&client, &keypair, &account, &new_creator, position),
         UpdateSubcommands::Data {
             keypair,
             account,
