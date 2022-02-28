@@ -414,9 +414,9 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         account: String,
 
-        /// New name for the metadata
+        /// New creators in the format: address1:share:verified,address2:share:verified,...
         #[structopt(short = "c", long)]
-        new_creator: String,
+        new_creators: String,
 
         /// Index position for changing the address
         #[structopt(short, long, default_value = "0")]

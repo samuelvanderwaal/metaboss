@@ -157,6 +157,39 @@ pub fn is_only_one_option<T, U>(option1: &Option<T>, option2: &Option<U>) -> boo
     }
 }
 
+pub fn parse_cli_creators(new_creators: String) -> Result<Vec<Creator>> {
+    let mut creators = Vec::new();
+
+    for nc in new_creators.split(",") {
+        let mut c = nc.split(":");
+        let address = c.next().ok_or(anyhow!("Missing address!"))?;
+        let address = Pubkey::from_str(&address)
+            .map_err(|_| anyhow!(format!("Invalid creator address: {:?}!", address)))?;
+        let share = c
+            .next()
+            .ok_or(anyhow!("Invalid creator share, must be 0-100!"))?
+            .parse::<u8>()?;
+        let verified = c
+            .next()
+            .ok_or(anyhow!(
+                "Missing creator verified: must be 'true' or 'false'!"
+            ))?
+            .parse::<bool>()?;
+        creators.push(Creator {
+            address,
+            share,
+            verified,
+        });
+    }
+
+    let shares = creators.iter().fold(0, |acc, c| acc + c.share);
+    if shares != 100 {
+        return Err(anyhow!("Creators shares must sum to 100!"));
+    }
+
+    Ok(creators)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
