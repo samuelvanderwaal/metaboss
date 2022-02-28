@@ -187,6 +187,10 @@ pub fn parse_cli_creators(new_creators: String) -> Result<Vec<Creator>> {
         return Err(anyhow!("Creators shares must sum to 100!"));
     }
 
+    if creators.len() > 5 {
+        return Err(anyhow!("Too many creators: maximum of five!"));
+    }
+
     Ok(creators)
 }
 
