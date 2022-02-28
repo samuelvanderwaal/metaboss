@@ -1,7 +1,8 @@
-v0.4.2
+v0.5.0
 * Update metadata by name, symbol & creator
 * Add `sign` option to mint commands
 * Change rate limiting for GenesysGo and allow custom rate limits
+* Snapshot by creator and position
 
 v0.4.1
 * Hot fix: add rate-limiting to all par_iter functions
