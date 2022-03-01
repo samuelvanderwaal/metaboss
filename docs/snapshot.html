@@ -174,7 +174,7 @@
 }
 </code></pre>
 <h3 id="snapshot-holders"><a class="header" href="#snapshot-holders">Snapshot Holders</a></h3>
-<p>Snapshot all current holders of NFTs filtered by verified candy_machine_id/first creator or update_authority.
+<p>Snapshot all current holders of NFTs filtered by verified candy_machine_id/first creator, update_authority, or mint list.
 <strong>Note:</strong> Update authority can be faked so use that option with caution.</p>
 <h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot holders --creator &lt;CREATOR_ADDRESS&gt; -p &lt;POSITION&gt; --output &lt;OUTPUT_DIR&gt;
@@ -188,7 +188,10 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <pre><code class="language-bash">metaboss snapshot holders --creator &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
-<p>Creates a JSON file in the output directory with the name format of <code>&lt;CREATOR/UPDATE_AUTHORITY&gt;_holders.json</code> consisting of an array of objects with the following fields:</p>
+<p>Using a mint list: </p>
+<pre><code class="language-bash">metaboss snapshot holders --mint-list &lt;PATH_TO_MINT_LIST_FILE&gt; --output &lt;OUTPUT_DIR&gt;
+</code></pre>
+<p>Creates a JSON file in the output directory with the name format of <code>&lt;CREATOR/UPDATE_AUTHORITY/MINT_LIST&gt;_holders.json</code> consisting of an array of objects with the following fields:</p>
 <ul>
 <li>owner wallet -- the holder of the token</li>
 <li>associated token account -- the token account the NFT is stored at</li>
