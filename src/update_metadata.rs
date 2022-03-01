@@ -15,6 +15,7 @@ use solana_sdk::{
     transaction::Transaction,
 };
 use std::{
+    cmp,
     fs::File,
     path::Path,
     str::FromStr,
@@ -72,15 +73,8 @@ pub fn update_creator_by_position(
     keypair: &String,
     mint_account: &String,
     new_creators: &String,
-    position: usize,
     should_append: bool,
 ) -> Result<()> {
-    // Creators cannot be greater than 5
-    if position > 4 {
-        error!("Invalid position provided; max number of five creators are allowed");
-        std::process::exit(1);
-    }
-
     let parsed_keypair = parse_keypair(keypair)?;
     let data_with_old_creators = decode(client, mint_account)?.data;
     let parsed_creators = parse_cli_creators(new_creators.to_string(), should_append)?;
@@ -94,7 +88,8 @@ pub fn update_creator_by_position(
                 "Appending {} new creators with old creators",
                 remaining_space
             );
-            old_creators.append(&mut parsed_creators[0..remaining_space].to_vec());
+            let end_index = cmp::min(parsed_creators.len(), remaining_space);
+            old_creators.append(&mut parsed_creators[0..end_index].to_vec());
             old_creators
         }
     } else {

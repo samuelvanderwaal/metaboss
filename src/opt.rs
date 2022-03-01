@@ -418,10 +418,6 @@ pub enum UpdateSubcommands {
         #[structopt(short = "c", long)]
         new_creators: String,
 
-        /// Index position for changing the address
-        #[structopt(short, long, default_value = "0")]
-        position: usize,
-
         /// Should be appended instead of overwriting
         #[structopt(short, long = "append")]
         append: bool,

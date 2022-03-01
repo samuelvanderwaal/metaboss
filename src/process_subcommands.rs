@@ -185,11 +185,8 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             keypair,
             account,
             new_creators,
-            position,
             append,
-        } => {
-            update_creator_by_position(&client, &keypair, &account, &new_creators, position, append)
-        }
+        } => update_creator_by_position(&client, &keypair, &account, &new_creators, append),
         UpdateSubcommands::Data {
             keypair,
             account,
