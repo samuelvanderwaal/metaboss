@@ -1,10 +1,10 @@
 use anyhow::{anyhow, Result};
 use glob::glob;
 use indicatif::ParallelProgressIterator;
-use log::{error, info};
+use log::{error, info, warn};
 use mpl_token_metadata::{
     instruction::{update_metadata_accounts, update_metadata_accounts_v2},
-    state::{Creator, Data},
+    state::Data,
 };
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
@@ -15,6 +15,7 @@ use solana_sdk::{
     transaction::Transaction,
 };
 use std::{
+    cmp,
     fs::File,
     path::Path,
     str::FromStr,
@@ -25,7 +26,7 @@ use crate::constants::*;
 use crate::data::{NFTData, UpdateNFTData, UpdateUriData};
 use crate::decode::{decode, get_metadata_pda};
 use crate::limiter::create_rate_limiter;
-use crate::parse::{convert_local_to_remote_data, parse_keypair};
+use crate::parse::{convert_local_to_remote_data, parse_cli_creators, parse_keypair};
 
 pub fn update_name_one(
     client: &RpcClient,
@@ -71,61 +72,34 @@ pub fn update_creator_by_position(
     client: &RpcClient,
     keypair: &String,
     mint_account: &String,
-    new_creator: &String,
-    position: usize,
+    new_creators: &String,
+    should_append: bool,
 ) -> Result<()> {
-    // Creators cannot be greater than 5
-    if position > 4 {
-        error!("Invalid position provided; max number of five creators are allowed");
-        std::process::exit(1);
-    }
-
     let parsed_keypair = parse_keypair(keypair)?;
     let data_with_old_creators = decode(client, mint_account)?.data;
-    let new_creator_pb = Pubkey::from_str(&new_creator)?;
-    let is_verified = parsed_keypair.pubkey().eq(&new_creator_pb);
-    let mut new_creator = Creator {
-        address: new_creator_pb,
-        share: 0,
-        verified: is_verified,
+    let parsed_creators = parse_cli_creators(new_creators.to_string(), should_append)?;
+
+    let new_creators = if let Some(mut old_creators) = data_with_old_creators.creators {
+        if !should_append {
+            parsed_creators
+        } else {
+            let remaining_space = 5 - old_creators.len();
+            warn!(
+                "Appending {} new creators with old creators with shares of 0",
+                parsed_creators.len()
+            );
+            let end_index = cmp::min(parsed_creators.len(), remaining_space);
+            old_creators.append(&mut parsed_creators[0..end_index].to_vec());
+            old_creators
+        }
+    } else {
+        parsed_creators
     };
 
-    let new_creators = match data_with_old_creators.creators {
-        Some(mut old_creators) => {
-            // Checking for replacing the creator
-            if position < old_creators.len() {
-                let old_creator = &mut old_creators[position];
-                new_creator.share = old_creator.share;
-                let _creator = std::mem::replace(old_creator, new_creator);
-                old_creators
-            }
-            // Checking if the index is the next available slot
-            else if position == old_creators.len() {
-                if let Some(old_creators_total_share) =
-                    old_creators
-                        .iter()
-                        .map(|c| c.share)
-                        .reduce(|mut acc, share| {
-                            acc = acc + share;
-                            acc
-                        })
-                {
-                    new_creator.share = 100u8 - old_creators_total_share;
-                }
-                old_creators.push(new_creator);
-                old_creators
-            }
-            // Error out if invalid
-            else {
-                error!(
-                    "Position index greater than last creator index. Last creator index {}",
-                    old_creators.len() - 1
-                );
-                std::process::exit(1);
-            }
-        }
-        None => vec![new_creator],
-    };
+    let shares = new_creators.iter().fold(0, |acc, c| acc + c.share);
+    if shares != 100 {
+        return Err(anyhow!("Creators shares must sum to 100!"));
+    }
 
     let new_data: Data = Data {
         creators: Some(new_creators),
