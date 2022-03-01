@@ -85,8 +85,8 @@ pub fn update_creator_by_position(
         } else {
             let remaining_space = 5 - old_creators.len();
             warn!(
-                "Appending {} new creators with old creators",
-                remaining_space
+                "Appending {} new creators with old creators with shares of 0",
+                parsed_creators.len()
             );
             let end_index = cmp::min(parsed_creators.len(), remaining_space);
             old_creators.append(&mut parsed_creators[0..end_index].to_vec());
