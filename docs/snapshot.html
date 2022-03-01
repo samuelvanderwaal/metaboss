@@ -177,17 +177,18 @@
 <p>Snapshot all current holders of NFTs filtered by verified candy_machine_id/first creator or update_authority.
 <strong>Note:</strong> Update authority can be faked so use that option with caution.</p>
 <h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
-<pre><code class="language-bash">metaboss snapshot holders --candy-machine-id &lt;CANDY_MACHINE_ID/CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
+<pre><code class="language-bash">metaboss snapshot holders --creator &lt;CREATOR_ADDRESS&gt; -p &lt;POSITION&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
+<p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot holders --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with candy machine id.</strong>
 Candy machine v2 has a separate creator id from the candy machine account id. </p>
-<pre><code class="language-bash">metaboss snapshot holders --candy-machine-id &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
+<pre><code class="language-bash">metaboss snapshot holders --creator &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
-<p>Creates a JSON file in the output directory with the name format of <code>&lt;CANDY_MACHINE_ID/UPDATE_AUTHORITY&gt;_holders.json</code> consisting of an array of objects with the following fields:</p>
+<p>Creates a JSON file in the output directory with the name format of <code>&lt;CREATOR/UPDATE_AUTHORITY&gt;_holders.json</code> consisting of an array of objects with the following fields:</p>
 <ul>
 <li>owner wallet -- the holder of the token</li>
 <li>associated token account -- the token account the NFT is stored at</li>
@@ -207,14 +208,15 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <h3 id="snapshot-mints"><a class="header" href="#snapshot-mints">Snapshot Mints</a></h3>
 <p>Snapshot all mint accounts for a given verified candy machine id/first creator or update authority</p>
 <h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
-<pre><code class="language-bash">metaboss snapshot mints --candy-machine-id &lt;CANDY_MACHINE_ID/CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
+<pre><code class="language-bash">metaboss snapshot mints --creator &lt;CANDY_MACHINE_ID/CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
+<p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot mints --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with candy machine id.</strong>
 Candy machine v2 has a separate creator id from the candy machine account id.</p>
-<pre><code class="language-bash">metaboss snapshot mints --candy-machine-id &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
+<pre><code class="language-bash">metaboss snapshot mints --creator &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
 <p>Creates a JSON file in the output directory with the name format of <code>&lt;CANDY_MACHINE_ID/UPDATE_AUTHORITY&gt;_mint_accounts.json</code> consisting of an array of mint accounts.</p>

@@ -214,14 +214,34 @@
 }
 </code></pre>
 <p>Outputs a TxId to the command line so you can check the result.</p>
+<h3 id="update-name"><a class="header" href="#update-name">Update Name</a></h3>
+<p>Update the on-chain name of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
+<h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
+<pre><code class="language-bash"> metaboss update name --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-name &lt;NEW_NAME&gt;
+</code></pre>
+<h3 id="update-symbol"><a class="header" href="#update-symbol">Update Symbol</a></h3>
+<p>Update the on-chain symbol of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
+<h4 id="usage-3"><a class="header" href="#usage-3">Usage</a></h4>
+<pre><code class="language-bash"> metaboss update name --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-symbol &lt;NEW_SYMBOL&gt;
+</code></pre>
+<h3 id="update-creators"><a class="header" href="#update-creators">Update Creators</a></h3>
+<p>Update the creators of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
+<h4 id="usage-4"><a class="header" href="#usage-4">Usage</a></h4>
+<pre><code class="language-bash">metaboss update creators -k &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -c &lt;CREATOR1:SHARE:VERIFIED,CREATOR2:SHARE:VERIFIED&gt;
+</code></pre>
+<p>Creators should be a comma-delimited list of creator:share:verified. E.g. </p>
+<p>Example:</p>
+<pre><code class="language-bash">metaboss update creators -k ~/.config/solana/devnet.json -a 4rxTT8pKeYFrFgNBgTspBWVEnMnsAZGwChkjRUtP4Xpi -c 42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB:70:false,AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ:30:false
+</code></pre>
+<p>Using the <code>--append</code> flag will set the shares to 0 and append to the existing creators list, otherwise the creators are overwritten with the list you pass in.</p>
 <h3 id="update-uri"><a class="header" href="#update-uri">Update URI</a></h3>
 <p>Update the metadata URI, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
+<h4 id="usage-5"><a class="header" href="#usage-5">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-uri &lt;NEW_URI&gt;
 </code></pre>
 <h3 id="update-uri-all"><a class="header" href="#update-uri-all">Update URI All</a></h3>
 <p>Update the metadata URI for a list of mint accounts, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-3"><a class="header" href="#usage-3">Usage</a></h4>
+<h4 id="usage-6"><a class="header" href="#usage-6">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri-all --keypair &lt;PATH_TO_KEYPAIR&gt; --json-file &lt;PATH_TO_JSON_FILE&gt;
 </code></pre>
 <pre><code class="language-json">[

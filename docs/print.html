@@ -297,6 +297,7 @@ git checkout main
 </code></pre>
 <p>The command will write each metadata JSON file to the output directory as a separate file with the mint account as the name: e.g. <code>CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp.json</code>. The output option defaults to the current directory.</p>
 <p>As of v0.4.0, the default output will only be the <code>Data</code> struct matching the input format of the <code>update data</code> and <code>update data-all</code> commands. To get the full <code>Metadata</code> struct, use the <code>--full</code> option.</p>
+<p>Use <code>--raw</code> to get the account data as raw bytes for debugging purposes.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="derive"><a class="header" href="#derive">Derive</a></h2>
 <h3 id="derive-candy-machine-v2-creator"><a class="header" href="#derive-candy-machine-v2-creator">Derive Candy Machine V2 Creator</a></h3>
 <p>Derive the candy machine creator PDA from the candy machine id.</p>
@@ -344,6 +345,7 @@ git checkout main
 </code></pre>
 <p>The --external-metadata-uri option takes a URI to an external metadata file such as an Arweave link pointing to a JSON file.</p>
 <p>If <code>receiver</code> is set, the NFT will be minted directly to the receiver's address, otherwise it is minted to <code>keypair</code>. Observant users may note that with a simple bash script this allows airdrops to be deployed with Metaboss.</p>
+<p>Use the <code>--sign</code> option to sign the metadata with the keypair immediately after minting.</p>
 <h3 id="mint-list"><a class="header" href="#mint-list">Mint List</a></h3>
 <p>Mint multiple NFTs from a list of JSON files.</p>
 <h4 id="usage-5"><a class="header" href="#usage-5">Usage</a></h4>
@@ -354,6 +356,7 @@ git checkout main
 </code></pre>
 <p>To mint from URIs provide the path to a JSON file containing a list of URIs.</p>
 <p>By default, new NFTs are minted as mutable, to make them immutable use the <code>--immutable</code> option.</p>
+<p>Use the <code>--sign</code> option to sign the metadata with the keypair immediately after minting.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="set"><a class="header" href="#set">Set</a></h2>
 <p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution.</strong></p>
 <p>Set non-Data struct values for a NFT.</p>
@@ -452,17 +455,18 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <p>Snapshot all current holders of NFTs filtered by verified candy_machine_id/first creator or update_authority.
 <strong>Note:</strong> Update authority can be faked so use that option with caution.</p>
 <h4 id="usage-9"><a class="header" href="#usage-9">Usage</a></h4>
-<pre><code class="language-bash">metaboss snapshot holders --candy-machine-id &lt;CANDY_MACHINE_ID/CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
+<pre><code class="language-bash">metaboss snapshot holders --creator &lt;CREATOR_ADDRESS&gt; -p &lt;POSITION&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
+<p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot holders --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with candy machine id.</strong>
 Candy machine v2 has a separate creator id from the candy machine account id. </p>
-<pre><code class="language-bash">metaboss snapshot holders --candy-machine-id &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
+<pre><code class="language-bash">metaboss snapshot holders --creator &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
-<p>Creates a JSON file in the output directory with the name format of <code>&lt;CANDY_MACHINE_ID/UPDATE_AUTHORITY&gt;_holders.json</code> consisting of an array of objects with the following fields:</p>
+<p>Creates a JSON file in the output directory with the name format of <code>&lt;CREATOR/UPDATE_AUTHORITY&gt;_holders.json</code> consisting of an array of objects with the following fields:</p>
 <ul>
 <li>owner wallet -- the holder of the token</li>
 <li>associated token account -- the token account the NFT is stored at</li>
@@ -482,14 +486,15 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <h3 id="snapshot-mints"><a class="header" href="#snapshot-mints">Snapshot Mints</a></h3>
 <p>Snapshot all mint accounts for a given verified candy machine id/first creator or update authority</p>
 <h4 id="usage-10"><a class="header" href="#usage-10">Usage</a></h4>
-<pre><code class="language-bash">metaboss snapshot mints --candy-machine-id &lt;CANDY_MACHINE_ID/CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
+<pre><code class="language-bash">metaboss snapshot mints --creator &lt;CANDY_MACHINE_ID/CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
+<p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot mints --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with candy machine id.</strong>
 Candy machine v2 has a separate creator id from the candy machine account id.</p>
-<pre><code class="language-bash">metaboss snapshot mints --candy-machine-id &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
+<pre><code class="language-bash">metaboss snapshot mints --creator &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
 <p>Creates a JSON file in the output directory with the name format of <code>&lt;CANDY_MACHINE_ID/UPDATE_AUTHORITY&gt;_mint_accounts.json</code> consisting of an array of mint accounts.</p>
@@ -571,14 +576,34 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 }
 </code></pre>
 <p>Outputs a TxId to the command line so you can check the result.</p>
+<h3 id="update-name"><a class="header" href="#update-name">Update Name</a></h3>
+<p>Update the on-chain name of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
+<h4 id="usage-13"><a class="header" href="#usage-13">Usage</a></h4>
+<pre><code class="language-bash"> metaboss update name --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-name &lt;NEW_NAME&gt;
+</code></pre>
+<h3 id="update-symbol"><a class="header" href="#update-symbol">Update Symbol</a></h3>
+<p>Update the on-chain symbol of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
+<h4 id="usage-14"><a class="header" href="#usage-14">Usage</a></h4>
+<pre><code class="language-bash"> metaboss update name --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-symbol &lt;NEW_SYMBOL&gt;
+</code></pre>
+<h3 id="update-creators"><a class="header" href="#update-creators">Update Creators</a></h3>
+<p>Update the creators of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
+<h4 id="usage-15"><a class="header" href="#usage-15">Usage</a></h4>
+<pre><code class="language-bash">metaboss update creators -k &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -c &lt;CREATOR1:SHARE:VERIFIED,CREATOR2:SHARE:VERIFIED&gt;
+</code></pre>
+<p>Creators should be a comma-delimited list of creator:share:verified. E.g. </p>
+<p>Example:</p>
+<pre><code class="language-bash">metaboss update creators -k ~/.config/solana/devnet.json -a 4rxTT8pKeYFrFgNBgTspBWVEnMnsAZGwChkjRUtP4Xpi -c 42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB:70:false,AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ:30:false
+</code></pre>
+<p>Using the <code>--append</code> flag will set the shares to 0 and append to the existing creators list, otherwise the creators are overwritten with the list you pass in.</p>
 <h3 id="update-uri"><a class="header" href="#update-uri">Update URI</a></h3>
 <p>Update the metadata URI, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-13"><a class="header" href="#usage-13">Usage</a></h4>
+<h4 id="usage-16"><a class="header" href="#usage-16">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-uri &lt;NEW_URI&gt;
 </code></pre>
 <h3 id="update-uri-all"><a class="header" href="#update-uri-all">Update URI All</a></h3>
 <p>Update the metadata URI for a list of mint accounts, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-14"><a class="header" href="#usage-14">Usage</a></h4>
+<h4 id="usage-17"><a class="header" href="#usage-17">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri-all --keypair &lt;PATH_TO_KEYPAIR&gt; --json-file &lt;PATH_TO_JSON_FILE&gt;
 </code></pre>
 <pre><code class="language-json">[
@@ -596,7 +621,7 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <h3 id="cm-v2"><a class="header" href="#cm-v2">CM-V2</a></h3>
 <p>Withdraw all funds from a candy machine v2 account. </p>
 <p><strong>Warning: This command will drain your candy machine account and cause it to be garbage collected. Any unminted NFT items will be lost.</strong></p>
-<h4 id="usage-15"><a class="header" href="#usage-15">Usage</a></h4>
+<h4 id="usage-18"><a class="header" href="#usage-18">Usage</a></h4>
 <pre><code class="language-bash">metaboss withdraw cm-v2 &lt;CANDY_MACHINE_ID&gt; -k &lt;PATH_TO_KEYPAIR&gt;
 </code></pre>
 <p>Example:</p>
