@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use glob::glob;
 use indicatif::ParallelProgressIterator;
-use log::{error, info};
+use log::{error, info, warn};
 use mpl_token_metadata::{
     instruction::{update_metadata_accounts, update_metadata_accounts_v2},
     state::Data,
@@ -73,6 +73,7 @@ pub fn update_creator_by_position(
     mint_account: &String,
     new_creators: &String,
     position: usize,
+    should_append: bool,
 ) -> Result<()> {
     // Creators cannot be greater than 5
     if position > 4 {
@@ -82,7 +83,28 @@ pub fn update_creator_by_position(
 
     let parsed_keypair = parse_keypair(keypair)?;
     let data_with_old_creators = decode(client, mint_account)?.data;
-    let new_creators = parse_cli_creators(new_creators.to_string())?;
+    let parsed_creators = parse_cli_creators(new_creators.to_string(), should_append)?;
+
+    let new_creators = if let Some(mut old_creators) = data_with_old_creators.creators {
+        if !should_append {
+            parsed_creators
+        } else {
+            let remaining_space = 5 - old_creators.len();
+            warn!(
+                "Appending {} new creators with old creators",
+                remaining_space
+            );
+            old_creators.append(&mut parsed_creators[0..remaining_space].to_vec());
+            old_creators
+        }
+    } else {
+        parsed_creators
+    };
+
+    let shares = new_creators.iter().fold(0, |acc, c| acc + c.share);
+    if shares != 100 {
+        return Err(anyhow!("Creators shares must sum to 100!"));
+    }
 
     let new_data: Data = Data {
         creators: Some(new_creators),
