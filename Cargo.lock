@@ -1689,7 +1689,7 @@ dependencies = [
  "lazy_static",
  "log",
  "mpl-candy-machine",
- "mpl-token-metadata 1.2.4",
+ "mpl-token-metadata",
  "num_cpus",
  "ratelimit",
  "rayon",
@@ -1755,7 +1755,7 @@ dependencies = [
  "anchor-lang",
  "anchor-spl",
  "arrayref",
- "mpl-token-metadata 1.1.0",
+ "mpl-token-metadata",
  "solana-gateway",
  "solana-program",
  "spl-associated-token-account",
@@ -1764,24 +1764,9 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-metadata"
-version = "1.1.0"
+version = "1.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe5e23f9f14cbd35ab82c471e7a024f617a8f65b0468fa2c8c7eb4def7ebaa18"
-dependencies = [
- "arrayref",
- "borsh",
- "mpl-token-vault",
- "num-derive",
- "num-traits",
- "solana-program",
- "spl-associated-token-account",
- "spl-token",
- "thiserror",
-]
-
-[[package]]
-name = "mpl-token-metadata"
-version = "1.2.4"
+checksum = "c8f072b3bd212fb020389e6d6244e4b35b99708193d063cf3844bac8c182ae8f"
 dependencies = [
  "arrayref",
  "borsh",
