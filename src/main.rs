@@ -72,6 +72,9 @@ fn main() -> Result<()> {
 
     let client = RpcClient::new_with_timeout_and_commitment(rpc.clone(), timeout, commitment);
     match options.cmd {
+        Command::Collections {
+            collections_subcommands,
+        } => process_collections(&client, collections_subcommands)?,
         Command::Burn { burn_subcommands } => process_burn(&client, burn_subcommands)?,
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
         Command::Derive { derive_subcommands } => process_derive(derive_subcommands),

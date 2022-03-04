@@ -90,6 +90,18 @@ pub fn derive_cmv2_pda(pubkey: &Pubkey) -> Pubkey {
     pda
 }
 
+pub fn derive_collection_authority_record(mint: &Pubkey, authority: &Pubkey) -> (Pubkey, u8) {
+    let metaplex_pubkey = id();
+    let seeds = &[
+        "metadata".as_bytes(),
+        &metaplex_pubkey.as_ref(),
+        mint.as_ref(),
+        "collection_authority".as_bytes(),
+        authority.as_ref(),
+    ];
+    Pubkey::find_program_address(seeds, &id())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
