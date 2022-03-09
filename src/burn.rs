@@ -16,13 +16,18 @@ use spl_associated_token_account::get_associated_token_address;
 use spl_token;
 use std::str::FromStr;
 
-use crate::decode::decode;
 use crate::derive::derive_metadata_pda;
 use crate::parse::parse_keypair;
+use crate::{decode::decode, parse::parse_solana_config};
 
-pub fn burn_one(client: &RpcClient, keypair: String, mint_address: String) -> Result<()> {
+pub fn burn_one(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    mint_address: String,
+) -> Result<()> {
     let mint_pubkey = Pubkey::from_str(&mint_address)?;
-    let keypair = parse_keypair(&keypair)?;
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
     let owner_pubkey = keypair.pubkey();
 
     let sig = burn(client, &keypair, &owner_pubkey, &mint_pubkey, 1)?;

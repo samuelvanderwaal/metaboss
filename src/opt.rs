@@ -87,7 +87,7 @@ pub enum BurnSubcommands {
     One {
         /// Path to the authority & funder keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Token mint account
         #[structopt(short, long)]
@@ -101,7 +101,7 @@ pub enum CollectionsSubcommands {
     ApproveAuthority {
         /// Path to the update authority keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Collection mint address
         #[structopt(short, long)]
@@ -115,7 +115,7 @@ pub enum CollectionsSubcommands {
     RevokeAuthority {
         /// Path to the update authority keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Collection mint address
         #[structopt(short, long)]
@@ -182,7 +182,7 @@ pub enum MintSubcommands {
     One {
         /// Path to the update_authority keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Receiving address, if different from update authority.
         #[structopt(short = "R", long)]
@@ -213,7 +213,7 @@ pub enum MintSubcommands {
     List {
         /// Path to the update_authority keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Receiving address, if different from update authority
         #[structopt(short = "R", long)]
@@ -248,7 +248,7 @@ pub enum SetSubcommands {
     PrimarySaleHappened {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
@@ -259,7 +259,7 @@ pub enum SetSubcommands {
     UpdateAuthority {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
@@ -274,7 +274,7 @@ pub enum SetSubcommands {
     UpdateAuthorityAll {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Path to JSON mint accounts file
         #[structopt(short = "a", long)]
@@ -289,7 +289,7 @@ pub enum SetSubcommands {
     Immutable {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
@@ -298,7 +298,7 @@ pub enum SetSubcommands {
     ImmutableAll {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Path to JSON mint accounts file
         #[structopt(short, long)]
@@ -313,7 +313,7 @@ pub enum SignSubcommands {
     One {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Mint account to sign
         #[structopt(short, long)]
@@ -324,7 +324,7 @@ pub enum SignSubcommands {
     All {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Creator to filter accounts by (for CM v2 use --v2 if candy_machine account is passed)
         #[structopt(short, long)]
@@ -416,7 +416,7 @@ pub enum UpdateSubcommands {
     Name {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
@@ -431,7 +431,7 @@ pub enum UpdateSubcommands {
     Symbol {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
@@ -446,7 +446,7 @@ pub enum UpdateSubcommands {
     Creators {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
@@ -465,7 +465,7 @@ pub enum UpdateSubcommands {
     Data {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
@@ -480,7 +480,7 @@ pub enum UpdateSubcommands {
     DataAll {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Path to directory containing JSON files with new data
         #[structopt(short, long)]
@@ -491,7 +491,7 @@ pub enum UpdateSubcommands {
     Uri {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
@@ -506,7 +506,7 @@ pub enum UpdateSubcommands {
     UriAll {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
 
         /// JSON file with list of mint accounts and new URIs
         #[structopt(short = "u", long)]
@@ -524,6 +524,6 @@ pub enum WithdrawSubcommands {
 
         /// Path to the creator's keypair file
         #[structopt(short, long)]
-        keypair: String,
+        keypair: Option<String>,
     },
 }

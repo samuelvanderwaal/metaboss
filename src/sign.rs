@@ -18,17 +18,18 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::constants::*;
 use crate::decode::get_metadata_pda;
 use crate::derive::derive_cmv2_pda;
 use crate::limiter::create_rate_limiter;
 use crate::parse::{is_only_one_option, parse_keypair};
 use crate::snapshot::get_cm_creator_accounts;
+use crate::{constants::*, parse::parse_solana_config};
 
-pub fn sign_one(client: &RpcClient, keypair: String, account: String) -> Result<()> {
-    let creator = parse_keypair(&keypair)?;
+pub fn sign_one(client: &RpcClient, keypair_path: Option<String>, account: String) -> Result<()> {
+    let solana_opts = parse_solana_config();
+    let creator = parse_keypair(keypair_path, solana_opts);
+
     let account_pubkey = Pubkey::from_str(&account)?;
-
     let metadata_pubkey = get_metadata_pda(account_pubkey);
 
     info!(
@@ -46,13 +47,14 @@ pub fn sign_one(client: &RpcClient, keypair: String, account: String) -> Result<
 
 pub fn sign_all(
     client: &RpcClient,
-    keypair: &String,
+    keypair_path: Option<String>,
     creator: &Option<String>,
     position: usize,
     v2: bool,
     mint_accounts_file: Option<String>,
 ) -> Result<()> {
-    let creator_keypair = parse_keypair(keypair)?;
+    let solana_opts = parse_solana_config();
+    let creator_keypair = parse_keypair(keypair_path, solana_opts);
 
     if !is_only_one_option(&creator, &mint_accounts_file) {
         return Err(anyhow!(

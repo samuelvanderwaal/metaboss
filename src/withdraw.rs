@@ -11,21 +11,22 @@ use std::str::FromStr;
 use mpl_candy_machine::accounts as nft_accounts;
 use mpl_candy_machine::instruction as nft_instruction;
 
-use crate::parse::parse_keypair;
+use crate::parse::{parse_keypair, parse_solana_config};
 
 pub struct WithdrawArgs {
     pub rpc_url: String,
     pub candy_machine_id: String,
-    pub keypair: String,
+    pub keypair: Option<String>,
 }
 
 pub fn withdraw(args: WithdrawArgs) -> Result<()> {
+    let solana_opts = parse_solana_config();
     let opts = CommitmentConfig::confirmed();
     let rpc_url = args.rpc_url.clone();
     let ws_url = rpc_url.replace("http", "ws");
     let cluster = Cluster::Custom(rpc_url, ws_url);
 
-    let keypair = parse_keypair(&args.keypair)?;
+    let keypair = parse_keypair(args.keypair, solana_opts);
     let key_bytes = keypair.to_bytes();
     let payer = Keypair::from_bytes(&key_bytes)?;
 

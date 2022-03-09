@@ -26,14 +26,14 @@ use std::{fs::File, path::Path, str::FromStr};
 use crate::data::NFTData;
 use crate::limiter::create_rate_limiter;
 use crate::parse::*;
-use crate::{constants::*, parse::convert_local_to_remote_data};
 use crate::sign::sign_one;
+use crate::{constants::*, parse::convert_local_to_remote_data};
 
 const MINT_LAYOUT: u64 = 82;
 
 pub fn mint_list(
     client: &RpcClient,
-    keypair: String,
+    keypair_path: Option<String>,
     receiver: Option<String>,
     list_dir: Option<String>,
     external_metadata_uris: Option<String>,
@@ -50,7 +50,7 @@ pub fn mint_list(
     if let Some(list_dir) = list_dir {
         mint_from_files(
             client,
-            keypair,
+            keypair_path,
             receiver,
             list_dir,
             immutable,
@@ -60,7 +60,7 @@ pub fn mint_list(
     } else if let Some(external_metadata_uris) = external_metadata_uris {
         mint_from_uris(
             client,
-            keypair,
+            keypair_path,
             receiver,
             external_metadata_uris,
             immutable,
@@ -78,7 +78,7 @@ pub fn mint_list(
 
 pub fn mint_from_files(
     client: &RpcClient,
-    keypair: String,
+    keypair_path: Option<String>,
     receiver: Option<String>,
     list_dir: String,
     immutable: bool,
@@ -104,7 +104,7 @@ pub fn mint_from_files(
 
         match mint_one(
             client,
-            &keypair,
+            keypair_path.clone(),
             &receiver,
             Some(path),
             None,
@@ -130,7 +130,7 @@ pub fn mint_from_files(
 
 pub fn mint_from_uris(
     client: &RpcClient,
-    keypair: String,
+    keypair_path: Option<String>,
     receiver: Option<String>,
     external_metadata_uris_path: String,
     immutable: bool,
@@ -146,7 +146,7 @@ pub fn mint_from_uris(
         .for_each(|uri| {
             match mint_one(
                 client,
-                &keypair,
+                keypair_path.clone(),
                 &receiver,
                 None::<String>,
                 Some(uri),
@@ -163,7 +163,7 @@ pub fn mint_from_uris(
 }
 pub fn mint_one<P: AsRef<Path>>(
     client: &RpcClient,
-    keypair: &String,
+    keypair_path: Option<String>,
     receiver: &Option<String>,
     nft_data_file: Option<P>,
     external_metadata_uri: Option<&String>,
@@ -177,12 +177,13 @@ pub fn mint_one<P: AsRef<Path>>(
         ));
     }
 
-    let parsed_keypair = parse_keypair(&keypair)?;
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path.clone(), solana_opts);
 
     let receiver = if let Some(address) = receiver {
         Pubkey::from_str(&address)?
     } else {
-        parsed_keypair.pubkey()
+        keypair.pubkey()
     };
 
     let nft_data: NFTData = if let Some(nft_data_file) = nft_data_file {
@@ -214,7 +215,7 @@ pub fn mint_one<P: AsRef<Path>>(
 
     let (tx_id, mint_account) = mint(
         client,
-        parsed_keypair,
+        keypair,
         receiver,
         nft_data,
         immutable,
@@ -225,7 +226,7 @@ pub fn mint_one<P: AsRef<Path>>(
     println!("{}", message);
     if sign {
         //TODO: Error handling
-        sign_one(client, keypair.clone(), mint_account.to_string())?;
+        sign_one(client, keypair_path.clone(), mint_account.to_string())?;
     }
 
     Ok(())
