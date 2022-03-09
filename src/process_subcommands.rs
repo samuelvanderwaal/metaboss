@@ -74,7 +74,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             sign,
         } => mint_one(
             &client,
-            &keypair,
+            keypair,
             &receiver,
             nft_data_file,
             external_metadata_uri.as_ref(),
@@ -106,30 +106,23 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
 pub fn process_set(client: &RpcClient, commands: SetSubcommands) -> Result<()> {
     match commands {
         SetSubcommands::PrimarySaleHappened { keypair, account } => {
-            set_primary_sale_happened(&client, &keypair, &account)
+            set_primary_sale_happened(&client, keypair, &account)
         }
         SetSubcommands::UpdateAuthority {
             keypair,
             account,
             new_update_authority,
-        } => set_update_authority(&client, &keypair, &account, &new_update_authority),
+        } => set_update_authority(&client, keypair, &account, &new_update_authority),
         SetSubcommands::UpdateAuthorityAll {
             keypair,
             mint_accounts_file,
             new_update_authority,
-        } => set_update_authority_all(
-            &client,
-            &keypair,
-            &mint_accounts_file,
-            &new_update_authority,
-        ),
-        SetSubcommands::Immutable { keypair, account } => {
-            set_immutable(&client, &keypair, &account)
-        }
+        } => set_update_authority_all(&client, keypair, &mint_accounts_file, &new_update_authority),
+        SetSubcommands::Immutable { keypair, account } => set_immutable(&client, keypair, &account),
         SetSubcommands::ImmutableAll {
             keypair,
             mint_accounts_file,
-        } => set_immutable_all(&client, &keypair, &mint_accounts_file),
+        } => set_immutable_all(&client, keypair, &mint_accounts_file),
     }
 }
 
@@ -142,14 +135,7 @@ pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()>
             position,
             v2,
             mint_accounts_file,
-        } => sign_all(
-            &client,
-            &keypair,
-            &creator,
-            position,
-            v2,
-            mint_accounts_file,
-        ),
+        } => sign_all(&client, keypair, &creator, position, v2, mint_accounts_file),
     }
 }
 
@@ -191,33 +177,33 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             keypair,
             account,
             new_name,
-        } => update_name_one(&client, &keypair, &account, &new_name),
+        } => update_name_one(&client, keypair, &account, &new_name),
         UpdateSubcommands::Symbol {
             keypair,
             account,
             new_symbol,
-        } => update_symbol_one(&client, &keypair, &account, &new_symbol),
+        } => update_symbol_one(&client, keypair, &account, &new_symbol),
         UpdateSubcommands::Creators {
             keypair,
             account,
             new_creators,
             append,
-        } => update_creator_by_position(&client, &keypair, &account, &new_creators, append),
+        } => update_creator_by_position(&client, keypair, &account, &new_creators, append),
         UpdateSubcommands::Data {
             keypair,
             account,
             new_data_file,
-        } => update_data_one(&client, &keypair, &account, &new_data_file),
+        } => update_data_one(&client, keypair, &account, &new_data_file),
         UpdateSubcommands::DataAll { keypair, data_dir } => {
-            update_data_all(&client, &keypair, &data_dir)
+            update_data_all(&client, keypair, &data_dir)
         }
         UpdateSubcommands::Uri {
             keypair,
             account,
             new_uri,
-        } => update_uri_one(&client, &keypair, &account, &new_uri),
+        } => update_uri_one(&client, keypair, &account, &new_uri),
         UpdateSubcommands::UriAll { keypair, json_file } => {
-            update_uri_all(&client, &keypair, &json_file)
+            update_uri_all(&client, keypair, &json_file)
         }
     }
 }

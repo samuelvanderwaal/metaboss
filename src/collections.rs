@@ -8,17 +8,22 @@ use solana_client::rpc_client::RpcClient;
 use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
 use std::str::FromStr;
 
-use crate::derive::{derive_collection_authority_record, derive_metadata_pda};
 use crate::parse::parse_keypair;
+use crate::{
+    derive::{derive_collection_authority_record, derive_metadata_pda},
+    parse::parse_solana_config,
+};
 
 pub fn approve_delegate(
     client: &RpcClient,
-    keypair: String,
+    keypair_path: Option<String>,
     collection_mint: String,
     delegate_authority: String,
 ) -> Result<()> {
     let collection_pubkey = Pubkey::from_str(&collection_mint)?;
-    let keypair = parse_keypair(&keypair)?;
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
+
     let delegate_pubkey = Pubkey::from_str(&delegate_authority)?;
 
     let (collection_authority_record, _bump) =
@@ -58,11 +63,13 @@ pub fn approve_delegate(
 
 pub fn revoke_delegate(
     client: &RpcClient,
-    keypair: String,
+    keypair_path: Option<String>,
     collection_mint: String,
     delegate_authority: String,
 ) -> Result<()> {
-    let keypair = parse_keypair(&keypair)?;
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
+
     let collection_pubkey = Pubkey::from_str(&collection_mint)?;
     let delegate_pubkey = Pubkey::from_str(&delegate_authority)?;
 

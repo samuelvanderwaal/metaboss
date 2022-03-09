@@ -22,19 +22,20 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::constants::*;
 use crate::data::{NFTData, UpdateNFTData, UpdateUriData};
 use crate::decode::{decode, get_metadata_pda};
 use crate::limiter::create_rate_limiter;
 use crate::parse::{convert_local_to_remote_data, parse_cli_creators, parse_keypair};
+use crate::{constants::*, parse::parse_solana_config};
 
 pub fn update_name_one(
     client: &RpcClient,
-    keypair: &String,
+    keypair: Option<String>,
     mint_account: &String,
     new_name: &String,
 ) -> Result<()> {
-    let parsed_keypair = parse_keypair(keypair)?;
+    let solana_opts = parse_solana_config();
+    let parsed_keypair = parse_keypair(keypair, solana_opts);
     let data_with_old_name = decode(client, mint_account)?.data;
     let new_data: Data = Data {
         creators: data_with_old_name.creators,
@@ -50,11 +51,13 @@ pub fn update_name_one(
 
 pub fn update_symbol_one(
     client: &RpcClient,
-    keypair: &String,
+    keypair_path: Option<String>,
     mint_account: &String,
     new_symbol: &String,
 ) -> Result<()> {
-    let parsed_keypair = parse_keypair(keypair)?;
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
+
     let data_with_old_symbol = decode(client, mint_account)?.data;
     let new_data: Data = Data {
         creators: data_with_old_symbol.creators,
@@ -64,18 +67,20 @@ pub fn update_symbol_one(
         uri: data_with_old_symbol.uri,
     };
 
-    update_data(client, &parsed_keypair, mint_account, new_data)?;
+    update_data(client, &keypair, mint_account, new_data)?;
     Ok(())
 }
 
 pub fn update_creator_by_position(
     client: &RpcClient,
-    keypair: &String,
+    keypair_path: Option<String>,
     mint_account: &String,
     new_creators: &String,
     should_append: bool,
 ) -> Result<()> {
-    let parsed_keypair = parse_keypair(keypair)?;
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
+
     let data_with_old_creators = decode(client, mint_account)?.data;
     let parsed_creators = parse_cli_creators(new_creators.to_string(), should_append)?;
 
@@ -109,17 +114,19 @@ pub fn update_creator_by_position(
         uri: data_with_old_creators.uri,
     };
 
-    update_data(client, &parsed_keypair, mint_account, new_data)?;
+    update_data(client, &keypair, mint_account, new_data)?;
     Ok(())
 }
 
 pub fn update_data_one(
     client: &RpcClient,
-    keypair: &String,
+    keypair_path: Option<String>,
     mint_account: &String,
     json_file: &String,
 ) -> Result<()> {
-    let keypair = parse_keypair(keypair)?;
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
+
     let f = File::open(json_file)?;
     let new_data: NFTData = serde_json::from_reader(f)?;
 
@@ -130,11 +137,17 @@ pub fn update_data_one(
     Ok(())
 }
 
-pub fn update_data_all(client: &RpcClient, keypair: &String, data_dir: &String) -> Result<()> {
+pub fn update_data_all(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    data_dir: &String,
+) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_rate_limiter();
 
-    let keypair = parse_keypair(keypair)?;
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
+
     let path = Path::new(&data_dir).join("*.json");
     let pattern = path.to_str().ok_or(anyhow!("Invalid directory path"))?;
 
@@ -257,22 +270,28 @@ pub fn update_data(
 
 pub fn update_uri_one(
     client: &RpcClient,
-    keypair: &String,
+    keypair_path: Option<String>,
     mint_account: &String,
     new_uri: &String,
 ) -> Result<()> {
-    let keypair = parse_keypair(keypair)?;
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
 
     update_uri(client, &keypair, &mint_account, new_uri)?;
 
     Ok(())
 }
 
-pub fn update_uri_all(client: &RpcClient, keypair: &String, json_file: &String) -> Result<()> {
+pub fn update_uri_all(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    json_file: &String,
+) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_rate_limiter();
 
-    let keypair = parse_keypair(keypair)?;
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
 
     let f = File::open(json_file)?;
     let update_uris: Vec<UpdateUriData> = serde_json::from_reader(f)?;
@@ -337,10 +356,12 @@ pub fn update_uri(
 
 pub fn set_primary_sale_happened(
     client: &RpcClient,
-    keypair: &String,
+    keypair_path: Option<String>,
     mint_account: &String,
 ) -> Result<()> {
-    let keypair = parse_keypair(keypair)?;
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
+
     let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint_pubkey = Pubkey::from_str(mint_account)?;
 
@@ -373,11 +394,13 @@ pub fn set_primary_sale_happened(
 
 pub fn set_update_authority(
     client: &RpcClient,
-    keypair: &String,
+    keypair_path: Option<String>,
     mint_account: &String,
     new_update_authority: &String,
 ) -> Result<()> {
-    let keypair = parse_keypair(keypair)?;
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
+
     let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint_pubkey = Pubkey::from_str(mint_account)?;
 
@@ -411,7 +434,7 @@ pub fn set_update_authority(
 
 pub fn set_update_authority_all(
     client: &RpcClient,
-    keypair: &String,
+    keypair_path: Option<String>,
     json_file: &String,
     new_update_authority: &String,
 ) -> Result<()> {
@@ -430,7 +453,12 @@ pub fn set_update_authority_all(
 
         // If someone uses a json list that contains a mint account that has already
         //  been updated this will throw an error. We print that error and continue
-        let _ = match set_update_authority(client, keypair, &item, &new_update_authority) {
+        let _ = match set_update_authority(
+            client,
+            keypair_path.clone(),
+            &item,
+            &new_update_authority,
+        ) {
             Ok(_) => {}
             Err(error) => {
                 error!("Error occurred! {}", error)
@@ -441,8 +469,14 @@ pub fn set_update_authority_all(
     Ok(())
 }
 
-pub fn set_immutable(client: &RpcClient, keypair: &String, account: &String) -> Result<()> {
-    let keypair = parse_keypair(keypair)?;
+pub fn set_immutable(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    account: &String,
+) -> Result<()> {
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
+
     let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint_account = Pubkey::from_str(account)?;
 
@@ -474,7 +508,11 @@ pub fn set_immutable(client: &RpcClient, keypair: &String, account: &String) -> 
     Ok(())
 }
 
-pub fn set_immutable_all(client: &RpcClient, keypair: &String, json_file: &String) -> Result<()> {
+pub fn set_immutable_all(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    json_file: &String,
+) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_rate_limiter();
 
@@ -490,7 +528,7 @@ pub fn set_immutable_all(client: &RpcClient, keypair: &String, json_file: &Strin
 
         // If someone uses a json list that contains a mint account that has already
         //  been updated this will throw an error. We print that error and continue
-        let _ = match set_immutable(client, keypair, &item) {
+        let _ = match set_immutable(client, keypair_path.clone(), &item) {
             Ok(_) => {}
             Err(error) => {
                 error!("Error occurred! {}", error)
