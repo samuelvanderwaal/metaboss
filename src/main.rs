@@ -48,13 +48,6 @@ fn main() -> Result<()> {
         }
     };
 
-    // Remove trailing slash
-    let rpc = if rpc.ends_with('/') {
-        rpc.trim_end_matches('/').to_string()
-    } else {
-        rpc
-    };
-
     // Set rate limiting if the user specified a public RPC.
     if PUBLIC_RPC_URLS.contains(&rpc.as_str()) {
         warn!(
