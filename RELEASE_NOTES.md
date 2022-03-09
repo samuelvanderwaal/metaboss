@@ -1,3 +1,6 @@
+v0.5.1
+* Fix to make QuickNode RPCs work again.
+
 v0.5.0
 * Update metadata by name, symbol & creator
 * Add `sign` option to mint commands

@@ -7,7 +7,7 @@
 
 
         <!-- Custom HTML head -->
-        
+
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">4.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">6.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">7.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">8.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">9.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">10.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html" class="active"><strong aria-hidden="true">11.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">12.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">13.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">14.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">4.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">6.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">7.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">8.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">9.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">10.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html" class="active"><strong aria-hidden="true">11.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">12.</strong> Update</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">13.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -89,7 +89,7 @@
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky bordered">
                     <div class="left-buttons">
                         <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -174,12 +174,11 @@
 }
 </code></pre>
 <h3 id="snapshot-holders"><a class="header" href="#snapshot-holders">Snapshot Holders</a></h3>
-<p>Snapshot all current holders of NFTs filtered by verified candy_machine_id/first creator, update_authority, or mint list.
+<p>Snapshot all current holders of NFTs filtered by verified candy_machine_id/first creator or update_authority.
 <strong>Note:</strong> Update authority can be faked so use that option with caution.</p>
 <h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
-<pre><code class="language-bash">metaboss snapshot holders --creator &lt;CREATOR_ADDRESS&gt; -p &lt;POSITION&gt; --output &lt;OUTPUT_DIR&gt;
+<pre><code class="language-bash">metaboss snapshot holders --creator &lt;CANDY_MACHINE_CREATOR_ID/CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
-<p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot holders --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
@@ -188,10 +187,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <pre><code class="language-bash">metaboss snapshot holders --creator &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
-<p>Using a mint list: </p>
-<pre><code class="language-bash">metaboss snapshot holders --mint-list &lt;PATH_TO_MINT_LIST_FILE&gt; --output &lt;OUTPUT_DIR&gt;
-</code></pre>
-<p>Creates a JSON file in the output directory with the name format of <code>&lt;CREATOR/UPDATE_AUTHORITY/MINT_LIST&gt;_holders.json</code> consisting of an array of objects with the following fields:</p>
+<p>Creates a JSON file in the output directory with the name format of <code>&lt;CREATOR/UPDATE_AUTHORITY&gt;_holders.json</code> consisting of an array of objects with the following fields:</p>
 <ul>
 <li>owner wallet -- the holder of the token</li>
 <li>associated token account -- the token account the NFT is stored at</li>
@@ -211,9 +207,8 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <h3 id="snapshot-mints"><a class="header" href="#snapshot-mints">Snapshot Mints</a></h3>
 <p>Snapshot all mint accounts for a given verified candy machine id/first creator or update authority</p>
 <h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
-<pre><code class="language-bash">metaboss snapshot mints --creator &lt;CANDY_MACHINE_ID/CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
+<pre><code class="language-bash">metaboss snapshot mints --creator &lt;FIRST_CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
-<p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot mints --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
