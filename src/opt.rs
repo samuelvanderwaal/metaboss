@@ -116,6 +116,25 @@ pub enum CollectionsSubcommands {
         is_delegate: bool,
     },
 
+    #[structopt(name = "unverify")]
+    UnverifyCollection {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Collection mint address
+        #[structopt(short, long)]
+        collection_mint: String,
+
+        /// NFT mint address
+        #[structopt(short = "m", long)]
+        nft_mint: String,
+
+        /// Option if the signing keypair is a collection authority delegate.
+        #[structopt(short = "d", long)]
+        is_delegate: bool,
+    },
+
     #[structopt(name = "approve-authority")]
     ApproveAuthority {
         /// Path to the update authority keypair file

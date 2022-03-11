@@ -2,7 +2,9 @@ use anyhow::Result;
 use solana_client::rpc_client::RpcClient;
 
 use crate::burn::burn_one;
-use crate::collections::{approve_delegate, revoke_delegate, verify_nft_collection};
+use crate::collections::{
+    approve_delegate, revoke_delegate, unverify_nft_collection, verify_nft_collection,
+};
 use crate::decode::decode_metadata;
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
 use crate::mint::{mint_list, mint_one};
@@ -20,11 +22,20 @@ pub fn process_collections(client: &RpcClient, commands: CollectionsSubcommands)
             nft_mint,
             is_delegate,
         } => verify_nft_collection(client, keypair, nft_mint, collection_mint, is_delegate),
+
+        CollectionsSubcommands::UnverifyCollection {
+            keypair,
+            collection_mint,
+            is_delegate,
+            nft_mint,
+        } => unverify_nft_collection(client, keypair, nft_mint, collection_mint, is_delegate),
+
         CollectionsSubcommands::ApproveAuthority {
             keypair,
             collection_mint,
             delegate_authority,
         } => approve_delegate(client, keypair, collection_mint, delegate_authority),
+
         CollectionsSubcommands::RevokeAuthority {
             keypair,
             collection_mint,

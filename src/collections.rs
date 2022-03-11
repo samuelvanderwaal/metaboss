@@ -1,7 +1,10 @@
 use anyhow::Result;
 use mpl_token_metadata::{
     id as metadata_program_id,
-    instruction::{approve_collection_authority, revoke_collection_authority, verify_collection},
+    instruction::{
+        approve_collection_authority, revoke_collection_authority, unverify_collection,
+        verify_collection,
+    },
 };
 use retry::{delay::Exponential, retry};
 use solana_client::rpc_client::RpcClient;
@@ -42,6 +45,40 @@ fn send_and_confirm_transaction(
     Ok(sig.to_string())
 }
 
+pub fn unverify_nft_collection(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    nft_mint: String,
+    collection_mint: String,
+    is_delegate_present: bool,
+) -> Result<()> {
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
+
+    let nft_metadata = derive_metadata_pda(&Pubkey::from_str(&nft_mint)?);
+    let collection_pubkey = Pubkey::from_str(&collection_mint)?;
+    let collection_metadata = derive_metadata_pda(&collection_pubkey);
+    let collection_edition_pubkey = derive_edition_pda(&collection_pubkey);
+    let collection_authority_record = match is_delegate_present {
+        true => Some(derive_collection_authority_record(&collection_pubkey, &keypair.pubkey()).0),
+        false => None,
+    };
+
+    let unverify_collection_ix = unverify_collection(
+        metadata_program_id(),
+        nft_metadata,
+        keypair.pubkey(),
+        collection_pubkey,
+        collection_metadata,
+        collection_edition_pubkey,
+        collection_authority_record,
+    );
+
+    send_and_confirm_transaction(client, keypair, &[unverify_collection_ix])?;
+
+    Ok(())
+}
+
 pub fn verify_nft_collection(
     client: &RpcClient,
     keypair_path: Option<String>,
@@ -56,7 +93,6 @@ pub fn verify_nft_collection(
     let collection_pubkey = Pubkey::from_str(&collection_mint)?;
     let collection_metadata = derive_metadata_pda(&collection_pubkey);
     let collection_edition_pubkey = derive_edition_pda(&collection_pubkey);
-
     let collection_authority_record = match is_delegate_present {
         true => Some(derive_collection_authority_record(&collection_pubkey, &keypair.pubkey()).0),
         false => None,
