@@ -2,7 +2,7 @@ use anyhow::Result;
 use solana_client::rpc_client::RpcClient;
 
 use crate::burn::burn_one;
-use crate::collections::{approve_delegate, revoke_delegate};
+use crate::collections::{approve_delegate, revoke_delegate, verify_nft_collection};
 use crate::decode::decode_metadata;
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
 use crate::mint::{mint_list, mint_one};
@@ -14,6 +14,12 @@ use crate::withdraw::{withdraw, WithdrawArgs};
 
 pub fn process_collections(client: &RpcClient, commands: CollectionsSubcommands) -> Result<()> {
     match commands {
+        CollectionsSubcommands::VerifyCollection {
+            keypair,
+            collection_mint,
+            nft_mint,
+            is_delegate,
+        } => verify_nft_collection(client, keypair, nft_mint, collection_mint, is_delegate),
         CollectionsSubcommands::ApproveAuthority {
             keypair,
             collection_mint,
