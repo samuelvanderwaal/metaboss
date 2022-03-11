@@ -108,7 +108,7 @@ pub enum CollectionsSubcommands {
         collection_mint: String,
 
         /// NFT mint address
-        #[structopt(short = "m", long)]
+        #[structopt(short = "n", long)]
         nft_mint: String,
 
         /// Option if the signing keypair is a collection authority delegate.
@@ -127,8 +127,31 @@ pub enum CollectionsSubcommands {
         collection_mint: String,
 
         /// NFT mint address
-        #[structopt(short = "m", long)]
+        #[structopt(short = "n", long)]
         nft_mint: String,
+
+        /// Option if the signing keypair is a collection authority delegate.
+        #[structopt(short = "d", long)]
+        is_delegate: bool,
+    },
+
+    #[structopt(name = "set-and-verify")]
+    SetAndVerifyCollection {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Collection mint address
+        #[structopt(short, long)]
+        collection_mint: String,
+
+        /// NFT mint address
+        #[structopt(short = "n", long)]
+        nft_mint: String,
+
+        /// NFT update authority
+        #[structopt(short, long)]
+        update_authority_nft: String,
 
         /// Option if the signing keypair is a collection authority delegate.
         #[structopt(short = "d", long)]
