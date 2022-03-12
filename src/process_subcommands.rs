@@ -5,7 +5,7 @@ use crate::burn::burn_one;
 use crate::collections::{approve_delegate, revoke_delegate};
 use crate::decode::decode_metadata;
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
-use crate::mint::{mint_list, mint_one};
+use crate::mint::{mint_editions, mint_list, mint_one};
 use crate::opt::*;
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
@@ -71,6 +71,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             external_metadata_uri,
             immutable,
             primary_sale_happened,
+            max_editions,
             sign,
         } => mint_one(
             &client,
@@ -80,8 +81,15 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             external_metadata_uri.as_ref(),
             immutable,
             primary_sale_happened,
+            max_editions,
             sign,
         ),
+        MintSubcommands::Editions {
+            keypair,
+            account,
+            receiver,
+            num_editions,
+        } => mint_editions(client, keypair, account, &receiver, num_editions),
         MintSubcommands::List {
             keypair,
             receiver,

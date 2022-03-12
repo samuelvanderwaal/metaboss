@@ -1,8 +1,13 @@
 use anyhow::{anyhow, Result};
 use glob::glob;
 use log::{error, info};
-use mpl_token_metadata::instruction::{
-    create_master_edition, create_metadata_accounts, update_metadata_accounts,
+use metaboss_lib::decode::*;
+use mpl_token_metadata::{
+    instruction::{
+        create_master_edition, create_metadata_accounts,
+        mint_new_edition_from_master_edition_via_token, update_metadata_accounts,
+    },
+    ID as TOKEN_METADATA_PROGRAM_ID,
 };
 use rayon::prelude::*;
 use reqwest;
@@ -23,11 +28,12 @@ use spl_token::{
 };
 use std::{fs::File, path::Path, str::FromStr};
 
-use crate::data::NFTData;
+use crate::derive::derive_edition_pda;
 use crate::limiter::create_rate_limiter;
 use crate::parse::*;
 use crate::sign::sign_one;
 use crate::{constants::*, parse::convert_local_to_remote_data};
+use crate::{data::NFTData, derive::derive_metadata_pda};
 
 const MINT_LAYOUT: u64 = 82;
 
@@ -46,6 +52,7 @@ pub fn mint_list(
             "Only one of --list-dir or --external-metadata-uris can be specified"
         ));
     }
+    let max_editions = 0;
 
     if let Some(list_dir) = list_dir {
         mint_from_files(
@@ -55,6 +62,7 @@ pub fn mint_list(
             list_dir,
             immutable,
             primary_sale_happened,
+            max_editions,
             sign,
         )?;
     } else if let Some(external_metadata_uris) = external_metadata_uris {
@@ -65,6 +73,7 @@ pub fn mint_list(
             external_metadata_uris,
             immutable,
             primary_sale_happened,
+            max_editions,
             sign,
         )?;
     } else {
@@ -83,6 +92,7 @@ pub fn mint_from_files(
     list_dir: String,
     immutable: bool,
     primary_sale_happened: bool,
+    max_editions: u64,
     sign: bool,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
@@ -110,6 +120,7 @@ pub fn mint_from_files(
             None,
             immutable,
             primary_sale_happened,
+            max_editions,
             sign,
         ) {
             Ok(_) => (),
@@ -135,6 +146,7 @@ pub fn mint_from_uris(
     external_metadata_uris_path: String,
     immutable: bool,
     primary_sale_happened: bool,
+    max_editions: u64,
     sign: bool,
 ) -> Result<()> {
     let f = File::open(external_metadata_uris_path)?;
@@ -152,6 +164,7 @@ pub fn mint_from_uris(
                 Some(uri),
                 immutable,
                 primary_sale_happened,
+                max_editions,
                 sign,
             ) {
                 Ok(_) => (),
@@ -169,6 +182,7 @@ pub fn mint_one<P: AsRef<Path>>(
     external_metadata_uri: Option<&String>,
     immutable: bool,
     primary_sale_happened: bool,
+    max_editions: u64,
     sign: bool,
 ) -> Result<()> {
     if !is_only_one_option(&nft_data_file, &external_metadata_uri) {
@@ -220,6 +234,7 @@ pub fn mint_one<P: AsRef<Path>>(
         nft_data,
         immutable,
         primary_sale_happened,
+        max_editions,
     )?;
     info!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account);
     let message = format!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account,);
@@ -232,6 +247,129 @@ pub fn mint_one<P: AsRef<Path>>(
     Ok(())
 }
 
+pub fn mint_editions(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    account: String,
+    receiver: &Option<String>,
+    _num_editions: u32,
+) -> Result<()> {
+    mint_next_edition(client, keypair_path, account, receiver)?;
+    Ok(())
+}
+
+fn mint_next_edition(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    account: String,
+    receiver: &Option<String>,
+) -> Result<(Signature, Pubkey)> {
+    let solana_opts = parse_solana_config();
+    let funder = parse_keypair(keypair_path.clone(), solana_opts);
+    let metadata_mint = Pubkey::from_str(&account)?;
+    let new_mint_keypair = Keypair::new();
+    let new_mint = new_mint_keypair.pubkey();
+    println!("New mint: {:?}", &new_mint);
+
+    let receiver = if let Some(address) = receiver {
+        Pubkey::from_str(&address)?
+    } else {
+        funder.pubkey().clone()
+    };
+
+    // Get current edition number
+    let edition = decode_edition_from_mint(&client, &account)?;
+    let current_edition_num = edition.edition;
+
+    let master_edition = derive_edition_pda(&metadata_mint);
+    let new_edition = derive_edition_pda(&new_mint);
+    let metadata = derive_metadata_pda(&metadata_mint);
+    let new_metadata = derive_metadata_pda(&new_mint);
+
+    // Allocate memory for the account
+    let min_rent = client.get_minimum_balance_for_rent_exemption(MINT_LAYOUT as usize)?;
+
+    // Create mint account
+    let create_mint_account_ix = create_account(
+        &funder.pubkey(),
+        &new_mint,
+        min_rent,
+        MINT_LAYOUT,
+        &TOKEN_PROGRAM_ID,
+    );
+
+    // Initalize mint ix
+    let init_mint_ix = initialize_mint(
+        &TOKEN_PROGRAM_ID,
+        &new_mint,
+        &funder.pubkey(),
+        Some(&funder.pubkey()),
+        0,
+    )?;
+
+    // Derive associated token account
+    let assoc = get_associated_token_address(&receiver, &metadata_mint);
+    let new_assoc = get_associated_token_address(&receiver, &new_mint);
+    println!("Associated token: {:?}", &assoc);
+    println!("New associated token: {:?}", &new_assoc);
+
+    // Create associated account instruction
+    // let create_assoc_account_ix =
+    // create_associated_token_account(&funder.pubkey(), &receiver, &metadata_mint);
+    // let create_assoc_account_ix =
+    // create_associated_token_account(&funder.pubkey(), &receiver, &new_mint);
+
+    // Mint to instruction
+    let mint_to_ix = mint_to(
+        &TOKEN_PROGRAM_ID,
+        &new_mint,
+        &new_assoc,
+        &funder.pubkey(),
+        &[],
+        1,
+    )?;
+
+    let mint_editions_ix = mint_new_edition_from_master_edition_via_token(
+        TOKEN_METADATA_PROGRAM_ID,
+        new_metadata,
+        new_edition,
+        master_edition,
+        new_mint,
+        funder.pubkey(),
+        funder.pubkey(),
+        receiver,
+        assoc,
+        funder.pubkey(),
+        metadata,
+        metadata_mint,
+        current_edition_num + 1,
+    );
+
+    let instructions = vec![
+        create_mint_account_ix,
+        init_mint_ix,
+        mint_to_ix,
+        mint_editions_ix,
+    ];
+
+    let recent_blockhash = client.get_latest_blockhash()?;
+    let tx = Transaction::new_signed_with_payer(
+        &instructions,
+        Some(&funder.pubkey()),
+        &[&funder, &new_mint_keypair],
+        recent_blockhash,
+    );
+
+    // Send tx with retries.
+    let res = retry(
+        Exponential::from_millis_with_factor(250, 2.0).take(3),
+        || client.send_and_confirm_transaction(&tx),
+    );
+    let sig = res?;
+
+    Ok((sig, new_mint))
+}
+
 pub fn mint(
     client: &RpcClient,
     funder: Keypair,
@@ -239,6 +377,7 @@ pub fn mint(
     nft_data: NFTData,
     immutable: bool,
     primary_sale_happened: bool,
+    max_editions: u64,
 ) -> Result<(Signature, Pubkey)> {
     let metaplex_program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint = Keypair::new();
@@ -327,7 +466,7 @@ pub fn mint(
         funder.pubkey(),
         metadata_account,
         funder.pubkey(),
-        Some(0),
+        Some(max_editions),
     );
 
     let mut instructions = vec![

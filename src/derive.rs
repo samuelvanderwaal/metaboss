@@ -66,7 +66,7 @@ pub fn derive_metadata_pda(pubkey: &Pubkey) -> Pubkey {
     pda
 }
 
-fn derive_edition_pda(pubkey: &Pubkey) -> Pubkey {
+pub fn derive_edition_pda(pubkey: &Pubkey) -> Pubkey {
     let metaplex_pubkey = id();
 
     let seeds = &[

@@ -204,9 +204,32 @@ pub enum MintSubcommands {
         #[structopt(short, long)]
         primary_sale_happened: bool,
 
+        /// Maximum number of editions. Defaults to zero, meaning no editions allowed.
+        #[structopt(short = "e", long, default_value = "0")]
+        max_editions: u64,
+
         /// Sign NFT after minting it
         #[structopt(long)]
         sign: bool,
+    },
+    /// Mint one or more editions from a Master NFT.
+    #[structopt(name = "editions")]
+    Editions {
+        /// Path to the update_authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Master Edition NFT mint account/token address.
+        #[structopt(short, long)]
+        account: String,
+
+        /// Receiving address, if different from update authority.
+        #[structopt(short = "R", long)]
+        receiver: Option<String>,
+
+        /// Number of editions to mint.
+        #[structopt(short, long, default_value = "1")]
+        num_editions: u32,
     },
     #[structopt(name = "list")]
     /// Mint a list of NFTs from a directory of JSON files
