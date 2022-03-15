@@ -1,4 +1,4 @@
-use crate::constants::{MASTER_EDITION_PREFIX, METADATA_PREFIX};
+use crate::constants::{MASTER_EDITION_PREFIX, METADATA_PREFIX, USER_PREFIX};
 use mpl_token_metadata::id as metadata_program_id;
 use solana_sdk::pubkey::Pubkey;
 use std::{convert::AsRef, str::FromStr};
@@ -91,16 +91,31 @@ pub fn derive_cmv2_pda(pubkey: &Pubkey) -> Pubkey {
     pda
 }
 
-pub fn derive_collection_authority_record(mint: &Pubkey, authority: &Pubkey) -> (Pubkey, u8) {
+pub fn derive_collection_authority_record(
+    mint: &Pubkey,
+    collection_authority: &Pubkey,
+) -> (Pubkey, u8) {
     let metaplex_pubkey = metadata_program_id();
     let seeds = &[
         METADATA_PREFIX.as_bytes(),
         &metaplex_pubkey.as_ref(),
         mint.as_ref(),
         "collection_authority".as_bytes(),
-        authority.as_ref(),
+        collection_authority.as_ref(),
     ];
-    Pubkey::find_program_address(seeds, &metadata_program_id())
+    Pubkey::find_program_address(seeds, &metaplex_pubkey)
+}
+
+pub fn derive_use_authority_record(mint: &Pubkey, use_authority: &Pubkey) -> (Pubkey, u8) {
+    let metaplex_pubkey = &metadata_program_id();
+    let use_authority_seeds = &[
+        METADATA_PREFIX.as_bytes(),
+        metaplex_pubkey.as_ref(),
+        mint.as_ref(),
+        USER_PREFIX.as_bytes(),
+        use_authority.as_ref(),
+    ];
+    Pubkey::find_program_address(use_authority_seeds, metaplex_pubkey)
 }
 
 #[cfg(test)]
