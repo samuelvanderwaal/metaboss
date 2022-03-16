@@ -13,7 +13,7 @@ use crate::opt::*;
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
 use crate::update_metadata::*;
-use crate::uses::{approve_use_delegate, revoke_use_delegate};
+use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
 use crate::withdraw::{withdraw, WithdrawArgs};
 
 pub fn process_uses(client: &RpcClient, commands: UsesSubcommands) -> Result<()> {
@@ -46,6 +46,23 @@ pub fn process_uses(client: &RpcClient, commands: UsesSubcommands) -> Result<()>
             mint_nft,
             delegate_use_authority,
             token_account_nft,
+        ),
+
+        UsesSubcommands::Utilize {
+            burner_program_id,
+            is_delegate,
+            keypair,
+            mint_nft,
+            number_of_uses,
+            token_account_nft,
+        } => utilize_nft(
+            client,
+            keypair,
+            mint_nft,
+            token_account_nft,
+            burner_program_id,
+            is_delegate,
+            number_of_uses,
         ),
     }
 }
