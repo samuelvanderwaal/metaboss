@@ -129,6 +129,25 @@ pub enum UsesSubcommands {
         #[structopt(short, long)]
         number_of_uses: u64,
     },
+
+    #[structopt(name = "revoke-authority")]
+    RevokeAuthority {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// NFT mint address
+        #[structopt(short, long)]
+        mint_nft: String,
+
+        /// Delegate use authority address
+        #[structopt(short, long)]
+        delegate_use_authority: String,
+
+        /// NFT Owner Token Account
+        #[structopt(short, long)]
+        token_account_nft: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -208,6 +227,7 @@ pub enum CollectionsSubcommands {
         #[structopt(short, long)]
         delegate_authority: String,
     },
+
     #[structopt(name = "revoke-authority")]
     RevokeAuthority {
         /// Path to the update authority keypair file
