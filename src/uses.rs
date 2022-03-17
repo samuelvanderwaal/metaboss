@@ -118,15 +118,16 @@ pub fn utilize_nft(
     client: &RpcClient,
     keypair_path: Option<String>,
     nft_mint: String,
+    nft_owner: String,
     owner_nft_token_account: String,
     burner_program_id: Option<String>,
     is_delegate_present: bool,
-    number_of_uses: u64,
 ) -> Result<()> {
     let nft_pubkey = Pubkey::from_str(&nft_mint)?;
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
+    let nft_owner = Pubkey::from_str(&nft_owner)?;
     let owner_nft_token_pubkey = Pubkey::from_str(&owner_nft_token_account)?;
     let delegate_pubkey = keypair.pubkey();
     let nft_metadata = derive_metadata_pda(&nft_pubkey);
@@ -149,9 +150,9 @@ pub fn utilize_nft(
         nft_pubkey,
         use_authority_record,
         delegate_pubkey,
-        keypair.pubkey(),
+        nft_owner,
         burner_program_pubkey,
-        number_of_uses,
+        1,
     );
 
     send_and_confirm_transaction(client, keypair, &[utilize_nft_ix])?;

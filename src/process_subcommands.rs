@@ -53,16 +53,16 @@ pub fn process_uses(client: &RpcClient, commands: UsesSubcommands) -> Result<()>
             is_delegate,
             keypair,
             mint_nft,
-            number_of_uses,
+            holder_nft,
             token_account_nft,
         } => utilize_nft(
             client,
             keypair,
             mint_nft,
+            holder_nft,
             token_account_nft,
             burner_program_id,
             is_delegate,
-            number_of_uses,
         ),
     }
 }

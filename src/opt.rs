@@ -151,13 +151,17 @@ pub enum UsesSubcommands {
 
     #[structopt(name = "utilize")]
     Utilize {
-        /// Path to the update authority keypair file
+        /// Path to the use authority keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 
         /// NFT mint address
         #[structopt(short, long)]
         mint_nft: String,
+
+        /// NFT Holder/Owner address
+        #[structopt(short, long)]
+        holder_nft: String,
 
         /// NFT Owner Token Account
         #[structopt(short, long)]
@@ -166,10 +170,6 @@ pub enum UsesSubcommands {
         /// Optional Burner Program ID (if token use is set to Burn)
         #[structopt(short, long)]
         burner_program_id: Option<String>,
-
-        /// Number of uses
-        #[structopt(short, long)]
-        number_of_uses: u64,
 
         /// Option if the signing keypair is a use authority delegate.
         #[structopt(short = "d", long)]
@@ -219,7 +219,7 @@ pub enum CollectionsSubcommands {
 
     #[structopt(name = "set-and-verify")]
     SetAndVerifyCollection {
-        /// Path to the update authority keypair file
+        /// Path to the collection update authority keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 

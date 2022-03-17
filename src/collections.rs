@@ -57,7 +57,7 @@ pub fn set_and_verify_nft_collection(
     let keypair = parse_keypair(keypair_path, solana_opts);
 
     let nft_metadata = derive_metadata_pda(&Pubkey::from_str(&nft_mint)?);
-    let nft_update_authority = derive_metadata_pda(&Pubkey::from_str(&nft_auth)?);
+    let nft_update_authority = Pubkey::from_str(&nft_auth)?;
     let collection_pubkey = Pubkey::from_str(&collection_mint)?;
     let collection_metadata = derive_metadata_pda(&collection_pubkey);
     let collection_edition_pubkey = derive_edition_pda(&collection_pubkey);
