@@ -4,14 +4,10 @@ use solana_sdk::pubkey::Pubkey;
 use std::{convert::AsRef, str::FromStr};
 
 pub fn get_generic_pda(str_seeds: String, program_id: String) {
-    let str_seeds = str_seeds
+    let seeds: Vec<Vec<u8>> = str_seeds
         .split(',')
         .map(|s| s.into())
-        .collect::<Vec<String>>();
-
-    let seeds: Vec<Vec<u8>> = str_seeds
-        .into_iter()
-        .map(|seed| pubkey_or_bytes(seed))
+        .map(pubkey_or_bytes)
         .collect();
 
     let seeds: Vec<&[u8]> = seeds.iter().map(|seed| seed.as_slice()).collect();
