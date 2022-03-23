@@ -27,6 +27,12 @@ pub enum Command {
         #[structopt(subcommand)]
         collections_subcommands: CollectionsSubcommands,
     },
+    /// NFT uses commands
+    #[structopt(name = "uses")]
+    Uses {
+        #[structopt(subcommand)]
+        uses_subcommands: UsesSubcommands,
+    },
     /// Burn token
     #[structopt(name = "burn")]
     Burn {
@@ -83,6 +89,7 @@ pub enum Command {
 
 #[derive(Debug, StructOpt)]
 pub enum BurnSubcommands {
+    /// Burn one NFT.
     #[structopt(name = "one")]
     One {
         /// Path to the authority & funder keypair file
@@ -96,7 +103,146 @@ pub enum BurnSubcommands {
 }
 
 #[derive(Debug, StructOpt)]
+pub enum UsesSubcommands {
+    /// Approve a delegate authority that is allowed to make changes to the NFT's Use data.
+    #[structopt(name = "approve-authority")]
+    ApproveAuthority {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// NFT mint address
+        #[structopt(short, long)]
+        mint_nft: String,
+
+        /// Delegate use authority address
+        #[structopt(short, long)]
+        delegate_use_authority: String,
+
+        /// NFT Owner Token Account
+        #[structopt(short, long)]
+        token_account_nft: String,
+
+        /// Burner Program ID
+        #[structopt(short, long)]
+        burner_program_id: String,
+
+        /// Number of uses
+        #[structopt(short, long)]
+        number_of_uses: u64,
+    },
+    /// Revoke a delegate authority from being allowed to make changes to the NFT's Use data.
+    #[structopt(name = "revoke-authority")]
+    RevokeAuthority {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// NFT mint address
+        #[structopt(short, long)]
+        mint_nft: String,
+
+        /// Delegate use authority address
+        #[structopt(short, long)]
+        delegate_use_authority: String,
+
+        /// NFT Owner Token Account
+        #[structopt(short, long)]
+        token_account_nft: String,
+    },
+    /// Use a NFT, following the on-chain logic for burning it if set.
+    #[structopt(name = "utilize")]
+    Utilize {
+        /// Path to the use authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// NFT mint address
+        #[structopt(short, long)]
+        mint_nft: String,
+
+        /// NFT Holder/Owner address
+        #[structopt(short, long)]
+        holder_nft: String,
+
+        /// NFT Owner Token Account
+        #[structopt(short, long)]
+        token_account_nft: String,
+
+        /// Optional Burner Program ID (if token use is set to Burn)
+        #[structopt(short, long)]
+        burner_program_id: Option<String>,
+
+        /// Option if the signing keypair is a use authority delegate.
+        #[structopt(short = "d", long)]
+        is_delegate: bool,
+    },
+}
+
+#[derive(Debug, StructOpt)]
 pub enum CollectionsSubcommands {
+    /// Verify collection on an NFT.
+    #[structopt(name = "verify")]
+    VerifyCollection {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Collection mint address
+        #[structopt(short, long)]
+        collection_mint: String,
+
+        /// NFT mint address
+        #[structopt(short = "n", long)]
+        nft_mint: String,
+
+        /// Option if the signing keypair is a collection authority delegate.
+        #[structopt(short = "d", long)]
+        is_delegate: bool,
+    },
+    /// Set an NFT's collection as unverified.
+    #[structopt(name = "unverify")]
+    UnverifyCollection {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Collection mint address
+        #[structopt(short, long)]
+        collection_mint: String,
+
+        /// NFT mint address
+        #[structopt(short = "n", long)]
+        nft_mint: String,
+
+        /// Option if the signing keypair is a collection authority delegate.
+        #[structopt(short = "d", long)]
+        is_delegate: bool,
+    },
+    /// Set collection value on NFT and verify in the same step.
+    #[structopt(name = "set-and-verify")]
+    SetAndVerifyCollection {
+        /// Path to the collection update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Collection mint address
+        #[structopt(short, long)]
+        collection_mint: String,
+
+        /// NFT mint address
+        #[structopt(short = "n", long)]
+        nft_mint: String,
+
+        /// NFT update authority
+        #[structopt(short, long)]
+        update_authority_nft: String,
+
+        /// Option if the signing keypair is a collection authority delegate.
+        #[structopt(short = "d", long)]
+        is_delegate: bool,
+    },
+    /// Approve a delegate authority that is allowed to change collection data on the NFT.
     #[structopt(name = "approve-authority")]
     ApproveAuthority {
         /// Path to the update authority keypair file
@@ -111,6 +257,7 @@ pub enum CollectionsSubcommands {
         #[structopt(short, long)]
         delegate_authority: String,
     },
+    /// Revoke the delegate authority from being allowed to change collection data on the NFT.
     #[structopt(name = "revoke-authority")]
     RevokeAuthority {
         /// Path to the update authority keypair file

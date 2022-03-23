@@ -2,7 +2,10 @@ use anyhow::Result;
 use solana_client::rpc_client::RpcClient;
 
 use crate::burn::burn_one;
-use crate::collections::{approve_delegate, revoke_delegate};
+use crate::collections::{
+    approve_delegate, revoke_delegate, set_and_verify_nft_collection, unverify_nft_collection,
+    verify_nft_collection,
+};
 use crate::decode::decode_metadata;
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
 use crate::mint::{mint_list, mint_one};
@@ -10,15 +13,97 @@ use crate::opt::*;
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
 use crate::update_metadata::*;
+use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
 use crate::withdraw::{withdraw, WithdrawArgs};
+
+pub fn process_uses(client: &RpcClient, commands: UsesSubcommands) -> Result<()> {
+    match commands {
+        UsesSubcommands::ApproveAuthority {
+            keypair,
+            delegate_use_authority,
+            mint_nft,
+            token_account_nft,
+            burner_program_id,
+            number_of_uses,
+        } => approve_use_delegate(
+            &client,
+            keypair,
+            mint_nft,
+            delegate_use_authority,
+            token_account_nft,
+            burner_program_id,
+            number_of_uses,
+        ),
+
+        UsesSubcommands::RevokeAuthority {
+            delegate_use_authority,
+            keypair,
+            mint_nft,
+            token_account_nft,
+        } => revoke_use_delegate(
+            client,
+            keypair,
+            mint_nft,
+            delegate_use_authority,
+            token_account_nft,
+        ),
+
+        UsesSubcommands::Utilize {
+            burner_program_id,
+            is_delegate,
+            keypair,
+            mint_nft,
+            holder_nft,
+            token_account_nft,
+        } => utilize_nft(
+            client,
+            keypair,
+            mint_nft,
+            holder_nft,
+            token_account_nft,
+            burner_program_id,
+            is_delegate,
+        ),
+    }
+}
 
 pub fn process_collections(client: &RpcClient, commands: CollectionsSubcommands) -> Result<()> {
     match commands {
+        CollectionsSubcommands::VerifyCollection {
+            keypair,
+            collection_mint,
+            nft_mint,
+            is_delegate,
+        } => verify_nft_collection(client, keypair, nft_mint, collection_mint, is_delegate),
+
+        CollectionsSubcommands::UnverifyCollection {
+            keypair,
+            collection_mint,
+            is_delegate,
+            nft_mint,
+        } => unverify_nft_collection(client, keypair, nft_mint, collection_mint, is_delegate),
+
+        CollectionsSubcommands::SetAndVerifyCollection {
+            keypair,
+            nft_mint,
+            update_authority_nft,
+            collection_mint,
+            is_delegate,
+        } => set_and_verify_nft_collection(
+            client,
+            keypair,
+            nft_mint,
+            collection_mint,
+            update_authority_nft,
+            is_delegate,
+        ),
+
         CollectionsSubcommands::ApproveAuthority {
             keypair,
             collection_mint,
             delegate_authority,
         } => approve_delegate(client, keypair, collection_mint, delegate_authority),
+
         CollectionsSubcommands::RevokeAuthority {
             keypair,
             collection_mint,

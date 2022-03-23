@@ -68,6 +68,7 @@ fn main() -> Result<()> {
         Command::Collections {
             collections_subcommands,
         } => process_collections(&client, collections_subcommands)?,
+        Command::Uses { uses_subcommands } => process_uses(&client, uses_subcommands)?,
         Command::Burn { burn_subcommands } => process_burn(&client, burn_subcommands)?,
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
         Command::Derive { derive_subcommands } => process_derive(derive_subcommands),

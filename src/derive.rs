@@ -1,4 +1,5 @@
-use mpl_token_metadata::id;
+use crate::constants::{MASTER_EDITION_PREFIX, METADATA_PREFIX, USER_PREFIX};
+use mpl_token_metadata::id as metadata_program_id;
 use solana_sdk::pubkey::Pubkey;
 use std::{convert::AsRef, str::FromStr};
 
@@ -54,10 +55,10 @@ fn derive_generic_pda(seeds: Vec<&[u8]>, program_id: Pubkey) -> Pubkey {
 }
 
 pub fn derive_metadata_pda(pubkey: &Pubkey) -> Pubkey {
-    let metaplex_pubkey = id();
+    let metaplex_pubkey = metadata_program_id();
 
     let seeds = &[
-        "metadata".as_bytes(),
+        METADATA_PREFIX.as_bytes(),
         metaplex_pubkey.as_ref(),
         pubkey.as_ref(),
     ];
@@ -66,14 +67,14 @@ pub fn derive_metadata_pda(pubkey: &Pubkey) -> Pubkey {
     pda
 }
 
-fn derive_edition_pda(pubkey: &Pubkey) -> Pubkey {
-    let metaplex_pubkey = id();
+pub fn derive_edition_pda(pubkey: &Pubkey) -> Pubkey {
+    let metaplex_pubkey = metadata_program_id();
 
     let seeds = &[
-        "metadata".as_bytes(),
+        METADATA_PREFIX.as_bytes(),
         metaplex_pubkey.as_ref(),
         pubkey.as_ref(),
-        "edition".as_bytes(),
+        MASTER_EDITION_PREFIX.as_bytes(),
     ];
 
     let (pda, _) = Pubkey::find_program_address(seeds, &metaplex_pubkey);
@@ -90,16 +91,31 @@ pub fn derive_cmv2_pda(pubkey: &Pubkey) -> Pubkey {
     pda
 }
 
-pub fn derive_collection_authority_record(mint: &Pubkey, authority: &Pubkey) -> (Pubkey, u8) {
-    let metaplex_pubkey = id();
+pub fn derive_collection_authority_record(
+    mint: &Pubkey,
+    collection_authority: &Pubkey,
+) -> (Pubkey, u8) {
+    let metaplex_pubkey = metadata_program_id();
     let seeds = &[
-        "metadata".as_bytes(),
+        METADATA_PREFIX.as_bytes(),
         &metaplex_pubkey.as_ref(),
         mint.as_ref(),
         "collection_authority".as_bytes(),
-        authority.as_ref(),
+        collection_authority.as_ref(),
     ];
-    Pubkey::find_program_address(seeds, &id())
+    Pubkey::find_program_address(seeds, &metaplex_pubkey)
+}
+
+pub fn derive_use_authority_record(mint: &Pubkey, use_authority: &Pubkey) -> (Pubkey, u8) {
+    let metaplex_pubkey = &metadata_program_id();
+    let use_authority_seeds = &[
+        METADATA_PREFIX.as_bytes(),
+        metaplex_pubkey.as_ref(),
+        mint.as_ref(),
+        USER_PREFIX.as_bytes(),
+        use_authority.as_ref(),
+    ];
+    Pubkey::find_program_address(use_authority_seeds, metaplex_pubkey)
 }
 
 #[cfg(test)]
@@ -113,7 +129,7 @@ mod tests {
         let mint_pubkey = Pubkey::from_str("H9UJFx7HknQ9GUz7RBqqV9SRnht6XaVDh2cZS3Huogpf").unwrap();
 
         let seeds = vec![
-            "metadata".as_bytes(),
+            METADATA_PREFIX.as_bytes(),
             metadata_program_pubkey.as_ref(),
             mint_pubkey.as_ref(),
         ];
