@@ -31,8 +31,8 @@ use crate::{constants::*, parse::parse_solana_config};
 pub fn update_name_one(
     client: &RpcClient,
     keypair: Option<String>,
-    mint_account: &String,
-    new_name: &String,
+    mint_account: &str,
+    new_name: &str,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
     let parsed_keypair = parse_keypair(keypair, solana_opts);
@@ -52,8 +52,8 @@ pub fn update_name_one(
 pub fn update_symbol_one(
     client: &RpcClient,
     keypair_path: Option<String>,
-    mint_account: &String,
-    new_symbol: &String,
+    mint_account: &str,
+    new_symbol: &str,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
@@ -74,8 +74,8 @@ pub fn update_symbol_one(
 pub fn update_creator_by_position(
     client: &RpcClient,
     keypair_path: Option<String>,
-    mint_account: &String,
-    new_creators: &String,
+    mint_account: &str,
+    new_creators: &str,
     should_append: bool,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
@@ -121,8 +121,8 @@ pub fn update_creator_by_position(
 pub fn update_data_one(
     client: &RpcClient,
     keypair_path: Option<String>,
-    mint_account: &String,
-    json_file: &String,
+    mint_account: &str,
+    json_file: &str,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
@@ -140,7 +140,7 @@ pub fn update_data_one(
 pub fn update_data_all(
     client: &RpcClient,
     keypair_path: Option<String>,
-    data_dir: &String,
+    data_dir: &str,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_rate_limiter();
@@ -149,7 +149,9 @@ pub fn update_data_all(
     let keypair = parse_keypair(keypair_path, solana_opts);
 
     let path = Path::new(&data_dir).join("*.json");
-    let pattern = path.to_str().ok_or(anyhow!("Invalid directory path"))?;
+    let pattern = path
+        .to_str()
+        .ok_or_else(|| anyhow!("Invalid directory path"))?;
 
     let (paths, errors): (Vec<_>, Vec<_>) = glob(pattern)?.into_iter().partition(Result::is_ok);
 
@@ -205,7 +207,6 @@ pub fn update_data_all(
                     .lock()
                     .unwrap()
                     .push(update_nft_data.mint_account);
-                return;
             }
         }
     });
@@ -230,7 +231,7 @@ pub fn update_data_all(
 pub fn update_data(
     client: &RpcClient,
     keypair: &Keypair,
-    mint_account: &String,
+    mint_account: &str,
     data: Data,
 ) -> Result<()> {
     let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
@@ -271,13 +272,13 @@ pub fn update_data(
 pub fn update_uri_one(
     client: &RpcClient,
     keypair_path: Option<String>,
-    mint_account: &String,
-    new_uri: &String,
+    mint_account: &str,
+    new_uri: &str,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
-    update_uri(client, &keypair, &mint_account, new_uri)?;
+    update_uri(client, &keypair, mint_account, new_uri)?;
 
     Ok(())
 }
@@ -285,7 +286,7 @@ pub fn update_uri_one(
 pub fn update_uri_all(
     client: &RpcClient,
     keypair_path: Option<String>,
-    json_file: &String,
+    json_file: &str,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_rate_limiter();
@@ -306,7 +307,6 @@ pub fn update_uri_all(
             Ok(_) => (),
             Err(e) => {
                 error!("Failed to update uri: {:?} error: {}", data, e);
-                return;
             }
         }
     });
@@ -317,8 +317,8 @@ pub fn update_uri_all(
 pub fn update_uri(
     client: &RpcClient,
     keypair: &Keypair,
-    mint_account: &String,
-    new_uri: &String,
+    mint_account: &str,
+    new_uri: &str,
 ) -> Result<()> {
     let mint_pubkey = Pubkey::from_str(mint_account)?;
     let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
@@ -357,7 +357,7 @@ pub fn update_uri(
 pub fn set_primary_sale_happened(
     client: &RpcClient,
     keypair_path: Option<String>,
-    mint_account: &String,
+    mint_account: &str,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
@@ -395,8 +395,8 @@ pub fn set_primary_sale_happened(
 pub fn set_update_authority(
     client: &RpcClient,
     keypair_path: Option<String>,
-    mint_account: &String,
-    new_update_authority: &String,
+    mint_account: &str,
+    new_update_authority: &str,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
@@ -435,8 +435,8 @@ pub fn set_update_authority(
 pub fn set_update_authority_all(
     client: &RpcClient,
     keypair_path: Option<String>,
-    json_file: &String,
-    new_update_authority: &String,
+    json_file: &str,
+    new_update_authority: &str,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_rate_limiter();
@@ -453,12 +453,8 @@ pub fn set_update_authority_all(
 
         // If someone uses a json list that contains a mint account that has already
         //  been updated this will throw an error. We print that error and continue
-        let _ = match set_update_authority(
-            client,
-            keypair_path.clone(),
-            &item,
-            &new_update_authority,
-        ) {
+        let _ = match set_update_authority(client, keypair_path.clone(), item, new_update_authority)
+        {
             Ok(_) => {}
             Err(error) => {
                 error!("Error occurred! {}", error)
@@ -472,7 +468,7 @@ pub fn set_update_authority_all(
 pub fn set_immutable(
     client: &RpcClient,
     keypair_path: Option<String>,
-    account: &String,
+    account: &str,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
@@ -511,7 +507,7 @@ pub fn set_immutable(
 pub fn set_immutable_all(
     client: &RpcClient,
     keypair_path: Option<String>,
-    json_file: &String,
+    json_file: &str,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_rate_limiter();
@@ -528,7 +524,7 @@ pub fn set_immutable_all(
 
         // If someone uses a json list that contains a mint account that has already
         //  been updated this will throw an error. We print that error and continue
-        let _ = match set_immutable(client, keypair_path.clone(), &item) {
+        let _ = match set_immutable(client, keypair_path.clone(), item) {
             Ok(_) => {}
             Err(error) => {
                 error!("Error occurred! {}", error)

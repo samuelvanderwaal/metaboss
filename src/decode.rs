@@ -26,9 +26,9 @@ pub struct JSONCreator {
 
 pub fn decode_metadata_all(
     client: &RpcClient,
-    json_file: &String,
+    json_file: &str,
     full: bool,
-    output: &String,
+    output: &str,
 ) -> AnyResult<()> {
     let file = File::open(json_file)?;
     let mint_accounts: Vec<String> = serde_json::from_reader(file)?;
@@ -103,7 +103,6 @@ pub fn decode_metadata_all(
                         "Failed to write JSON file for mint account: {}, error: {}",
                         mint_account, err
                     );
-                    return;
                 }
             }
         });
@@ -117,7 +116,7 @@ pub fn decode_metadata(
     full: bool,
     list_path: Option<&String>,
     raw: bool,
-    output: &String,
+    output: &str,
 ) -> AnyResult<()> {
     // Explicitly warn the user if they provide incorrect options combinations
     if !is_only_one_option(&account, &list_path) {
@@ -132,12 +131,12 @@ pub fn decode_metadata(
             println!("{:?}", data);
             return Ok(());
         }
-        let metadata = decode(client, &mint_account)?;
+        let metadata = decode(client, mint_account)?;
         let json_metadata = decode_to_json(metadata, full)?;
         let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
         serde_json::to_writer(&mut file, &json_metadata)?;
     } else if let Some(list_path) = list_path {
-        decode_metadata_all(client, &list_path, full, output)?;
+        decode_metadata_all(client, list_path, full, output)?;
     } else {
         return Err(anyhow!(
             "Please specify either a mint account or a list of mint accounts, but not both."
@@ -147,10 +146,10 @@ pub fn decode_metadata(
     Ok(())
 }
 
-pub fn decode_raw(client: &RpcClient, mint_account: &String) -> Result<Vec<u8>, DecodeError> {
-    let pubkey = match Pubkey::from_str(&mint_account) {
+pub fn decode_raw(client: &RpcClient, mint_account: &str) -> Result<Vec<u8>, DecodeError> {
+    let pubkey = match Pubkey::from_str(mint_account) {
         Ok(pubkey) => pubkey,
-        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.clone())),
+        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.to_string())),
     };
     let metadata_pda = get_metadata_pda(pubkey);
 
@@ -166,10 +165,10 @@ pub fn decode_raw(client: &RpcClient, mint_account: &String) -> Result<Vec<u8>, 
     Ok(account_data)
 }
 
-pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {
+pub fn decode(client: &RpcClient, mint_account: &str) -> Result<Metadata, DecodeError> {
     let pubkey = match Pubkey::from_str(mint_account) {
         Ok(pubkey) => pubkey,
-        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.clone())),
+        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.to_string())),
     };
     let metadata_pda = get_metadata_pda(pubkey);
 
