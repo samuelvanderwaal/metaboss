@@ -6,44 +6,16 @@ use mpl_token_metadata::{
         unverify_collection, verify_collection,
     },
 };
-use retry::{delay::Exponential, retry};
 use solana_client::rpc_client::RpcClient;
-use solana_sdk::{
-    instruction::Instruction, pubkey::Pubkey, signature::Keypair, signer::Signer,
-    transaction::Transaction,
-};
+use solana_sdk::{pubkey::Pubkey, signer::Signer};
 use std::str::FromStr;
 
 use crate::parse::parse_keypair;
 use crate::{
     derive::{derive_collection_authority_record, derive_edition_pda, derive_metadata_pda},
     parse::parse_solana_config,
+    utils::send_and_confirm_transaction,
 };
-
-fn send_and_confirm_transaction(
-    client: &RpcClient,
-    keypair: Keypair,
-    instructions: &[Instruction],
-) -> Result<String> {
-    let recent_blockhash = client.get_latest_blockhash()?;
-    let tx = Transaction::new_signed_with_payer(
-        instructions,
-        Some(&keypair.pubkey()),
-        &[&keypair],
-        recent_blockhash,
-    );
-
-    // Send tx with retries.
-    let res = retry(
-        Exponential::from_millis_with_factor(250, 2.0).take(3),
-        || client.send_and_confirm_transaction(&tx),
-    );
-
-    let sig = res?;
-
-    println!("TxId: {}", sig);
-    Ok(sig.to_string())
-}
 
 pub fn set_and_verify_nft_collection(
     client: &RpcClient,
