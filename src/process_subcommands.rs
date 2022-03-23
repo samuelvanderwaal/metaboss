@@ -26,7 +26,7 @@ pub fn process_uses(client: &RpcClient, commands: UsesSubcommands) -> Result<()>
             burner_program_id,
             number_of_uses,
         } => approve_use_delegate(
-            &client,
+            client,
             keypair,
             mint_nft,
             delegate_use_authority,
@@ -158,7 +158,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             primary_sale_happened,
             sign,
         } => mint_one(
-            &client,
+            client,
             keypair,
             &receiver,
             nft_data_file,
@@ -176,7 +176,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             primary_sale_happened,
             sign,
         } => mint_list(
-            &client,
+            client,
             keypair,
             receiver,
             nft_data_dir,
@@ -191,36 +191,36 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
 pub fn process_set(client: &RpcClient, commands: SetSubcommands) -> Result<()> {
     match commands {
         SetSubcommands::PrimarySaleHappened { keypair, account } => {
-            set_primary_sale_happened(&client, keypair, &account)
+            set_primary_sale_happened(client, keypair, &account)
         }
         SetSubcommands::UpdateAuthority {
             keypair,
             account,
             new_update_authority,
-        } => set_update_authority(&client, keypair, &account, &new_update_authority),
+        } => set_update_authority(client, keypair, &account, &new_update_authority),
         SetSubcommands::UpdateAuthorityAll {
             keypair,
             mint_accounts_file,
             new_update_authority,
-        } => set_update_authority_all(&client, keypair, &mint_accounts_file, &new_update_authority),
-        SetSubcommands::Immutable { keypair, account } => set_immutable(&client, keypair, &account),
+        } => set_update_authority_all(client, keypair, &mint_accounts_file, &new_update_authority),
+        SetSubcommands::Immutable { keypair, account } => set_immutable(client, keypair, &account),
         SetSubcommands::ImmutableAll {
             keypair,
             mint_accounts_file,
-        } => set_immutable_all(&client, keypair, &mint_accounts_file),
+        } => set_immutable_all(client, keypair, &mint_accounts_file),
     }
 }
 
 pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()> {
     match commands {
-        SignSubcommands::One { keypair, account } => sign_one(&client, keypair, account),
+        SignSubcommands::One { keypair, account } => sign_one(client, keypair, account),
         SignSubcommands::All {
             keypair,
             creator,
             position,
             v2,
             mint_accounts_file,
-        } => sign_all(&client, keypair, &creator, position, v2, mint_accounts_file),
+        } => sign_all(client, keypair, &creator, position, v2, mint_accounts_file),
     }
 }
 
@@ -234,7 +234,7 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
             v2,
             output,
         } => snapshot_holders(
-            &client,
+            client,
             &update_authority,
             &creator,
             position,
@@ -245,14 +245,14 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
         SnapshotSubcommands::CMAccounts {
             update_authority,
             output,
-        } => snapshot_cm_accounts(&client, &update_authority, &output),
+        } => snapshot_cm_accounts(client, &update_authority, &output),
         SnapshotSubcommands::Mints {
             creator,
             position,
             update_authority,
             v2,
             output,
-        } => snapshot_mints(&client, &creator, position, update_authority, v2, output),
+        } => snapshot_mints(client, &creator, position, update_authority, v2, output),
     }
 }
 
@@ -262,33 +262,33 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             keypair,
             account,
             new_name,
-        } => update_name_one(&client, keypair, &account, &new_name),
+        } => update_name_one(client, keypair, &account, &new_name),
         UpdateSubcommands::Symbol {
             keypair,
             account,
             new_symbol,
-        } => update_symbol_one(&client, keypair, &account, &new_symbol),
+        } => update_symbol_one(client, keypair, &account, &new_symbol),
         UpdateSubcommands::Creators {
             keypair,
             account,
             new_creators,
             append,
-        } => update_creator_by_position(&client, keypair, &account, &new_creators, append),
+        } => update_creator_by_position(client, keypair, &account, &new_creators, append),
         UpdateSubcommands::Data {
             keypair,
             account,
             new_data_file,
-        } => update_data_one(&client, keypair, &account, &new_data_file),
+        } => update_data_one(client, keypair, &account, &new_data_file),
         UpdateSubcommands::DataAll { keypair, data_dir } => {
-            update_data_all(&client, keypair, &data_dir)
+            update_data_all(client, keypair, &data_dir)
         }
         UpdateSubcommands::Uri {
             keypair,
             account,
             new_uri,
-        } => update_uri_one(&client, keypair, &account, &new_uri),
+        } => update_uri_one(client, keypair, &account, &new_uri),
         UpdateSubcommands::UriAll { keypair, json_file } => {
-            update_uri_all(&client, keypair, &json_file)
+            update_uri_all(client, keypair, &json_file)
         }
     }
 }

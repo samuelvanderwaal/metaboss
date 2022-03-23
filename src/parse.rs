@@ -124,9 +124,9 @@ pub fn parse_creators(creators_json: &Value) -> Result<Vec<NFTCreator>> {
 pub fn parse_name(body: &Value) -> Result<String> {
     let name = body
         .get("name")
-        .ok_or(anyhow!("Invalid name!"))?
+        .ok_or_else(|| anyhow!("Invalid name!"))?
         .as_str()
-        .ok_or(anyhow!("Invalid name!"))?
+        .ok_or_else(|| anyhow!("Invalid name!"))?
         .to_string();
     Ok(name)
 }
@@ -134,9 +134,9 @@ pub fn parse_name(body: &Value) -> Result<String> {
 pub fn parse_symbol(body: &Value) -> Result<String> {
     let symbol = body
         .get("symbol")
-        .ok_or(anyhow!("Invalid symbol!"))?
+        .ok_or_else(|| anyhow!("Invalid symbol!"))?
         .as_str()
-        .ok_or(anyhow!("Invalid symbol!"))?
+        .ok_or_else(|| anyhow!("Invalid symbol!"))?
         .to_string();
     Ok(symbol)
 }
@@ -144,16 +144,16 @@ pub fn parse_symbol(body: &Value) -> Result<String> {
 pub fn parse_seller_fee_basis_points(body: &Value) -> Result<u16> {
     let seller_fee_basis_points =
         body.get("seller_fee_basis_points")
-            .ok_or(anyhow!("Invalid seller_fee_basis_points!"))?
+            .ok_or_else(|| anyhow!("Invalid seller_fee_basis_points!"))?
             .as_u64()
-            .ok_or(anyhow!("Invalid seller_fee_basis_points!"))? as u16;
+            .ok_or_else(|| anyhow!("Invalid seller_fee_basis_points!"))? as u16;
     Ok(seller_fee_basis_points)
 }
 
 pub fn convert_local_to_remote_data(local: NFTData) -> Result<Data> {
     let creators = local
         .creators
-        .ok_or(anyhow!("No creators specified in json file!"))?
+        .ok_or_else(|| anyhow!("No creators specified in json file!"))?
         .iter()
         .map(convert_creator)
         .collect::<Result<Vec<Creator>>>()?;
