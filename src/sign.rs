@@ -15,7 +15,10 @@ use solana_sdk::{
 use std::{
     fs::File,
     str::FromStr,
-    sync::{Arc, Mutex},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
 };
 
 use crate::decode::get_metadata_pda;
@@ -56,7 +59,7 @@ pub fn sign_all(
     let solana_opts = parse_solana_config();
     let creator_keypair = parse_keypair(keypair_path, solana_opts);
 
-    if !is_only_one_option(&creator, &mint_accounts_file) {
+    if !is_only_one_option(creator, &mint_accounts_file) {
         return Err(anyhow!(
             "Must specify exactly one of --candy-machine-id or --mint-data-dir"
         ));
@@ -65,7 +68,7 @@ pub fn sign_all(
     if let Some(creator) = creator {
         if v2 {
             let creator_pubkey =
-                Pubkey::from_str(&creator).expect("Failed to parse pubkey from creator!");
+                Pubkey::from_str(creator).expect("Failed to parse pubkey from creator!");
             let cmv2_creator = derive_cmv2_pda(&creator_pubkey);
             sign_candy_machine_accounts(
                 client,
@@ -74,7 +77,7 @@ pub fn sign_all(
                 position,
             )?
         } else {
-            sign_candy_machine_accounts(client, &creator, creator_keypair, position)?
+            sign_candy_machine_accounts(client, creator, creator_keypair, position)?
         }
     } else if let Some(mint_accounts_file) = mint_accounts_file {
         let file = File::open(mint_accounts_file)?;
@@ -125,7 +128,7 @@ pub fn sign_mint_accounts(
                 handle.wait();
             }
 
-            let account_pubkey = match Pubkey::from_str(&mint_account) {
+            let account_pubkey = match Pubkey::from_str(mint_account) {
                 Ok(pubkey) => pubkey,
                 Err(err) => {
                     error!("Invalid public key: {}, error: {}", mint_account, err);
@@ -136,7 +139,7 @@ pub fn sign_mint_accounts(
             let metadata_pubkey = get_metadata_pda(account_pubkey);
 
             // Try to sign all accounts, print any errors that crop up.
-            match sign(client, &creator, metadata_pubkey) {
+            match sign(client, creator, metadata_pubkey) {
                 Ok(sig) => info!("{}", sig),
                 Err(e) => error!("{}", e),
             }
@@ -147,14 +150,14 @@ pub fn sign_mint_accounts(
 
 pub fn sign_candy_machine_accounts(
     client: &RpcClient,
-    creator: &String,
+    creator: &str,
     signing_creator: Keypair,
     position: usize,
 ) -> Result<()> {
     let accounts = get_cm_creator_accounts(client, creator, position)?;
 
     // Only sign accounts that have not been signed yet
-    let signed_at_least_one_account = Arc::new(Mutex::new(false));
+    let signed_at_least_one_account = Arc::new(AtomicBool::new(false));
 
     accounts
         .par_iter()
@@ -189,13 +192,13 @@ pub fn sign_candy_machine_accounts(
 
                         info!("{}", sig);
 
-                        *signed_at_least_one_account.lock().unwrap() = true;
+                        signed_at_least_one_account.store(true, Ordering::Relaxed);
                     }
                 }
             }
         });
 
-    if !*signed_at_least_one_account.lock().unwrap() {
+    if !signed_at_least_one_account.load(Ordering::Relaxed) {
         info!("No unverified metadata for this creator and candy machine.");
         println!("No unverified metadata for this creator and candy machine.");
         return Ok(());
