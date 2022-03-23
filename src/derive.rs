@@ -5,7 +5,7 @@ use std::{convert::AsRef, str::FromStr};
 
 pub fn get_generic_pda(str_seeds: String, program_id: String) {
     let str_seeds = str_seeds
-        .split(",")
+        .split(',')
         .map(|s| s.into())
         .collect::<Vec<String>>();
 
@@ -98,7 +98,7 @@ pub fn derive_collection_authority_record(
     let metaplex_pubkey = metadata_program_id();
     let seeds = &[
         METADATA_PREFIX.as_bytes(),
-        &metaplex_pubkey.as_ref(),
+        metaplex_pubkey.as_ref(),
         mint.as_ref(),
         "collection_authority".as_bytes(),
         collection_authority.as_ref(),
