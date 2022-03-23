@@ -81,7 +81,7 @@ pub fn snapshot_mints(
         // Support v2 cm ids
         if v2 {
             let creator_pubkey =
-                Pubkey::from_str(&creator).expect("Failed to parse pubkey from creator!");
+                Pubkey::from_str(creator).expect("Failed to parse pubkey from creator!");
             let cmv2_creator = derive_cmv2_pda(&creator_pubkey);
             get_cm_creator_accounts(client, &cmv2_creator.to_string(), position)?
         } else {

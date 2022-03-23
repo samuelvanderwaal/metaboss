@@ -167,7 +167,7 @@ pub fn decode_raw(client: &RpcClient, mint_account: &String) -> Result<Vec<u8>, 
 }
 
 pub fn decode(client: &RpcClient, mint_account: &String) -> Result<Metadata, DecodeError> {
-    let pubkey = match Pubkey::from_str(&mint_account) {
+    let pubkey = match Pubkey::from_str(mint_account) {
         Ok(pubkey) => pubkey,
         Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.clone())),
     };
@@ -206,10 +206,10 @@ fn decode_to_json(metadata: Metadata, full: bool) -> AnyResult<Value> {
     }
 
     let data_json = json!({
-        "name": metadata.data.name.to_string().trim_matches(char::from(0)),
-        "symbol": metadata.data.symbol.to_string().trim_matches(char::from(0)),
+        "name": metadata.data.name.trim_matches(char::from(0)),
+        "symbol": metadata.data.symbol.trim_matches(char::from(0)),
         "seller_fee_basis_points": metadata.data.seller_fee_basis_points,
-        "uri": metadata.data.uri.to_string().trim_matches(char::from(0)),
+        "uri": metadata.data.uri.trim_matches(char::from(0)),
         "creators": creators,
     });
 
