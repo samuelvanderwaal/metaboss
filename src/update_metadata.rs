@@ -263,7 +263,7 @@ pub fn update_data(
     let sig = res?;
 
     info!("Tx sig: {:?}", sig);
-    println!("Tx sig: {:?}", sig);
+    println!("Mint: {:?}, Tx sig: {:?}", mint_account, sig);
 
     Ok(())
 }
