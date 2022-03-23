@@ -33,19 +33,17 @@ fn main() -> Result<()> {
     let sol_config = parse_solana_config();
 
     let (rpc, commitment) = if let Some(cli_rpc) = options.rpc {
-        (cli_rpc.clone(), String::from("confirmed"))
+        (cli_rpc, String::from("confirmed"))
+    } else if let Some(config) = sol_config {
+        (config.json_rpc_url, config.commitment)
     } else {
-        if let Some(config) = sol_config {
-            (config.json_rpc_url, config.commitment)
-        } else {
-            info!(
+        info!(
             "Could not find a valid Solana-CLI config file. Defaulting to https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/ devnet node."
         );
-            (
-                String::from("https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/"),
-                String::from("confirmed"),
-            )
-        }
+        (
+            String::from("https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/"),
+            String::from("confirmed"),
+        )
     };
 
     // Set rate limiting if the user specified a public RPC.

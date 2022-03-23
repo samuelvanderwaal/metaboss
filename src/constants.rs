@@ -10,10 +10,10 @@ pub const METADATA_PREFIX: &str = "metadata";
 pub const MASTER_EDITION_PREFIX: &str = "edition";
 pub const USER_PREFIX: &str = "user";
 
-pub const METAPLEX_PROGRAM_ID: &'static str = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
-pub const CANDY_MACHINE_PROGRAM_ID: &'static str = "cndyAnrLdpjq1Ssp1z8xxDsB8dxe7u4HL5Nxi2K5WXZ";
+pub const METAPLEX_PROGRAM_ID: &str = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
+pub const CANDY_MACHINE_PROGRAM_ID: &str = "cndyAnrLdpjq1Ssp1z8xxDsB8dxe7u4HL5Nxi2K5WXZ";
 
-pub const PUBLIC_RPC_URLS: &'static [&'static str] = &[
+pub const PUBLIC_RPC_URLS: &'static [&str] = &[
     "https://api.devnet.solana.com",
     "https://api.testnet.solana.com",
     "https://api.mainnet-beta.solana.com",

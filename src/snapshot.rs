@@ -68,7 +68,7 @@ pub fn snapshot_mints(
     v2: bool,
     output: String,
 ) -> Result<()> {
-    if !is_only_one_option(&creator, &update_authority) {
+    if !is_only_one_option(creator, &update_authority) {
         return Err(anyhow!(
             "Please specify either a candy machine id or an update authority, but not both."
         ));
@@ -76,7 +76,7 @@ pub fn snapshot_mints(
 
     let spinner = create_spinner("Getting accounts...");
     let accounts = if let Some(ref update_authority) = update_authority {
-        get_mints_by_update_authority(client, &update_authority)?
+        get_mints_by_update_authority(client, update_authority)?
     } else if let Some(ref creator) = creator {
         // Support v2 cm ids
         if v2 {
@@ -85,7 +85,7 @@ pub fn snapshot_mints(
             let cmv2_creator = derive_cmv2_pda(&creator_pubkey);
             get_cm_creator_accounts(client, &cmv2_creator.to_string(), position)?
         } else {
-            get_cm_creator_accounts(client, &creator, position)?
+            get_cm_creator_accounts(client, creator, position)?
         }
     } else {
         return Err(anyhow!(
@@ -135,7 +135,7 @@ pub fn snapshot_holders(
     position: usize,
     mint_accounts_file: &Option<String>,
     v2: bool,
-    output: &String,
+    output: &str,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_rate_limiter();
@@ -147,11 +147,11 @@ pub fn snapshot_holders(
         // Support v2 cm ids
         if v2 {
             let creator_pubkey =
-                Pubkey::from_str(&creator).expect("Failed to parse pubkey from creator!");
+                Pubkey::from_str(creator).expect("Failed to parse pubkey from creator!");
             let cmv2_creator = derive_cmv2_pda(&creator_pubkey);
             get_cm_creator_accounts(client, &cmv2_creator.to_string(), position)?
         } else {
-            get_cm_creator_accounts(client, &creator, position)?
+            get_cm_creator_accounts(client, creator, position)?
         }
     } else if let Some(mint_accounts_file) = mint_accounts_file {
         let file = File::open(mint_accounts_file)?;
@@ -315,7 +315,7 @@ fn get_mint_account_infos(
 
 fn get_mints_by_update_authority(
     client: &RpcClient,
-    update_authority: &String,
+    update_authority: &str,
 ) -> Result<Vec<(Pubkey, Account)>> {
     let config = RpcProgramAccountsConfig {
         filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
@@ -340,8 +340,8 @@ fn get_mints_by_update_authority(
 
 pub fn snapshot_cm_accounts(
     client: &RpcClient,
-    update_authority: &String,
-    output: &String,
+    update_authority: &str,
+    output: &str,
 ) -> Result<()> {
     let accounts = get_cm_accounts_by_update_authority(client, update_authority)?;
 
@@ -377,7 +377,7 @@ pub fn snapshot_cm_accounts(
 
 fn get_cm_accounts_by_update_authority(
     client: &RpcClient,
-    update_authority: &String,
+    update_authority: &str,
 ) -> Result<Vec<(Pubkey, Account)>> {
     let candy_machine_program_id = Pubkey::from_str(CANDY_MACHINE_PROGRAM_ID)?;
     let config = RpcProgramAccountsConfig {
@@ -403,7 +403,7 @@ fn get_cm_accounts_by_update_authority(
 
 pub fn get_cm_creator_accounts(
     client: &RpcClient,
-    creator: &String,
+    creator: &str,
     position: usize,
 ) -> Result<Vec<(Pubkey, Account)>> {
     if position > 4 {
@@ -482,13 +482,13 @@ fn parse_token_amount(data: &ParsedAccount) -> Result<u64> {
     let amount = data
         .parsed
         .get("info")
-        .ok_or(anyhow!("Invalid data account!"))?
+        .ok_or_else(|| anyhow!("Invalid data account!"))?
         .get("tokenAmount")
-        .ok_or(anyhow!("Invalid token amount!"))?
+        .ok_or_else(|| anyhow!("Invalid token amount!"))?
         .get("amount")
-        .ok_or(anyhow!("Invalid token amount!"))?
+        .ok_or_else(|| anyhow!("Invalid token amount!"))?
         .as_str()
-        .ok_or(anyhow!("Invalid token amount!"))?
+        .ok_or_else(|| anyhow!("Invalid token amount!"))?
         .parse()?;
     Ok(amount)
 }
@@ -497,11 +497,11 @@ fn parse_owner(data: &ParsedAccount) -> Result<String> {
     let owner = data
         .parsed
         .get("info")
-        .ok_or(anyhow!("Invalid owner account!"))?
+        .ok_or_else(|| anyhow!("Invalid owner account!"))?
         .get("owner")
-        .ok_or(anyhow!("Invalid owner account!"))?
+        .ok_or_else(|| anyhow!("Invalid owner account!"))?
         .as_str()
-        .ok_or(anyhow!("Invalid owner amount!"))?
+        .ok_or_else(|| anyhow!("Invalid owner amount!"))?
         .to_string();
     Ok(owner)
 }

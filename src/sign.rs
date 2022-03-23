@@ -192,9 +192,6 @@ pub fn sign_candy_machine_accounts(
                         *signed_at_least_one_account.lock().unwrap() = true;
                     }
                 }
-            } else {
-                // No creators for that token, nothing to sign.
-                return;
             }
         });
 
