@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result as AnyResult};
 use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
 use metaboss_lib::decode::decode_master_edition_from_mint;
-use mpl_token_metadata::state::{Key, Metadata};
+use mpl_token_metadata::state::{Key, Metadata, TokenStandard, UseMethod};
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
 use serde::Serialize;
@@ -23,6 +23,19 @@ pub struct JSONCreator {
     pub address: String,
     pub verified: bool,
     pub share: u8,
+}
+
+#[derive(Debug, Serialize)]
+pub struct JSONCollection {
+    pub verified: bool,
+    pub key: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct JSONUses {
+    pub use_method: String,
+    pub remaining: u64,
+    pub total: u64,
 }
 
 pub fn decode_metadata_all(
@@ -224,6 +237,28 @@ fn decode_to_json(metadata: Metadata, full: bool) -> AnyResult<Value> {
         return Ok(data_json);
     }
 
+    let mut token_standard: Option<String> = None;
+    if let Some(ts) = metadata.token_standard {
+        token_standard = Some(parse_token_standard(ts))
+    }
+
+    let mut collection: Option<JSONCollection> = None;
+    if let Some(c) = metadata.collection {
+        collection = Some(JSONCollection {
+            verified: c.verified,
+            key: c.key.to_string(),
+        })
+    }
+
+    let mut uses: Option<JSONUses> = None;
+    if let Some(u) = metadata.uses {
+        uses = Some(JSONUses {
+            use_method: parse_use_method(u.use_method),
+            remaining: u.remaining,
+            total: u.total,
+        })
+    }
+
     let json_metadata = json!({
         "key": parse_key(metadata.key),
         "update_authority": metadata.update_authority.to_string(),
@@ -232,6 +267,9 @@ fn decode_to_json(metadata: Metadata, full: bool) -> AnyResult<Value> {
         "primary_sale_happened": metadata.primary_sale_happened,
         "is_mutable": metadata.is_mutable,
         "edition_nonce": metadata.edition_nonce,
+        "token_standard": token_standard,
+        "collection": collection,
+        "uses": uses,
     });
     Ok(json_metadata)
 }
@@ -263,5 +301,22 @@ fn parse_key(key: Key) -> String {
         Key::EditionMarker => String::from("EditionMarker"),
         Key::UseAuthorityRecord => String::from("UseAuthorityRecord"),
         Key::CollectionAuthorityRecord => String::from("CollectionAuthorityRecord"),
+    }
+}
+
+fn parse_token_standard(token_standard: TokenStandard) -> String {
+    match token_standard {
+        TokenStandard::NonFungible => String::from("NonFungible"),
+        TokenStandard::FungibleAsset => String::from("FungibleAsset"),
+        TokenStandard::Fungible => String::from("Fungible"),
+        TokenStandard::NonFungibleEdition => String::from("NonFungibleEdition"),
+    }
+}
+
+fn parse_use_method(use_method: UseMethod) -> String {
+    match use_method {
+        UseMethod::Burn => String::from("Burn"),
+        UseMethod::Single => String::from("Single"),
+        UseMethod::Multiple => String::from("Multiple"),
     }
 }
