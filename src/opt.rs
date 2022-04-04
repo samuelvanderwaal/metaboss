@@ -50,6 +50,12 @@ pub enum Command {
         #[structopt(subcommand)]
         derive_subcommands: DeriveSubcommands,
     },
+    /// Find things.
+    #[structopt(name = "find")]
+    Find {
+        #[structopt(subcommand)]
+        find_subcommands: FindSubcommands,
+    },
     /// Mint new NFTs from JSON files
     #[structopt(name = "mint")]
     Mint {
@@ -299,6 +305,11 @@ pub enum DecodeSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
+    /// Decode a mint account's master edition
+    Master {
+        #[structopt(short, long)]
+        account: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -320,6 +331,16 @@ pub enum DeriveSubcommands {
     /// Derive CMV2 PDA
     #[structopt(name = "cmv2-creator")]
     CMV2Creator { candy_machine_id: String },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum FindSubcommands {
+    /// Find any missing editions for a Master NFT mint account.
+    #[structopt(name = "missing-editions")]
+    MissingEditions {
+        #[structopt(short, long)]
+        account: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -351,9 +372,46 @@ pub enum MintSubcommands {
         #[structopt(short, long)]
         primary_sale_happened: bool,
 
+        /// Maximum number of editions. Defaults to zero, meaning no editions allowed.
+        #[structopt(short = "e", long, default_value = "0")]
+        max_editions: u64,
+
         /// Sign NFT after minting it
         #[structopt(long)]
         sign: bool,
+    },
+    /// Mint one or more editions from a Master NFT.
+    #[structopt(name = "editions")]
+    Editions {
+        /// Path to the update_authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Master Edition NFT mint account/token address.
+        #[structopt(short, long)]
+        account: String,
+
+        /// Receiving address, if different from update authority.
+        #[structopt(short = "R", long)]
+        receiver: Option<String>,
+
+        /// Mint the next n editions in order.
+        #[structopt(short, long)]
+        next_editions: Option<u64>,
+
+        /// Mint the provided specific editions e.g.: --specific-editions 1,7,10
+        #[structopt(short = "s", long)]
+        specific_editions: Option<Vec<u64>>,
+    },
+    /// Find any missing editions for a Master NFT.
+    #[structopt(name = "missing-editions")]
+    MissingEditions {
+        /// Path to the update_authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        #[structopt(short, long)]
+        account: String,
     },
     #[structopt(name = "list")]
     /// Mint a list of NFTs from a directory of JSON files

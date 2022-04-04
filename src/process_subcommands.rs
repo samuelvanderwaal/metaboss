@@ -6,9 +6,10 @@ use crate::collections::{
     approve_delegate, revoke_delegate, set_and_verify_nft_collection, unverify_nft_collection,
     verify_nft_collection,
 };
-use crate::decode::decode_metadata;
+use crate::decode::{decode_master_edition, decode_metadata};
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
-use crate::mint::{mint_list, mint_one};
+use crate::find::find_missing_editions_process;
+use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one};
 use crate::opt::*;
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
@@ -134,6 +135,7 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
             raw,
             output,
         )?,
+        DecodeSubcommands::Master { account } => decode_master_edition(client, &account)?,
     }
     Ok(())
 }
@@ -147,6 +149,14 @@ pub fn process_derive(commands: DeriveSubcommands) {
     }
 }
 
+pub fn process_find(client: &RpcClient, commands: FindSubcommands) -> Result<()> {
+    match commands {
+        FindSubcommands::MissingEditions { account } => {
+            find_missing_editions_process(client, &account)
+        }
+    }
+}
+
 pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()> {
     match commands {
         MintSubcommands::One {
@@ -156,6 +166,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             external_metadata_uri,
             immutable,
             primary_sale_happened,
+            max_editions,
             sign,
         } => mint_one(
             client,
@@ -165,8 +176,26 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             external_metadata_uri.as_ref(),
             immutable,
             primary_sale_happened,
+            max_editions,
             sign,
         ),
+        MintSubcommands::Editions {
+            keypair,
+            account,
+            receiver,
+            next_editions,
+            specific_editions,
+        } => mint_editions(
+            client,
+            keypair,
+            account,
+            &receiver,
+            next_editions,
+            specific_editions,
+        ),
+        MintSubcommands::MissingEditions { keypair, account } => {
+            mint_missing_editions(client, &keypair, &account)
+        }
         MintSubcommands::List {
             keypair,
             receiver,

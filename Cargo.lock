@@ -252,9 +252,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.44"
+version = "1.0.56"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61604a8f862e1d5c3229fdd78f8b02c68dcf73a4c4b05fd636d12240aaa242c1"
+checksum = "4361135be9122e0870de935d7c439aef945b9f9ddd4199a553b5270b49c82a27"
 
 [[package]]
 name = "arrayref"
@@ -1688,6 +1688,7 @@ dependencies = [
  "indicatif",
  "lazy_static",
  "log",
+ "metaboss_lib",
  "mpl-candy-machine",
  "mpl-token-metadata",
  "num_cpus",
@@ -1706,6 +1707,55 @@ dependencies = [
  "spl-associated-token-account",
  "spl-token",
  "structopt",
+ "thiserror",
+]
+
+[[package]]
+name = "metaboss_lib"
+version = "0.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8ca99c4bd84eca5731338e4680d23f30ffd1a08233ef6656d918c444c69e878"
+dependencies = [
+ "anyhow",
+ "metaplex-token-metadata",
+ "retry",
+ "serde",
+ "solana-account-decoder",
+ "solana-client",
+ "solana-program",
+ "solana-sdk",
+ "spl-associated-token-account",
+ "spl-token",
+ "thiserror",
+]
+
+[[package]]
+name = "metaplex-token-metadata"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "abcc939f0afdc6db054b9998a1292d0a016244b382462e61cfc7c570624982cb"
+dependencies = [
+ "arrayref",
+ "borsh",
+ "metaplex-token-vault",
+ "num-derive",
+ "num-traits",
+ "solana-program",
+ "spl-token",
+ "thiserror",
+]
+
+[[package]]
+name = "metaplex-token-vault"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a5211991ba3273df89cd5e0f6f558bc8d7453c87c0546f915b4a319e1541df33"
+dependencies = [
+ "borsh",
+ "num-derive",
+ "num-traits",
+ "solana-program",
+ "spl-token",
  "thiserror",
 ]
 
