@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result as AnyResult};
 use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
+use metaboss_lib::decode::decode_master_edition_from_mint;
 use mpl_token_metadata::state::{Key, Metadata};
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
@@ -106,6 +107,13 @@ pub fn decode_metadata_all(
                 }
             }
         });
+
+    Ok(())
+}
+
+pub fn decode_master_edition(client: &RpcClient, mint_account: &str) -> AnyResult<()> {
+    let master_edition = decode_master_edition_from_mint(client, mint_account)?;
+    println!("{:?}", master_edition);
 
     Ok(())
 }

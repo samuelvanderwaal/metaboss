@@ -29,11 +29,11 @@ use spl_token::{
 use std::{fs::File, path::Path, str::FromStr};
 
 use crate::derive::derive_edition_pda;
-use crate::limiter::create_rate_limiter;
-use crate::parse::*;
 use crate::sign::sign_one;
 use crate::{constants::*, parse::convert_local_to_remote_data};
 use crate::{data::NFTData, derive::derive_metadata_pda};
+use crate::{find::find_missing_editions, parse::*};
+use crate::{limiter::create_rate_limiter, spinner::create_spinner};
 
 const MINT_LAYOUT: u64 = 82;
 
@@ -86,6 +86,7 @@ pub fn mint_list(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn mint_from_files(
     client: &RpcClient,
     keypair_path: Option<String>,
@@ -142,6 +143,7 @@ pub fn mint_from_files(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn mint_from_uris(
     client: &RpcClient,
     keypair_path: Option<String>,
@@ -257,34 +259,79 @@ pub fn mint_editions(
     keypair_path: Option<String>,
     account: String,
     receiver: &Option<String>,
-    _num_editions: u32,
+    next_editions: Option<u64>,
+    specific_editions: Option<Vec<u64>>,
 ) -> Result<()> {
-    mint_next_edition(client, keypair_path, account, receiver)?;
+    let spinner = create_spinner("Minting...");
+    if let Some(next_editions) = next_editions {
+        for _ in 0..next_editions {
+            mint_next_edition(client, &keypair_path, &account, receiver)?;
+        }
+        return Ok(());
+    }
+    if let Some(specific_editions) = specific_editions {
+        for num in specific_editions {
+            mint_edition(client, &keypair_path, &account, num, receiver)?;
+        }
+        return Ok(());
+    }
+    spinner.finish();
+
     Ok(())
 }
 
 fn mint_next_edition(
     client: &RpcClient,
-    keypair_path: Option<String>,
-    account: String,
+    keypair_path: &Option<String>,
+    account: &str,
+    receiver: &Option<String>,
+) -> Result<()> {
+    // Send tx with retries.
+    let master_edition_res = retry(
+        Exponential::from_millis_with_factor(250, 2.0).take(3),
+        || decode_master_edition_from_mint(client, account),
+    );
+    // Get current edition number
+    let master_edition = master_edition_res?;
+    let current_edition_num = master_edition.supply;
+    let next_edition_num = current_edition_num + 1;
+
+    if let Some(max_supply) = master_edition.max_supply {
+        if next_edition_num > max_supply {
+            return Err(anyhow!(
+                "Next edition number {} is greater than max_supply {}",
+                next_edition_num,
+                max_supply
+            ));
+        }
+    }
+
+    println!("Current edition: {}", current_edition_num);
+
+    mint_edition(client, keypair_path, account, next_edition_num, receiver)?;
+
+    Ok(())
+}
+
+fn mint_edition(
+    client: &RpcClient,
+    keypair_path: &Option<String>,
+    account: &str,
+    edition_num: u64,
     receiver: &Option<String>,
 ) -> Result<(Signature, Pubkey)> {
     let solana_opts = parse_solana_config();
     let funder = parse_keypair(keypair_path.clone(), solana_opts);
-    let metadata_mint = Pubkey::from_str(&account)?;
+    let metadata_mint = Pubkey::from_str(account)?;
     let new_mint_keypair = Keypair::new();
     let new_mint = new_mint_keypair.pubkey();
     println!("New mint: {:?}", &new_mint);
 
     let receiver = if let Some(address) = receiver {
-        Pubkey::from_str(&address)?
+        Pubkey::from_str(address)?
     } else {
-        funder.pubkey().clone()
+        funder.pubkey()
     };
-
-    // Get current edition number
-    let edition = decode_edition_from_mint(&client, &account)?;
-    let current_edition_num = edition.edition;
 
     let master_edition = derive_edition_pda(&metadata_mint);
     let new_edition = derive_edition_pda(&new_mint);
@@ -318,21 +365,11 @@ fn mint_next_edition(
     println!("Associated token: {:?}", &assoc);
     println!("New associated token: {:?}", &new_assoc);
 
-    // Create associated account instruction
-    // let create_assoc_account_ix =
-    // create_associated_token_account(&funder.pubkey(), &receiver, &metadata_mint);
-    // let create_assoc_account_ix =
-    // create_associated_token_account(&funder.pubkey(), &receiver, &new_mint);
+    let create_assoc_account_ix =
+        create_associated_token_account(&funder.pubkey(), &receiver, &new_mint);
 
     // Mint to instruction
-    let mint_to_ix = mint_to(
-        &TOKEN_PROGRAM_ID,
-        &new_mint,
-        &new_assoc,
-        &funder.pubkey(),
-        &[],
-        1,
-    )?;
+    let mint_to_ix = mint_to(&TOKEN_PROGRAM_ID, &new_mint, &new_assoc, &receiver, &[], 1)?;
 
     let mint_editions_ix = mint_new_edition_from_master_edition_via_token(
         TOKEN_METADATA_PROGRAM_ID,
@@ -347,12 +384,13 @@ fn mint_next_edition(
         funder.pubkey(),
         metadata,
         metadata_mint,
-        current_edition_num + 1,
+        edition_num,
     );
 
     let instructions = vec![
         create_mint_account_ix,
         init_mint_ix,
+        create_assoc_account_ix,
         mint_to_ix,
         mint_editions_ix,
     ];
@@ -372,7 +410,39 @@ fn mint_next_edition(
     );
     let sig = res?;
 
+    println!("Tx id: {:?}", &sig);
+
+    // Send tx with retries.
+    let edition_res = retry(
+        Exponential::from_millis_with_factor(250, 2.0).take(3),
+        || decode_edition_from_mint(client, &new_mint.to_string()),
+    );
+    let edition = edition_res?;
+    let edition_pda = derive_edition_pda(&new_mint);
+
+    println!("New edition: {}", edition_pda);
+    println!("Edition: {:?}", edition);
+    let new_edition_num = edition.edition;
+
+    println!("New edition: {}", new_edition_num);
+
     Ok((sig, new_mint))
+}
+
+pub fn mint_missing_editions(
+    client: &RpcClient,
+    keypair_path: &Option<String>,
+    mint_account: &str,
+) -> Result<()> {
+    let missing_editions = find_missing_editions(client, mint_account)?;
+
+    let spinner = create_spinner("Printing missing editions");
+    for missing_edition in missing_editions {
+        mint_edition(client, keypair_path, mint_account, missing_edition, &None)?;
+    }
+    spinner.finish();
+
+    Ok(())
 }
 
 pub fn mint(
