@@ -44,7 +44,7 @@ pub fn burn(
     mint_pubkey: &Pubkey,
     amount: u64,
 ) -> Result<Signature> {
-    let assoc = get_associated_token_address(&owner_pubkey, &mint_pubkey);
+    let assoc = get_associated_token_address(owner_pubkey, mint_pubkey);
     let spl_token_program_id = spl_token::id();
 
     let burn_ix = spl_token::instruction::burn(

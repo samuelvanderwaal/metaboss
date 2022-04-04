@@ -37,6 +37,7 @@ use crate::{data::NFTData, derive::derive_metadata_pda};
 
 const MINT_LAYOUT: u64 = 82;
 
+#[allow(clippy::too_many_arguments)]
 pub fn mint_list(
     client: &RpcClient,
     keypair_path: Option<String>,
@@ -99,7 +100,9 @@ pub fn mint_from_files(
     let handle = create_rate_limiter();
 
     let path = Path::new(&list_dir).join("*.json");
-    let pattern = path.to_str().ok_or(anyhow!("Invalid directory path"))?;
+    let pattern = path
+        .to_str()
+        .ok_or_else(|| anyhow!("Invalid directory path"))?;
 
     let (paths, errors): (Vec<_>, Vec<_>) = glob(pattern)?.into_iter().partition(Result::is_ok);
 
@@ -174,6 +177,8 @@ pub fn mint_from_uris(
 
     Ok(())
 }
+
+#[allow(clippy::too_many_arguments)]
 pub fn mint_one<P: AsRef<Path>>(
     client: &RpcClient,
     keypair_path: Option<String>,
@@ -195,7 +200,7 @@ pub fn mint_one<P: AsRef<Path>>(
     let keypair = parse_keypair(keypair_path.clone(), solana_opts);
 
     let receiver = if let Some(address) = receiver {
-        Pubkey::from_str(&address)?
+        Pubkey::from_str(address)?
     } else {
         keypair.pubkey()
     };
@@ -211,7 +216,7 @@ pub fn mint_one<P: AsRef<Path>>(
             .get("creators")
             .ok_or_else(|| anyhow!("Bad JSON"))?;
         let name = parse_name(&body)?;
-        let creators = parse_creators(&creators_json)?;
+        let creators = parse_creators(creators_json)?;
         let symbol = parse_symbol(&body)?;
         let seller_fee_basis_points = parse_seller_fee_basis_points(&body)?;
         NFTData {
@@ -241,7 +246,7 @@ pub fn mint_one<P: AsRef<Path>>(
     println!("{}", message);
     if sign {
         //TODO: Error handling
-        sign_one(client, keypair_path.clone(), mint_account.to_string())?;
+        sign_one(client, keypair_path, mint_account.to_string())?;
     }
 
     Ok(())

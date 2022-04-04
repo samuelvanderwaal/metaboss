@@ -5,6 +5,8 @@
 
 # Metaboss
 
+![metaboss logo](mb_logo.gif?raw=true)
+
 ## Overview
 
 The Solana Metaplex NFT 'Swiss Army Knife' tool.

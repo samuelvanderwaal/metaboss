@@ -99,19 +99,19 @@ pub fn parse_creators(creators_json: &Value) -> Result<Vec<NFTCreator>> {
 
     for creator in creators_json
         .as_array()
-        .ok_or(anyhow!("Invalid creators array!"))?
+        .ok_or_else(|| anyhow!("Invalid creators array!"))?
     {
         let address = creator
             .get("address")
-            .ok_or(anyhow!("Invalid address!"))?
+            .ok_or_else(|| anyhow!("Invalid address!"))?
             .as_str()
-            .ok_or(anyhow!("Invalid address!"))?
+            .ok_or_else(|| anyhow!("Invalid address!"))?
             .to_string();
         let share = creator
             .get("share")
-            .ok_or(anyhow!("Invalid share!"))?
+            .ok_or_else(|| anyhow!("Invalid share!"))?
             .as_u64()
-            .ok_or(anyhow!("Invalid share!"))? as u8;
+            .ok_or_else(|| anyhow!("Invalid share!"))? as u8;
         creators.push(NFTCreator {
             address,
             verified: false,
@@ -124,9 +124,9 @@ pub fn parse_creators(creators_json: &Value) -> Result<Vec<NFTCreator>> {
 pub fn parse_name(body: &Value) -> Result<String> {
     let name = body
         .get("name")
-        .ok_or(anyhow!("Invalid name!"))?
+        .ok_or_else(|| anyhow!("Invalid name!"))?
         .as_str()
-        .ok_or(anyhow!("Invalid name!"))?
+        .ok_or_else(|| anyhow!("Invalid name!"))?
         .to_string();
     Ok(name)
 }
@@ -134,9 +134,9 @@ pub fn parse_name(body: &Value) -> Result<String> {
 pub fn parse_symbol(body: &Value) -> Result<String> {
     let symbol = body
         .get("symbol")
-        .ok_or(anyhow!("Invalid symbol!"))?
+        .ok_or_else(|| anyhow!("Invalid symbol!"))?
         .as_str()
-        .ok_or(anyhow!("Invalid symbol!"))?
+        .ok_or_else(|| anyhow!("Invalid symbol!"))?
         .to_string();
     Ok(symbol)
 }
@@ -144,16 +144,16 @@ pub fn parse_symbol(body: &Value) -> Result<String> {
 pub fn parse_seller_fee_basis_points(body: &Value) -> Result<u16> {
     let seller_fee_basis_points =
         body.get("seller_fee_basis_points")
-            .ok_or(anyhow!("Invalid seller_fee_basis_points!"))?
+            .ok_or_else(|| anyhow!("Invalid seller_fee_basis_points!"))?
             .as_u64()
-            .ok_or(anyhow!("Invalid seller_fee_basis_points!"))? as u16;
+            .ok_or_else(|| anyhow!("Invalid seller_fee_basis_points!"))? as u16;
     Ok(seller_fee_basis_points)
 }
 
 pub fn convert_local_to_remote_data(local: NFTData) -> Result<Data> {
     let creators = local
         .creators
-        .ok_or(anyhow!("No creators specified in json file!"))?
+        .ok_or_else(|| anyhow!("No creators specified in json file!"))?
         .iter()
         .map(convert_creator)
         .collect::<Result<Vec<Creator>>>()?;
@@ -179,24 +179,22 @@ pub fn is_only_one_option<T, U>(option1: &Option<T>, option2: &Option<U>) -> boo
 pub fn parse_cli_creators(new_creators: String, should_append: bool) -> Result<Vec<Creator>> {
     let mut creators = Vec::new();
 
-    for nc in new_creators.split(",") {
-        let mut c = nc.split(":");
-        let address = c.next().ok_or(anyhow!("Missing address!"))?;
-        let address = Pubkey::from_str(&address)
+    for nc in new_creators.split(',') {
+        let mut c = nc.split(':');
+        let address = c.next().ok_or_else(|| anyhow!("Missing address!"))?;
+        let address = Pubkey::from_str(address)
             .map_err(|_| anyhow!(format!("Invalid creator address: {:?}!", address)))?;
         let share = if should_append {
             c.next();
             0u8
         } else {
             c.next()
-                .ok_or(anyhow!("Invalid creator share, must be 0-100!"))?
+                .ok_or_else(|| anyhow!("Invalid creator share, must be 0-100!"))?
                 .parse::<u8>()?
         };
         let verified = c
             .next()
-            .ok_or(anyhow!(
-                "Missing creator verified: must be 'true' or 'false'!"
-            ))?
+            .ok_or_else(|| anyhow!("Missing creator verified: must be 'true' or 'false'!"))?
             .parse::<bool>()?;
         creators.push(Creator {
             address,

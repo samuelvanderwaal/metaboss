@@ -33,19 +33,17 @@ fn main() -> Result<()> {
     let sol_config = parse_solana_config();
 
     let (rpc, commitment) = if let Some(cli_rpc) = options.rpc {
-        (cli_rpc.clone(), String::from("confirmed"))
+        (cli_rpc, String::from("confirmed"))
+    } else if let Some(config) = sol_config {
+        (config.json_rpc_url, config.commitment)
     } else {
-        if let Some(config) = sol_config {
-            (config.json_rpc_url, config.commitment)
-        } else {
-            info!(
+        info!(
             "Could not find a valid Solana-CLI config file. Defaulting to https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/ devnet node."
         );
-            (
-                String::from("https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/"),
-                String::from("confirmed"),
-            )
-        }
+        (
+            String::from("https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/"),
+            String::from("confirmed"),
+        )
     };
 
     // Set rate limiting if the user specified a public RPC.
@@ -68,6 +66,7 @@ fn main() -> Result<()> {
         Command::Collections {
             collections_subcommands,
         } => process_collections(&client, collections_subcommands)?,
+        Command::Uses { uses_subcommands } => process_uses(&client, uses_subcommands)?,
         Command::Burn { burn_subcommands } => process_burn(&client, burn_subcommands)?,
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
         Command::Derive { derive_subcommands } => process_derive(derive_subcommands),
