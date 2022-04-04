@@ -7,6 +7,12 @@ jobs:
     name: Check
     runs-on: ubuntu-latest
     steps:
+      - name: Setup
+        id: setup
+        shell: bash
+        run: |
+          echo "Installing libudev-dev"
+          sudo apt install libudev-dev
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -21,6 +27,12 @@ jobs:
     name: Test Suite
     runs-on: ubuntu-latest
     steps:
+      - name: Setup
+        id: setup
+        shell: bash
+        run: |
+          echo "Installing libudev-dev"
+          sudo apt install libudev-dev
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -35,6 +47,12 @@ jobs:
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
+      - name: Setup
+        id: setup
+        shell: bash
+        run: |
+          echo "Installing libudev-dev"
+          sudo apt install libudev-dev
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
