@@ -30,7 +30,6 @@ pub fn find_missing_editions(client: &RpcClient, mint: &str) -> Result<Vec<u64>>
     edition_nums.sort_unstable();
 
     for (index, num) in edition_nums.iter().enumerate().skip(1) {
-        println!("{} {}", index, num);
         let prev_num = edition_nums[index - 1];
         if prev_num != num - 1 {
             let s: Vec<u64> = (prev_num + 1..*num).collect();

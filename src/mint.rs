@@ -306,8 +306,6 @@ fn mint_next_edition(
         }
     }
 
-    println!("Current edition: {}", current_edition_num);
-
     mint_edition(client, keypair_path, account, next_edition_num, receiver)?;
 
     Ok(())
@@ -325,7 +323,6 @@ fn mint_edition(
     let metadata_mint = Pubkey::from_str(account)?;
     let new_mint_keypair = Keypair::new();
     let new_mint = new_mint_keypair.pubkey();
-    println!("New mint: {:?}", &new_mint);
 
     let receiver = if let Some(address) = receiver {
         Pubkey::from_str(address)?
@@ -362,8 +359,6 @@ fn mint_edition(
     // Derive associated token account
     let assoc = get_associated_token_address(&receiver, &metadata_mint);
     let new_assoc = get_associated_token_address(&receiver, &new_mint);
-    println!("Associated token: {:?}", &assoc);
-    println!("New associated token: {:?}", &new_assoc);
 
     let create_assoc_account_ix =
         create_associated_token_account(&funder.pubkey(), &receiver, &new_mint);
@@ -409,22 +404,6 @@ fn mint_edition(
         || client.send_and_confirm_transaction(&tx),
     );
     let sig = res?;
-
-    println!("Tx id: {:?}", &sig);
-
-    // Send tx with retries.
-    let edition_res = retry(
-        Exponential::from_millis_with_factor(250, 2.0).take(3),
-        || decode_edition_from_mint(client, &new_mint.to_string()),
-    );
-    let edition = edition_res?;
-    let edition_pda = derive_edition_pda(&new_mint);
-
-    println!("New edition: {}", edition_pda);
-    println!("Edition: {:?}", edition);
-    let new_edition_num = edition.edition;
-
-    println!("New edition: {}", new_edition_num);
 
     Ok((sig, new_mint))
 }
