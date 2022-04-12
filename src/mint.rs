@@ -404,6 +404,8 @@ fn mint_edition(
         || client.send_and_confirm_transaction(&tx),
     );
     let sig = res?;
+    println!("Edition with mint: {:?}", &new_mint);
+    println!("Created in tx: {:?}", &sig);
 
     Ok((sig, new_mint))
 }
