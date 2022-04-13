@@ -178,7 +178,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             primary_sale_happened,
             max_editions,
             sign,
-        ),
+        ).and_then(|_|{Ok(())}),
         MintSubcommands::Editions {
             keypair,
             account,
@@ -204,6 +204,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             immutable,
             primary_sale_happened,
             sign,
+            track,
         } => mint_list(
             client,
             keypair,
@@ -213,6 +214,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             immutable,
             primary_sale_happened,
             sign,
+            track,
         ),
     }
 }
