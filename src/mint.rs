@@ -4,7 +4,7 @@ use log::{error, info};
 use metaboss_lib::decode::*;
 use mpl_token_metadata::{
     instruction::{
-        create_master_edition, create_metadata_accounts,
+        create_master_edition, create_metadata_accounts_v2,
         mint_new_edition_from_master_edition_via_token, update_metadata_accounts,
     },
     ID as TOKEN_METADATA_PROGRAM_ID,
@@ -561,7 +561,7 @@ pub fn mint(
     let (master_edition_account, _pda) =
         Pubkey::find_program_address(master_edition_seeds, &metaplex_program_id);
 
-    let create_metadata_account_ix = create_metadata_accounts(
+    let create_metadata_account_ix = create_metadata_accounts_v2(
         metaplex_program_id,
         metadata_account,
         mint.pubkey(),
@@ -575,6 +575,8 @@ pub fn mint(
         data.seller_fee_basis_points,
         true,
         !immutable,
+        None,
+        None,
     );
 
     let create_master_edition_account_ix = create_master_edition(
