@@ -397,9 +397,13 @@ pub fn set_update_authority(
     keypair_path: Option<String>,
     mint_account: &str,
     new_update_authority: &str,
+    keypair_payer_path: Option<String>,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
-    let keypair = parse_keypair(keypair_path, solana_opts);
+    let keypair = parse_keypair(keypair_path.clone(), solana_opts);
+
+    let solana_opts = parse_solana_config();
+    let keypair_payer = parse_keypair(keypair_payer_path.or(keypair_path), solana_opts);
 
     let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint_pubkey = Pubkey::from_str(mint_account)?;
@@ -420,8 +424,8 @@ pub fn set_update_authority(
     let recent_blockhash = client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
         &[ix],
-        Some(&update_authority),
-        &[&keypair],
+        Some(&keypair_payer.pubkey()),
+        &[&keypair, &keypair_payer],
         recent_blockhash,
     );
 
@@ -437,6 +441,7 @@ pub fn set_update_authority_all(
     keypair_path: Option<String>,
     json_file: &str,
     new_update_authority: &str,
+    keypair_payer_path: Option<String>,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_rate_limiter();
@@ -453,8 +458,13 @@ pub fn set_update_authority_all(
 
         // If someone uses a json list that contains a mint account that has already
         //  been updated this will throw an error. We print that error and continue
-        let _ = match set_update_authority(client, keypair_path.clone(), item, new_update_authority)
-        {
+        let _ = match set_update_authority(
+            client,
+            keypair_path.clone(),
+            item,
+            new_update_authority,
+            keypair_payer_path.clone(),
+        ) {
             Ok(_) => {}
             Err(error) => {
                 error!("Error occurred! {}", error)

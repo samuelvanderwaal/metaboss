@@ -226,12 +226,26 @@ pub fn process_set(client: &RpcClient, commands: SetSubcommands) -> Result<()> {
             keypair,
             account,
             new_update_authority,
-        } => set_update_authority(client, keypair, &account, &new_update_authority),
+            keypair_payer,
+        } => set_update_authority(
+            client,
+            keypair,
+            &account,
+            &new_update_authority,
+            keypair_payer,
+        ),
         SetSubcommands::UpdateAuthorityAll {
             keypair,
             mint_accounts_file,
             new_update_authority,
-        } => set_update_authority_all(client, keypair, &mint_accounts_file, &new_update_authority),
+            keypair_payer,
+        } => set_update_authority_all(
+            client,
+            keypair,
+            &mint_accounts_file,
+            &new_update_authority,
+            keypair_payer,
+        ),
         SetSubcommands::Immutable { keypair, account } => set_immutable(client, keypair, &account),
         SetSubcommands::ImmutableAll {
             keypair,

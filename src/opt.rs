@@ -473,6 +473,10 @@ pub enum SetSubcommands {
         /// New update authority address
         #[structopt(short = "u", long)]
         new_update_authority: String,
+
+        //Path to the payers's keypair file
+        #[structopt(short = "p", long)]
+        keypair_payer: Option<String>,
     },
     /// Set update authority on multiple accounts to a new account
     #[structopt(name = "update-authority-all")]
@@ -488,6 +492,10 @@ pub enum SetSubcommands {
         /// New update authority address
         #[structopt(short = "u", long)]
         new_update_authority: String,
+
+        //Path to the payers's keypair file
+        #[structopt(short = "p", long)]
+        keypair_payer: Option<String>,
     },
     /// Set is-mutable to false, preventing any future updates to the NFT
     #[structopt(name = "immutable")]
