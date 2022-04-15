@@ -1,0 +1,6 @@
+[book]
+authors = ["Samuel J Vanderwaal"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Metaboss"

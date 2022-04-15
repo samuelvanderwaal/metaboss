@@ -1,3 +1,13 @@
+v0.6.0
+* Basic support for new token metadata handlers
+    * collections
+        * verify, unverify, set-and-verify, approve and revoke delegate
+    * uses
+        * approve and revoke delegate, utilize
+* Mint editions
+* Track failed mints during mint-all
+* Allow different payer for update-authority
+
 v0.5.1
 * Fix to make QuickNode RPCs work again.
 
