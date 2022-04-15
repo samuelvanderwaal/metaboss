@@ -178,7 +178,8 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             primary_sale_happened,
             max_editions,
             sign,
-        ).and_then(|_|{Ok(())}),
+        )
+        .map(|_| ()),
         MintSubcommands::Editions {
             keypair,
             account,
