@@ -12,6 +12,7 @@ use mpl_token_metadata::{
 use rayon::prelude::*;
 use reqwest;
 use retry::{delay::Exponential, retry};
+use serde::Serialize;
 use serde_json::Value;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
@@ -26,7 +27,7 @@ use spl_token::{
     instruction::{initialize_mint, mint_to},
     ID as TOKEN_PROGRAM_ID,
 };
-use std::{fs::File, path::Path, str::FromStr};
+use std::{fs, fs::File, path::Path, str::FromStr};
 
 use crate::derive::derive_edition_pda;
 use crate::sign::sign_one;
@@ -47,6 +48,7 @@ pub fn mint_list(
     immutable: bool,
     primary_sale_happened: bool,
     sign: bool,
+    track: bool,
 ) -> Result<()> {
     if !is_only_one_option(&list_dir, &external_metadata_uris) {
         return Err(anyhow!(
@@ -76,6 +78,7 @@ pub fn mint_list(
             primary_sale_happened,
             max_editions,
             sign,
+            track,
         )?;
     } else {
         return Err(anyhow!(
@@ -153,29 +156,89 @@ pub fn mint_from_uris(
     primary_sale_happened: bool,
     max_editions: u64,
     sign: bool,
+    track: bool,
 ) -> Result<()> {
-    let f = File::open(external_metadata_uris_path)?;
+    let f = File::open(&external_metadata_uris_path)?;
     let external_metadata_uris: Vec<String> = serde_json::from_reader(f)?;
 
-    external_metadata_uris
-        .par_iter()
-        // .progress()
-        .for_each(|uri| {
-            match mint_one(
-                client,
-                keypair_path.clone(),
-                &receiver,
-                None::<String>,
-                Some(uri),
-                immutable,
-                primary_sale_happened,
-                max_editions,
-                sign,
-            ) {
-                Ok(_) => (),
-                Err(e) => error!("Failed to mint {:?}: {}", &uri, e),
+    if !track {
+        external_metadata_uris
+            .par_iter()
+            // .progress()
+            .for_each(|uri| {
+                match mint_one(
+                    client,
+                    keypair_path.clone(),
+                    &receiver,
+                    None::<String>,
+                    Some(uri),
+                    immutable,
+                    primary_sale_happened,
+                    max_editions,
+                    sign,
+                ) {
+                    Ok(_) => (),
+                    Err(e) => error!("Failed to mint {:?}: {}", &uri, e),
+                }
+            });
+    } else {
+        #[derive(Serialize)]
+        struct MintResult {
+            pub uri: String,
+            pub mint_account: Option<String>,
+        }
+
+        // Minted file contains all succesful MintResults, unminted file simply contains
+        // a list of unminted uris to make it easier to resume minting.
+        let minted_path = external_metadata_uris_path.replace(".json", "-output.json");
+        let unminted_path = external_metadata_uris_path.replace(".json", "-unminted.json");
+        let mut minted: Vec<&MintResult> = Vec::new();
+        let mut unminted: Vec<String> = Vec::new();
+
+        let results: Vec<MintResult> = external_metadata_uris
+            .par_iter()
+            .map(|uri| -> MintResult {
+                match mint_one(
+                    client,
+                    keypair_path.clone(),
+                    &receiver,
+                    None::<String>,
+                    Some(uri),
+                    immutable,
+                    primary_sale_happened,
+                    max_editions,
+                    sign,
+                ) {
+                    Ok(m) => MintResult {
+                        uri: uri.clone(),
+                        mint_account: Some(m),
+                    },
+                    Err(e) => {
+                        error!("Failed to mint {:?}: {}", &uri, e);
+                        MintResult {
+                            uri: uri.clone(),
+                            mint_account: None,
+                        }
+                    }
+                }
+            })
+            .collect();
+
+        results.iter().for_each(|result| {
+            if result.mint_account.is_none() {
+                unminted.push(result.uri.clone())
+            } else {
+                minted.push(result)
             }
         });
+
+        if !unminted.is_empty() {
+            fs::write(unminted_path, serde_json::to_string_pretty(&unminted)?)?;
+        }
+        if !minted.is_empty() {
+            fs::write(minted_path, serde_json::to_string_pretty(&minted)?)?;
+        }
+    }
 
     Ok(())
 }
@@ -191,7 +254,7 @@ pub fn mint_one<P: AsRef<Path>>(
     primary_sale_happened: bool,
     max_editions: u64,
     sign: bool,
-) -> Result<()> {
+) -> Result<String> {
     if !is_only_one_option(&nft_data_file, &external_metadata_uri) {
         return Err(anyhow!(
             "You must supply either --nft_data_file or --external-metadata-uris but not both"
@@ -251,7 +314,7 @@ pub fn mint_one<P: AsRef<Path>>(
         sign_one(client, keypair_path, mint_account.to_string())?;
     }
 
-    Ok(())
+    Ok(mint_account.to_string())
 }
 
 pub fn mint_editions(

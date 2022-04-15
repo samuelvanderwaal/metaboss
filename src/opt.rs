@@ -8,7 +8,7 @@ pub struct Opt {
     pub rpc: Option<String>,
 
     /// Timeout to override default value of 60 seconds
-    #[structopt(short, long, global = true, default_value = "90")]
+    #[structopt(short = "T", long, global = true, default_value = "90")]
     pub timeout: u64,
 
     /// Log level
@@ -443,6 +443,12 @@ pub enum MintSubcommands {
         /// Sign NFTs after minting them
         #[structopt(long)]
         sign: bool,
+
+        /// Track whether URIs are succesfully minted or not, and output to
+        /// `minted` file with URIs -> Mint Accounts or to `unminted` file
+        /// with list of unminted URIs for easy continuation of command
+        #[structopt(long)]
+        track: bool,
     },
 }
 
@@ -670,7 +676,7 @@ pub enum UpdateSubcommands {
         new_creators: String,
 
         /// Should be appended instead of overwriting
-        #[structopt(short, long = "append")]
+        #[structopt(short = "A", long = "append")]
         append: bool,
     },
     /// Update the data struct on a NFT
