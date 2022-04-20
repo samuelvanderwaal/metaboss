@@ -42,7 +42,7 @@ Linux, MacOS and Windows binaries available in [releases](https://github.com/sam
 ### Install From crates.io
 
 ```bash
-cargo install metaboss
+cargo install --locked metaboss
 ```
 
 ### Install From Source
