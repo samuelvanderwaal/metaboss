@@ -30,7 +30,7 @@ use std::{
 
 use crate::derive::derive_cmv2_pda;
 use crate::limiter::create_rate_limiter;
-use crate::parse::{first_creator_is_verified, is_only_one_option};
+use crate::parse::{creator_is_verified, is_only_one_option};
 use crate::spinner::*;
 use crate::{constants::*, decode::get_metadata_pda};
 
@@ -107,7 +107,7 @@ pub fn snapshot_mints(
             }
         };
 
-        if first_creator_is_verified(&metadata.data.creators) {
+        if creator_is_verified(&metadata.data.creators, position) {
             mint_accounts.push(metadata.mint.to_string());
         }
     }
@@ -188,7 +188,7 @@ pub fn snapshot_holders(
             };
 
             // Check that first creator is verified
-            if !first_creator_is_verified(&metadata.data.creators) {
+            if !creator_is_verified(&metadata.data.creators, position) {
                 return;
             }
 

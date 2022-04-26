@@ -15,10 +15,10 @@ pub struct SolanaConfig {
     pub commitment: String,
 }
 
-pub fn first_creator_is_verified(creators_opt: &Option<Vec<Creator>>) -> bool {
+pub fn creator_is_verified(creators_opt: &Option<Vec<Creator>>, position: usize) -> bool {
     // Only add mints with a verified creator.
     if let Some(creators) = creators_opt {
-        if creators[0].verified {
+        if creators[position].verified {
             return true;
         }
     }
