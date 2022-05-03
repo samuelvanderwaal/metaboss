@@ -3,7 +3,7 @@
 Install
 
 ```bash
-cargo install metaboss
+cargo install --locked metaboss
 ```
 
 or grab a [binary](https://github.com/samuelvanderwaal/metaboss/releases)
