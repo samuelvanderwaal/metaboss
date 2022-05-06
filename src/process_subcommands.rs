@@ -1,5 +1,5 @@
 use anyhow::Result;
-use solana_client::rpc_client::RpcClient;
+use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 
 use crate::burn::burn_one;
 use crate::collections::{
@@ -118,7 +118,11 @@ pub fn process_burn(client: &RpcClient, commands: BurnSubcommands) -> Result<()>
     }
 }
 
-pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result<()> {
+pub async fn process_decode(
+    client: &RpcClient,
+    async_client: AsyncRpcClient,
+    commands: DecodeSubcommands,
+) -> Result<()> {
     match commands {
         DecodeSubcommands::Mint {
             account,
@@ -126,14 +130,17 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
             list_file,
             raw,
             ref output,
-        } => decode_metadata(
-            client,
-            account.as_ref(),
-            full,
-            list_file.as_ref(),
-            raw,
-            output,
-        )?,
+        } => {
+            decode_metadata(
+                async_client,
+                account.as_ref(),
+                full,
+                list_file.as_ref(),
+                raw,
+                output.to_string(),
+            )
+            .await?
+        }
         DecodeSubcommands::Master { account } => decode_master_edition(client, &account)?,
     }
     Ok(())

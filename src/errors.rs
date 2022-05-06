@@ -10,7 +10,7 @@ pub enum DecodeError {
     #[error("failed to get account data")]
     ClientError(ClientErrorKind),
 
-    #[error("network request failed after three attempts: ensure you used a valid address and check the state of the Solana cluster")]
+    #[error("network request failed with error: {0}")]
     NetworkError(String),
 
     #[error("failed to parse string into Pubkey")]
