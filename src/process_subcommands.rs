@@ -15,7 +15,6 @@ use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
 use crate::update_metadata::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
-use crate::withdraw::{withdraw, WithdrawArgs};
 
 pub fn process_uses(client: &RpcClient, commands: UsesSubcommands) -> Result<()> {
     match commands {
@@ -336,18 +335,5 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
         UpdateSubcommands::UriAll { keypair, json_file } => {
             update_uri_all(client, keypair, &json_file)
         }
-    }
-}
-
-pub fn process_withdraw(rpc_url: String, commands: WithdrawSubcommands) -> Result<()> {
-    match commands {
-        WithdrawSubcommands::CMV2 {
-            candy_machine_id,
-            keypair,
-        } => withdraw(WithdrawArgs {
-            rpc_url,
-            keypair,
-            candy_machine_id,
-        }),
     }
 }

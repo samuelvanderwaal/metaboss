@@ -86,11 +86,6 @@ pub enum Command {
         #[structopt(subcommand)]
         snapshot_subcommands: SnapshotSubcommands,
     },
-    /// Withdraw
-    Withdraw {
-        #[structopt(subcommand)]
-        withdraw_subcommands: WithdrawSubcommands,
-    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -730,19 +725,5 @@ pub enum UpdateSubcommands {
         /// JSON file with list of mint accounts and new URIs
         #[structopt(short = "u", long)]
         json_file: String,
-    },
-}
-
-#[derive(Debug, StructOpt)]
-pub enum WithdrawSubcommands {
-    /// Withdraw funds from a candy machine v2
-    #[structopt(name = "cm-v2")]
-    CMV2 {
-        /// Candy Machine V2 ID
-        candy_machine_id: String,
-
-        /// Path to the creator's keypair file
-        #[structopt(short, long)]
-        keypair: Option<String>,
     },
 }
