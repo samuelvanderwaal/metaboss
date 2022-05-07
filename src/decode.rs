@@ -1,17 +1,18 @@
 use anyhow::{anyhow, Result as AnyResult};
+use dialoguer::Confirm;
+use indexmap::IndexMap;
 use log::{debug, error, info};
 use metaboss_lib::decode::decode_master_edition_from_mint;
 use mpl_token_metadata::state::{Key, Metadata, TokenStandard, UseMethod};
-// use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::pubkey::Pubkey;
-use std::fs::File;
 use std::str::FromStr;
 use std::sync::Arc;
+use std::{fs::File, io::Write};
 
 use crate::constants::*;
 use crate::errors::*;
@@ -38,6 +39,20 @@ pub struct JSONUses {
     pub total: u64,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct DecodeCache(IndexMap<String, bool>);
+
+impl DecodeCache {
+    pub fn new() -> Self {
+        DecodeCache(IndexMap::new())
+    }
+
+    pub fn write<W: Write>(self, writer: W) -> AnyResult<()> {
+        serde_json::to_writer(writer, &self)?;
+        Ok(())
+    }
+}
+
 pub async fn decode_metadata_all(
     client: Arc<AsyncRpcClient>,
     json_file: &str,
@@ -45,58 +60,99 @@ pub async fn decode_metadata_all(
     output: String,
 ) -> AnyResult<()> {
     let file = File::open(json_file)?;
-    let mint_accounts: Vec<String> = serde_json::from_reader(file)?;
+    let mut mint_accounts: Vec<String> = serde_json::from_reader(file)?;
     // let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     // let handle = create_rate_limiter();
 
-    info!("Sending network requests...");
-    println!("Sending network requests...");
-    // Create a vector of futures to execute.
-    let decode_tasks: Vec<_> = mint_accounts
-        .into_iter()
-        .map(|mint_account| tokio::spawn(async_decode(client.clone(), mint_account.clone())))
-        .collect();
+    let cache_file_name = "metaboss-cache-decode.json";
 
-    // Wait for all the tasks to resolve and push the results to our results vector
-    let mut metadata_results = Vec::new();
-    println!("Awaiting results...");
-    for task in decode_tasks {
-        metadata_results.push(task.await.unwrap());
+    // Create a temp cache file to track failures.
+    let f = File::create(cache_file_name)?;
+
+    // Mint addresses success starts out as false and we will update on success.
+    let mut cache = DecodeCache::new();
+    for mint in &mint_accounts {
+        cache.0.insert(mint.clone(), false);
     }
 
-    // Partition decode results.
-    let (successful, failed): (
-        Vec<Result<Metadata, DecodeError>>,
-        Vec<Result<Metadata, DecodeError>>,
-    ) = metadata_results.into_iter().partition(Result::is_ok);
+    loop {
+        let remaining_mints = mint_accounts.clone();
+        info!("Sending network requests...");
+        println!("Sending network requests...");
+        // Create a vector of futures to execute.
+        let decode_tasks: Vec<_> = remaining_mints
+            .into_iter()
+            .map(|mint_account| tokio::spawn(async_decode(client.clone(), mint_account)))
+            .collect();
 
-    println!(
-        "Decoding complete. {} accounts failed to decode.",
-        failed.len()
-    );
+        let decode_tasks_len = decode_tasks.len();
 
-    // Take all the successful ones, unwrap them and then write them to files.
-    println!("Writing to files...");
-    let write_tasks: Vec<_> = successful
-        .into_iter()
-        .map(Result::unwrap)
-        .map(|md| tokio::spawn(write_metadata_to_file(md, full, output.clone())))
-        .collect();
+        // Wait for all the tasks to resolve and push the results to our results vector
+        let mut metadata_results = Vec::new();
+        println!("Awaiting results...");
+        for task in decode_tasks {
+            metadata_results.push(task.await.unwrap());
+        }
 
-    // Wait for all write tasks to resolve.
-    let mut write_results = Vec::new();
-    for task in write_tasks {
-        write_results.push(task.await.unwrap());
+        // Partition decode results.
+        let (decode_successful, decode_failed): (
+            Vec<Result<Metadata, DecodeError>>,
+            Vec<Result<Metadata, DecodeError>>,
+        ) = metadata_results.into_iter().partition(Result::is_ok);
+
+        // Unwrap sucessful
+        let decode_successful: Vec<Metadata> =
+            decode_successful.into_iter().map(Result::unwrap).collect();
+
+        // Mark successful ones in the cache.
+        for md in &decode_successful {
+            *cache.0.get_mut(&md.mint.to_string()).unwrap() = true;
+        }
+
+        // Take all the successful ones, unwrap them and then write them to files, consuming them.
+        println!("Writing to files...");
+        let write_tasks: Vec<_> = decode_successful
+            .into_iter()
+            .map(|md| tokio::spawn(write_metadata_to_file(md, full, output.clone())))
+            .collect();
+
+        // Wait for all write tasks to resolve.
+        let mut write_results = Vec::new();
+        for task in write_tasks {
+            write_results.push(task.await.unwrap());
+        }
+
+        // Partition write results.
+        let (_write_successful, _write_failed): (Vec<AnyResult<()>>, Vec<AnyResult<()>>) =
+            write_results.into_iter().partition(Result::is_ok);
+
+        // If some of the decodes failed, ask user if they wish to retry and the loop starts again.
+        // Otherwise, break out of the loop and write the cache to disk.
+        if decode_failed.len() > 0 {
+            let msg = format!(
+                "{}/{} decodes failed. Do you want to retry these ones?",
+                &decode_failed.len(),
+                decode_tasks_len
+            );
+            if Confirm::new().with_prompt(msg).interact()? {
+                mint_accounts = cache
+                    .0
+                    .keys()
+                    .filter(|&k| !cache.0[k])
+                    .map(|m| m.to_string())
+                    .collect();
+                continue;
+            } else {
+                println!("Writing cache to file...{}", cache_file_name);
+                cache.write(f)?;
+                break;
+            }
+        } else {
+            // None failed so we exit the loop.
+            println!("All decodes successful!");
+            break;
+        }
     }
-
-    // Partition write results.
-    let (_successful, failed): (Vec<AnyResult<()>>, Vec<AnyResult<()>>) =
-        write_results.into_iter().partition(Result::is_ok);
-
-    println!(
-        "Writing complete. {} accounts failed to write.",
-        failed.len()
-    );
 
     Ok(())
 }
