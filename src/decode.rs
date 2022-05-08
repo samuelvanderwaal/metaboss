@@ -10,12 +10,16 @@ use serde_json::{json, Value};
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::pubkey::Pubkey;
+use std::cmp;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::{fs::File, io::Write};
+use tokio::task::JoinHandle;
 
 use crate::{constants::*, errors::*, parse::is_only_one_option, spinner};
 // use crate::limiter::create_rate_limiter;
+
+pub const OPEN_FILES_LIMIT: usize = 100;
 
 #[derive(Debug, Serialize)]
 pub struct JSONCreator {
@@ -173,7 +177,7 @@ pub async fn decode_metadata_all(
             metadata_results.into_iter().partition(Result::is_ok);
 
         // Unwrap sucessful
-        let decode_successful: Vec<Metadata> =
+        let mut decode_successful: Vec<Metadata> =
             decode_successful.into_iter().map(Result::unwrap).collect();
 
         // Mark successful ones in the cache.
@@ -183,16 +187,22 @@ pub async fn decode_metadata_all(
 
         // Take all the successful ones, unwrap them and then write them to files, consuming them.
         let spinner = spinner::create_spinner("Writing to files...");
-        let write_tasks: Vec<_> = decode_successful
-            .into_iter()
-            .map(|md| tokio::spawn(write_metadata_to_file(md, full, output.clone())))
-            .collect();
 
-        // Wait for all write tasks to resolve.
         let mut write_results = Vec::new();
-        for task in write_tasks {
-            write_results.push(task.await.unwrap());
+
+        while !decode_successful.is_empty() {
+            let write_tasks: Vec<JoinHandle<Result<(), anyhow::Error>>> = decode_successful
+                .drain(0..cmp::min(decode_successful.len(), OPEN_FILES_LIMIT))
+                .into_iter()
+                .map(|md| tokio::spawn(write_metadata_to_file(md, full, output.clone())))
+                .collect();
+
+            // Wait for all write tasks to resolve.
+            for task in write_tasks {
+                write_results.push(task.await.unwrap());
+            }
         }
+
         spinner.finish();
 
         // Partition write results.
