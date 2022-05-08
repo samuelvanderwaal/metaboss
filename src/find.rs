@@ -5,10 +5,7 @@ use solana_client::rpc_client::RpcClient;
 use solana_sdk::{borsh::try_from_slice_unchecked, pubkey::Pubkey};
 use std::str::FromStr;
 
-use crate::{
-    errors::{DecodeError, MintAddress},
-    spinner::create_spinner,
-};
+use crate::{errors::DecodeError, spinner::create_spinner};
 
 pub fn find_missing_editions_process(client: &RpcClient, mint: &str) -> Result<()> {
     find_missing_editions(client, mint)?;
@@ -17,8 +14,6 @@ pub fn find_missing_editions_process(client: &RpcClient, mint: &str) -> Result<(
 
 pub fn find_missing_editions(client: &RpcClient, mint: &str) -> Result<Vec<u64>> {
     let master_edition_pubkey = derive_edition_pda(&Pubkey::from_str(mint)?);
-    let mint_address = MintAddress(mint.to_string());
-
     let mut edition_nums = Vec::new();
     let mut missing_nums = Vec::new();
 
@@ -28,7 +23,9 @@ pub fn find_missing_editions(client: &RpcClient, mint: &str) -> Result<Vec<u64>>
         let edition: Edition = match try_from_slice_unchecked(&edition_account.data) {
             Ok(e) => e,
             Err(err) => {
-                return Err(DecodeError::DecodeMetadataFailed(mint_address, err.to_string()).into())
+                return Err(
+                    DecodeError::DecodeMetadataFailed(mint.to_string(), err.to_string()).into(),
+                )
             }
         };
         edition_nums.push(edition.edition);

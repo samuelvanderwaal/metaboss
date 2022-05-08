@@ -39,6 +39,13 @@ pub struct JSONUses {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct DecodeCache(IndexMap<String, CacheItem>);
+pub type DecodeResults = Vec<Result<Metadata, DecodeError>>;
+
+impl Default for DecodeCache {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl DecodeCache {
     pub fn new() -> Self {
@@ -70,31 +77,31 @@ impl DecodeCache {
         for error in errors {
             match error {
                 DecodeError::MissingAccount(mint_address) => {
-                    *self.0.get_mut(&mint_address.0).unwrap() = CacheItem {
+                    *self.0.get_mut(mint_address).unwrap() = CacheItem {
                         successful: false,
                         error: Some(error.to_string()),
                     };
                 }
                 DecodeError::ClientError(mint_address, _client_error_kind) => {
-                    *self.0.get_mut(&mint_address.0).unwrap() = CacheItem {
+                    *self.0.get_mut(mint_address).unwrap() = CacheItem {
                         successful: false,
                         error: Some(error.to_string()),
                     };
                 }
                 DecodeError::NetworkError(mint_address, _network_error) => {
-                    *self.0.get_mut(&mint_address.0).unwrap() = CacheItem {
+                    *self.0.get_mut(mint_address).unwrap() = CacheItem {
                         successful: false,
                         error: Some(error.to_string()),
                     };
                 }
                 DecodeError::PubkeyParseFailed(mint_address) => {
-                    *self.0.get_mut(&mint_address.0).unwrap() = CacheItem {
+                    *self.0.get_mut(mint_address).unwrap() = CacheItem {
                         successful: false,
                         error: Some(error.to_string()),
                     };
                 }
                 DecodeError::DecodeMetadataFailed(mint_address, _decode_error) => {
-                    *self.0.get_mut(&mint_address.0).unwrap() = CacheItem {
+                    *self.0.get_mut(mint_address).unwrap() = CacheItem {
                         successful: false,
                         error: Some(error.to_string()),
                     };
@@ -162,10 +169,8 @@ pub async fn decode_metadata_all(
         spinner.finish();
 
         // Partition decode results.
-        let (decode_successful, decode_failed): (
-            Vec<Result<Metadata, DecodeError>>,
-            Vec<Result<Metadata, DecodeError>>,
-        ) = metadata_results.into_iter().partition(Result::is_ok);
+        let (decode_successful, decode_failed): (DecodeResults, DecodeResults) =
+            metadata_results.into_iter().partition(Result::is_ok);
 
         // Unwrap sucessful
         let decode_successful: Vec<Metadata> =
@@ -196,7 +201,7 @@ pub async fn decode_metadata_all(
 
         // If some of the decodes failed, ask user if they wish to retry and the loop starts again.
         // Otherwise, break out of the loop and write the cache to disk.
-        if decode_failed.len() > 0 {
+        if !decode_failed.is_empty() {
             let msg = format!(
                 "{}/{} decodes failed. Do you want to retry these ones?",
                 &decode_failed.len(),
@@ -332,27 +337,23 @@ pub async fn async_decode_raw(
     client: Arc<AsyncRpcClient>,
     mint_account: &str,
 ) -> Result<Vec<u8>, DecodeError> {
-    let mint_address = MintAddress(mint_account.to_string());
-
     let pubkey = match Pubkey::from_str(mint_account) {
         Ok(pubkey) => pubkey,
-        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_address)),
+        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.to_string())),
     };
     let metadata_pda = get_metadata_pda(pubkey);
 
     let account_data = client
         .get_account_data(&metadata_pda)
         .await
-        .map_err(|err| DecodeError::NetworkError(mint_address, err.to_string()))?;
+        .map_err(|err| DecodeError::NetworkError(mint_account.to_string(), err.to_string()))?;
     Ok(account_data)
 }
 
 pub fn decode_raw(client: &RpcClient, mint_account: &str) -> Result<Vec<u8>, DecodeError> {
-    let mint_address = MintAddress(mint_account.to_string());
-
     let pubkey = match Pubkey::from_str(mint_account) {
         Ok(pubkey) => pubkey,
-        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_address)),
+        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.to_string())),
     };
     let metadata_pda = get_metadata_pda(pubkey);
 
@@ -362,7 +363,10 @@ pub fn decode_raw(client: &RpcClient, mint_account: &str) -> Result<Vec<u8>, Dec
     ) {
         Ok(data) => data,
         Err(err) => {
-            return Err(DecodeError::NetworkError(mint_address, err.to_string()));
+            return Err(DecodeError::NetworkError(
+                mint_account.to_string(),
+                err.to_string(),
+            ));
         }
     };
     Ok(account_data)
@@ -372,24 +376,22 @@ pub async fn async_decode(
     client: Arc<AsyncRpcClient>,
     mint_account: String,
 ) -> Result<Metadata, DecodeError> {
-    let mint_address = MintAddress(mint_account.to_string());
-
     let pubkey = match Pubkey::from_str(&mint_account) {
         Ok(pubkey) => pubkey,
-        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_address.clone())),
+        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.to_string())),
     };
     let metadata_pda = get_metadata_pda(pubkey);
 
     let account_data = client
         .get_account_data(&metadata_pda)
         .await
-        .map_err(|err| DecodeError::NetworkError(mint_address.clone(), err.to_string()))?;
+        .map_err(|err| DecodeError::NetworkError(mint_account.to_string(), err.to_string()))?;
 
     let metadata: Metadata = match try_from_slice_unchecked(&account_data) {
         Ok(m) => m,
         Err(err) => {
             return Err(DecodeError::DecodeMetadataFailed(
-                mint_address,
+                mint_account.to_string(),
                 err.to_string(),
             ))
         }
@@ -399,23 +401,21 @@ pub async fn async_decode(
 }
 
 pub fn decode(client: &RpcClient, mint_account: &str) -> Result<Metadata, DecodeError> {
-    let mint_address = MintAddress(mint_account.to_string());
-
     let pubkey = match Pubkey::from_str(mint_account) {
         Ok(pubkey) => pubkey,
-        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_address.clone())),
+        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.to_string())),
     };
     let metadata_pda = get_metadata_pda(pubkey);
 
     let account_data = client
         .get_account_data(&metadata_pda)
-        .map_err(|err| DecodeError::NetworkError(mint_address.clone(), err.to_string()))?;
+        .map_err(|err| DecodeError::NetworkError(mint_account.to_string(), err.to_string()))?;
 
     let metadata: Metadata = match try_from_slice_unchecked(&account_data) {
         Ok(m) => m,
         Err(err) => {
             return Err(DecodeError::DecodeMetadataFailed(
-                mint_address,
+                mint_account.to_string(),
                 err.to_string(),
             ))
         }

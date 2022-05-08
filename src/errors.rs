@@ -2,8 +2,7 @@ use solana_client::client_error::ClientErrorKind;
 use std::io;
 use thiserror::Error;
 
-#[derive(Debug, Clone)]
-pub struct MintAddress(pub String);
+pub type MintAddress = String;
 
 #[derive(Error, Debug)]
 pub enum DecodeError {
