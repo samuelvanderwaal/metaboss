@@ -14,10 +14,8 @@ use std::str::FromStr;
 use std::sync::Arc;
 use std::{fs::File, io::Write};
 
-use crate::constants::*;
-use crate::errors::*;
+use crate::{constants::*, errors::*, parse::is_only_one_option, spinner};
 // use crate::limiter::create_rate_limiter;
-use crate::parse::is_only_one_option;
 
 #[derive(Debug, Serialize)]
 pub struct JSONCreator {
@@ -40,7 +38,7 @@ pub struct JSONUses {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct DecodeCache(IndexMap<String, bool>);
+pub struct DecodeCache(IndexMap<String, CacheItem>);
 
 impl DecodeCache {
     pub fn new() -> Self {
@@ -51,6 +49,65 @@ impl DecodeCache {
         serde_json::to_writer(writer, &self)?;
         Ok(())
     }
+
+    pub fn write_errors<W: Write>(self, writer: W) -> AnyResult<()> {
+        let errors = self
+            .0
+            .iter()
+            .filter(|(_, v)| !v.successful)
+            .collect::<IndexMap<_, _>>();
+        serde_json::to_writer(writer, &errors)?;
+        Ok(())
+    }
+
+    pub fn update_errors(
+        &mut self,
+        errors: Vec<Result<mpl_token_metadata::state::Metadata, DecodeError>>,
+    ) {
+        let errors = errors.iter().map(|r| r.as_ref()).map(Result::unwrap_err);
+
+        // This is really verbose; surely there's a better way.
+        for error in errors {
+            match error {
+                DecodeError::MissingAccount(mint_address) => {
+                    *self.0.get_mut(&mint_address.0).unwrap() = CacheItem {
+                        successful: false,
+                        error: Some(error.to_string()),
+                    };
+                }
+                DecodeError::ClientError(mint_address, _client_error_kind) => {
+                    *self.0.get_mut(&mint_address.0).unwrap() = CacheItem {
+                        successful: false,
+                        error: Some(error.to_string()),
+                    };
+                }
+                DecodeError::NetworkError(mint_address, _network_error) => {
+                    *self.0.get_mut(&mint_address.0).unwrap() = CacheItem {
+                        successful: false,
+                        error: Some(error.to_string()),
+                    };
+                }
+                DecodeError::PubkeyParseFailed(mint_address) => {
+                    *self.0.get_mut(&mint_address.0).unwrap() = CacheItem {
+                        successful: false,
+                        error: Some(error.to_string()),
+                    };
+                }
+                DecodeError::DecodeMetadataFailed(mint_address, _decode_error) => {
+                    *self.0.get_mut(&mint_address.0).unwrap() = CacheItem {
+                        successful: false,
+                        error: Some(error.to_string()),
+                    };
+                }
+            }
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct CacheItem {
+    pub successful: bool,
+    pub error: Option<String>,
 }
 
 pub async fn decode_metadata_all(
@@ -72,27 +129,37 @@ pub async fn decode_metadata_all(
     // Mint addresses success starts out as false and we will update on success.
     let mut cache = DecodeCache::new();
     for mint in &mint_accounts {
-        cache.0.insert(mint.clone(), false);
+        cache.0.insert(
+            mint.clone(),
+            CacheItem {
+                successful: false,
+                error: None,
+            },
+        );
     }
 
+    // Loop over decode process so we can retry repeatedly until the user exits.
     loop {
         let remaining_mints = mint_accounts.clone();
+
         info!("Sending network requests...");
-        println!("Sending network requests...");
+        let spinner = spinner::create_spinner("Sending network requests....");
         // Create a vector of futures to execute.
         let decode_tasks: Vec<_> = remaining_mints
             .into_iter()
             .map(|mint_account| tokio::spawn(async_decode(client.clone(), mint_account)))
             .collect();
+        spinner.finish();
 
         let decode_tasks_len = decode_tasks.len();
 
         // Wait for all the tasks to resolve and push the results to our results vector
         let mut metadata_results = Vec::new();
-        println!("Awaiting results...");
+        let spinner = spinner::create_spinner("Awaiting results...");
         for task in decode_tasks {
             metadata_results.push(task.await.unwrap());
         }
+        spinner.finish();
 
         // Partition decode results.
         let (decode_successful, decode_failed): (
@@ -106,11 +173,11 @@ pub async fn decode_metadata_all(
 
         // Mark successful ones in the cache.
         for md in &decode_successful {
-            *cache.0.get_mut(&md.mint.to_string()).unwrap() = true;
+            (*cache.0.get_mut(&md.mint.to_string()).unwrap()).successful = true;
         }
 
         // Take all the successful ones, unwrap them and then write them to files, consuming them.
-        println!("Writing to files...");
+        let spinner = spinner::create_spinner("Writing to files...");
         let write_tasks: Vec<_> = decode_successful
             .into_iter()
             .map(|md| tokio::spawn(write_metadata_to_file(md, full, output.clone())))
@@ -121,6 +188,7 @@ pub async fn decode_metadata_all(
         for task in write_tasks {
             write_results.push(task.await.unwrap());
         }
+        spinner.finish();
 
         // Partition write results.
         let (_write_successful, _write_failed): (Vec<AnyResult<()>>, Vec<AnyResult<()>>) =
@@ -138,13 +206,16 @@ pub async fn decode_metadata_all(
                 mint_accounts = cache
                     .0
                     .keys()
-                    .filter(|&k| !cache.0[k])
+                    .filter(|&k| !cache.0[k].successful)
                     .map(|m| m.to_string())
                     .collect();
                 continue;
             } else {
+                // We have failures but the user has decided to stop so we log failures to the cache file.
+                cache.update_errors(decode_failed);
+
                 println!("Writing cache to file...{}", cache_file_name);
-                cache.write(f)?;
+                cache.write_errors(f)?;
                 break;
             }
         } else {
@@ -261,23 +332,27 @@ pub async fn async_decode_raw(
     client: Arc<AsyncRpcClient>,
     mint_account: &str,
 ) -> Result<Vec<u8>, DecodeError> {
+    let mint_address = MintAddress(mint_account.to_string());
+
     let pubkey = match Pubkey::from_str(mint_account) {
         Ok(pubkey) => pubkey,
-        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.to_string())),
+        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_address)),
     };
     let metadata_pda = get_metadata_pda(pubkey);
 
     let account_data = client
         .get_account_data(&metadata_pda)
         .await
-        .map_err(|err| DecodeError::NetworkError(err.to_string()))?;
+        .map_err(|err| DecodeError::NetworkError(mint_address, err.to_string()))?;
     Ok(account_data)
 }
 
 pub fn decode_raw(client: &RpcClient, mint_account: &str) -> Result<Vec<u8>, DecodeError> {
+    let mint_address = MintAddress(mint_account.to_string());
+
     let pubkey = match Pubkey::from_str(mint_account) {
         Ok(pubkey) => pubkey,
-        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.to_string())),
+        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_address)),
     };
     let metadata_pda = get_metadata_pda(pubkey);
 
@@ -287,7 +362,7 @@ pub fn decode_raw(client: &RpcClient, mint_account: &str) -> Result<Vec<u8>, Dec
     ) {
         Ok(data) => data,
         Err(err) => {
-            return Err(DecodeError::NetworkError(err.to_string()));
+            return Err(DecodeError::NetworkError(mint_address, err.to_string()));
         }
     };
     Ok(account_data)
@@ -297,39 +372,53 @@ pub async fn async_decode(
     client: Arc<AsyncRpcClient>,
     mint_account: String,
 ) -> Result<Metadata, DecodeError> {
+    let mint_address = MintAddress(mint_account.to_string());
+
     let pubkey = match Pubkey::from_str(&mint_account) {
         Ok(pubkey) => pubkey,
-        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.to_string())),
+        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_address.clone())),
     };
     let metadata_pda = get_metadata_pda(pubkey);
 
     let account_data = client
         .get_account_data(&metadata_pda)
         .await
-        .map_err(|err| DecodeError::NetworkError(err.to_string()))?;
+        .map_err(|err| DecodeError::NetworkError(mint_address.clone(), err.to_string()))?;
 
     let metadata: Metadata = match try_from_slice_unchecked(&account_data) {
         Ok(m) => m,
-        Err(err) => return Err(DecodeError::DecodeMetadataFailed(err.to_string())),
+        Err(err) => {
+            return Err(DecodeError::DecodeMetadataFailed(
+                mint_address,
+                err.to_string(),
+            ))
+        }
     };
 
     Ok(metadata)
 }
 
 pub fn decode(client: &RpcClient, mint_account: &str) -> Result<Metadata, DecodeError> {
+    let mint_address = MintAddress(mint_account.to_string());
+
     let pubkey = match Pubkey::from_str(mint_account) {
         Ok(pubkey) => pubkey,
-        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_account.to_string())),
+        Err(_) => return Err(DecodeError::PubkeyParseFailed(mint_address.clone())),
     };
     let metadata_pda = get_metadata_pda(pubkey);
 
     let account_data = client
         .get_account_data(&metadata_pda)
-        .map_err(|err| DecodeError::NetworkError(err.to_string()))?;
+        .map_err(|err| DecodeError::NetworkError(mint_address.clone(), err.to_string()))?;
 
     let metadata: Metadata = match try_from_slice_unchecked(&account_data) {
         Ok(m) => m,
-        Err(err) => return Err(DecodeError::DecodeMetadataFailed(err.to_string())),
+        Err(err) => {
+            return Err(DecodeError::DecodeMetadataFailed(
+                mint_address,
+                err.to_string(),
+            ))
+        }
     };
 
     Ok(metadata)

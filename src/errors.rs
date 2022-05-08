@@ -2,22 +2,25 @@ use solana_client::client_error::ClientErrorKind;
 use std::io;
 use thiserror::Error;
 
+#[derive(Debug, Clone)]
+pub struct MintAddress(pub String);
+
 #[derive(Error, Debug)]
 pub enum DecodeError {
     #[error("no account data found")]
-    MissingAccount(String),
+    MissingAccount(MintAddress),
 
     #[error("failed to get account data")]
-    ClientError(ClientErrorKind),
+    ClientError(MintAddress, ClientErrorKind),
 
-    #[error("network request failed with error: {0}")]
-    NetworkError(String),
+    #[error("network request failed with error: {1}")]
+    NetworkError(MintAddress, String),
 
     #[error("failed to parse string into Pubkey")]
-    PubkeyParseFailed(String),
+    PubkeyParseFailed(MintAddress),
 
     #[error("failed to decode metadata")]
-    DecodeMetadataFailed(String),
+    DecodeMetadataFailed(MintAddress, String),
 }
 
 #[derive(Error, Debug)]
