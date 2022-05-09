@@ -6,7 +6,7 @@ use crate::collections::{
     approve_delegate, revoke_delegate, set_and_verify_nft_collection, unverify_nft_collection,
     verify_nft_collection,
 };
-use crate::decode::{decode_master_edition, decode_metadata};
+use crate::decode::{decode_from_metadata, decode_master_edition, decode_metadata};
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
 use crate::find::find_missing_editions_process;
 use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one};
@@ -142,6 +142,9 @@ pub async fn process_decode(
             .await?
         }
         DecodeSubcommands::Master { account } => decode_master_edition(client, &account)?,
+        DecodeSubcommands::Metadata { account } => {
+            decode_from_metadata(&async_client, &account).await?
+        }
     }
     Ok(())
 }

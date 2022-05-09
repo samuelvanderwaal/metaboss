@@ -305,6 +305,11 @@ pub enum DecodeSubcommands {
         #[structopt(short, long)]
         account: String,
     },
+    /// Decode directly from a metadata account
+    Metadata {
+        #[structopt(short, long)]
+        account: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]

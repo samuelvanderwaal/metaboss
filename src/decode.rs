@@ -305,6 +305,32 @@ pub fn decode_master_edition(client: &RpcClient, mint_account: &str) -> AnyResul
     Ok(())
 }
 
+pub async fn decode_from_metadata(
+    client: &AsyncRpcClient,
+    metadata_address: &str,
+) -> AnyResult<()> {
+    let metadata_pubkey = Pubkey::from_str(metadata_address)?;
+
+    let account_data = client
+        .get_account_data(&metadata_pubkey)
+        .await
+        .map_err(|err| DecodeError::NetworkError(metadata_address.to_string(), err.to_string()))?;
+
+    let metadata: Metadata = match try_from_slice_unchecked(&account_data) {
+        Ok(m) => m,
+        Err(err) => {
+            return Err(anyhow!(DecodeError::DecodeMetadataFailed(
+                metadata_address.to_string(),
+                err.to_string(),
+            )))
+        }
+    };
+
+    println!("{:?}", metadata);
+
+    Ok(())
+}
+
 pub async fn decode_metadata(
     client: AsyncRpcClient,
     account: Option<&String>,
