@@ -278,6 +278,25 @@ pub enum CollectionsSubcommands {
         #[structopt(short, long)]
         delegate_authority: String,
     },
+    /// Migrate a collection to the on-chain standard.
+    #[structopt(name = "migrate")]
+    Migrate {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Collection mint address
+        #[structopt(long)]
+        mint_address: String,
+
+        /// Candy Machine address if using the Candy Machine as the collection
+        #[structopt(short, long)]
+        candy_machine_id: Option<String>,
+
+        /// Mint list -- list of all mints addresses that are part of the collection
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+    },
 }
 
 #[derive(Debug, StructOpt)]

@@ -5,7 +5,7 @@ use anyhow::Result;
 use env_logger::{Builder, Target};
 use log::LevelFilter;
 use metaboss::constants::PUBLIC_RPC_URLS;
-use solana_client::rpc_client::RpcClient;
+use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 use solana_sdk::commitment_config::CommitmentConfig;
 use std::str::FromStr;
 use std::time::Duration;
@@ -25,7 +25,8 @@ fn setup_logging(log_level: String) -> Result<()> {
     Ok(())
 }
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let options = Opt::from_args();
 
     setup_logging(options.log_level)?;
@@ -62,10 +63,13 @@ fn main() -> Result<()> {
     let timeout = Duration::from_secs(options.timeout);
 
     let client = RpcClient::new_with_timeout_and_commitment(rpc.clone(), timeout, commitment);
+    let async_client =
+        AsyncRpcClient::new_with_timeout_and_commitment(rpc.clone(), timeout, commitment);
+
     match options.cmd {
         Command::Collections {
             collections_subcommands,
-        } => process_collections(&client, collections_subcommands)?,
+        } => process_collections(&client, async_client, collections_subcommands).await?,
         Command::Uses { uses_subcommands } => process_uses(&client, uses_subcommands)?,
         Command::Burn { burn_subcommands } => process_burn(&client, burn_subcommands)?,
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
