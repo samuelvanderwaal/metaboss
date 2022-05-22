@@ -46,6 +46,5 @@ pub async fn async_send_and_confirm_transaction(
 
     let sig = async_client.send_and_confirm_transaction(&tx).await?;
 
-    println!("TxId: {}", sig);
     Ok(sig.to_string())
 }

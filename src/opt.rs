@@ -296,6 +296,10 @@ pub enum CollectionsSubcommands {
         /// Mint list -- list of all mints addresses that are part of the collection
         #[structopt(short = "L", long)]
         mint_list: Option<String>,
+
+        /// Retry items from a Metaboss cache file.
+        #[structopt(long)]
+        cache_file: Option<String>,
     },
 }
 

@@ -12,12 +12,18 @@ use mpl_token_metadata::{
 use serde::{Deserialize, Serialize};
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 use solana_sdk::{pubkey::Pubkey, signature::Keypair, signer::Signer};
-use std::{fs::File, io::Write, str::FromStr, sync::Arc};
+use std::{
+    fs::{File, OpenOptions},
+    io::Write,
+    path::Path,
+    str::FromStr,
+    sync::Arc,
+};
 
 use crate::{
     derive::{derive_collection_authority_record, derive_edition_pda, derive_metadata_pda},
     errors::MigrateError,
-    parse::{is_only_one_option, parse_solana_config},
+    parse::parse_solana_config,
     spinner::create_spinner,
     utils::{async_send_and_confirm_transaction, send_and_confirm_transaction},
 };
@@ -45,16 +51,6 @@ impl MigrateCache {
         Ok(())
     }
 
-    pub fn write_errors<W: Write>(self, writer: W) -> AnyResult<()> {
-        let errors = self
-            .0
-            .iter()
-            .filter(|(_, v)| !v.successful)
-            .collect::<IndexMap<_, _>>();
-        serde_json::to_writer(writer, &errors)?;
-        Ok(())
-    }
-
     pub fn update_errors(&mut self, errors: Vec<Result<(), MigrateError>>) {
         let errors = errors.iter().map(|r| r.as_ref()).map(Result::unwrap_err);
 
@@ -62,19 +58,19 @@ impl MigrateCache {
         for error in errors {
             match error {
                 MigrateError::MigrationFailed(mint_address, _) => {
-                    *self.0.get_mut(mint_address).unwrap() = CacheItem {
-                        successful: false,
+                    let item = CacheItem {
                         error: Some(error.to_string()),
                     };
+
+                    *self.0.entry(mint_address.clone()).or_insert(item.clone()) = item.clone();
                 }
             }
         }
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CacheItem {
-    pub successful: bool,
     pub error: Option<String>,
 }
 
@@ -298,12 +294,22 @@ pub async fn migrate_collection(
     collection_mint: String,
     candy_machine_id: Option<String>,
     mint_list: Option<String>,
+    cache_file: Option<String>,
 ) -> AnyResult<()> {
-    if !is_only_one_option(&candy_machine_id, &mint_list) {
+    if candy_machine_id.is_some() && mint_list.is_some() {
         return Err(anyhow!(
             "Please specify either a candy machine id or an mint_list file, but not both."
         ));
     }
+
+    if cache_file.is_some() && (candy_machine_id.is_some() || mint_list.is_some()) {
+        return Err(anyhow!(
+            "Cannot use cache option with either a candy machine id or an mint_list file."
+        ));
+    }
+
+    let mut cache_file_name = "metaboss-cache-migrate-collection.json".to_string();
+    let mut cache = MigrateCache::new();
 
     let solana_opts = parse_solana_config();
     let keypair = Arc::new(parse_keypair(keypair_path, solana_opts));
@@ -314,28 +320,28 @@ pub async fn migrate_collection(
     } else if let Some(mint_list) = mint_list {
         let f = File::open(mint_list)?;
         serde_json::from_reader(f)?
+    } else if let Some(cache_path) = cache_file {
+        println!("Retrying items from cache file. . .");
+        cache_file_name = cache_path;
+
+        let f = File::open(&cache_file_name)?;
+        let cache: MigrateCache = serde_json::from_reader(f)?;
+        cache.0.keys().map(|k| k.to_string()).collect()
     } else {
         return Err(anyhow!(
             "Please specify either a candy machine id or an mint_list file."
         ));
     };
 
-    let cache_file_name = "metaboss-cache-migrate-collection.json";
-
-    // Create a temp cache file to track failures.
-    let f = File::create(cache_file_name)?;
-
-    // Mint addresses success starts out as false and we will update on success.
-    let mut cache = MigrateCache::new();
-    for mint in &mint_accounts {
-        cache.0.insert(
-            mint.clone(),
-            CacheItem {
-                successful: false,
-                error: None,
-            },
-        );
-    }
+    let f = if !Path::new(&cache_file_name).exists() {
+        File::create(&cache_file_name)?
+    } else {
+        OpenOptions::new()
+            .read(true)
+            .write(true)
+            .truncate(true)
+            .open(&cache_file_name)?
+    };
 
     let async_client = Arc::new(async_client);
 
@@ -382,20 +388,15 @@ pub async fn migrate_collection(
                 &migrate_failed.len(),
                 migrate_tasks_len
             );
+            cache.update_errors(migrate_failed);
             if Confirm::new().with_prompt(msg).interact()? {
-                mint_accounts = cache
-                    .0
-                    .keys()
-                    .filter(|&k| !cache.0[k].successful)
-                    .map(|m| m.to_string())
-                    .collect();
+                mint_accounts = cache.0.keys().map(|m| m.to_string()).collect();
+                println!("Mint accounts to retry: {:?}", &mint_accounts);
                 continue;
             } else {
                 // We have failures but the user has decided to stop so we log failures to the cache file.
-                cache.update_errors(migrate_failed);
-
-                println!("Writing cache to file...{}", cache_file_name);
-                cache.write_errors(f)?;
+                println!("Writing cache to file...{:?}", cache_file_name);
+                cache.write(f)?;
                 break;
             }
         } else {

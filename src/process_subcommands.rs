@@ -120,6 +120,7 @@ pub async fn process_collections(
             mint_address,
             candy_machine_id,
             mint_list,
+            cache_file,
         } => {
             migrate_collection(
                 client,
@@ -128,6 +129,7 @@ pub async fn process_collections(
                 mint_address,
                 candy_machine_id,
                 mint_list,
+                cache_file,
             )
             .await
         }
