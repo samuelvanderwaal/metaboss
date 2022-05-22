@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">4.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">6.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">7.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">8.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">9.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">10.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">11.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">12.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">13.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">14.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">4.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">6.</strong> Collections</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">7.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">8.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">9.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">10.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">11.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">12.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">13.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">14.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">15.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -283,6 +283,62 @@ git checkout main
 <h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
 <pre><code class="language-bash">metaboss burn one -k &lt;OWNER_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="collections"><a class="header" href="#collections">Collections</a></h2>
+<h3 id="migrate"><a class="header" href="#migrate">Migrate</a></h3>
+<p>Migrate a collection of NFTs to be part of a single on-chain Metaplex Certified Collection (MCC).</p>
+<ol>
+<li>
+<p>Create your Collection Parent NFT using a minting tool such as <a href="https://justmint.xyz/">justmint</a> or <a href="https://www.nftarmory.me/">NFT Armory</a>. Alternately, use <code>metaboss mint one</code>. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for you collection and all items in your collection will point to this mint account.</p>
+</li>
+<li>
+<p>Get your mint list. If your collection is a single candy machine you can use the <code>--candy-machine-id</code> option, otherwise provide the path to your mint list formatted as a JSON file with the <code>--mint-list</code> option.</p>
+</li>
+</ol>
+<p>Example contents of the mint list file:</p>
+<pre><code class="language-json">[
+    &quot;D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28&quot;,
+    &quot;4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW&quot;,
+    &quot;J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz&quot;,
+    &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
+]
+</code></pre>
+<p>Your Collection Parent NFT must have the <em>same update authority</em> as the items you will put in the collection. If you don't want to connect your update authority keypair to a website, you can mint with a different keypair and then change the update authority with Metaboss, or mint with Metaboss's <code>mint one</code> command. </p>
+<h3 id="running-the-commands"><a class="header" href="#running-the-commands">Running the Commands</a></h3>
+<h4 id="single-candy-machine-collection"><a class="header" href="#single-candy-machine-collection">Single Candy Machine Collection</a></h4>
+<p>Let's say you've created a parent NFT for your collection with a mint address of <code>9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq</code> and you have a candy machine id of <code>8yuhovH7fb63ed7Q3rcxL3kYZDhps4qspjaxx1N8WSni</code> and your update authority is in the file <code>my_keypair.json</code> in the same directory you are running the command. Your Metaboss command would be:</p>
+<pre><code class="language-bash">metaboss collections migrate -k my_keypair.json -c 8yuhovH7fb63ed7Q3rcxL3kYZDhps4qspjaxx1N8WSni --mint-address 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq
+</code></pre>
+<h4 id="using-a-mint-list-file"><a class="header" href="#using-a-mint-list-file">Using a Mint List File</a></h4>
+<p>Assume the same scenario above but with a mint list file named &quot;my_mint_list.json&quot; in the same directory you are running the command. Your Metaboss command would be:</p>
+<pre><code class="language-bash">metaboss collections migrate -k my_keypair.json -L my_mint_list.json --mint-address 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq
+</code></pre>
+<p>This assumes you have your RPC set in your <a href="https://docs.solana.com/cli/choose-a-cluster">Solana config</a>, otherwise it can be passed in with the <code>-r</code> option. As with all Metaboss commands, if you've set your keypair in your Solana config, you can omit the <code>-k</code> option. I recommend setting both in the Solana config to simplify commands:</p>
+<pre><code>solana config set --url &lt;rpc url&gt; --keypair &lt;path to keypair file&gt;
+</code></pre>
+<h4 id="retry-flow-and-cache-file"><a class="header" href="#retry-flow-and-cache-file">Retry Flow and Cache File</a></h4>
+<p>The <code>migrate</code> command rapidly fires off a lot of network requests to try to migrate over your collection as quickly as possible. If some of them fail, it keeps track of them and will give you an option to retry them. You can press &quot;y&quot; to retry the failed migrations or &quot;n&quot; to stop trying. When you press &quot;n&quot; it will write all remaining migrations to a cache file so you can retry them later.</p>
+<p><img src="retry_flow.png" alt="retry flow" /></p>
+<p>To retry from a cache file, you can use the <code>--cache-file</code> option.</p>
+<pre><code class="language-metaboss">metaboss collections migrate -k my_keypair.json --cache-file metaboss-cache-migrate-collections.json --mint-address 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq
+</code></pre>
+<p>This will read the items from the cache file and retry them.</p>
+<p>When retrying, if you consistently end up with the same number being retried each time it probably indicates those items cannot be migrated for some reason. Exit out of the retry flow by pressing &quot;n&quot; and then check the errors on the items that failed to migrate. </p>
+<p>Example cache file:</p>
+<pre><code class="language-json">{
+    &quot;FqKGC9CCVThn857VAyZtZQq5L31njnbeUTe1JoCsCX8J&quot;: {
+        &quot;error&quot;: &quot;Migration failed with error: RPC response error -32002: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x39 [5 log messages]&quot;
+    },
+    &quot;H7xrCZwA7oqsFeRcPsP6EEYHCxqq7atUBuuQAursXvWF&quot;: {
+        &quot;error&quot;: &quot;Migration failed with error: RPC response error -32002: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x39 [5 log messages]&quot;
+    }
+}
+</code></pre>
+<p>In this case <a href="https://github.com/samuelvanderwaal/wtf-is">our error is</a>:</p>
+<pre><code>0x39: 
+        Token Metadata            |     IncorrectOwner: Incorrect account owner
+</code></pre>
+<p>which means these items cannot be migrated over as they must have the same update authority as all items in the collection must have the same update authority as the Parent NFT.</p>
+<p>Report bugs and questions to the <a href="https://discord.gg/2f7N25NJkg">Metaboss Discord</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="decode"><a class="header" href="#decode">Decode</a></h2>
 <h3 id="decode-mint"><a class="header" href="#decode-mint">Decode Mint</a></h3>
 <p>Decodes a mint account's metadata into a JSON file. It accepts either a single account or a list of accounts.</p>

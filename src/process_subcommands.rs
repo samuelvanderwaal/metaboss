@@ -1,10 +1,10 @@
 use anyhow::Result;
-use solana_client::rpc_client::RpcClient;
+use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 
 use crate::burn::burn_one;
 use crate::collections::{
-    approve_delegate, revoke_delegate, set_and_verify_nft_collection, unverify_nft_collection,
-    verify_nft_collection,
+    approve_delegate, migrate_collection, revoke_delegate, set_and_verify_nft_collection,
+    unverify_nft_collection, verify_nft_collection,
 };
 use crate::decode::{decode_master_edition, decode_metadata};
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
@@ -68,7 +68,11 @@ pub fn process_uses(client: &RpcClient, commands: UsesSubcommands) -> Result<()>
     }
 }
 
-pub fn process_collections(client: &RpcClient, commands: CollectionsSubcommands) -> Result<()> {
+pub async fn process_collections(
+    client: &RpcClient,
+    async_client: AsyncRpcClient,
+    commands: CollectionsSubcommands,
+) -> Result<()> {
     match commands {
         CollectionsSubcommands::VerifyCollection {
             keypair,
@@ -110,6 +114,25 @@ pub fn process_collections(client: &RpcClient, commands: CollectionsSubcommands)
             collection_mint,
             delegate_authority,
         } => revoke_delegate(client, keypair, collection_mint, delegate_authority),
+
+        CollectionsSubcommands::Migrate {
+            keypair,
+            mint_address,
+            candy_machine_id,
+            mint_list,
+            cache_file,
+        } => {
+            migrate_collection(
+                client,
+                async_client,
+                keypair,
+                mint_address,
+                candy_machine_id,
+                mint_list,
+                cache_file,
+            )
+            .await
+        }
     }
 }
 

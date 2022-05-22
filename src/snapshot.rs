@@ -74,7 +74,33 @@ pub fn snapshot_mints(
         ));
     }
 
+    let prefix = if let Some(ref update_authority) = update_authority {
+        update_authority.clone()
+    } else if let Some(creator) = creator {
+        creator.clone()
+    } else {
+        return Err(anyhow!(
+            "Must specify either --update-authority or --candy-machine-id"
+        ));
+    };
+
+    let mint_accounts = get_mint_accounts(client, creator, position, update_authority, v2)?;
+
+    let mut file = File::create(format!("{}/{}_mint_accounts.json", output, prefix))?;
+    serde_json::to_writer(&mut file, &mint_accounts)?;
+
+    Ok(())
+}
+
+pub fn get_mint_accounts(
+    client: &RpcClient,
+    creator: &Option<String>,
+    position: usize,
+    update_authority: Option<String>,
+    v2: bool,
+) -> Result<Vec<String>> {
     let spinner = create_spinner("Getting accounts...");
+
     let accounts = if let Some(ref update_authority) = update_authority {
         get_mints_by_update_authority(client, update_authority)?
     } else if let Some(ref creator) = creator {
@@ -112,20 +138,7 @@ pub fn snapshot_mints(
         }
     }
 
-    let prefix = if let Some(update_authority) = update_authority {
-        update_authority
-    } else if let Some(creator) = creator {
-        creator.clone()
-    } else {
-        return Err(anyhow!(
-            "Must specify either --update-authority or --candy-machine-id"
-        ));
-    };
-
-    let mut file = File::create(format!("{}/{}_mint_accounts.json", output, prefix))?;
-    serde_json::to_writer(&mut file, &mint_accounts)?;
-
-    Ok(())
+    Ok(mint_accounts)
 }
 
 pub fn snapshot_holders(
@@ -329,6 +342,7 @@ fn get_mints_by_update_authority(
             commitment: Some(CommitmentConfig {
                 commitment: CommitmentLevel::Confirmed,
             }),
+            min_context_slot: None,
         },
         with_context: None,
     };
@@ -392,6 +406,7 @@ fn get_cm_accounts_by_update_authority(
             commitment: Some(CommitmentConfig {
                 commitment: CommitmentLevel::Confirmed,
             }),
+            min_context_slot: None,
         },
         with_context: None,
     };
@@ -440,6 +455,7 @@ pub fn get_cm_creator_accounts(
             commitment: Some(CommitmentConfig {
                 commitment: CommitmentLevel::Confirmed,
             }),
+            min_context_slot: None,
         },
         with_context: None,
     };
@@ -465,6 +481,7 @@ fn get_holder_token_accounts(
         commitment: Some(CommitmentConfig {
             commitment: CommitmentLevel::Confirmed,
         }),
+        min_context_slot: None,
     };
 
     let config = RpcProgramAccountsConfig {

@@ -77,7 +77,7 @@ git checkout main
 Install or build with Rust:
 
 ```bash
-cargo install --path ./
+cargo install --locked --path ./
 ```
 
 or

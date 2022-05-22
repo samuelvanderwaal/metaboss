@@ -20,6 +20,15 @@ pub enum DecodeError {
     DecodeMetadataFailed(String),
 }
 
+pub type MintAddress = String;
+pub type NetworkError = String;
+
+#[derive(Error, Debug)]
+pub enum MigrateError {
+    #[error("Migration failed with error: {1}")]
+    MigrationFailed(MintAddress, NetworkError),
+}
+
 #[derive(Error, Debug)]
 pub enum SolConfigError {
     #[error("no home env var found")]
