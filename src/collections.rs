@@ -120,7 +120,7 @@ async fn set_and_verify(
     is_delegate_present: bool,
 ) -> Result<(), MigrateError> {
     let nft_metadata_pubkey = derive_metadata_pda(
-        &Pubkey::from_str(&nft_mint).expect(&format!("invalid pubkey: {:?}", nft_mint)),
+        &Pubkey::from_str(&nft_mint).unwrap_or_else(|_| panic!("invalid pubkey: {:?}", nft_mint)),
     );
     let collection_mint_pubkey = Pubkey::from_str(&collection_mint).unwrap();
     let collection_metadata_pubkey = derive_metadata_pda(&collection_mint_pubkey);
@@ -316,7 +316,7 @@ pub async fn migrate_collection(
 
     let mut mint_accounts = if let Some(candy_machine_id) = candy_machine_id {
         println!("Using candy machine id to fetch mint list. . .");
-        get_mint_accounts(&client, &Some(candy_machine_id), 0, None, true)?
+        get_mint_accounts(client, &Some(candy_machine_id), 0, None, true)?
     } else if let Some(mint_list) = mint_list {
         let f = File::open(mint_list)?;
         serde_json::from_reader(f)?
