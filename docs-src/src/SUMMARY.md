@@ -5,6 +5,7 @@
 - [Examples](./examples.md)
 - [Global Options](./global_options.md)
 - [Burn](./burn.md)
+- [Collections](./collections.md)
 - [Decode](./decode.md)
 - [Derive](./derive.md)
 - [Mint](./mint.md)
