@@ -391,7 +391,6 @@ pub async fn migrate_collection(
             cache.update_errors(migrate_failed);
             if Confirm::new().with_prompt(msg).interact()? {
                 mint_accounts = cache.0.keys().map(|m| m.to_string()).collect();
-                println!("Mint accounts to retry: {:?}", &mint_accounts);
                 continue;
             } else {
                 // We have failures but the user has decided to stop so we log failures to the cache file.
