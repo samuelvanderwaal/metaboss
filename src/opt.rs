@@ -286,7 +286,7 @@ pub enum CollectionsSubcommands {
         keypair: Option<String>,
 
         /// Collection mint address
-        #[structopt(long)]
+        #[structopt(short, long)]
         mint_address: String,
 
         /// Candy Machine address if using the Candy Machine as the collection
