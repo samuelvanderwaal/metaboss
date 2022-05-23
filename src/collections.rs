@@ -54,7 +54,9 @@ impl MigrateCache {
     pub fn update_errors(&mut self, errors: Vec<Result<(), MigrateError>>) {
         let errors = errors.iter().map(|r| r.as_ref()).map(Result::unwrap_err);
 
-        // This is really verbose; surely there's a better way.
+        // Clear out old errors.
+        self.0.clear();
+
         for error in errors {
             match error {
                 MigrateError::MigrationFailed(mint_address, _) => {
@@ -62,7 +64,7 @@ impl MigrateCache {
                         error: Some(error.to_string()),
                     };
 
-                    *self.0.entry(mint_address.clone()).or_insert(item.clone()) = item.clone();
+                    self.0.insert(mint_address.to_string(), item);
                 }
             }
         }
