@@ -49,9 +49,13 @@ solana config set --url <rpc url> --keypair <path to keypair file>
 
 #### Retry Flow and Cache File
 
-The `migrate` command rapidly fires off a lot of network requests to try to migrate over your collection as quickly as possible. If some of them fail, it keeps track of them and will give you an option to retry them. You can press "y" to retry the failed migrations or "n" to stop trying. When you press "n" it will write all remaining migrations to a cache file so you can retry them later.
+The `migrate` command rapidly fires off a lot of network requests to try to migrate over your collection as quickly as possible. If some of them fail, it keeps track of them and will automatically retry them based on the maximum number of retries you specify with the `--retries` option. (Defaults to one retry.)
 
-![retry flow](retry_flow.png)
+![retry flow](./images/retry_flow.png)
+
+
+
+If it hits the maximum number of retries with errors remaining, it will write them to the cache file (`metaboss-cache-migrate-collections.json`). 
 
 To retry from a cache file, you can use the `--cache-file` option.
 
@@ -61,7 +65,7 @@ metaboss collections migrate -k my_keypair.json --cache-file metaboss-cache-migr
 
 This will read the items from the cache file and retry them.
 
-When retrying, if you consistently end up with the same number being retried each time it probably indicates those items cannot be migrated for some reason. Exit out of the retry flow by pressing "n" and then check the errors on the items that failed to migrate. 
+When retrying, if you consistently end up with the same number being retried each time it probably indicates those items cannot be migrated for some reason. Check the errors on the items that failed to migrate. 
 
 Example cache file:
 
@@ -83,7 +87,7 @@ In this case [our error is](https://github.com/samuelvanderwaal/wtf-is):
         Token Metadata            |     IncorrectOwner: Incorrect account owner
 ```
 
-which means these items cannot be migrated over as they must have the same update authority as all items in the collection must have the same update authority as the Parent NFT.
+which means these items cannot be migrated over as all items in the collection must have the same update authority as the Parent NFT.
 
 
 

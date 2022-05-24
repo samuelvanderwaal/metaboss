@@ -175,13 +175,14 @@
 <pre><code>solana config set --url &lt;rpc url&gt; --keypair &lt;path to keypair file&gt;
 </code></pre>
 <h4 id="retry-flow-and-cache-file"><a class="header" href="#retry-flow-and-cache-file">Retry Flow and Cache File</a></h4>
-<p>The <code>migrate</code> command rapidly fires off a lot of network requests to try to migrate over your collection as quickly as possible. If some of them fail, it keeps track of them and will give you an option to retry them. You can press &quot;y&quot; to retry the failed migrations or &quot;n&quot; to stop trying. When you press &quot;n&quot; it will write all remaining migrations to a cache file so you can retry them later.</p>
-<p><img src="retry_flow.png" alt="retry flow" /></p>
+<p>The <code>migrate</code> command rapidly fires off a lot of network requests to try to migrate over your collection as quickly as possible. If some of them fail, it keeps track of them and will automatically retry them based on the maximum number of retries you specify with the <code>--retries</code> option. (Defaults to one retry.)</p>
+<p><img src="./images/retry_flow.png" alt="retry flow" /></p>
+<p>If it hits the maximum number of retries with errors remaining, it will write them to the cache file (<code>metaboss-cache-migrate-collections.json</code>). </p>
 <p>To retry from a cache file, you can use the <code>--cache-file</code> option.</p>
 <pre><code class="language-metaboss">metaboss collections migrate -k my_keypair.json --cache-file metaboss-cache-migrate-collections.json --mint-address 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq
 </code></pre>
 <p>This will read the items from the cache file and retry them.</p>
-<p>When retrying, if you consistently end up with the same number being retried each time it probably indicates those items cannot be migrated for some reason. Exit out of the retry flow by pressing &quot;n&quot; and then check the errors on the items that failed to migrate. </p>
+<p>When retrying, if you consistently end up with the same number being retried each time it probably indicates those items cannot be migrated for some reason. Check the errors on the items that failed to migrate. </p>
 <p>Example cache file:</p>
 <pre><code class="language-json">{
     &quot;FqKGC9CCVThn857VAyZtZQq5L31njnbeUTe1JoCsCX8J&quot;: {
@@ -196,7 +197,7 @@
 <pre><code>0x39: 
         Token Metadata            |     IncorrectOwner: Incorrect account owner
 </code></pre>
-<p>which means these items cannot be migrated over as they must have the same update authority as all items in the collection must have the same update authority as the Parent NFT.</p>
+<p>which means these items cannot be migrated over as all items in the collection must have the same update authority as the Parent NFT.</p>
 <p>Report bugs and questions to the <a href="https://discord.gg/2f7N25NJkg">Metaboss Discord</a>.</p>
 
                     </main>
