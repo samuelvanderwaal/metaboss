@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use mpl_token_metadata::state::{Creator, DataV2};
+use mpl_token_metadata::state::{Creator, Data};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use solana_sdk::signer::keypair::Keypair;
@@ -150,7 +150,7 @@ pub fn parse_seller_fee_basis_points(body: &Value) -> Result<u16> {
     Ok(seller_fee_basis_points)
 }
 
-pub fn convert_local_to_remote_data(local: NFTData) -> Result<DataV2> {
+pub fn convert_local_to_remote_data(local: NFTData) -> Result<Data> {
     let creators = local
         .creators
         .ok_or_else(|| anyhow!("No creators specified in json file!"))?
@@ -158,14 +158,12 @@ pub fn convert_local_to_remote_data(local: NFTData) -> Result<DataV2> {
         .map(convert_creator)
         .collect::<Result<Vec<Creator>>>()?;
 
-    let data = DataV2 {
+    let data = Data {
         name: local.name,
         symbol: local.symbol,
         uri: local.uri,
         seller_fee_basis_points: local.seller_fee_basis_points,
         creators: Some(creators),
-        collection: None,
-        uses: None,
     };
     Ok(data)
 }

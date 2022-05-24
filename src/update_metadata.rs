@@ -136,12 +136,24 @@ pub fn update_data_one(
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
+    let old_md = decode(client, mint_account)?;
+
     let f = File::open(json_file)?;
     let new_data: NFTData = serde_json::from_reader(f)?;
 
     let data = convert_local_to_remote_data(new_data)?;
 
-    update_data(client, &keypair, mint_account, data)?;
+    let data_v2 = DataV2 {
+        creators: data.creators,
+        seller_fee_basis_points: data.seller_fee_basis_points,
+        name: data.name,
+        symbol: data.symbol,
+        uri: data.uri,
+        collection: old_md.collection,
+        uses: old_md.uses,
+    };
+
+    update_data(client, &keypair, mint_account, data_v2)?;
 
     Ok(())
 }
@@ -197,6 +209,17 @@ pub fn update_data_all(
             }
         };
 
+        let old_md = match decode(client, &update_nft_data.mint_account) {
+            Ok(md) => md,
+            Err(e) => {
+                error!(
+                    "Failed to decode mint account: {} error: {}",
+                    update_nft_data.mint_account, e
+                );
+                return;
+            }
+        };
+
         let data = match convert_local_to_remote_data(update_nft_data.nft_data) {
             Ok(data) => data,
             Err(e) => {
@@ -208,7 +231,17 @@ pub fn update_data_all(
             }
         };
 
-        match update_data(client, &keypair, &update_nft_data.mint_account, data) {
+        let data_v2 = DataV2 {
+            creators: data.creators,
+            seller_fee_basis_points: data.seller_fee_basis_points,
+            name: data.name,
+            symbol: data.symbol,
+            uri: data.uri,
+            collection: old_md.collection,
+            uses: old_md.uses,
+        };
+
+        match update_data(client, &keypair, &update_nft_data.mint_account, data_v2) {
             Ok(_) => (),
             Err(e) => {
                 error!("Failed to update data: {:?} error: {}", path, e);
