@@ -69,7 +69,7 @@ async fn main() -> Result<()> {
     match options.cmd {
         Command::Collections {
             collections_subcommands,
-        } => process_collections(&client, async_client, collections_subcommands).await?,
+        } => process_collections(client, async_client, collections_subcommands).await?,
         Command::Uses { uses_subcommands } => process_uses(&client, uses_subcommands)?,
         Command::Burn { burn_subcommands } => process_burn(&client, burn_subcommands)?,
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,

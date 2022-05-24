@@ -1,5 +1,4 @@
 use anyhow::{anyhow, Result as AnyResult};
-use dialoguer::Confirm;
 use indexmap::IndexMap;
 use log::info;
 use mpl_token_metadata::{
@@ -30,6 +29,17 @@ use crate::{
 use crate::{parse::parse_keypair, snapshot::get_mint_accounts};
 
 pub const OPEN_FILES_LIMIT: usize = 1024;
+
+pub struct MigrateArgs {
+  pub client: RpcClient,
+pub async_client: AsyncRpcClient,
+pub keypair: Option<String>,
+pub mint_address: String,
+pub candy_machine_id: Option<String>,
+pub mint_list: Option<String>,
+pub cache_file: Option<String>,
+pub retries: u8,
+}
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct MigrateCache(IndexMap<String, CacheItem>);
@@ -77,7 +87,7 @@ pub struct CacheItem {
 }
 
 pub fn set_and_verify_nft_collection(
-    client: &RpcClient,
+    client: RpcClient,
     keypair_path: Option<String>,
     nft_mint: String,
     collection_mint: String,
@@ -109,7 +119,7 @@ pub fn set_and_verify_nft_collection(
         collection_authority_record,
     );
 
-    send_and_confirm_transaction(client, keypair, &[set_and_verify_ix])?;
+    send_and_confirm_transaction(&client, keypair, &[set_and_verify_ix])?;
 
     Ok(())
 }
@@ -158,7 +168,7 @@ async fn set_and_verify(
 }
 
 pub fn unverify_nft_collection(
-    client: &RpcClient,
+    client: RpcClient,
     keypair_path: Option<String>,
     nft_mint: String,
     collection_mint: String,
@@ -186,13 +196,13 @@ pub fn unverify_nft_collection(
         collection_authority_record,
     );
 
-    send_and_confirm_transaction(client, keypair, &[unverify_collection_ix])?;
+    send_and_confirm_transaction(&client, keypair, &[unverify_collection_ix])?;
 
     Ok(())
 }
 
 pub fn verify_nft_collection(
-    client: &RpcClient,
+    client: RpcClient,
     keypair_path: Option<String>,
     nft_mint: String,
     collection_mint: String,
@@ -221,13 +231,13 @@ pub fn verify_nft_collection(
         collection_authority_record,
     );
 
-    send_and_confirm_transaction(client, keypair, &[verify_collection_ix])?;
+    send_and_confirm_transaction(&client, keypair, &[verify_collection_ix])?;
 
     Ok(())
 }
 
 pub fn approve_delegate(
-    client: &RpcClient,
+    client: RpcClient,
     keypair_path: Option<String>,
     collection_mint: String,
     delegate_authority: String,
@@ -253,13 +263,13 @@ pub fn approve_delegate(
         collection_pubkey,
     );
 
-    send_and_confirm_transaction(client, keypair, &[approve_collection_auth_ix])?;
+    send_and_confirm_transaction(&client, keypair, &[approve_collection_auth_ix])?;
 
     Ok(())
 }
 
 pub fn revoke_delegate(
-    client: &RpcClient,
+    client: RpcClient,
     keypair_path: Option<String>,
     collection_mint: String,
     delegate_authority: String,
@@ -284,27 +294,21 @@ pub fn revoke_delegate(
         collection_pubkey,
     );
 
-    send_and_confirm_transaction(client, keypair, &[revoke_collection_auth_ix])?;
+    send_and_confirm_transaction(&client, keypair, &[revoke_collection_auth_ix])?;
 
     Ok(())
 }
 
 pub async fn migrate_collection(
-    client: &RpcClient,
-    async_client: AsyncRpcClient,
-    keypair_path: Option<String>,
-    collection_mint: String,
-    candy_machine_id: Option<String>,
-    mint_list: Option<String>,
-    cache_file: Option<String>,
+    args: MigrateArgs,
 ) -> AnyResult<()> {
-    if candy_machine_id.is_some() && mint_list.is_some() {
+    if args.candy_machine_id.is_some() && args.mint_list.is_some() {
         return Err(anyhow!(
             "Please specify either a candy machine id or an mint_list file, but not both."
         ));
     }
 
-    if cache_file.is_some() && (candy_machine_id.is_some() || mint_list.is_some()) {
+    if args.cache_file.is_some() && (args.candy_machine_id.is_some() || args.mint_list.is_some()) {
         return Err(anyhow!(
             "Cannot use cache option with either a candy machine id or an mint_list file."
         ));
@@ -314,15 +318,15 @@ pub async fn migrate_collection(
     let mut cache = MigrateCache::new();
 
     let solana_opts = parse_solana_config();
-    let keypair = Arc::new(parse_keypair(keypair_path, solana_opts));
+    let keypair = Arc::new(parse_keypair(args.keypair, solana_opts));
 
-    let mut mint_accounts = if let Some(candy_machine_id) = candy_machine_id {
+    let mut mint_accounts = if let Some(candy_machine_id) = args.candy_machine_id {
         println!("Using candy machine id to fetch mint list. . .");
-        get_mint_accounts(client, &Some(candy_machine_id), 0, None, true)?
-    } else if let Some(mint_list) = mint_list {
+        get_mint_accounts(&args.client, &Some(candy_machine_id), 0, None, true)?
+    } else if let Some(mint_list) = args.mint_list {
         let f = File::open(mint_list)?;
         serde_json::from_reader(f)?
-    } else if let Some(cache_path) = cache_file {
+    } else if let Some(cache_path) = args.cache_file {
         println!("Retrying items from cache file. . .");
         cache_file_name = cache_path;
 
@@ -345,7 +349,9 @@ pub async fn migrate_collection(
             .open(&cache_file_name)?
     };
 
-    let async_client = Arc::new(async_client);
+    let async_client = Arc::new(args.async_client);
+
+    let mut counter = 0u8;
 
     // Loop over migrate process so we can retry repeatedly until the user exits.
     loop {
@@ -361,7 +367,7 @@ pub async fn migrate_collection(
                     async_client.clone(),
                     keypair.clone(),
                     mint_account,
-                    collection_mint.clone(),
+                    args.mint_address.clone(),
                     false,
                 ))
             })
@@ -384,25 +390,22 @@ pub async fn migrate_collection(
 
         // If some of the migrations failed, ask user if they wish to retry and the loop starts again.
         // Otherwise, break out of the loop and write the cache to disk.
-        if !migrate_failed.is_empty() {
-            let msg = format!(
-                "{}/{} migrations failed. Do you want to retry these ones?",
+        if !migrate_failed.is_empty() && counter < args.retries {
+            counter += 1;
+            println!(
+                "{}/{} migrations failed. Retrying. . .",
                 &migrate_failed.len(),
                 migrate_tasks_len
             );
             cache.update_errors(migrate_failed);
-            if Confirm::new().with_prompt(msg).interact()? {
-                mint_accounts = cache.0.keys().map(|m| m.to_string()).collect();
-                continue;
-            } else {
-                // We have failures but the user has decided to stop so we log failures to the cache file.
-                println!("Writing cache to file...{:?}", cache_file_name);
-                cache.write(f)?;
-                break;
-            }
-        } else {
+            mint_accounts = cache.0.keys().map(|m| m.to_string()).collect();
+        } else if migrate_failed.is_empty() {
             // None failed so we exit the loop.
             println!("All items successfully migrated!");
+            break;
+        } else {
+            println!("Reached max retries. Writing remaining items to cache.");
+            cache.write(f)?;
             break;
         }
     }

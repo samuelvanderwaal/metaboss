@@ -300,6 +300,10 @@ pub enum CollectionsSubcommands {
         /// Retry items from a Metaboss cache file.
         #[structopt(long)]
         cache_file: Option<String>,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
     },
 }
 

@@ -4,7 +4,7 @@ use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_cl
 use crate::burn::burn_one;
 use crate::collections::{
     approve_delegate, migrate_collection, revoke_delegate, set_and_verify_nft_collection,
-    unverify_nft_collection, verify_nft_collection,
+    unverify_nft_collection, verify_nft_collection, MigrateArgs,
 };
 use crate::decode::{decode_master_edition, decode_metadata};
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
@@ -69,7 +69,7 @@ pub fn process_uses(client: &RpcClient, commands: UsesSubcommands) -> Result<()>
 }
 
 pub async fn process_collections(
-    client: &RpcClient,
+    client: RpcClient,
     async_client: AsyncRpcClient,
     commands: CollectionsSubcommands,
 ) -> Result<()> {
@@ -121,8 +121,9 @@ pub async fn process_collections(
             candy_machine_id,
             mint_list,
             cache_file,
+            retries,
         } => {
-            migrate_collection(
+            migrate_collection(MigrateArgs {
                 client,
                 async_client,
                 keypair,
@@ -130,6 +131,8 @@ pub async fn process_collections(
                 candy_machine_id,
                 mint_list,
                 cache_file,
+                retries,
+            }
             )
             .await
         }
