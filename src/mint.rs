@@ -5,7 +5,7 @@ use metaboss_lib::decode::*;
 use mpl_token_metadata::{
     instruction::{
         create_master_edition, create_metadata_accounts_v2,
-        mint_new_edition_from_master_edition_via_token, update_metadata_accounts,
+        mint_new_edition_from_master_edition_via_token, update_metadata_accounts_v2,
     },
     ID as TOKEN_METADATA_PROGRAM_ID,
 };
@@ -602,13 +602,14 @@ pub fn mint(
     ];
 
     if primary_sale_happened {
-        let ix = update_metadata_accounts(
+        let ix = update_metadata_accounts_v2(
             metaplex_program_id,
             metadata_account,
             funder.pubkey(),
             None,
             None,
             Some(true),
+            None,
         );
         instructions.push(ix);
     }

@@ -2,10 +2,7 @@ use anyhow::{anyhow, Result};
 use glob::glob;
 use indicatif::ParallelProgressIterator;
 use log::{error, info, warn};
-use mpl_token_metadata::{
-    instruction::{update_metadata_accounts, update_metadata_accounts_v2},
-    state::Data,
-};
+use mpl_token_metadata::{instruction::update_metadata_accounts_v2, state::DataV2};
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
 use solana_client::rpc_client::RpcClient;
@@ -36,13 +33,18 @@ pub fn update_name_one(
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
     let parsed_keypair = parse_keypair(keypair, solana_opts);
-    let data_with_old_name = decode(client, mint_account)?.data;
-    let new_data: Data = Data {
+
+    let old_md = decode(client, mint_account)?;
+    let data_with_old_name = old_md.data;
+
+    let new_data = DataV2 {
         creators: data_with_old_name.creators,
         seller_fee_basis_points: data_with_old_name.seller_fee_basis_points,
         name: new_name.to_owned(),
         symbol: data_with_old_name.symbol,
         uri: data_with_old_name.uri,
+        collection: old_md.collection,
+        uses: old_md.uses,
     };
 
     update_data(client, &parsed_keypair, mint_account, new_data)?;
@@ -58,13 +60,17 @@ pub fn update_symbol_one(
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
-    let data_with_old_symbol = decode(client, mint_account)?.data;
-    let new_data: Data = Data {
+    let old_md = decode(client, mint_account)?;
+    let data_with_old_symbol = old_md.data;
+
+    let new_data = DataV2 {
         creators: data_with_old_symbol.creators,
         seller_fee_basis_points: data_with_old_symbol.seller_fee_basis_points,
         name: data_with_old_symbol.name,
         symbol: new_symbol.to_owned(),
         uri: data_with_old_symbol.uri,
+        collection: old_md.collection,
+        uses: old_md.uses,
     };
 
     update_data(client, &keypair, mint_account, new_data)?;
@@ -81,7 +87,8 @@ pub fn update_creator_by_position(
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
-    let data_with_old_creators = decode(client, mint_account)?.data;
+    let old_md = decode(client, mint_account)?;
+    let data_with_old_creators = old_md.data;
     let parsed_creators = parse_cli_creators(new_creators.to_string(), should_append)?;
 
     let new_creators = if let Some(mut old_creators) = data_with_old_creators.creators {
@@ -106,12 +113,14 @@ pub fn update_creator_by_position(
         return Err(anyhow!("Creators shares must sum to 100!"));
     }
 
-    let new_data: Data = Data {
+    let new_data = DataV2 {
         creators: Some(new_creators),
         seller_fee_basis_points: data_with_old_creators.seller_fee_basis_points,
         name: data_with_old_creators.name,
         symbol: data_with_old_creators.symbol,
         uri: data_with_old_creators.uri,
+        collection: old_md.collection,
+        uses: old_md.uses,
     };
 
     update_data(client, &keypair, mint_account, new_data)?;
@@ -127,12 +136,24 @@ pub fn update_data_one(
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
+    let old_md = decode(client, mint_account)?;
+
     let f = File::open(json_file)?;
     let new_data: NFTData = serde_json::from_reader(f)?;
 
     let data = convert_local_to_remote_data(new_data)?;
 
-    update_data(client, &keypair, mint_account, data)?;
+    let data_v2 = DataV2 {
+        creators: data.creators,
+        seller_fee_basis_points: data.seller_fee_basis_points,
+        name: data.name,
+        symbol: data.symbol,
+        uri: data.uri,
+        collection: old_md.collection,
+        uses: old_md.uses,
+    };
+
+    update_data(client, &keypair, mint_account, data_v2)?;
 
     Ok(())
 }
@@ -188,6 +209,17 @@ pub fn update_data_all(
             }
         };
 
+        let old_md = match decode(client, &update_nft_data.mint_account) {
+            Ok(md) => md,
+            Err(e) => {
+                error!(
+                    "Failed to decode mint account: {} error: {}",
+                    update_nft_data.mint_account, e
+                );
+                return;
+            }
+        };
+
         let data = match convert_local_to_remote_data(update_nft_data.nft_data) {
             Ok(data) => data,
             Err(e) => {
@@ -199,7 +231,17 @@ pub fn update_data_all(
             }
         };
 
-        match update_data(client, &keypair, &update_nft_data.mint_account, data) {
+        let data_v2 = DataV2 {
+            creators: data.creators,
+            seller_fee_basis_points: data.seller_fee_basis_points,
+            name: data.name,
+            symbol: data.symbol,
+            uri: data.uri,
+            collection: old_md.collection,
+            uses: old_md.uses,
+        };
+
+        match update_data(client, &keypair, &update_nft_data.mint_account, data_v2) {
             Ok(_) => (),
             Err(e) => {
                 error!("Failed to update data: {:?} error: {}", path, e);
@@ -232,7 +274,7 @@ pub fn update_data(
     client: &RpcClient,
     keypair: &Keypair,
     mint_account: &str,
-    data: Data,
+    data: DataV2,
 ) -> Result<()> {
     let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint_pubkey = Pubkey::from_str(mint_account)?;
@@ -240,12 +282,13 @@ pub fn update_data(
 
     let update_authority = keypair.pubkey();
 
-    let ix = update_metadata_accounts(
+    let ix = update_metadata_accounts_v2(
         program_id,
         metadata_account,
         update_authority,
         None,
         Some(data),
+        None,
         None,
     );
     let recent_blockhash = client.get_latest_blockhash()?;
@@ -330,12 +373,23 @@ pub fn update_uri(
     let mut data = metadata.data;
     data.uri = new_uri.to_string();
 
-    let ix = update_metadata_accounts(
+    let data_v2 = DataV2 {
+        name: data.name,
+        symbol: data.symbol,
+        uri: data.uri,
+        seller_fee_basis_points: data.seller_fee_basis_points,
+        creators: data.creators,
+        collection: metadata.collection,
+        uses: metadata.uses,
+    };
+
+    let ix = update_metadata_accounts_v2(
         program_id,
         metadata_account,
         update_authority,
         None,
-        Some(data),
+        Some(data_v2),
+        None,
         None,
     );
 
@@ -369,13 +423,14 @@ pub fn set_primary_sale_happened(
 
     let metadata_account = get_metadata_pda(mint_pubkey);
 
-    let ix = update_metadata_accounts(
+    let ix = update_metadata_accounts_v2(
         program_id,
         metadata_account,
         update_authority,
         None,
         None,
         Some(true),
+        None,
     );
     let recent_blockhash = client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
@@ -413,11 +468,12 @@ pub fn set_update_authority(
 
     let metadata_account = get_metadata_pda(mint_pubkey);
 
-    let ix = update_metadata_accounts(
+    let ix = update_metadata_accounts_v2(
         program_id,
         metadata_account,
         update_authority,
         Some(new_update_authority),
+        None,
         None,
         None,
     );
