@@ -132,8 +132,7 @@ pub async fn process_collections(
                 mint_list,
                 cache_file,
                 retries,
-            }
-            )
+            })
             .await
         }
     }

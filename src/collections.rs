@@ -31,14 +31,14 @@ use crate::{parse::parse_keypair, snapshot::get_mint_accounts};
 pub const OPEN_FILES_LIMIT: usize = 1024;
 
 pub struct MigrateArgs {
-  pub client: RpcClient,
-pub async_client: AsyncRpcClient,
-pub keypair: Option<String>,
-pub mint_address: String,
-pub candy_machine_id: Option<String>,
-pub mint_list: Option<String>,
-pub cache_file: Option<String>,
-pub retries: u8,
+    pub client: RpcClient,
+    pub async_client: AsyncRpcClient,
+    pub keypair: Option<String>,
+    pub mint_address: String,
+    pub candy_machine_id: Option<String>,
+    pub mint_list: Option<String>,
+    pub cache_file: Option<String>,
+    pub retries: u8,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -299,9 +299,7 @@ pub fn revoke_delegate(
     Ok(())
 }
 
-pub async fn migrate_collection(
-    args: MigrateArgs,
-) -> AnyResult<()> {
+pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
     if args.candy_machine_id.is_some() && args.mint_list.is_some() {
         return Err(anyhow!(
             "Please specify either a candy machine id or an mint_list file, but not both."
