@@ -1,6 +1,6 @@
 use anyhow::Result;
 use metaboss_lib::{derive::derive_edition_pda, snapshot::get_edition_accounts_by_master};
-use mpl_token_metadata::state::{Edition};
+use mpl_token_metadata::state::Edition;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{borsh::try_from_slice_unchecked, pubkey::Pubkey};
 use std::str::FromStr;
@@ -36,7 +36,7 @@ pub fn find_missing_editions(client: &RpcClient, mint: &str) -> Result<Vec<u64>>
             missing_nums.push(i);
         }
     }
-    
+
     spinner.finish();
 
     println!("Edition numbers: {:?}", edition_nums);
