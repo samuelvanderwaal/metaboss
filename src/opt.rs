@@ -401,7 +401,7 @@ pub enum MintSubcommands {
 
         /// Maximum number of editions. Defaults to zero, meaning no editions allowed.
         #[structopt(short = "e", long, default_value = "0")]
-        max_editions: u64,
+        max_editions: i64,
 
         /// Sign NFT after minting it
         #[structopt(long)]

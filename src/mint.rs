@@ -99,7 +99,7 @@ pub fn mint_from_files(
     list_dir: String,
     immutable: bool,
     primary_sale_happened: bool,
-    max_editions: u64,
+    max_editions: i64,
     sign: bool,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
@@ -156,7 +156,7 @@ pub fn mint_from_uris(
     external_metadata_uris_path: String,
     immutable: bool,
     primary_sale_happened: bool,
-    max_editions: u64,
+    max_editions: i64,
     sign: bool,
     track: bool,
 ) -> Result<()> {
@@ -254,7 +254,7 @@ pub fn mint_one<P: AsRef<Path>>(
     external_metadata_uri: Option<&String>,
     immutable: bool,
     primary_sale_happened: bool,
-    max_editions: u64,
+    max_editions: i64,
     sign: bool,
 ) -> Result<String> {
     if !is_only_one_option(&nft_data_file, &external_metadata_uri) {
@@ -498,10 +498,18 @@ pub fn mint(
     nft_data: NFTData,
     immutable: bool,
     primary_sale_happened: bool,
-    max_editions: u64,
+    max_editions: i64,
 ) -> Result<(Signature, Pubkey)> {
     let metaplex_program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint = Keypair::new();
+
+    // Max editions of -1 means infinite supply (max_supply = None)
+    // Otherwise max_supply is the number of editions
+    let max_supply = if max_editions == -1 {
+        None
+    } else {
+        Some(max_editions as u64)
+    };
 
     // Convert local NFTData type to Metaplex Data type
     let data = convert_local_to_remote_data(nft_data)?;
@@ -589,7 +597,7 @@ pub fn mint(
         funder.pubkey(),
         metadata_account,
         funder.pubkey(),
-        Some(max_editions),
+        max_supply,
     );
 
     let mut instructions = vec![

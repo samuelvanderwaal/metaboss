@@ -44,6 +44,19 @@ If `receiver` is set, the NFT will be minted directly to the receiver's address,
 
 Use the `--sign` option to sign the metadata with the keypair immediately after minting.
 
+#### Editions
+
+To mint a NFT with the ability to print editions from it use the `--max-editions <max-editions>` option. This defaults to `0` meaning no editions are allowed. Setting it to a positive integer means you can print up to that many editions. Setting to a value of `-1` means unlimited editions. Because of how the CLI interprets the `-` symbol to set max editions to infinite you should use the `=` sign for the `--max-editions` option: `metaboss mint one -a <master_account> --max-editions='-1'`.
+
+To mint editions from a master NFT use the`metaboss mint editions` command to either mint the next `n` editions sequentially using `--next-editions <int>` or mint specific edition numbers using `--specific-editions <int> <int> <int>` with a list of integer edition numbers to mint.
+
+To find any edition numbers in the sequence that have not been minted use `metaboss find missing-editions`.
+
+To find and mint any missing editions and mint them to the authority keypair use `metaboss mint missing-editions`.
+
+To find the full list of options for each command use `-h` or `--help` as normal.
+
+
 ### Mint List
 
 Mint multiple NFTs from a list of JSON files.

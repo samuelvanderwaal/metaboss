@@ -29,13 +29,14 @@ pub fn find_missing_editions(client: &RpcClient, mint: &str) -> Result<Vec<u64>>
     }
     edition_nums.sort_unstable();
 
-    for (index, num) in edition_nums.iter().enumerate().skip(1) {
-        let prev_num = edition_nums[index - 1];
-        if prev_num != num - 1 {
-            let s: Vec<u64> = (prev_num + 1..*num).collect();
-            missing_nums.extend_from_slice(&s);
+    // Find any missing editions between 1 and the largest edition number currently printed.
+    let largest_edition_number = edition_nums.last().unwrap_or(&0);
+    for i in 1..=*largest_edition_number {
+        if !edition_nums.contains(&i) {
+            missing_nums.push(i);
         }
     }
+
     spinner.finish();
 
     println!("Edition numbers: {:?}", edition_nums);
