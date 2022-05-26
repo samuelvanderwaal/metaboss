@@ -403,6 +403,12 @@ git checkout main
 <p>The --external-metadata-uri option takes a URI to an external metadata file such as an Arweave link pointing to a JSON file.</p>
 <p>If <code>receiver</code> is set, the NFT will be minted directly to the receiver's address, otherwise it is minted to <code>keypair</code>. Observant users may note that with a simple bash script this allows airdrops to be deployed with Metaboss.</p>
 <p>Use the <code>--sign</code> option to sign the metadata with the keypair immediately after minting.</p>
+<h4 id="editions"><a class="header" href="#editions">Editions</a></h4>
+<p>To mint a NFT with the ability to print editions from it use the <code>--max-editions &lt;max-editions&gt;</code> option. This defaults to <code>0</code> meaning no editions are allowed. Setting it to a positive integer means you can print up to that many editions. Setting to a value of <code>-1</code> means unlimited editions. Because of how the CLI interprets the <code>-</code> symbol to set max editions to infinite you should use the <code>=</code> sign for the <code>--max-editions</code> option: <code>metaboss mint one -a &lt;master_account&gt; --max-editions='-1'</code>.</p>
+<p>To mint editions from a master NFT use the<code>metaboss mint editions</code> command to either mint the next <code>n</code> editions sequentially using <code>--next-editions &lt;int&gt;</code> or mint specific edition numbers using <code>--specific-editions &lt;int&gt; &lt;int&gt; &lt;int&gt;</code> with a list of integer edition numbers to mint.</p>
+<p>To find any edition numbers in the sequence that have not been minted use <code>metaboss find missing-editions</code>.</p>
+<p>To find and mint any missing editions and mint them to the authority keypair use <code>metaboss mint missing-editions</code>.</p>
+<p>To find the full list of options for each command use <code>-h</code> or <code>--help</code> as normal.</p>
 <h3 id="mint-list"><a class="header" href="#mint-list">Mint List</a></h3>
 <p>Mint multiple NFTs from a list of JSON files.</p>
 <h4 id="usage-5"><a class="header" href="#usage-5">Usage</a></h4>
