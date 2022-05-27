@@ -35,6 +35,27 @@ Suggestions and PRs welcome!
 
 ## Installation
 
+### Install Binary
+Copy the following to a terminal:
+
+```bash
+bash <(curl -sSf https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh)
+```
+
+If you get errors you may need dependencies:
+
+Ubuntu:
+
+```bash
+sudo apt install libssl-dev libudev-dev pkg-config
+```
+
+MacOS may need openssl:
+
+```bash
+brew install openssl@3
+```
+
 ### Binaries
 
 Linux, MacOS and Windows binaries available in [releases](https://github.com/samuelvanderwaal/metaboss/releases), thanks to CI work done by [Kartik Soneji](https://github.com/KartikSoneji).
