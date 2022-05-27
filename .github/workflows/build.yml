@@ -1,6 +1,11 @@
 name: Build and Release
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags:
+      - "v*.*.*"
 
 jobs:
   build:
@@ -39,18 +44,14 @@ jobs:
           if [[ "${RUNNER_OS}" == "Windows" ]]; then
             binary_extension=".exe"
           fi
-          binary_path="metaboss-${{ matrix.os }}${binary_extension}"
+           if [[ "${RUNNER_OS}" == "macOS" ]]; then
+            binary_path="metaboss-macos-intel-latest${binary_extension}"
+          else
+            binary_path="metaboss-${{ matrix.os }}${binary_extension}"
+          fi
           mv "target/release/metaboss${binary_extension}" "${binary_path}"
           echo "::set-output name=binary_path::${binary_path}"
-          
           strip "${binary_path}"
-
-      - name: Publish Artifacts
-        if: "!startsWith(github.ref, 'refs/tags/')"
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.os }}
-          path: ${{ steps.build.outputs.binary_path }}
 
       - name: Release Tags
         uses: softprops/action-gh-release@v1
