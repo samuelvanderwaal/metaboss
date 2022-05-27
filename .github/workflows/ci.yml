@@ -1,6 +1,10 @@
-on: [push, pull_request]
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
 
-name: Continuous integration
+name: Format and Compile Checks
 
 jobs:
   check:

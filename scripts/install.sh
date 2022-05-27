@@ -4,6 +4,7 @@
 # ------------------------------------
 #
 # Shamelessly borrowed from Sugar CLI: [https://github.com/metaplex-foundation/sugar/blob/main/script/sugar-install.sh]
+#
 # The purpose of this script is to automate the download and installation
 # of the Metaboss binary.
 #
@@ -57,10 +58,10 @@ VERSION="metaboss-ubuntu-latest"
 if [ "$OS_FLAVOUR" = Darwin ]; then
     case "$PROCESSOR" in
         arm* )
-            VERSION="metaboss-macos-m1-latest"
+            VERSION="macos-m1-latest"
             ;;
         *)
-            VERSION="metaboss-macos-intel-latest"
+            VERSION="macos-intel-latest"
             ;;
     esac
 fi
