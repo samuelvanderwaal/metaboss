@@ -46,7 +46,6 @@ solana config set --url <rpc url> --keypair <path to keypair file>
 ```
 
 
-
 #### Retry Flow and Cache File
 
 The `migrate` command rapidly fires off a lot of network requests to try to migrate over your collection as quickly as possible. If some of them fail, it keeps track of them and will automatically retry them based on the maximum number of retries you specify with the `--retries` option. (Defaults to one retry.)
@@ -88,6 +87,18 @@ In this case [our error is](https://github.com/samuelvanderwaal/wtf-is):
 ```
 
 which means these items cannot be migrated over as all items in the collection must have the same update authority as the Parent NFT.
+
+### Output File
+
+Use `--output-file` or `-o` to specify the path and name of the JSON file to write the cache results to. 
+
+e.g.:
+
+```
+metaboss collections migrate -L devnet_test_mints.json -m 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq -o ~/Desktop/my-cache3.json
+```
+
+This will override both the default cache file name ('mb-cache-migrate.json') and the cache file name passed in with `--cache-file`.
 
 
 
