@@ -122,6 +122,7 @@ pub async fn process_collections(
             mint_list,
             cache_file,
             retries,
+            output_file,
         } => {
             migrate_collection(MigrateArgs {
                 client,
@@ -132,6 +133,7 @@ pub async fn process_collections(
                 mint_list,
                 cache_file,
                 retries,
+                output_file,
             })
             .await
         }

@@ -39,6 +39,7 @@ pub struct MigrateArgs {
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
     pub retries: u8,
+    pub output_file: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -312,7 +313,8 @@ pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
         ));
     }
 
-    let mut cache_file_name = "metaboss-cache-migrate-collection.json".to_string();
+    // Default name, if we don't get an output_file option or a cache file.
+    let mut cache_file_name = String::from("mb-cache-migrate.json");
     let mut cache = MigrateCache::new();
 
     let solana_opts = parse_solana_config();
@@ -336,6 +338,11 @@ pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
             "Please specify either a candy machine id or an mint_list file."
         ));
     };
+
+    // If output file is specified, write to that file.
+    if let Some(path) = args.output_file {
+        cache_file_name = path;
+    }
 
     let f = if !Path::new(&cache_file_name).exists() {
         File::create(&cache_file_name)?

@@ -365,6 +365,12 @@ git checkout main
         Token Metadata            |     IncorrectOwner: Incorrect account owner
 </code></pre>
 <p>which means these items cannot be migrated over as all items in the collection must have the same update authority as the Parent NFT.</p>
+<h3 id="output-file"><a class="header" href="#output-file">Output File</a></h3>
+<p>Use <code>--output-file</code> or <code>-o</code> to specify the path and name of the JSON file to write the cache results to. </p>
+<p>e.g.:</p>
+<pre><code>metaboss collections migrate -L devnet_test_mints.json -m 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq -o ~/Desktop/my-cache3.json
+</code></pre>
+<p>This will override both the default cache file name ('mb-cache-migrate.json') and the cache file name passed in with <code>--cache-file</code>.</p>
 <p>Report bugs and questions to the <a href="https://discord.gg/2f7N25NJkg">Metaboss Discord</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="decode"><a class="header" href="#decode">Decode</a></h2>
 <h3 id="decode-mint"><a class="header" href="#decode-mint">Decode Mint</a></h3>
