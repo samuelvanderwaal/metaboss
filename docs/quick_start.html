@@ -143,15 +143,30 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
-<p>Install</p>
+<h3 id="install-binary"><a class="header" href="#install-binary">Install Binary</a></h3>
+<p>Copy the following to a terminal:</p>
+<pre><code>bash &lt;(curl -sSf https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh)
+</code></pre>
+<p>If you get errors you may need dependencies:</p>
+<p>Ubuntu:</p>
+<pre><code>sudo apt install libssl-dev libudev-dev pkg-config
+</code></pre>
+<p>MacOS may need openssl:</p>
+<pre><code>brew install openssl@3
+</code></pre>
+<p>Or get the binary yourself: <a href="https://github.com/samuelvanderwaal/metaboss/releases">binary</a>.</p>
+<h3 id="install-with-cargo"><a class="header" href="#install-with-cargo">Install With Cargo</a></h3>
+<p>So you're a Rust dev. . .</p>
 <pre><code class="language-bash">cargo install --locked metaboss
 </code></pre>
-<p>or grab a <a href="https://github.com/samuelvanderwaal/metaboss/releases">binary</a></p>
-<p>See Usage</p>
+<h3 id="see-usage-commands"><a class="header" href="#see-usage-commands">See Usage Commands</a></h3>
 <pre><code class="language-bash">metaboss -h
 </code></pre>
 <p>Decode a mint account's metadata:</p>
 <pre><code class="language-bash">metaboss decode mint -a 23gaZq8578xHozMWADsmZ2hAFqZ15iyHmQtRw14meds2
+</code></pre>
+<p>Get a snapshot of mint accounts by first verified creator:</p>
+<pre><code class="language-bash">metaboss snapshot mint -c PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8
 </code></pre>
 
                     </main>

@@ -183,6 +183,13 @@
 </ul>
 <p>Suggestions and PRs welcome!</p>
 <p><strong>Note: This is experimental software for a young ecosystem. Use at your own risk. The author is not responsible for misuse of the software or failing to test specific commands before using on production NFTs.</strong></p>
+<h2 id="recommended-way-to-install"><a class="header" href="#recommended-way-to-install">Recommended Way to Install</a></h2>
+<p>For non-technical users, the recommended way to install is to use the install script to install on <strong>MacOs</strong>, <strong>Ubuntu</strong>, or other <strong>Unix-like OS</strong>, by copying the following into a terminal:</p>
+<pre><code>bash &lt;(curl -sSf https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh)
+</code></pre>
+<p>This will download the appropriate binary for your system and install it. Feel free to inspect the install script directly at <a href="https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh">the link</a> to see what you are running before you run the command.</p>
+<p>For <strong>Windows</strong>, either use the prebuilt binary in the following section, or install Windows Subsystem Linux (WSL) to use the Ubuntu terminal to run the above installation script.</p>
+<p>To install WSL on Windows, either run <code>wsl --install -d ubuntu</code> in the cmd prompt terminal, or install &quot;Ubuntu&quot; from the Windows app store. Once you have that set up you can simply run the install script in the WSL terminal. You will then run all your Metaboss commands from WSL as well.</p>
 <h2 id="binaries"><a class="header" href="#binaries">Binaries</a></h2>
 <p>Linux, MacOS and Windows binaries available in <a href="https://github.com/samuelvanderwaal/metaboss/releases">releases</a>, thanks to CI work done by <a href="https://github.com/KartikSoneji">Kartik Soneji</a>.</p>
 <h2 id="install-from-source"><a class="header" href="#install-from-source">Install From Source</a></h2>
@@ -207,6 +214,10 @@ git checkout main
 </code></pre>
 <p>or</p>
 <pre><code class="language-bash">cargo build --locked --release
+</code></pre>
+<h2 id="set-up-your-solana-config"><a class="header" href="#set-up-your-solana-config">Set Up Your Solana Config</a></h2>
+<p>If you have the <a href="https://docs.solana.com/cli/install-solana-cli-tools">Solana CLI</a> installed (recommended) you can setup your RPC and keypair so you don't have to pass them into Metaboss:</p>
+<pre><code>solana config set --url &lt;rpc url&gt; --keypair &lt;path to keypair file&gt;
 </code></pre>
 
                     </main>

@@ -33,6 +33,20 @@ Suggestions and PRs welcome!
 
 **Note: This is experimental software for a young ecosystem. Use at your own risk. The author is not responsible for misuse of the software or failing to test specific commands before using on production NFTs.**
 
+## Recommended Way to Install
+
+For non-technical users, the recommended way to install is to use the install script to install on **MacOs**, **Ubuntu**, or other **Unix-like OS**, by copying the following into a terminal:
+
+```
+bash <(curl -sSf https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh)
+```
+
+This will download the appropriate binary for your system and install it. Feel free to inspect the install script directly at [the link](https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh) to see what you are running before you run the command.
+
+For **Windows**, either use the prebuilt binary in the following section, or install Windows Subsystem Linux (WSL) to use the Ubuntu terminal to run the above installation script.
+
+To install WSL on Windows, either run `wsl --install -d ubuntu` in the cmd prompt terminal, or install "Ubuntu" from the Windows app store. Once you have that set up you can simply run the install script in the WSL terminal. You will then run all your Metaboss commands from WSL as well.
+
 ## Binaries
 
 Linux, MacOS and Windows binaries available in [releases](https://github.com/samuelvanderwaal/metaboss/releases), thanks to CI work done by [Kartik Soneji](https://github.com/KartikSoneji).
@@ -81,3 +95,13 @@ or
 ```bash
 cargo build --locked --release
 ```
+
+## Set Up Your Solana Config
+
+If you have the [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools) installed (recommended) you can setup your RPC and keypair so you don't have to pass them into Metaboss:
+
+```
+solana config set --url <rpc url> --keypair <path to keypair file>
+```
+
+
