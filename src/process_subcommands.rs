@@ -3,8 +3,9 @@ use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_cl
 
 use crate::burn::burn_one;
 use crate::collections::{
-    approve_delegate, migrate_collection, revoke_delegate, set_and_verify_nft_collection,
-    unverify_nft_collection, verify_nft_collection, MigrateArgs,
+    approve_delegate, check_collection_items, get_collection_items, migrate_collection,
+    revoke_delegate, set_and_verify_nft_collection, unverify_nft_collection, verify_nft_collection,
+    MigrateArgs,
 };
 use crate::decode::{decode_master_edition, decode_metadata};
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
@@ -137,6 +138,16 @@ pub async fn process_collections(
             })
             .await
         }
+        CollectionsSubcommands::GetItems {
+            collection_mint,
+            method,
+            api_key,
+        } => get_collection_items(collection_mint, method, api_key).await,
+        CollectionsSubcommands::CheckItems {
+            collection_mint,
+            item_list,
+            debug,
+        } => check_collection_items(async_client, collection_mint, item_list, debug).await,
     }
 }
 

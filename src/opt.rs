@@ -1,5 +1,7 @@
 use structopt::StructOpt;
 
+use crate::collections::GetCollectionItemsMethods;
+
 #[derive(Debug, StructOpt)]
 #[structopt(name = "Metaboss", about = "Metaplex NFT 'Swiss Army Knife' tool.")]
 pub struct Opt {
@@ -308,6 +310,36 @@ pub enum CollectionsSubcommands {
         /// Output file path for the cache file. Defaults to mb-cache-migrate.json.
         #[structopt(short, long)]
         output_file: Option<String>,
+    },
+    /// Get all items belonging to a collection parent.
+    #[structopt(name = "get-items")]
+    GetItems {
+        /// Collection parent mint address
+        #[structopt(short, long)]
+        collection_mint: String,
+
+        /// Method to use for getting collection items. See docs.
+        #[structopt(short, long, default_value = "the_indexer")]
+        method: GetCollectionItemsMethods,
+
+        /// API Key for an indexer, if used.
+        #[structopt(short, long)]
+        api_key: Option<String>,
+    },
+    /// Check a list of items belong to a collection parent.
+    #[structopt(name = "check-items")]
+    CheckItems {
+        /// Collection parent mint address
+        #[structopt(short, long)]
+        collection_mint: String,
+
+        /// List of items to check.
+        #[structopt(short = "L", long)]
+        item_list: String,
+
+        /// Show full results in a JSON file.
+        #[structopt(long)]
+        debug: bool,
     },
 }
 
