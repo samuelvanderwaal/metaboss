@@ -1,6 +1,6 @@
 use structopt::StructOpt;
 
-use crate::collections::GetCollectionItemsMethods;
+use crate::{collections::GetCollectionItemsMethods, data::Indexers};
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "Metaboss", about = "Metaplex NFT 'Swiss Army Knife' tool.")]
@@ -323,7 +323,7 @@ pub enum CollectionsSubcommands {
         method: GetCollectionItemsMethods,
 
         /// API Key for an indexer, if used.
-        #[structopt(short, long)]
+        #[structopt(short = "k", long)]
         api_key: Option<String>,
     },
     /// Check a list of items belong to a collection parent.
@@ -684,6 +684,25 @@ pub enum SnapshotSubcommands {
         /// Candy machine v2 id
         #[structopt(long = "v2")]
         v2: bool,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
+    /// Snapshot mints from an indexer.
+    #[structopt(name = "indexed-mints")]
+    IndexedMints {
+        /// API Key for indexer.
+        #[structopt(short = "k", long)]
+        api_key: String,
+
+        /// Indexer to use for getting collection items. See docs.
+        #[structopt(short, long, default_value = "the_index_io")]
+        indexer: Indexers,
+
+        /// First verified creator.
+        #[structopt(short, long)]
+        creator: String,
 
         /// Path to directory to save output file
         #[structopt(short, long, default_value = ".")]

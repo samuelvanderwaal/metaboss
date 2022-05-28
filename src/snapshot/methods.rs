@@ -1,82 +1,24 @@
-use anyhow::{anyhow, Result};
-use indicatif::ParallelProgressIterator;
-use log::{error, info};
-use mpl_token_metadata::state::Metadata;
-use mpl_token_metadata::ID as TOKEN_METADATA_PROGRAM_ID;
-use rayon::prelude::*;
-use retry::{delay::Exponential, retry};
-use serde::Serialize;
-use solana_account_decoder::{
-    parse_account_data::{parse_account_data, AccountAdditionalData, ParsedAccount},
-    UiAccountEncoding,
-};
-use solana_client::{
-    rpc_client::RpcClient,
-    rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig},
-    rpc_filter::{Memcmp, MemcmpEncodedBytes, RpcFilterType},
-};
-use solana_program::borsh::try_from_slice_unchecked;
-use solana_sdk::{
-    account::Account,
-    commitment_config::{CommitmentConfig, CommitmentLevel},
-    pubkey::Pubkey,
-};
-use spl_token::ID as TOKEN_PROGRAM_ID;
-use std::{
-    fs::File,
-    str::FromStr,
-    sync::{Arc, Mutex},
-};
+use super::common::*;
+use super::data::*;
 
+use crate::data::Indexers;
 use crate::derive::derive_cmv2_pda;
 use crate::limiter::create_rate_limiter;
 use crate::parse::{creator_is_verified, is_only_one_option};
 use crate::spinner::*;
+use crate::theindexio;
 use crate::{constants::*, decode::get_metadata_pda};
 
-#[derive(Debug, Serialize, Clone)]
-struct Holder {
-    owner_wallet: String,
-    associated_token_address: String,
-    mint_account: String,
-    metadata_account: String,
-}
-
-#[derive(Debug, Serialize)]
-struct CandyMachineProgramAccounts {
-    config_accounts: Vec<ConfigAccount>,
-    candy_machine_accounts: Vec<CandyMachineAccount>,
-}
-
-#[derive(Debug, Serialize)]
-struct ConfigAccount {
-    address: String,
-    data_len: usize,
-}
-
-#[derive(Debug, Serialize)]
-struct CandyMachineAccount {
-    address: String,
-    data_len: usize,
-}
-
-pub fn snapshot_mints(
-    client: &RpcClient,
-    creator: &Option<String>,
-    position: usize,
-    update_authority: Option<String>,
-    v2: bool,
-    output: String,
-) -> Result<()> {
-    if !is_only_one_option(creator, &update_authority) {
+pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()> {
+    if !is_only_one_option(&args.creator, &args.update_authority) {
         return Err(anyhow!(
             "Please specify either a candy machine id or an update authority, but not both."
         ));
     }
 
-    let prefix = if let Some(ref update_authority) = update_authority {
+    let prefix = if let Some(ref update_authority) = args.update_authority {
         update_authority.clone()
-    } else if let Some(creator) = creator {
+    } else if let Some(ref creator) = args.creator {
         creator.clone()
     } else {
         return Err(anyhow!(
@@ -84,10 +26,27 @@ pub fn snapshot_mints(
         ));
     };
 
-    let mint_accounts = get_mint_accounts(client, creator, position, update_authority, v2)?;
+    let mint_accounts = get_mint_accounts(
+        client,
+        &args.creator,
+        args.position,
+        args.update_authority,
+        args.v2,
+    )?;
 
-    let mut file = File::create(format!("{}/{}_mint_accounts.json", output, prefix))?;
+    let mut file = File::create(format!("{}/{}_mint_accounts.json", args.output, prefix))?;
     serde_json::to_writer(&mut file, &mint_accounts)?;
+
+    Ok(())
+}
+
+pub async fn snapshot_indexed_mints(
+    _api_key: String,
+    _indexer: Indexers,
+    creator: String,
+    _output: String,
+) -> Result<()> {
+    theindexio::get_verified_creator_accounts(creator).await?;
 
     Ok(())
 }

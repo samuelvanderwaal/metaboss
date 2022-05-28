@@ -13,7 +13,10 @@ use crate::find::find_missing_editions_process;
 use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one};
 use crate::opt::*;
 use crate::sign::{sign_all, sign_one};
-use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
+use crate::snapshot::{
+    snapshot_cm_accounts, snapshot_holders, snapshot_indexed_mints, snapshot_mints,
+    SnapshotMintsArgs,
+};
 use crate::update_metadata::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
 use crate::withdraw::{withdraw, WithdrawArgs};
@@ -308,7 +311,7 @@ pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()>
     }
 }
 
-pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Result<()> {
+pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Result<()> {
     match commands {
         SnapshotSubcommands::Holders {
             update_authority,
@@ -336,7 +339,22 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
             update_authority,
             v2,
             output,
-        } => snapshot_mints(client, &creator, position, update_authority, v2, output),
+        } => snapshot_mints(
+            client,
+            SnapshotMintsArgs {
+                creator,
+                position,
+                update_authority,
+                v2,
+                output,
+            },
+        ),
+        SnapshotSubcommands::IndexedMints {
+            api_key,
+            indexer,
+            creator,
+            output,
+        } => snapshot_indexed_mints(api_key, indexer, creator, output).await,
     }
 }
 
