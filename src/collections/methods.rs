@@ -1,23 +1,5 @@
-use anyhow::{anyhow, Result as AnyResult};
-use indexmap::IndexMap;
-use log::info;
-use mpl_token_metadata::{
-    id as metadata_program_id,
-    instruction::{
-        approve_collection_authority, revoke_collection_authority, set_and_verify_collection,
-        unverify_collection, verify_collection,
-    },
-};
-use serde::{Deserialize, Serialize};
-use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
-use solana_sdk::{pubkey::Pubkey, signature::Keypair, signer::Signer};
-use std::{
-    fs::{File, OpenOptions},
-    io::Write,
-    path::Path,
-    str::FromStr,
-    sync::Arc,
-};
+use super::common::*;
+use crate::collections::data::*;
 
 use crate::{
     derive::{derive_collection_authority_record, derive_edition_pda, derive_metadata_pda},
@@ -414,6 +396,49 @@ pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
             break;
         }
     }
+
+    Ok(())
+}
+
+pub async fn get_collection_items(
+    collection_mint: String,
+    method: GetCollectionItemsMethods,
+    api_key: Option<String>,
+) -> AnyResult<()> {
+    match method {
+        GetCollectionItemsMethods::TheIndexIO => {
+            if let Some(key) = api_key {
+                get_collection_items_by_the_index_io(collection_mint, key).await?
+            } else {
+                return Err(anyhow!(
+                    "This method requires an index key for TheIndex.io."
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
+pub async fn get_collection_items_by_the_index_io(
+    collection_mint: String,
+    api_key: String,
+) -> AnyResult<()> {
+    let jrpc = JRPCRequest::new("getNFTsByCollection", vec![collection_mint]);
+    let url = format!("{THE_INDEX_MAINNET}/{api_key}");
+    println!("{}", url);
+    let client = reqwest::Client::new();
+    let response = client.post(url).json(&jrpc).send().await?;
+
+    let res: RpcResponse = response.json().await?;
+
+    let mints: Vec<String> = res
+        .result
+        .iter()
+        .map(|nft| nft.metadata.mint.clone())
+        .collect();
+
+    let f = File::create("collection_items.json").unwrap();
+    serde_json::to_writer_pretty(f, &mints).unwrap();
 
     Ok(())
 }
