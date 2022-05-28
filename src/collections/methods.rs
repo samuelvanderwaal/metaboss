@@ -439,7 +439,7 @@ pub async fn get_collection_items_by_the_index_io(
         .map(|nft| nft.metadata.mint.clone())
         .collect();
 
-    let file_name = format!("{collection_mint}-collection_items.json");
+    let file_name = format!("{collection_mint}_collection_items.json");
     let f = File::create(&file_name).unwrap();
     serde_json::to_writer_pretty(f, &mints).unwrap();
     println!("Data written to {file_name}");

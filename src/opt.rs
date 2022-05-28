@@ -319,7 +319,7 @@ pub enum CollectionsSubcommands {
         collection_mint: String,
 
         /// Method to use for getting collection items. See docs.
-        #[structopt(short, long, default_value = "the_indexer")]
+        #[structopt(short, long, default_value = "the_index_io")]
         method: GetCollectionItemsMethods,
 
         /// API Key for an indexer, if used.

@@ -1,6 +1,6 @@
-## Collections
+# Collections
 
-### Migrate
+## Migrate
 
 Migrate a collection of NFTs to be part of a single on-chain Metaplex Certified Collection (MCC).
 
@@ -94,12 +94,34 @@ Use `--output-file` or `-o` to specify the path and name of the JSON file to wri
 
 e.g.:
 
-```
+```bash
 metaboss collections migrate -L devnet_test_mints.json -m 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq -o ~/Desktop/my-cache3.json
 ```
 
 This will override both the default cache file name ('mb-cache-migrate.json') and the cache file name passed in with `--cache-file`.
 
+## Get and Check Collection Items
+
+### Get-Items
+
+Metaboss now has experimental support for getting all collection items from a given mint using off-chain, indexed data from https://theindex.io/. Other indexers or methods may be supported later. To use this feature, you need to sign up for a free account with TheIndex to get an API key.
+
+```bash
+metaboss collections get-items --collection-mint <COLLECTION_NFT_MINT_ADDRESS> --api-key <THE_INDEX_API_KEY>
+```
+where `--collection_mint` is the mint account of the parent collection NFT and `--api-key` is your API Key from theindex.io. There's an additional command `--method` which can be used to support other indexers in the future but defaults to theindex.io for now so can be elided.
+
+This command creates a JSON file named `<COLLECTION_MINT>_collection_items.json` in the directory it is run in. 
+
+### Check-Items
+
+Given a list of mint addresses and a collection mint address, this command checks all the items in the list to see if they belong to the specified collection. 
+
+```bash
+metaboss collections check-items --collection-mint <COLLECTION_NFT_MINT_ADDRESS> -L <PATH_TO_MINT_LIST>
+```
+
+This command has a `--debug` flag, which creates a JSON file when set with a mapping of all collection NFTs found associated with the list of addresses and which ones belong to each.
 
 
 Report bugs and questions to the [Metaboss Discord](https://discord.gg/2f7N25NJkg).

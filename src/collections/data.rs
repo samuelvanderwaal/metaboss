@@ -93,7 +93,7 @@ impl FromStr for GetCollectionItemsMethods {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "the_indexer" => Ok(GetCollectionItemsMethods::TheIndexIO),
+            "the_index_io" => Ok(GetCollectionItemsMethods::TheIndexIO),
             _ => Err(format!("Invalid method: {}", s)),
         }
     }
