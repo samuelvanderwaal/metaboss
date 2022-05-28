@@ -100,3 +100,4 @@ impl FromStr for GetCollectionItemsMethods {
 }
 
 pub const THE_INDEX_MAINNET: &str = "https://rpc.theindex.io/mainnet-beta";
+pub const PARALLEL_LIMIT: usize = 50;

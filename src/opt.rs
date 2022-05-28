@@ -326,6 +326,21 @@ pub enum CollectionsSubcommands {
         #[structopt(short, long)]
         api_key: Option<String>,
     },
+    /// Check a list of items belong to a collection parent.
+    #[structopt(name = "check-items")]
+    CheckItems {
+        /// Collection parent mint address
+        #[structopt(short, long)]
+        collection_mint: String,
+
+        /// List of items to check.
+        #[structopt(short = "L", long)]
+        item_list: String,
+
+        /// Show full results in a JSON file.
+        #[structopt(long)]
+        debug: bool,
+    },
 }
 
 #[derive(Debug, StructOpt)]
