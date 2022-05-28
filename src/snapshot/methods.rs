@@ -43,10 +43,28 @@ pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()>
 pub async fn snapshot_indexed_mints(
     _api_key: String,
     _indexer: Indexers,
-    creator: String,
-    _output: String,
+    creator: &str,
+    output: String,
 ) -> Result<()> {
-    theindexio::get_verified_creator_accounts(creator).await?;
+    let results = theindexio::get_verified_creator_accounts(creator).await?;
+
+    let mut mint_addresses = Vec::new();
+
+    for result in results {
+        let bs64_data = &result.account.data.as_array().unwrap()[0];
+        let data = base64::decode(&bs64_data.as_str().unwrap())?;
+        let metadata: Metadata = match try_from_slice_unchecked(&data) {
+            Ok(metadata) => metadata,
+            Err(_) => {
+                error!("Failed to parse metadata for account {}", result.pubkey);
+                continue;
+            }
+        };
+        mint_addresses.push(metadata.mint.to_string());
+    }
+
+    let mut file = File::create(format!("{output}/{creator}_mint_accounts.json"))?;
+    serde_json::to_writer(&mut file, &mint_addresses)?;
 
     Ok(())
 }

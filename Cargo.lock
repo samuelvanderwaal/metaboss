@@ -1736,6 +1736,7 @@ dependencies = [
  "anchor-client",
  "anyhow",
  "assert_cmd",
+ "base64 0.13.0",
  "borsh",
  "bs58 0.4.0",
  "console",

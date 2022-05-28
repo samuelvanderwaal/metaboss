@@ -5,7 +5,7 @@ use super::data::*;
 
 use serde_json::json;
 
-pub async fn get_verified_creator_accounts(_creator: String) -> Result<()> {
+pub async fn get_verified_creator_accounts(creator: &str) -> Result<Vec<GPAResult>> {
     let method = "getProgramAccounts";
     let url = "https://rpc.theindex.io";
     let params = json!(
@@ -18,7 +18,7 @@ pub async fn get_verified_creator_accounts(_creator: String) -> Result<()> {
                 {
                     "memcmp": {
                         "offset": 326u32,
-                        "bytes": "B9REbEXGse3JD2EtypAt2rDwPniA57AtPMCQ8n4WfYnK"
+                        "bytes": creator
                     }
                 },
                 {
@@ -41,7 +41,5 @@ pub async fn get_verified_creator_accounts(_creator: String) -> Result<()> {
 
     let res: GPAResponse = response.json().await?;
 
-    println!("{:#?}", res.result);
-
-    Ok(())
+    Ok(res.result)
 }

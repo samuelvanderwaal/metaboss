@@ -354,7 +354,7 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             indexer,
             creator,
             output,
-        } => snapshot_indexed_mints(api_key, indexer, creator, output).await,
+        } => snapshot_indexed_mints(api_key, indexer, &creator, output).await,
     }
 }
 
