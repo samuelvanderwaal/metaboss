@@ -371,39 +371,43 @@ pub fn update_uri(
     let metadata = decode(client, mint_account)?;
 
     let mut data = metadata.data;
-    data.uri = new_uri.to_string();
+    if data.uri != new_uri {
+        data.uri = new_uri.to_string();
 
-    let data_v2 = DataV2 {
-        name: data.name,
-        symbol: data.symbol,
-        uri: data.uri,
-        seller_fee_basis_points: data.seller_fee_basis_points,
-        creators: data.creators,
-        collection: metadata.collection,
-        uses: metadata.uses,
-    };
+        let data_v2 = DataV2 {
+            name: data.name,
+            symbol: data.symbol,
+            uri: data.uri,
+            seller_fee_basis_points: data.seller_fee_basis_points,
+            creators: data.creators,
+            collection: metadata.collection,
+            uses: metadata.uses,
+        };
 
-    let ix = update_metadata_accounts_v2(
-        program_id,
-        metadata_account,
-        update_authority,
-        None,
-        Some(data_v2),
-        None,
-        None,
-    );
+        let ix = update_metadata_accounts_v2(
+            program_id,
+            metadata_account,
+            update_authority,
+            None,
+            Some(data_v2),
+            None,
+            None,
+        );
 
-    let recent_blockhash = client.get_latest_blockhash()?;
-    let tx = Transaction::new_signed_with_payer(
-        &[ix],
-        Some(&update_authority),
-        &[keypair],
-        recent_blockhash,
-    );
+        let recent_blockhash = client.get_latest_blockhash()?;
+        let tx = Transaction::new_signed_with_payer(
+            &[ix],
+            Some(&update_authority),
+            &[keypair],
+            recent_blockhash,
+        );
 
-    let sig = client.send_and_confirm_transaction(&tx)?;
-    info!("Tx sig: {:?}", sig);
-    println!("Tx sig: {:?}", sig);
+        let sig = client.send_and_confirm_transaction(&tx)?;
+        info!("Tx sig: {:?}", sig);
+        println!("Tx sig: {:?}", sig);
+    } else {
+        println!("URI is the same.");
+    }
 
     Ok(())
 }
