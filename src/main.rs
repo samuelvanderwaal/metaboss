@@ -50,9 +50,9 @@ async fn main() -> Result<()> {
     // Set rate limiting if the user specified a public RPC.
     if PUBLIC_RPC_URLS.contains(&rpc.as_str()) {
         warn!(
-            "Using a public RPC URL is not recommended for heavy tasks as you will be rate-limited and suffer a performance hit.
-        Please use a private RPC endpoint for best performance results."
+            "Using a public RPC URL is not recommended for heavy tasks as you will be rate-limited and suffer a performance hit"
         );
+        warn!("Please use a private RPC endpoint for best performance results.");
         *USE_RATE_LIMIT.write().unwrap() = true;
     } else if RATE_LIMIT_DELAYS.contains_key(&rpc.as_str()) {
         *USE_RATE_LIMIT.write().unwrap() = true;
@@ -85,6 +85,9 @@ async fn main() -> Result<()> {
         Command::Withdraw {
             withdraw_subcommands,
         } => process_withdraw(rpc, withdraw_subcommands)?,
+        Command::ParseErrors {
+            parse_errors_subcommands
+        } => process_parse_errors(parse_errors_subcommands)?
     }
 
     println!("Done!");

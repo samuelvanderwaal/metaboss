@@ -23,6 +23,12 @@ pub struct Opt {
 
 #[derive(Debug, StructOpt)]
 pub enum Command {
+    /// Parse Errors commands
+    #[structopt(name = "parse-errors")]
+    ParseErrors {
+        #[structopt(subcommand)]
+        parse_errors_subcommands: ParseErrorsSubCommands,
+    },
     /// NFT collections commands
     #[structopt(name = "collections")]
     Collections {
@@ -808,4 +814,14 @@ pub enum WithdrawSubcommands {
         #[structopt(short, long)]
         keypair: Option<String>,
     },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum ParseErrorsSubCommands {
+    #[structopt(name = "file")]
+    File,
+    Code {
+        /// Error code
+        error_code: String
+    }
 }

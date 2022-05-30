@@ -12,6 +12,7 @@ use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata
 use crate::find::find_missing_editions_process;
 use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one};
 use crate::opt::*;
+use crate::parse::parse_errors;
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
 use crate::update_metadata::*;
@@ -387,5 +388,16 @@ pub fn process_withdraw(rpc_url: String, commands: WithdrawSubcommands) -> Resul
             keypair,
             candy_machine_id,
         }),
+    }
+}
+
+pub fn process_parse_errors(commands: ParseErrorsSubCommands) -> Result<()> {
+    match commands {
+        ParseErrorsSubCommands::Code { error_code} => {
+            Ok(())
+        },
+        ParseErrorsSubCommands::File => {
+            parse_errors()
+        }
     }
 }

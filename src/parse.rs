@@ -210,6 +210,10 @@ pub fn parse_cli_creators(new_creators: String, should_append: bool) -> Result<V
     Ok(creators)
 }
 
+pub fn parse_errors() -> Result<()> {
+    Ok(())
+}
+
 // #[cfg(test)]
 // mod tests {
 //     use super::*;
