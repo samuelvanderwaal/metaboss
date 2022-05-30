@@ -371,7 +371,7 @@ pub fn update_uri(
     let metadata = decode(client, mint_account)?;
 
     let mut data = metadata.data;
-    if data.uri != new_uri {
+    if data.uri.trim_matches(char::from(0)) != new_uri.trim_matches(char::from(0)) {
         data.uri = new_uri.to_string();
 
         let data_v2 = DataV2 {
