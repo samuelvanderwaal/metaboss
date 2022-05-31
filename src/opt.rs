@@ -27,7 +27,7 @@ pub enum Command {
     #[structopt(name = "parse-errors")]
     ParseErrors {
         #[structopt(subcommand)]
-        parse_errors_subcommands: ParseErrorsSubCommands,
+        parse_errors_file_subcommands: ParseErrorsSubCommands,
     },
     /// NFT collections commands
     #[structopt(name = "collections")]
@@ -822,6 +822,6 @@ pub enum ParseErrorsSubCommands {
     File,
     Code {
         /// Error code
-        error_code: String
-    }
+        error_code: String,
+    },
 }

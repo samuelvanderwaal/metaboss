@@ -21,8 +21,11 @@ download_file() {
   fi
 }
 
-DOWNLOAD_DIST="$PWD/src/.error_files"
+DOWNLOAD_DIST="$PWD/src/error_files"
+WTF_ERROR_DIST="$PWD/src/wtf_errors.rs"
 mkdir $DOWNLOAD_DIST
+rm -rf "$WTF_ERROR_DIST"
+touch "$WTF_ERROR_DIST"
 
 
 CYN  "🍬 Metaboss Error Fetching script"
@@ -48,7 +51,7 @@ echo "$(CYN "3.") 📤  $(CYN "Parsing errors")"
 echo ""
 metaboss parse-errors file -l error
 
-# rm -Rf "$DOWNLOAD_DIST"
+rm -Rf "$DOWNLOAD_DIST"
 
 
 

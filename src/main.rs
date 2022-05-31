@@ -86,8 +86,8 @@ async fn main() -> Result<()> {
             withdraw_subcommands,
         } => process_withdraw(rpc, withdraw_subcommands)?,
         Command::ParseErrors {
-            parse_errors_subcommands
-        } => process_parse_errors(parse_errors_subcommands)?
+            parse_errors_file_subcommands,
+        } => process_parse_errors_file(parse_errors_file_subcommands)?,
     }
 
     println!("Done!");

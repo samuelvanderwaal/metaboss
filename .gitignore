@@ -4,4 +4,4 @@
 /binaries
 .test_files
 docs-src/book
-.error_files
+src/error_files

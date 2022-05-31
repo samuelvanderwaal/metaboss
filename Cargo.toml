@@ -23,6 +23,7 @@ metaboss_lib = "0.0.4"
 mpl-token-metadata = "1.2.5"
 mpl-candy-machine = { version = "2.0.1", features = ["no-entrypoint"] }
 num_cpus = "1.13.0"
+phf = { version = "0.10", features = ["macros"] }
 ratelimit = "0.4.4"
 rayon = "1.5.1"
 reqwest = { version = "0.11.5", features = ["json"] }
