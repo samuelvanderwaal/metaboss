@@ -10,7 +10,7 @@ use std::{env, fs, path::Path, str::FromStr};
 
 use crate::constants::ERROR_FILE_BEGIN;
 use crate::data::{NFTCreator, NFTData};
-use crate::utils::convert_to_wtf_error;
+use crate::utils::{convert_to_wtf_error, find_errors};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct SolanaConfig {
@@ -236,7 +236,21 @@ pub fn parse_errors_file() -> Result<()> {
 }
 
 pub fn parse_errors_code(error_code: &str) -> Result<()> {
-    println!("Error Code: {error_code}");
+    let parsed_error_code = if error_code.contains("0x") {
+        error_code.replace("0x", "")
+    } else {
+        format!("{:X}", error_code.parse::<i64>()?)
+    };
+
+    let errors = find_errors(&parsed_error_code);
+
+    if errors.len() == 0 {
+        return Err(anyhow!("Invalid Error Code"));
+    }
+
+    for error in errors {
+        println!("\t{:<10} |\t{}", error.domain, error.message);
+    }
     Ok(())
 }
 

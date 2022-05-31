@@ -6,6 +6,9 @@ use solana_sdk::{
 };
 use std::{ops::Add, sync::Arc};
 
+use crate::data::FoundError;
+use crate::wtf_errors::{ANCHOR_ERROR, CANDY_ERROR, METADATA_ERROR};
+
 pub fn send_and_confirm_transaction(
     client: &RpcClient,
     keypair: Keypair,
@@ -163,4 +166,31 @@ pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<Stri
 
     error_contents.push_str("};\n\n");
     Ok(error_contents)
+}
+
+pub fn find_errors(hex_code: &str) -> Vec<FoundError> {
+    let mut found_errors: Vec<FoundError> = Vec::new();
+
+    if let Some(e) = ANCHOR_ERROR.get(hex_code).cloned() {
+        found_errors.push(FoundError {
+            domain: "Anchor Program".to_string(),
+            message: e.to_string(),
+        });
+    }
+
+    if let Some(e) = METADATA_ERROR.get(hex_code).cloned() {
+        found_errors.push(FoundError {
+            domain: "Token Metadata".to_string(),
+            message: e.to_string(),
+        });
+    }
+
+    if let Some(e) = CANDY_ERROR.get(hex_code).cloned() {
+        found_errors.push(FoundError {
+            domain: "NFT Candy Machine".to_string(),
+            message: e.to_string(),
+        });
+    }
+
+    found_errors
 }

@@ -33,3 +33,9 @@ pub struct NFTCreator {
     pub verified: bool,
     pub share: u8,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FoundError {
+    pub domain: String,
+    pub message: String,
+}
