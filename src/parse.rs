@@ -244,7 +244,7 @@ pub fn parse_errors_code(error_code: &str) -> Result<()> {
 
     let errors = find_errors(&parsed_error_code);
 
-    if errors.len() == 0 {
+    if errors.is_empty() {
         return Err(anyhow!("Invalid Error Code"));
     }
 
