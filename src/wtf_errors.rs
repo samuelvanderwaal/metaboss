@@ -196,4 +196,3 @@ pub static METADATA_ERROR: phf::Map<&'static str, &'static str> = phf_map! {
     "62" => "InvalidUser: Invalid User",
     "63" => "RevokeCollectionAuthoritySignerIncorrect: Revoke Collection Authority signer is incorrect",
 };
-

@@ -820,6 +820,7 @@ pub enum WithdrawSubcommands {
 pub enum ParseErrorsSubCommands {
     #[structopt(name = "file")]
     File,
+    #[structopt(name = "code")]
     Code {
         /// Error code
         error_code: String,

@@ -54,8 +54,8 @@ pub fn generate_phf_map_var(var_name: &str) -> String {
 }
 
 pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<String> {
-    let file_names = file_name.replace(".rs", "").replace("-", " ");
-    let file_names_split = file_names.split(" ");
+    let file_names = file_name.replace(".rs", "").replace('-', " ");
+    let file_names_split = file_names.split(' ');
 
     let file_name_capitalized = file_names_split
         .clone()
@@ -102,7 +102,7 @@ pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<Stri
         None => return Err(anyhow!("Malformed Error enum")),
     };
 
-    let error_lines = match trimmed_content.contains("}") {
+    let error_lines = match trimmed_content.contains('}') {
         true => trimmed_content.lines(),
         false => return Err(anyhow!("Malformed Error enum")),
     };
@@ -112,18 +112,18 @@ pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<Stri
     for error_line in error_lines {
         let error_line = error_line.trim();
 
-        if error_line.starts_with("}") {
+        if error_line.starts_with('}') {
             break;
         }
 
-        if error_line.starts_with("/") || error_line.is_empty() {
+        if error_line.starts_with('/') || error_line.is_empty() {
             continue;
         } else if !error_line.starts_with("#[")
-            && !error_line.starts_with("\"")
-            && !error_line.ends_with("\"")
+            && !error_line.starts_with('\"')
+            && !error_line.ends_with('\"')
             && !error_line.ends_with(")]")
         {
-            let enum_end_index = match error_line.find(",") {
+            let enum_end_index = match error_line.find(',') {
                 Some(index) => index,
                 None => return Err(anyhow!("Malformed Error enum")),
             };
@@ -133,8 +133,8 @@ pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<Stri
                 None => return Err(anyhow!("Cannot parse Error enum")),
             };
 
-            if error_enum.contains("=") {
-                let error_code_combo = error_enum.split("=").collect::<Vec<&str>>();
+            if error_enum.contains('=') {
+                let error_code_combo = error_enum.split('=').collect::<Vec<&str>>();
 
                 error_enum = error_code_combo[0].trim();
                 starting_error_number = error_code_combo[1].trim().parse::<i64>()?;
@@ -144,21 +144,19 @@ pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<Stri
                 "    \"{:X}\" => \"{}{}",
                 starting_error_number, error_enum, parsed_error_line
             );
-        } else {
-            if error_line.starts_with("#[") && error_line.ends_with(")]") {
-                let parsed_message = error_line
-                    .replace("#[", "")
-                    .replace("error(\"", "")
-                    .replace("msg(\"", "")
-                    .replace("\")]", "");
+        } else if error_line.starts_with("#[") && error_line.ends_with(")]") {
+            let parsed_message = error_line
+                .replace("#[", "")
+                .replace("error(\"", "")
+                .replace("msg(\"", "")
+                .replace("\")]", "");
 
-                parsed_error_line = format!(": {}\",\n", parsed_message);
-            }
+            parsed_error_line = format!(": {}\",\n", parsed_message);
         }
 
         if parsed_error_line.contains("=>") {
             error_contents.push_str(&parsed_error_line);
-            starting_error_number = starting_error_number + 1;
+            starting_error_number += 1;
             parsed_error_line = String::from("\",\n");
         }
     }

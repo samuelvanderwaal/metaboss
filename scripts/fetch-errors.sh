@@ -51,6 +51,8 @@ echo "$(CYN "3.") 📤  $(CYN "Parsing errors")"
 echo ""
 metaboss parse-errors file -l error
 
+cargo fmt --all
+
 rm -Rf "$DOWNLOAD_DIST"
 
 
