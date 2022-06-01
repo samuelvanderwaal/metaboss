@@ -42,12 +42,7 @@ download_file "https://raw.githubusercontent.com/metaplex-foundation/metaplex-pr
 download_file "https://raw.githubusercontent.com/metaplex-foundation/metaplex-program-library/master/token-metadata/program/src/error.rs" "$DOWNLOAD_DIST/metadata-error.rs"
 
 echo ""
-echo "$(CYN "2.") 📤  $(CYN "Updating Metaboss")"
-echo ""
-cargo install --locked --path "$PWD"
-
-echo ""
-echo "$(CYN "3.") 📤  $(CYN "Parsing errors")"
+echo "$(CYN "2.") 📤  $(CYN "Parsing errors")"
 echo ""
 metaboss parse-errors file -l error
 
