@@ -193,6 +193,7 @@ pub fn process_find(client: &RpcClient, commands: FindSubcommands) -> Result<()>
         FindSubcommands::MissingEditions { account } => {
             find_missing_editions_process(client, &account)
         }
+        FindSubcommands::Error { error_code } => parse_errors_code(&error_code),
     }
 }
 
@@ -393,7 +394,6 @@ pub fn process_withdraw(rpc_url: String, commands: WithdrawSubcommands) -> Resul
 
 pub fn process_parse_errors_file(commands: ParseErrorsSubCommands) -> Result<()> {
     match commands {
-        ParseErrorsSubCommands::Code { error_code } => parse_errors_code(&error_code),
         ParseErrorsSubCommands::File => parse_errors_file(),
     }
 }

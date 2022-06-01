@@ -410,6 +410,11 @@ pub enum FindSubcommands {
         #[structopt(short, long)]
         account: String,
     },
+    #[structopt(name = "error")]
+    Error {
+        /// Error code
+        error_code: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -820,9 +825,4 @@ pub enum WithdrawSubcommands {
 pub enum ParseErrorsSubCommands {
     #[structopt(name = "file")]
     File,
-    #[structopt(name = "code")]
-    Code {
-        /// Error code
-        error_code: String,
-    },
 }
