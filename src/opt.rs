@@ -655,6 +655,17 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
+    /// Snapshot holders from an indexer.
+    #[structopt(name = "indexed-holders")]
+    IndexedHolders {
+        /// Creator to filter accounts by (for CM v2 use --v2 if candy_machine account is passed)
+        #[structopt(short, long)]
+        creator: String,
+
+        /// Path to directory to save output files.
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
     ///Snapshot all candy machine config and state accounts for a given update_authority
     #[structopt(name = "cm-accounts")]
     CMAccounts {

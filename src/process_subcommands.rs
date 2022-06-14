@@ -14,8 +14,8 @@ use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one};
 use crate::opt::*;
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{
-    snapshot_cm_accounts, snapshot_holders, snapshot_indexed_mints, snapshot_mints,
-    SnapshotMintsArgs,
+    snapshot_cm_accounts, snapshot_holders, snapshot_indexed_holders, snapshot_indexed_mints,
+    snapshot_mints, SnapshotMintsArgs,
 };
 use crate::update_metadata::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
@@ -329,6 +329,9 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             v2,
             &output,
         ),
+        SnapshotSubcommands::IndexedHolders { creator, output } => {
+            snapshot_indexed_holders(&creator, &output).await
+        }
         SnapshotSubcommands::CMAccounts {
             update_authority,
             output,

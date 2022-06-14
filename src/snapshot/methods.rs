@@ -7,6 +7,7 @@ use crate::limiter::create_rate_limiter;
 use crate::parse::{creator_is_verified, is_only_one_option};
 use crate::spinner::*;
 use crate::theindexio;
+use crate::theindexio::GPAResult;
 use crate::{constants::*, decode::get_metadata_pda};
 
 pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()> {
@@ -257,6 +258,113 @@ pub fn snapshot_holders(
     serde_json::to_writer(&mut file, &nft_holders)?;
 
     Ok(())
+}
+
+pub async fn snapshot_indexed_holders(creator: &str, output: &str) -> Result<()> {
+    let md_results = theindexio::get_verified_creator_accounts(creator).await?;
+
+    println!("gpa results: {md_results:?}");
+
+    // Create a vector of futures to execute.
+    let spinner = create_alt_spinner("Sending network requests....");
+    let mut tasks = Vec::new();
+    for md in md_results {
+        tasks.push(tokio::spawn(
+            async move { get_holder_from_gpa_result(md).await },
+        ));
+    }
+    spinner.finish();
+
+    // Wait for all the tasks to resolve and push the results to our results vector
+    let spinner = create_spinner("Awaiting results....");
+    let mut task_results = Vec::new();
+    for task in tasks {
+        task_results.push(task.await.unwrap());
+    }
+    spinner.finish();
+
+    // Partition decode results.
+    let (successful_results, _failed_results): (HolderResults, HolderResults) =
+        task_results.into_iter().partition(Result::is_ok);
+
+    // Unwrap sucessful
+    let nft_holders: Vec<Holder> = successful_results.into_iter().map(Result::unwrap).collect();
+
+    let mut file = File::create(format!("{output}/{creator}_holders.json"))?;
+    serde_json::to_writer(&mut file, &nft_holders)?;
+
+    Ok(())
+}
+
+pub async fn get_holder_from_gpa_result(result: GPAResult) -> Result<Holder> {
+    let bs64_data = &result.account.data.as_array().unwrap()[0];
+    let data = base64::decode(&bs64_data.as_str().unwrap())?;
+    let metadata: Metadata = match try_from_slice_unchecked(&data) {
+        Ok(metadata) => metadata,
+        Err(_) => {
+            return Err(anyhow!(
+                "Failed to parse metadata for account {}",
+                result.pubkey
+            ));
+        }
+    };
+
+    let token_results = match theindexio::get_holder_token_accounts(metadata.mint.to_string()).await
+    {
+        Ok(token_accounts) => token_accounts,
+        Err(_) => {
+            return Err(anyhow!("Account {} has no token accounts", result.pubkey));
+        }
+    };
+
+    for token_result in token_results {
+        let bs64_data = &token_result.account.data.as_array().unwrap()[0];
+        let data = base64::decode(&bs64_data.as_str().unwrap())?;
+
+        let parsed_account = match parse_account_data(
+            &metadata.mint,
+            &TOKEN_PROGRAM_ID,
+            &data,
+            Some(AccountAdditionalData {
+                spl_token_decimals: Some(0),
+            }),
+        ) {
+            Ok(data) => data,
+            Err(err) => {
+                error!("Account {} has no data: {}", token_result.pubkey, err);
+                continue;
+            }
+        };
+
+        let amount = match parse_token_amount(&parsed_account) {
+            Ok(amount) => amount,
+            Err(err) => {
+                error!("Account {} has no amount: {}", token_result.pubkey, err);
+                continue;
+            }
+        };
+
+        // Only include current holder of the NFT.
+        if amount == 1 {
+            let owner_wallet = match parse_owner(&parsed_account) {
+                Ok(owner_wallet) => owner_wallet,
+                Err(err) => {
+                    error!("Account {} has no owner: {}", token_result.pubkey, err);
+                    continue;
+                }
+            };
+            let associated_token_address = token_result.pubkey;
+            let holder = Holder {
+                owner_wallet,
+                associated_token_address,
+                mint_account: metadata.mint.to_string(),
+                metadata_account: result.pubkey,
+            };
+
+            return Ok(holder);
+        }
+    }
+    Err(anyhow!("No holder found"))
 }
 
 fn get_mint_account_infos(
