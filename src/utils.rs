@@ -7,7 +7,9 @@ use solana_sdk::{
 use std::{ops::Add, sync::Arc};
 
 use crate::data::FoundError;
-use crate::wtf_errors::{ANCHOR_ERROR, CANDY_ERROR, METADATA_ERROR};
+use crate::wtf_errors::{
+    ANCHOR_ERROR, AUCTIONEER_ERROR, AUCTION_HOUSE_ERROR, CANDY_ERROR, METADATA_ERROR,
+};
 
 pub fn send_and_confirm_transaction(
     client: &RpcClient,
@@ -185,9 +187,23 @@ pub fn find_errors(hex_code: &str) -> Vec<FoundError> {
         });
     }
 
+    if let Some(e) = AUCTION_HOUSE_ERROR.get(hex_code).cloned() {
+        found_errors.push(FoundError {
+            domain: "Auction House".to_string(),
+            message: e.to_string(),
+        });
+    }
+
+    if let Some(e) = AUCTIONEER_ERROR.get(hex_code).cloned() {
+        found_errors.push(FoundError {
+            domain: "Auctioneer".to_string(),
+            message: e.to_string(),
+        });
+    }
+
     if let Some(e) = CANDY_ERROR.get(hex_code).cloned() {
         found_errors.push(FoundError {
-            domain: "NFT Candy Machine".to_string(),
+            domain: "Candy Machine".to_string(),
             message: e.to_string(),
         });
     }
