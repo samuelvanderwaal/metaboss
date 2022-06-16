@@ -142,8 +142,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="collections"><a class="header" href="#collections">Collections</a></h2>
-<h3 id="migrate"><a class="header" href="#migrate">Migrate</a></h3>
+                        <h1 id="collections"><a class="header" href="#collections">Collections</a></h1>
+<h2 id="migrate"><a class="header" href="#migrate">Migrate</a></h2>
 <p>Migrate a collection of NFTs to be part of a single on-chain Metaplex Certified Collection (MCC).</p>
 <ol>
 <li>
@@ -201,9 +201,21 @@
 <h3 id="output-file"><a class="header" href="#output-file">Output File</a></h3>
 <p>Use <code>--output-file</code> or <code>-o</code> to specify the path and name of the JSON file to write the cache results to. </p>
 <p>e.g.:</p>
-<pre><code>metaboss collections migrate -L devnet_test_mints.json -m 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq -o ~/Desktop/my-cache3.json
+<pre><code class="language-bash">metaboss collections migrate -L devnet_test_mints.json -m 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq -o ~/Desktop/my-cache3.json
 </code></pre>
 <p>This will override both the default cache file name ('mb-cache-migrate.json') and the cache file name passed in with <code>--cache-file</code>.</p>
+<h2 id="get-and-check-collection-items"><a class="header" href="#get-and-check-collection-items">Get and Check Collection Items</a></h2>
+<h3 id="get-items"><a class="header" href="#get-items">Get-Items</a></h3>
+<p>Metaboss now has experimental support for getting all collection items from a given mint using off-chain, indexed data from https://theindex.io/. Other indexers or methods may be supported later. To use this feature, you need to sign up for a free account with TheIndex to get an API key.</p>
+<pre><code class="language-bash">metaboss collections get-items --collection-mint &lt;COLLECTION_NFT_MINT_ADDRESS&gt; --api-key &lt;THE_INDEX_API_KEY&gt;
+</code></pre>
+<p>where <code>--collection_mint</code> is the mint account of the parent collection NFT and <code>--api-key</code> is your API Key from theindex.io. There's an additional command <code>--method</code> which can be used to support other indexers in the future but defaults to theindex.io for now so can be elided.</p>
+<p>This command creates a JSON file named <code>&lt;COLLECTION_MINT&gt;_collection_items.json</code> in the directory it is run in. </p>
+<h3 id="check-items"><a class="header" href="#check-items">Check-Items</a></h3>
+<p>Given a list of mint addresses and a collection mint address, this command checks all the items in the list to see if they belong to the specified collection. </p>
+<pre><code class="language-bash">metaboss collections check-items --collection-mint &lt;COLLECTION_NFT_MINT_ADDRESS&gt; -L &lt;PATH_TO_MINT_LIST&gt;
+</code></pre>
+<p>This command has a <code>--debug</code> flag, which creates a JSON file when set with a mapping of all collection NFTs found associated with the list of addresses and which ones belong to each.</p>
 <p>Report bugs and questions to the <a href="https://discord.gg/2f7N25NJkg">Metaboss Discord</a>.</p>
 
                     </main>

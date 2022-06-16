@@ -186,22 +186,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "anchor-client"
-version = "0.19.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cac39d0e96187b40a943361120733299fad52550df837ffc4366a261a89114cb"
-dependencies = [
- "anchor-lang",
- "anyhow",
- "regex",
- "serde",
- "solana-client",
- "solana-sdk",
- "thiserror",
- "url",
-]
-
-[[package]]
 name = "anchor-derive-accounts"
 version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1733,7 +1717,6 @@ dependencies = [
 name = "metaboss"
 version = "0.6.6"
 dependencies = [
- "anchor-client",
  "anyhow",
  "assert_cmd",
  "borsh",

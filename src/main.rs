@@ -82,9 +82,6 @@ async fn main() -> Result<()> {
         Command::Snapshot {
             snapshot_subcommands,
         } => process_snapshot(&client, snapshot_subcommands)?,
-        Command::Withdraw {
-            withdraw_subcommands,
-        } => process_withdraw(rpc, withdraw_subcommands)?,
     }
 
     println!("Done!");
