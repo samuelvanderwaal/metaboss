@@ -91,6 +91,28 @@ pub struct GPAResult {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct TLAResult {
+    pub context: Context,
+    pub value: Vec<LargestAccount>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Context {
+    pub slot: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LargestAccount {
+    pub address: String,
+    pub amount: String,
+    pub decimals: u8,
+    #[serde(rename = "uiAmount")]
+    pub ui_amount: f32,
+    #[serde(rename = "uiAmountString")]
+    pub ui_amount_string: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct IndexIoAccount {
     pub data: Value,
     pub executable: bool,

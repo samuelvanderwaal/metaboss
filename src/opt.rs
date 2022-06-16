@@ -658,6 +658,14 @@ pub enum SnapshotSubcommands {
     /// Snapshot holders from an indexer.
     #[structopt(name = "indexed-holders")]
     IndexedHolders {
+        /// Indexer to use for getting collection items. See docs.
+        #[structopt(short, long, default_value = "the_index_io")]
+        indexer: Indexers,
+
+        /// API key for the indexer.
+        #[structopt(short, long)]
+        api_key: String,
+
         /// Creator to filter accounts by (for CM v2 use --v2 if candy_machine account is passed)
         #[structopt(short, long)]
         creator: String,
@@ -703,13 +711,13 @@ pub enum SnapshotSubcommands {
     /// Snapshot mints from an indexer.
     #[structopt(name = "indexed-mints")]
     IndexedMints {
-        /// API Key for indexer.
-        #[structopt(short = "k", long)]
-        api_key: String,
-
         /// Indexer to use for getting collection items. See docs.
         #[structopt(short, long, default_value = "the_index_io")]
         indexer: Indexers,
+
+        /// API key for the indexer.
+        #[structopt(short, long)]
+        api_key: String,
 
         /// First verified creator.
         #[structopt(short, long)]

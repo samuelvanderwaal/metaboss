@@ -42,12 +42,14 @@ pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()>
 }
 
 pub async fn snapshot_indexed_mints(
-    _api_key: String,
-    _indexer: Indexers,
+    indexer: Indexers,
+    api_key: String,
     creator: &str,
     output: String,
 ) -> Result<()> {
-    let results = theindexio::get_verified_creator_accounts(creator).await?;
+    let results = match indexer {
+        Indexers::TheIndexIO => theindexio::get_verified_creator_accounts(api_key, creator).await?,
+    };
 
     let mut mint_addresses = Vec::new();
 
@@ -260,23 +262,36 @@ pub fn snapshot_holders(
     Ok(())
 }
 
-pub async fn snapshot_indexed_holders(creator: &str, output: &str) -> Result<()> {
-    let md_results = theindexio::get_verified_creator_accounts(creator).await?;
+pub async fn snapshot_indexed_holders(
+    indexer: Indexers,
+    api_key: String,
+    creator: &str,
+    output: &str,
+) -> Result<()> {
+    println!("creator: {}", creator);
+    let md_results = match indexer {
+        Indexers::TheIndexIO => {
+            theindexio::get_verified_creator_accounts(api_key.clone(), creator).await?
+        }
+    };
 
-    println!("gpa results: {md_results:?}");
+    println!("Found {} mints", md_results.len());
 
     // Create a vector of futures to execute.
     let spinner = create_alt_spinner("Sending network requests....");
     let mut tasks = Vec::new();
     for md in md_results {
-        tasks.push(tokio::spawn(
-            async move { get_holder_from_gpa_result(md).await },
-        ));
+        tasks.push(tokio::spawn(get_holder_from_gpa_result(
+            api_key.clone(),
+            md,
+        )));
     }
     spinner.finish();
 
+    println!("Tasks created: {}", tasks.len());
+
     // Wait for all the tasks to resolve and push the results to our results vector
-    let spinner = create_spinner("Awaiting results....");
+    let spinner = create_alt_spinner("Awaiting results....");
     let mut task_results = Vec::new();
     for task in tasks {
         task_results.push(task.await.unwrap());
@@ -284,11 +299,18 @@ pub async fn snapshot_indexed_holders(creator: &str, output: &str) -> Result<()>
     spinner.finish();
 
     // Partition decode results.
-    let (successful_results, _failed_results): (HolderResults, HolderResults) =
+    let (successful_results, failed_results): (HolderResults, HolderResults) =
         task_results.into_iter().partition(Result::is_ok);
+    println!("Found {} successful results", successful_results.len());
+    println!("Found {} failed results", failed_results.len());
+
+    if !failed_results.is_empty() {
+        println!("Failed results: {:?}", failed_results[0]);
+    }
 
     // Unwrap sucessful
     let nft_holders: Vec<Holder> = successful_results.into_iter().map(Result::unwrap).collect();
+    println!("Found {} holders", nft_holders.len());
 
     let mut file = File::create(format!("{output}/{creator}_holders.json"))?;
     serde_json::to_writer(&mut file, &nft_holders)?;
@@ -296,7 +318,35 @@ pub async fn snapshot_indexed_holders(creator: &str, output: &str) -> Result<()>
     Ok(())
 }
 
-pub async fn get_holder_from_gpa_result(result: GPAResult) -> Result<Holder> {
+// pub async fn get_holder_from_gpa_result(result: GPAResult) -> Result<()> {
+//     let bs64_data = &result.account.data.as_array().unwrap()[0];
+//     let data = base64::decode(&bs64_data.as_str().unwrap())?;
+//     let metadata: Metadata = match try_from_slice_unchecked(&data) {
+//         Ok(metadata) => metadata,
+//         Err(_) => {
+//             return Err(anyhow!(
+//                 "Failed to parse metadata for account {}",
+//                 result.pubkey
+//             ));
+//         }
+//     };
+
+//     let tla_result = match theindexio::get_token_largest_accounts(metadata.mint.to_string()).await {
+//         Ok(tla_result) => tla_result,
+//         Err(_) => {
+//             return Err(anyhow!(
+//                 "Failed to get largest token accounts for mint {}",
+//                 metadata.mint
+//             ));
+//         }
+//     };
+
+//     let largest_account = &tla_result.value[0];
+
+//     Ok(())
+// }
+
+pub async fn get_holder_from_gpa_result(api_key: String, result: GPAResult) -> Result<Holder> {
     let bs64_data = &result.account.data.as_array().unwrap()[0];
     let data = base64::decode(&bs64_data.as_str().unwrap())?;
     let metadata: Metadata = match try_from_slice_unchecked(&data) {
@@ -309,13 +359,17 @@ pub async fn get_holder_from_gpa_result(result: GPAResult) -> Result<Holder> {
         }
     };
 
-    let token_results = match theindexio::get_holder_token_accounts(metadata.mint.to_string()).await
-    {
-        Ok(token_accounts) => token_accounts,
-        Err(_) => {
-            return Err(anyhow!("Account {} has no token accounts", result.pubkey));
-        }
-    };
+    let token_results =
+        match theindexio::get_holder_token_accounts(&api_key, &metadata.mint.to_string()).await {
+            Ok(token_accounts) => token_accounts,
+            Err(e) => {
+                return Err(anyhow!(
+                    "Mint Account {} has no token accounts: {:?}",
+                    metadata.mint,
+                    e
+                ));
+            }
+        };
 
     for token_result in token_results {
         let bs64_data = &token_result.account.data.as_array().unwrap()[0];

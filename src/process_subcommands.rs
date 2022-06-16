@@ -329,9 +329,12 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             v2,
             &output,
         ),
-        SnapshotSubcommands::IndexedHolders { creator, output } => {
-            snapshot_indexed_holders(&creator, &output).await
-        }
+        SnapshotSubcommands::IndexedHolders {
+            indexer,
+            api_key,
+            creator,
+            output,
+        } => snapshot_indexed_holders(indexer, api_key, &creator, &output).await,
         SnapshotSubcommands::CMAccounts {
             update_authority,
             output,
@@ -353,11 +356,11 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             },
         ),
         SnapshotSubcommands::IndexedMints {
-            api_key,
             indexer,
+            api_key,
             creator,
             output,
-        } => snapshot_indexed_mints(api_key, indexer, &creator, output).await,
+        } => snapshot_indexed_mints(indexer, api_key, &creator, output).await,
     }
 }
 
