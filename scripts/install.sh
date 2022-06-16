@@ -53,7 +53,7 @@ case "$PROCESSOR" in
 esac
  
 BIN="metaboss"
-VERSION="metaboss-ubuntu-latest"
+VERSION="ubuntu-latest"
 
 if [ "$OS_FLAVOUR" = Darwin ]; then
     case "$PROCESSOR" in
