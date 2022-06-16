@@ -88,11 +88,6 @@ pub enum Command {
         #[structopt(subcommand)]
         snapshot_subcommands: SnapshotSubcommands,
     },
-    /// Withdraw
-    Withdraw {
-        #[structopt(subcommand)]
-        withdraw_subcommands: WithdrawSubcommands,
-    },
 }
 
 #[derive(Debug, StructOpt)]
