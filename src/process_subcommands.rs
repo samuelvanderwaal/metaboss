@@ -341,11 +341,11 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
 
 pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result<()> {
     match commands {
-        UpdateSubcommands::Sfbp {
+        UpdateSubcommands::SellerFeeBasisPoints {
             keypair,
             account,
-            new_sfbp,
-        } => update_sfbp_one(client, keypair, &account, &new_sfbp),
+            new_seller_fee_basis_points,
+        } => update_seller_fee_basis_points_one(client, keypair, &account, &new_seller_fee_basis_points),
         UpdateSubcommands::Name {
             keypair,
             account,

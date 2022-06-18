@@ -689,8 +689,8 @@ pub enum SnapshotSubcommands {
 #[derive(Debug, StructOpt)]
 pub enum UpdateSubcommands {
     /// Update the seller fee basis points field inside the data struct on an NFT
-    #[structopt(name = "sfbp")]
-    Sfbp {
+    #[structopt(name = "seller-fee-basis-points")]
+    SellerFeeBasisPoints {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
@@ -699,9 +699,9 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         account: String,
 
-        /// New name for the metadata
+        /// New seller fee basis points for the metadata
         #[structopt(short, long)]
-        new_sfbp: u16,
+        new_seller_fee_basis_points: u16,
     },
     /// Update the name field inside the data struct on an NFT
     #[structopt(name = "name")]
