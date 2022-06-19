@@ -15,7 +15,7 @@ use crate::opt::*;
 use crate::parse::{parse_errors_code, parse_errors_file};
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
-use crate::update_metadata::*;
+use crate::update::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
 
 pub fn process_uses(client: &RpcClient, commands: UsesSubcommands) -> Result<()> {

@@ -14,7 +14,7 @@ pub mod process_subcommands;
 pub mod sign;
 pub mod snapshot;
 pub mod spinner;
-pub mod update_metadata;
+pub mod update;
 pub mod uses;
 pub mod utils;
 pub mod wtf_errors;
