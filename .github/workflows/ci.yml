@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           echo "Installing libudev-dev"
-          sudo apt install libudev-dev
+          sudo apt-get install libudev-dev
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -56,7 +56,7 @@ jobs:
         shell: bash
         run: |
           echo "Installing libudev-dev"
-          sudo apt install libudev-dev
+          sudo apt-get install libudev-dev
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -78,7 +78,7 @@ jobs:
         shell: bash
         run: |
           echo "Installing libudev-dev"
-          sudo apt install libudev-dev
+          sudo apt-get install libudev-dev
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:

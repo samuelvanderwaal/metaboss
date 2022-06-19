@@ -17,3 +17,4 @@ pub mod spinner;
 pub mod update_metadata;
 pub mod uses;
 pub mod utils;
+pub mod wtf_errors;

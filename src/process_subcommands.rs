@@ -12,6 +12,7 @@ use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata
 use crate::find::find_missing_editions_process;
 use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one};
 use crate::opt::*;
+use crate::parse::{parse_errors_code, parse_errors_file};
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
 use crate::update_metadata::*;
@@ -191,6 +192,7 @@ pub fn process_find(client: &RpcClient, commands: FindSubcommands) -> Result<()>
         FindSubcommands::MissingEditions { account } => {
             find_missing_editions_process(client, &account)
         }
+        FindSubcommands::Error { error_code } => parse_errors_code(&error_code),
     }
 }
 
@@ -373,5 +375,11 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
         UpdateSubcommands::UriAll { keypair, json_file } => {
             update_uri_all(client, keypair, &json_file)
         }
+    }
+}
+
+pub fn process_parse_errors_file(commands: ParseErrorsSubCommands) -> Result<()> {
+    match commands {
+        ParseErrorsSubCommands::File => parse_errors_file(),
     }
 }
