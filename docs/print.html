@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">4.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">6.</strong> Collections</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">7.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">8.</strong> Derive</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">9.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">10.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">11.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">12.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">13.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">14.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">15.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">4.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">5.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">6.</strong> Collections</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">7.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">8.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">9.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">10.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">11.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">12.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">13.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">14.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">15.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">16.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -418,6 +418,34 @@ git checkout main
 <h4 id="usage-3"><a class="header" href="#usage-3">Usage</a></h4>
 <pre><code class="language-bash">metaboss derive pda &lt;seed1&gt;,&lt;seed2&gt;,&lt;seed3&gt; &lt;program_id&gt;
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="find"><a class="header" href="#find">Find</a></h2>
+<h3 id="error"><a class="header" href="#error">Error</a></h3>
+<p>Look up Metaplex program error codes by hex or decimal values. </p>
+<p>E.g.:</p>
+<pre><code class="language-bash">metaboss find error 0x1770
+</code></pre>
+<p>or </p>
+<pre><code class="language-bash">metaboss find error 6000
+</code></pre>
+<p>returns:</p>
+<pre><code class="language-bash">Auction House | PublicKeyMismatch: PublicKeyMismatch
+Auctioneer |    BumpSeedNotInHashMap: Bump seed not in hash map
+Candy Machine | IncorrectOwner: Account does not have correct owner!
+</code></pre>
+<p>Currently supported programs:</p>
+<ul>
+<li>Token Metadata </li>
+<li>Auction House</li>
+<li>Auctioneer</li>
+<li>Candy Machine</li>
+</ul>
+<p>It also decodes Anchor specific errors.</p>
+<pre><code class="language-bash">metaboss find 3000
+</code></pre>
+<pre><code>Anchor Program |        AccountDiscriminatorAlreadySet: The account discriminator was already set on this account
+</code></pre>
+<h3 id="missing-editions"><a class="header" href="#missing-editions">Missing Editions</a></h3>
+<p>Find any edition numbers in the sequence that have not been minted. See [editions][https://metaboss.rs/mint.html#editions] for more details on how to interact with editions with Metaboss.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="mint"><a class="header" href="#mint">Mint</a></h2>
 <p>Mint new NFTs from JSON files. </p>
 <p>For both subcommands the <code>--immutable</code> flag sets the NFT data to be immutable and the <code>--primary-sale-happened</code> flag sets the primary sale happened bool to true.</p>
