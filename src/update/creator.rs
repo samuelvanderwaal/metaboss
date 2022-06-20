@@ -1,16 +1,21 @@
 use anyhow::{anyhow, Result};
-use log::warn;
+use log::{info, warn};
 use mpl_token_metadata::state::DataV2;
 use solana_client::rpc_client::RpcClient;
 use std::cmp;
+use std::fs::File;
 
 use crate::decode::decode;
+use crate::errors::UpdateError;
 use crate::parse::parse_solana_config;
 use crate::parse::{parse_cli_creators, parse_keypair};
+use crate::spinner::create_alt_spinner;
 
 use super::update_data;
 
-pub fn update_creator_by_position(
+pub type UpdateResults = Vec<Result<(), UpdateError>>;
+
+pub async fn update_creator_by_position(
     client: &RpcClient,
     keypair_path: Option<String>,
     mint_account: &str,
@@ -57,5 +62,76 @@ pub fn update_creator_by_position(
     };
 
     update_data(client, &keypair, mint_account, new_data)?;
+    Ok(())
+}
+
+pub async fn update_creator_all(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    mint_list: &str,
+    new_creators: &str,
+    should_append: bool,
+    retries: u8,
+) -> Result<()> {
+    let f = File::open(mint_list)?;
+    let mints: Vec<String> = serde_json::from_reader(f)?;
+
+    let mut counter = 0u8;
+
+    loop {
+        let remaining_mints = mints.clone();
+
+        info!("Sending network requests...");
+        let spinner = create_alt_spinner("Sending network requests....");
+        // Create a vector of futures to execute.
+        let update_tasks: Vec<_> = remaining_mints
+            .into_iter()
+            .map(|mint_address| {
+                tokio::spawn(update_creator_by_position(
+                    client.clone(),
+                    keypair_path.clone(),
+                    &mint_address,
+                    new_creators,
+                    false,
+                ))
+            })
+            .collect();
+        spinner.finish();
+
+        let update_tasks_len = update_tasks.len();
+
+        // Wait for all the tasks to resolve and push the results to our results vector
+        let mut update_results = Vec::new();
+        let spinner = create_alt_spinner("Awaiting results...");
+        for task in update_tasks {
+            update_results.push(task.await.unwrap());
+        }
+        spinner.finish();
+
+        // Partition migration results.
+        let (_update_successful, update_failed): (UpdateResults, UpdateResults) =
+            update_results.into_iter().partition(Result::is_ok);
+
+        // If some of the migrations failed, ask user if they wish to retry and the loop starts again.
+        // Otherwise, break out of the loop and write the cache to disk.
+        if !update_failed.is_empty() && counter < retries {
+            counter += 1;
+            println!(
+                "{}/{} migrations failed. Retrying. . .",
+                &update_failed.len(),
+                update_tasks_len
+            );
+            cache.update_errors(update_failed);
+            mints = cache.0.keys().map(|m| m.to_string()).collect();
+        } else if update_failed.is_empty() {
+            // None failed so we exit the loop.
+            println!("All items successfully migrated!");
+            break;
+        } else {
+            println!("Reached max retries. Writing remaining items to cache.");
+            cache.write(f)?;
+            break;
+        }
+    }
     Ok(())
 }

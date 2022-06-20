@@ -748,6 +748,29 @@ pub enum UpdateSubcommands {
         #[structopt(short = "A", long = "append")]
         append: bool,
     },
+    /// Update all the creators fields for a list of mints
+    #[structopt(name = "creators-all")]
+    CreatorsAll {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint list
+        #[structopt(short = "L", long)]
+        mint_list: String,
+
+        /// New creators in the format: address1:share:verified,address2:share:verified,...
+        #[structopt(short = "c", long)]
+        new_creators: String,
+
+        /// Should be appended instead of overwriting
+        #[structopt(short = "A", long = "append")]
+        append: bool,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
+    },
     /// Update the data struct on a NFT
     #[structopt(name = "data")]
     Data {

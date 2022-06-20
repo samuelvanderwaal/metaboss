@@ -30,6 +30,12 @@ pub enum MigrateError {
 }
 
 #[derive(Error, Debug)]
+pub enum UpdateError {
+    #[error("Migration failed with error: {1}")]
+    UpdateFailed(MintAddress, NetworkError),
+}
+
+#[derive(Error, Debug)]
 pub enum SolConfigError {
     #[error("no home env var found")]
     MissingHomeEnvVar,

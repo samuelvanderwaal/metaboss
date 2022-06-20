@@ -341,7 +341,7 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
     }
 }
 
-pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result<()> {
+pub async fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result<()> {
     match commands {
         UpdateSubcommands::Name {
             keypair,
@@ -358,7 +358,14 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             account,
             new_creators,
             append,
-        } => update_creator_by_position(client, keypair, &account, &new_creators, append),
+        } => update_creator_by_position(client, keypair, &account, &new_creators, append).await,
+        UpdateSubcommands::CreatorsAll {
+            keypair,
+            mint_list,
+            new_creators,
+            append,
+            retries,
+        } => update_creator_all(client, keypair, &mint_list, &new_creators, append, retries).await,
         UpdateSubcommands::Data {
             keypair,
             account,
