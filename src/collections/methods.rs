@@ -532,9 +532,7 @@ pub async fn check_collection_items(
     }
 
     // Check if there's the only one and correct collection parent associated with the mint list and that all items in the list belong to it.
-    if !keys.contains(&&collection_mint)
-        || !keys.len() == 1
-        || !mint_items.len() == mint_list_length
+    if !keys.contains(&&collection_mint) || keys.len() != 1 || mint_items.len() != mint_list_length
     {
         return Err(anyhow!("Not all mints from the list belong to this parent. Run with --debug to see more details."));
     }
