@@ -1,14 +1,15 @@
 use anyhow::{anyhow, Result as AnyResult};
+use borsh::BorshDeserialize;
 use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
 use metaboss_lib::decode::decode_master_edition_from_mint;
+use mpl_token_metadata::state::CollectionDetails;
 use mpl_token_metadata::state::{Key, Metadata, TokenStandard, UseMethod};
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
 use serde::Serialize;
 use serde_json::{json, Value};
 use solana_client::rpc_client::RpcClient;
-use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::pubkey::Pubkey;
 use std::fs::File;
 use std::str::FromStr;
@@ -29,6 +30,11 @@ pub struct JSONCreator {
 pub struct JSONCollection {
     pub verified: bool,
     pub key: String,
+}
+
+#[derive(Debug, Serialize)]
+pub enum JSONCollectionDetails {
+    V1 { size: u64 },
 }
 
 #[derive(Debug, Serialize)]
@@ -203,7 +209,7 @@ pub fn decode(client: &RpcClient, mint_account: &str) -> Result<Metadata, Decode
         }
     };
 
-    let metadata: Metadata = match try_from_slice_unchecked(&account_data) {
+    let metadata: Metadata = match Metadata::deserialize(&mut account_data.as_slice()) {
         Ok(m) => m,
         Err(err) => return Err(DecodeError::DecodeMetadataFailed(err.to_string())),
     };
@@ -250,6 +256,15 @@ fn decode_to_json(metadata: Metadata, full: bool) -> AnyResult<Value> {
         })
     }
 
+    let mut collection_details: Option<JSONCollectionDetails> = None;
+    if let Some(details) = metadata.collection_details {
+        match details {
+            CollectionDetails::V1 { size } => {
+                collection_details = Some(JSONCollectionDetails::V1 { size })
+            }
+        }
+    }
+
     let mut uses: Option<JSONUses> = None;
     if let Some(u) = metadata.uses {
         uses = Some(JSONUses {
@@ -270,6 +285,7 @@ fn decode_to_json(metadata: Metadata, full: bool) -> AnyResult<Value> {
         "token_standard": token_standard,
         "collection": collection,
         "uses": uses,
+        "collection_details": collection_details,
     });
     Ok(json_metadata)
 }

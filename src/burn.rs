@@ -1,5 +1,6 @@
 use anyhow::Result;
-use mpl_token_metadata::{id, instruction::burn_nft};
+use borsh::BorshDeserialize;
+use mpl_token_metadata::{id, instruction::burn_nft, state::Metadata};
 use retry::{delay::Exponential, retry};
 pub use solana_client::{
     nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient,
@@ -46,6 +47,21 @@ pub fn burn(
     let metadata_pubkey = derive_metadata_pda(&mint_pubkey);
     let master_edition = derive_edition_pda(&mint_pubkey);
 
+    let md_account = client.get_account_data(&metadata_pubkey)?;
+    let metadata = Metadata::deserialize(&mut md_account.as_slice())?;
+
+    // Is it a verified collection item?
+    let collection_md = if let Some(collection) = metadata.collection {
+        if collection.verified {
+            let collection_metadata_pubkey = derive_metadata_pda(&collection.key);
+            Some(collection_metadata_pubkey)
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
     let burn_ix = burn_nft(
         id(),
         metadata_pubkey,
@@ -54,7 +70,7 @@ pub fn burn(
         assoc,
         master_edition,
         spl_token_program_id,
-        None,
+        collection_md,
     );
 
     let instructions = vec![burn_ix];
@@ -67,6 +83,7 @@ pub fn burn(
         recent_blockhash,
     );
 
+    println!("Sending tx...");
     // Send tx with retries.
     let res = retry(
         Exponential::from_millis_with_factor(250, 2.0).take(3),
