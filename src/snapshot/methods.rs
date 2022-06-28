@@ -3,6 +3,7 @@ use super::data::*;
 
 use crate::data::Indexers;
 use crate::derive::derive_cmv2_pda;
+use crate::limiter::create_default_rate_limiter;
 use crate::limiter::create_rate_limiter;
 use crate::parse::{creator_is_verified, is_only_one_option};
 use crate::spinner::*;
@@ -131,7 +132,7 @@ pub fn snapshot_holders(
     output: &str,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     let spinner = create_spinner("Getting accounts...");
     let accounts = if let Some(update_authority) = update_authority {
@@ -275,12 +276,17 @@ pub async fn snapshot_indexed_holders(
         }
     };
 
+    let delay = 1_000_000;
+
+    let mut handle = create_rate_limiter(delay);
+
     println!("Found {} mints", md_results.len());
 
     // Create a vector of futures to execute.
     let spinner = create_alt_spinner("Sending network requests....");
     let mut tasks = Vec::new();
     for md in md_results {
+        handle.wait();
         tasks.push(tokio::spawn(get_holder_from_gpa_result(
             api_key.clone(),
             md,
@@ -293,6 +299,7 @@ pub async fn snapshot_indexed_holders(
     // Wait for all the tasks to resolve and push the results to our results vector
     let spinner = create_alt_spinner("Awaiting results....");
     let mut task_results = Vec::new();
+
     for task in tasks {
         task_results.push(task.await.unwrap());
     }
@@ -306,6 +313,13 @@ pub async fn snapshot_indexed_holders(
 
     if !failed_results.is_empty() {
         println!("Failed results: {:?}", failed_results[0]);
+        let errors = failed_results
+            .into_iter()
+            .map(Result::unwrap_err)
+            .map(|e| e.to_string())
+            .collect::<Vec<_>>();
+        let f = File::create(format!("{}/{}_errors.json", output, creator))?;
+        serde_json::to_writer(&f, &errors)?;
     }
 
     // Unwrap sucessful
@@ -317,34 +331,6 @@ pub async fn snapshot_indexed_holders(
 
     Ok(())
 }
-
-// pub async fn get_holder_from_gpa_result(result: GPAResult) -> Result<()> {
-//     let bs64_data = &result.account.data.as_array().unwrap()[0];
-//     let data = base64::decode(&bs64_data.as_str().unwrap())?;
-//     let metadata: Metadata = match try_from_slice_unchecked(&data) {
-//         Ok(metadata) => metadata,
-//         Err(_) => {
-//             return Err(anyhow!(
-//                 "Failed to parse metadata for account {}",
-//                 result.pubkey
-//             ));
-//         }
-//     };
-
-//     let tla_result = match theindexio::get_token_largest_accounts(metadata.mint.to_string()).await {
-//         Ok(tla_result) => tla_result,
-//         Err(_) => {
-//             return Err(anyhow!(
-//                 "Failed to get largest token accounts for mint {}",
-//                 metadata.mint
-//             ));
-//         }
-//     };
-
-//     let largest_account = &tla_result.value[0];
-
-//     Ok(())
-// }
 
 pub async fn get_holder_from_gpa_result(api_key: String, result: GPAResult) -> Result<Holder> {
     let bs64_data = &result.account.data.as_array().unwrap()[0];
@@ -418,7 +404,7 @@ pub async fn get_holder_from_gpa_result(api_key: String, result: GPAResult) -> R
             return Ok(holder);
         }
     }
-    Err(anyhow!("No holder found"))
+    Err(anyhow!("No holder found for mint {}", metadata.mint))
 }
 
 fn get_mint_account_infos(
@@ -426,7 +412,7 @@ fn get_mint_account_infos(
     mint_accounts: Vec<String>,
 ) -> Result<Vec<(Pubkey, Account)>> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     let address_account_pairs: Arc<Mutex<Vec<(Pubkey, Account)>>> =
         Arc::new(Mutex::new(Vec::new()));
