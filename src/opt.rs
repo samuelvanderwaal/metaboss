@@ -23,6 +23,12 @@ pub struct Opt {
 
 #[derive(Debug, StructOpt)]
 pub enum Command {
+    /// Parse Errors commands
+    #[structopt(name = "parse-errors")]
+    ParseErrors {
+        #[structopt(subcommand)]
+        parse_errors_file_subcommands: ParseErrorsSubCommands,
+    },
     /// NFT collections commands
     #[structopt(name = "collections")]
     Collections {
@@ -87,11 +93,6 @@ pub enum Command {
     Snapshot {
         #[structopt(subcommand)]
         snapshot_subcommands: SnapshotSubcommands,
-    },
-    /// Withdraw
-    Withdraw {
-        #[structopt(subcommand)]
-        withdraw_subcommands: WithdrawSubcommands,
     },
 }
 
@@ -403,6 +404,11 @@ pub enum FindSubcommands {
     MissingEditions {
         #[structopt(short, long)]
         account: String,
+    },
+    #[structopt(name = "error")]
+    Error {
+        /// Error code
+        error_code: String,
     },
 }
 
@@ -731,6 +737,21 @@ pub enum SnapshotSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum UpdateSubcommands {
+    /// Update the seller fee basis points field inside the data struct on an NFT
+    #[structopt(name = "seller-fee-basis-points")]
+    SellerFeeBasisPoints {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+
+        /// New seller fee basis points for the metadata
+        #[structopt(short, long)]
+        new_seller_fee_basis_points: u16,
+    },
     /// Update the name field inside the data struct on an NFT
     #[structopt(name = "name")]
     Name {
@@ -846,4 +867,10 @@ pub enum WithdrawSubcommands {
         #[structopt(short, long)]
         keypair: Option<String>,
     },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum ParseErrorsSubCommands {
+    #[structopt(name = "file")]
+    File,
 }

@@ -4,9 +4,13 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use solana_sdk::signer::keypair::Keypair;
 use solana_sdk::{pubkey::Pubkey, signature::read_keypair_file};
+use std::fs::read_to_string;
+use std::path::PathBuf;
 use std::{env, fs, path::Path, str::FromStr};
 
+use crate::constants::ERROR_FILE_BEGIN;
 use crate::data::{NFTCreator, NFTData};
+use crate::utils::{convert_to_wtf_error, find_errors};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct SolanaConfig {
@@ -208,6 +212,46 @@ pub fn parse_cli_creators(new_creators: String, should_append: bool) -> Result<V
     }
 
     Ok(creators)
+}
+
+pub fn parse_errors_file() -> Result<()> {
+    let wtf_error_path = Path::new("src/wtf_errors.rs");
+    let error_files_dir = PathBuf::from("src/error_files");
+
+    match error_files_dir.read_dir() {
+        Ok(files) => {
+            let mut error_file_content = String::from(ERROR_FILE_BEGIN);
+            for file in files.flatten() {
+                let file_name = file.file_name();
+                let file_contents = read_to_string(file.path())?;
+                let error_content =
+                    convert_to_wtf_error(file_name.to_str().unwrap(), &file_contents)?;
+                error_file_content.push_str(&error_content);
+            }
+            fs::write(wtf_error_path, error_file_content)?;
+            Ok(())
+        }
+        Err(_) => return Err(anyhow!("Error folder doesn't exist")),
+    }
+}
+
+pub fn parse_errors_code(error_code: &str) -> Result<()> {
+    let parsed_error_code = if error_code.contains("0x") {
+        error_code.replace("0x", "")
+    } else {
+        format!("{:X}", error_code.parse::<i64>()?)
+    };
+
+    let errors = find_errors(&parsed_error_code);
+
+    if errors.is_empty() {
+        return Err(anyhow!("Invalid Error Code"));
+    }
+
+    for error in errors {
+        println!("\t{:<10} |\t{}", error.domain, error.message);
+    }
+    Ok(())
 }
 
 // #[cfg(test)]

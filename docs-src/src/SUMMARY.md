@@ -8,6 +8,7 @@
 - [Collections](./collections.md)
 - [Decode](./decode.md)
 - [Derive](./derive.md)
+- [Find](./find.md)
 - [Mint](./mint.md)
 - [Set](./set.md)
 - [Sign](./sign.md)

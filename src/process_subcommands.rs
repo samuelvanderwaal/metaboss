@@ -12,6 +12,7 @@ use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata
 use crate::find::find_missing_editions_process;
 use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one};
 use crate::opt::*;
+use crate::parse::{parse_errors_code, parse_errors_file};
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{
     snapshot_cm_accounts, snapshot_holders, snapshot_indexed_holders, snapshot_indexed_mints,
@@ -19,7 +20,6 @@ use crate::snapshot::{
 };
 use crate::update_metadata::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
-use crate::withdraw::{withdraw, WithdrawArgs};
 
 pub fn process_uses(client: &RpcClient, commands: UsesSubcommands) -> Result<()> {
     match commands {
@@ -195,6 +195,7 @@ pub fn process_find(client: &RpcClient, commands: FindSubcommands) -> Result<()>
         FindSubcommands::MissingEditions { account } => {
             find_missing_editions_process(client, &account)
         }
+        FindSubcommands::Error { error_code } => parse_errors_code(&error_code),
     }
 }
 
@@ -366,6 +367,16 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
 
 pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result<()> {
     match commands {
+        UpdateSubcommands::SellerFeeBasisPoints {
+            keypair,
+            account,
+            new_seller_fee_basis_points,
+        } => update_seller_fee_basis_points_one(
+            client,
+            keypair,
+            &account,
+            &new_seller_fee_basis_points,
+        ),
         UpdateSubcommands::Name {
             keypair,
             account,
@@ -401,15 +412,8 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
     }
 }
 
-pub fn process_withdraw(rpc_url: String, commands: WithdrawSubcommands) -> Result<()> {
+pub fn process_parse_errors_file(commands: ParseErrorsSubCommands) -> Result<()> {
     match commands {
-        WithdrawSubcommands::CMV2 {
-            candy_machine_id,
-            keypair,
-        } => withdraw(WithdrawArgs {
-            rpc_url,
-            keypair,
-            candy_machine_id,
-        }),
+        ParseErrorsSubCommands::File => parse_errors_file(),
     }
 }

@@ -51,3 +51,8 @@ impl FromStr for Indexers {
         }
     }
 }
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FoundError {
+    pub domain: String,
+    pub message: String,
+}
