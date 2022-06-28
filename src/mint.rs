@@ -422,14 +422,21 @@ fn mint_edition(
     )?;
 
     // Derive associated token account
-    let assoc = get_associated_token_address(&receiver, &metadata_mint);
+    let assoc = get_associated_token_address(&funder.pubkey(), &metadata_mint);
     let new_assoc = get_associated_token_address(&receiver, &new_mint);
 
     let create_assoc_account_ix =
         create_associated_token_account(&funder.pubkey(), &receiver, &new_mint);
 
     // Mint to instruction
-    let mint_to_ix = mint_to(&TOKEN_PROGRAM_ID, &new_mint, &new_assoc, &receiver, &[], 1)?;
+    let mint_to_ix = mint_to(
+        &TOKEN_PROGRAM_ID,
+        &new_mint,
+        &new_assoc,
+        &funder.pubkey(),
+        &[],
+        1,
+    )?;
 
     let mint_editions_ix = mint_new_edition_from_master_edition_via_token(
         TOKEN_METADATA_PROGRAM_ID,
@@ -439,7 +446,7 @@ fn mint_edition(
         new_mint,
         funder.pubkey(),
         funder.pubkey(),
-        receiver,
+        funder.pubkey(),
         assoc,
         funder.pubkey(),
         metadata,
