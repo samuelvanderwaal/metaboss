@@ -6,6 +6,7 @@ use crate::{
     errors::MigrateError,
     parse::parse_solana_config,
     spinner::create_spinner,
+    theindexio::THE_INDEX_MAINNET,
     utils::{async_send_and_confirm_transaction, send_and_confirm_transaction},
 };
 use crate::{parse::parse_keypair, snapshot::get_mint_accounts};

@@ -1,82 +1,26 @@
-use anyhow::{anyhow, Result};
-use indicatif::ParallelProgressIterator;
-use log::{error, info};
-use mpl_token_metadata::state::Metadata;
-use mpl_token_metadata::ID as TOKEN_METADATA_PROGRAM_ID;
-use rayon::prelude::*;
-use retry::{delay::Exponential, retry};
-use serde::Serialize;
-use solana_account_decoder::{
-    parse_account_data::{parse_account_data, AccountAdditionalData, ParsedAccount},
-    UiAccountEncoding,
-};
-use solana_client::{
-    rpc_client::RpcClient,
-    rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig},
-    rpc_filter::{Memcmp, MemcmpEncodedBytes, RpcFilterType},
-};
-use solana_program::borsh::try_from_slice_unchecked;
-use solana_sdk::{
-    account::Account,
-    commitment_config::{CommitmentConfig, CommitmentLevel},
-    pubkey::Pubkey,
-};
-use spl_token::ID as TOKEN_PROGRAM_ID;
-use std::{
-    fs::File,
-    str::FromStr,
-    sync::{Arc, Mutex},
-};
+use super::common::*;
+use super::data::*;
 
+use crate::data::Indexers;
 use crate::derive::derive_cmv2_pda;
+use crate::limiter::create_default_rate_limiter;
 use crate::limiter::create_rate_limiter;
 use crate::parse::{creator_is_verified, is_only_one_option};
 use crate::spinner::*;
+use crate::theindexio;
+use crate::theindexio::GPAResult;
 use crate::{constants::*, decode::get_metadata_pda};
 
-#[derive(Debug, Serialize, Clone)]
-struct Holder {
-    owner_wallet: String,
-    associated_token_address: String,
-    mint_account: String,
-    metadata_account: String,
-}
-
-#[derive(Debug, Serialize)]
-struct CandyMachineProgramAccounts {
-    config_accounts: Vec<ConfigAccount>,
-    candy_machine_accounts: Vec<CandyMachineAccount>,
-}
-
-#[derive(Debug, Serialize)]
-struct ConfigAccount {
-    address: String,
-    data_len: usize,
-}
-
-#[derive(Debug, Serialize)]
-struct CandyMachineAccount {
-    address: String,
-    data_len: usize,
-}
-
-pub fn snapshot_mints(
-    client: &RpcClient,
-    creator: &Option<String>,
-    position: usize,
-    update_authority: Option<String>,
-    v2: bool,
-    output: String,
-) -> Result<()> {
-    if !is_only_one_option(creator, &update_authority) {
+pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()> {
+    if !is_only_one_option(&args.creator, &args.update_authority) {
         return Err(anyhow!(
             "Please specify either a candy machine id or an update authority, but not both."
         ));
     }
 
-    let prefix = if let Some(ref update_authority) = update_authority {
+    let prefix = if let Some(ref update_authority) = args.update_authority {
         update_authority.clone()
-    } else if let Some(creator) = creator {
+    } else if let Some(ref creator) = args.creator {
         creator.clone()
     } else {
         return Err(anyhow!(
@@ -84,10 +28,47 @@ pub fn snapshot_mints(
         ));
     };
 
-    let mint_accounts = get_mint_accounts(client, creator, position, update_authority, v2)?;
+    let mint_accounts = get_mint_accounts(
+        client,
+        &args.creator,
+        args.position,
+        args.update_authority,
+        args.v2,
+    )?;
 
-    let mut file = File::create(format!("{}/{}_mint_accounts.json", output, prefix))?;
+    let mut file = File::create(format!("{}/{}_mint_accounts.json", args.output, prefix))?;
     serde_json::to_writer(&mut file, &mint_accounts)?;
+
+    Ok(())
+}
+
+pub async fn snapshot_indexed_mints(
+    indexer: Indexers,
+    api_key: String,
+    creator: &str,
+    output: String,
+) -> Result<()> {
+    let results = match indexer {
+        Indexers::TheIndexIO => theindexio::get_verified_creator_accounts(api_key, creator).await?,
+    };
+
+    let mut mint_addresses = Vec::new();
+
+    for result in results {
+        let bs64_data = &result.account.data.as_array().unwrap()[0];
+        let data = base64::decode(&bs64_data.as_str().unwrap())?;
+        let metadata: Metadata = match try_from_slice_unchecked(&data) {
+            Ok(metadata) => metadata,
+            Err(_) => {
+                error!("Failed to parse metadata for account {}", result.pubkey);
+                continue;
+            }
+        };
+        mint_addresses.push(metadata.mint.to_string());
+    }
+
+    let mut file = File::create(format!("{output}/{creator}_mint_accounts.json"))?;
+    serde_json::to_writer(&mut file, &mint_addresses)?;
 
     Ok(())
 }
@@ -151,7 +132,7 @@ pub fn snapshot_holders(
     output: &str,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     let spinner = create_spinner("Getting accounts...");
     let accounts = if let Some(update_authority) = update_authority {
@@ -282,12 +263,156 @@ pub fn snapshot_holders(
     Ok(())
 }
 
+pub async fn snapshot_indexed_holders(
+    indexer: Indexers,
+    api_key: String,
+    creator: &str,
+    output: &str,
+) -> Result<()> {
+    println!("creator: {}", creator);
+    let md_results = match indexer {
+        Indexers::TheIndexIO => {
+            theindexio::get_verified_creator_accounts(api_key.clone(), creator).await?
+        }
+    };
+
+    let delay = 1_000_000;
+
+    let mut handle = create_rate_limiter(delay);
+
+    println!("Found {} mints", md_results.len());
+
+    // Create a vector of futures to execute.
+    let spinner = create_alt_spinner("Sending network requests....");
+    let mut tasks = Vec::new();
+    for md in md_results {
+        handle.wait();
+        tasks.push(tokio::spawn(get_holder_from_gpa_result(
+            api_key.clone(),
+            md,
+        )));
+    }
+    spinner.finish();
+
+    println!("Tasks created: {}", tasks.len());
+
+    // Wait for all the tasks to resolve and push the results to our results vector
+    let spinner = create_alt_spinner("Awaiting results....");
+    let mut task_results = Vec::new();
+
+    for task in tasks {
+        task_results.push(task.await.unwrap());
+    }
+    spinner.finish();
+
+    // Partition decode results.
+    let (successful_results, failed_results): (HolderResults, HolderResults) =
+        task_results.into_iter().partition(Result::is_ok);
+    println!("Found {} successful results", successful_results.len());
+    println!("Found {} failed results", failed_results.len());
+
+    if !failed_results.is_empty() {
+        println!("Failed results: {:?}", failed_results[0]);
+        let errors = failed_results
+            .into_iter()
+            .map(Result::unwrap_err)
+            .map(|e| e.to_string())
+            .collect::<Vec<_>>();
+        let f = File::create(format!("{}/{}_errors.json", output, creator))?;
+        serde_json::to_writer(&f, &errors)?;
+    }
+
+    // Unwrap sucessful
+    let nft_holders: Vec<Holder> = successful_results.into_iter().map(Result::unwrap).collect();
+    println!("Found {} holders", nft_holders.len());
+
+    let mut file = File::create(format!("{output}/{creator}_holders.json"))?;
+    serde_json::to_writer(&mut file, &nft_holders)?;
+
+    Ok(())
+}
+
+pub async fn get_holder_from_gpa_result(api_key: String, result: GPAResult) -> Result<Holder> {
+    let bs64_data = &result.account.data.as_array().unwrap()[0];
+    let data = base64::decode(&bs64_data.as_str().unwrap())?;
+    let metadata: Metadata = match try_from_slice_unchecked(&data) {
+        Ok(metadata) => metadata,
+        Err(_) => {
+            return Err(anyhow!(
+                "Failed to parse metadata for account {}",
+                result.pubkey
+            ));
+        }
+    };
+
+    let token_results =
+        match theindexio::get_holder_token_accounts(&api_key, &metadata.mint.to_string()).await {
+            Ok(token_accounts) => token_accounts,
+            Err(e) => {
+                return Err(anyhow!(
+                    "Mint Account {} has no token accounts: {:?}",
+                    metadata.mint,
+                    e
+                ));
+            }
+        };
+
+    for token_result in token_results {
+        let bs64_data = &token_result.account.data.as_array().unwrap()[0];
+        let data = base64::decode(&bs64_data.as_str().unwrap())?;
+
+        let parsed_account = match parse_account_data(
+            &metadata.mint,
+            &TOKEN_PROGRAM_ID,
+            &data,
+            Some(AccountAdditionalData {
+                spl_token_decimals: Some(0),
+            }),
+        ) {
+            Ok(data) => data,
+            Err(err) => {
+                error!("Account {} has no data: {}", token_result.pubkey, err);
+                continue;
+            }
+        };
+
+        let amount = match parse_token_amount(&parsed_account) {
+            Ok(amount) => amount,
+            Err(err) => {
+                error!("Account {} has no amount: {}", token_result.pubkey, err);
+                continue;
+            }
+        };
+
+        // Only include current holder of the NFT.
+        if amount == 1 {
+            let owner_wallet = match parse_owner(&parsed_account) {
+                Ok(owner_wallet) => owner_wallet,
+                Err(err) => {
+                    error!("Account {} has no owner: {}", token_result.pubkey, err);
+                    continue;
+                }
+            };
+            let associated_token_address = token_result.pubkey;
+            let holder = Holder {
+                owner_wallet,
+                associated_token_address,
+                mint_account: metadata.mint.to_string(),
+                metadata_account: result.pubkey,
+            };
+
+            return Ok(holder);
+        }
+    }
+    Err(anyhow!("No holder found for mint {}", metadata.mint))
+}
+
 fn get_mint_account_infos(
     client: &RpcClient,
     mint_accounts: Vec<String>,
 ) -> Result<Vec<(Pubkey, Account)>> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     let address_account_pairs: Arc<Mutex<Vec<(Pubkey, Account)>>> =
         Arc::new(Mutex::new(Vec::new()));

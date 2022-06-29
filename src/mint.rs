@@ -36,7 +36,7 @@ use crate::sign::sign_one;
 use crate::{constants::*, parse::convert_local_to_remote_data};
 use crate::{data::NFTData, derive::derive_metadata_pda};
 use crate::{find::find_missing_editions, parse::*};
-use crate::{limiter::create_rate_limiter, spinner::create_spinner};
+use crate::{limiter::create_default_rate_limiter, spinner::create_spinner};
 
 const MINT_LAYOUT: u64 = 82;
 
@@ -103,7 +103,7 @@ pub fn mint_from_files(
     sign: bool,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     let path = Path::new(&list_dir).join("*.json");
     let pattern = path

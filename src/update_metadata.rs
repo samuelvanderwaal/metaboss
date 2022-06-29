@@ -21,7 +21,7 @@ use std::{
 
 use crate::data::{NFTData, UpdateNFTData, UpdateUriData};
 use crate::decode::{decode, get_metadata_pda};
-use crate::limiter::create_rate_limiter;
+use crate::limiter::create_default_rate_limiter;
 use crate::parse::{convert_local_to_remote_data, parse_cli_creators, parse_keypair};
 use crate::{constants::*, parse::parse_solana_config};
 
@@ -190,7 +190,7 @@ pub fn update_data_all(
     data_dir: &str,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
@@ -358,7 +358,7 @@ pub fn update_uri_all(
     json_file: &str,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
@@ -530,7 +530,7 @@ pub fn set_update_authority_all(
     keypair_payer_path: Option<String>,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     let file = File::open(json_file)?;
     let items: Vec<String> = serde_json::from_reader(file)?;
@@ -606,7 +606,7 @@ pub fn set_immutable_all(
     json_file: &str,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     let file = File::open(json_file)?;
     let items: Vec<String> = serde_json::from_reader(file)?;

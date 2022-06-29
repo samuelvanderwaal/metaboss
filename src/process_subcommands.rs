@@ -14,7 +14,10 @@ use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one};
 use crate::opt::*;
 use crate::parse::{parse_errors_code, parse_errors_file};
 use crate::sign::{sign_all, sign_one};
-use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
+use crate::snapshot::{
+    snapshot_cm_accounts, snapshot_holders, snapshot_indexed_holders, snapshot_indexed_mints,
+    snapshot_mints, SnapshotMintsArgs,
+};
 use crate::update_metadata::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
 
@@ -309,7 +312,7 @@ pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()>
     }
 }
 
-pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Result<()> {
+pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Result<()> {
     match commands {
         SnapshotSubcommands::Holders {
             update_authority,
@@ -327,6 +330,12 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
             v2,
             &output,
         ),
+        SnapshotSubcommands::IndexedHolders {
+            indexer,
+            api_key,
+            creator,
+            output,
+        } => snapshot_indexed_holders(indexer, api_key, &creator, &output).await,
         SnapshotSubcommands::CMAccounts {
             update_authority,
             output,
@@ -337,7 +346,22 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
             update_authority,
             v2,
             output,
-        } => snapshot_mints(client, &creator, position, update_authority, v2, output),
+        } => snapshot_mints(
+            client,
+            SnapshotMintsArgs {
+                creator,
+                position,
+                update_authority,
+                v2,
+                output,
+            },
+        ),
+        SnapshotSubcommands::IndexedMints {
+            indexer,
+            api_key,
+            creator,
+            output,
+        } => snapshot_indexed_mints(indexer, api_key, &creator, output).await,
     }
 }
 

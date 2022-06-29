@@ -23,7 +23,7 @@ use std::{
 
 use crate::decode::get_metadata_pda;
 use crate::derive::derive_cmv2_pda;
-use crate::limiter::create_rate_limiter;
+use crate::limiter::create_default_rate_limiter;
 use crate::parse::{is_only_one_option, parse_keypair};
 use crate::snapshot::get_cm_creator_accounts;
 use crate::{constants::*, parse::parse_solana_config};
@@ -117,7 +117,7 @@ pub fn sign_mint_accounts(
     mint_accounts: Vec<String>,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     mint_accounts
         .par_iter()

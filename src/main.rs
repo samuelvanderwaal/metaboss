@@ -81,7 +81,7 @@ async fn main() -> Result<()> {
         Command::Sign { sign_subcommands } => process_sign(&client, sign_subcommands)?,
         Command::Snapshot {
             snapshot_subcommands,
-        } => process_snapshot(&client, snapshot_subcommands)?,
+        } => process_snapshot(&client, snapshot_subcommands).await?,
         Command::ParseErrors {
             parse_errors_file_subcommands,
         } => process_parse_errors_file(parse_errors_file_subcommands)?,

@@ -121,3 +121,23 @@ Creates a JSON file in the output directory with the name format of `<CANDY_MACH
     "8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o"
 ]
 ```
+
+### Indexed Data
+
+Metaboss now has experimental support for running snapshot commands using off-chain, indexed data from https://theindex.io/. Other indexers or methods may be supported later. To use this feature, you need to sign up for a free account with TheIndex to get an API key.
+
+### Snapshot Indexed Mints
+
+#### Usage
+
+```bash
+metaboss snapshot indexed-mints --creator <FIRST_VERIFIED_CREATOR> --api-key <THEINDEX.IO_API_KEY>
+```
+
+### Snapshot Indexed Holders
+
+#### Usage
+
+```bash
+metaboss snapshot indexed-holders --creator <FIRST_VERIFIED_CREATOR> --api-key <THEINDEX.IO_API_KEY>
+```
