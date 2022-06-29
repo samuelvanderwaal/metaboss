@@ -672,7 +672,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long)]
         api_key: String,
 
-        /// Creator to filter accounts by (for CM v2 use --v2 if candy_machine account is passed)
+        /// First verified creator.
         #[structopt(short, long)]
         creator: String,
 
