@@ -2,8 +2,6 @@
 extern crate log;
 
 use anyhow::Result;
-use env_logger::{Builder, Target};
-use log::LevelFilter;
 use metaboss::constants::PUBLIC_RPC_URLS;
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 use solana_sdk::commitment_config::CommitmentConfig;
