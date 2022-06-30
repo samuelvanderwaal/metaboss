@@ -16,20 +16,11 @@ use metaboss::opt::*;
 use metaboss::parse::parse_solana_config;
 use metaboss::process_subcommands::*;
 
-fn setup_logging(log_level: String) -> Result<()> {
-    let level = LevelFilter::from_str(log_level.as_str())?;
-    Builder::new()
-        .filter_level(level)
-        .target(Target::Stdout)
-        .init();
-    Ok(())
-}
-
 #[tokio::main]
 async fn main() -> Result<()> {
     let options = Opt::from_args();
 
-    setup_logging(options.log_level)?;
+    solana_logger::setup_with_default("solana=off");
 
     let sol_config = parse_solana_config();
 
