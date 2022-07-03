@@ -544,7 +544,7 @@ pub fn set_update_authority_all(
 
         // If someone uses a json list that contains a mint account that has already
         //  been updated this will throw an error. We print that error and continue
-        let _ = match set_update_authority(
+        match set_update_authority(
             client,
             keypair_path.clone(),
             item,
@@ -620,7 +620,7 @@ pub fn set_immutable_all(
 
         // If someone uses a json list that contains a mint account that has already
         //  been updated this will throw an error. We print that error and continue
-        let _ = match set_immutable(client, keypair_path.clone(), item) {
+        match set_immutable(client, keypair_path.clone(), item) {
             Ok(_) => {}
             Err(error) => {
                 error!("Error occurred! {}", error)
