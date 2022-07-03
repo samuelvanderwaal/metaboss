@@ -87,13 +87,13 @@ git checkout main
 Install or build with Rust:
 
 ```bash
-cargo install --locked --path ./
+cargo install --path ./
 ```
 
 or
 
 ```bash
-cargo build --locked --release
+cargo build --release
 ```
 
 ## Set Up Your Solana Config
