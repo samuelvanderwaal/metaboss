@@ -19,11 +19,36 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::data::{NFTData, UpdateNFTData, UpdateUriData};
+use crate::data::{NFTData, UpdateNFTData, UpdateUriData,UpdateSellerFeesData};
 use crate::decode::{decode, get_metadata_pda};
 use crate::limiter::create_default_rate_limiter;
 use crate::parse::{convert_local_to_remote_data, parse_cli_creators, parse_keypair};
 use crate::{constants::*, parse::parse_solana_config};
+
+pub fn update_seller_fee_basis_points_all(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    json_file: &str,
+) -> Result<()> {
+    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
+    let handle = create_default_rate_limiter();
+    let f = File::open(json_file)?;
+    let update_fees: Vec<UpdateSellerFeesData> = serde_json::from_reader(f)?;
+    update_fees.par_iter().for_each(|data| {
+        let mut handle = handle.clone();
+        let keypair = keypair_path.clone();
+        if use_rate_limit {
+            handle.wait();
+        }
+        match update_seller_fee_basis_points_one(client, keypair, &data.mint_account, &data.new_seller_fee_basis_points) {
+            Ok(_) => (),
+            Err(e) => {
+                error!("Failed to update new_seller_fee_basis_points: {:?} error: {}", data, e);
+            }
+        }
+    });
+    Ok(())
+}
 
 pub fn update_seller_fee_basis_points_one(
     client: &RpcClient,

@@ -377,6 +377,14 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             &account,
             &new_seller_fee_basis_points,
         ),
+        UpdateSubcommands::SellerFeeBasisPointsAll {
+            keypair,
+            json_file
+        } => update_seller_fee_basis_points_all(
+            client,
+            keypair,
+            &json_file
+        ),
         UpdateSubcommands::Name {
             keypair,
             account,

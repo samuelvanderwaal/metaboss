@@ -752,6 +752,17 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         new_seller_fee_basis_points: u16,
     },
+    /// Update the metadata seller fee basis points on a list of mint accounts
+    #[structopt(name = "seller-fee-basis-points-all")]
+    SellerFeeBasisPointsAll {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// JSON file with list of mint accounts and new seller fee basis points
+        #[structopt(short = "u", long)]
+        json_file: String,
+    },
     /// Update the name field inside the data struct on an NFT
     #[structopt(name = "name")]
     Name {
