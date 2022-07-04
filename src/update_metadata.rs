@@ -19,7 +19,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::data::{NFTData, UpdateNFTData, UpdateUriData,UpdateSellerFeesData};
+use crate::data::{NFTData, UpdateNFTData, UpdateSellerFeesData, UpdateUriData};
 use crate::decode::{decode, get_metadata_pda};
 use crate::limiter::create_default_rate_limiter;
 use crate::parse::{convert_local_to_remote_data, parse_cli_creators, parse_keypair};
@@ -40,10 +40,18 @@ pub fn update_seller_fee_basis_points_all(
         if use_rate_limit {
             handle.wait();
         }
-        match update_seller_fee_basis_points_one(client, keypair, &data.mint_account, &data.new_seller_fee_basis_points) {
+        match update_seller_fee_basis_points_one(
+            client,
+            keypair,
+            &data.mint_account,
+            &data.new_seller_fee_basis_points,
+        ) {
             Ok(_) => (),
             Err(e) => {
-                error!("Failed to update new_seller_fee_basis_points: {:?} error: {}", data, e);
+                error!(
+                    "Failed to update new_seller_fee_basis_points: {:?} error: {}",
+                    data, e
+                );
             }
         }
     });
