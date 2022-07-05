@@ -77,7 +77,7 @@ async fn main() -> Result<()> {
         Command::Find { find_subcommands } => process_find(&client, find_subcommands)?,
         Command::Mint { mint_subcommands } => process_mint(&client, mint_subcommands)?,
         Command::Update { update_subcommands } => {
-            process_update(&client, update_subcommands).await?
+            process_update(client, update_subcommands).await?
         }
         Command::Set { set_subcommands } => process_set(&client, set_subcommands)?,
         Command::Sign { sign_subcommands } => process_sign(&client, sign_subcommands)?,

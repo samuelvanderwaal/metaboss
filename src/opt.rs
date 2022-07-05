@@ -757,7 +757,11 @@ pub enum UpdateSubcommands {
 
         /// Mint list
         #[structopt(short = "L", long)]
-        mint_list: String,
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
 
         /// New creators in the format: address1:share:verified,address2:share:verified,...
         #[structopt(short = "c", long)]

@@ -341,46 +341,58 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
     }
 }
 
-pub async fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result<()> {
+pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> Result<()> {
     match commands {
         UpdateSubcommands::Name {
             keypair,
             account,
             new_name,
-        } => update_name_one(client, keypair, &account, &new_name),
+        } => update_name_one(&client, keypair, &account, &new_name),
         UpdateSubcommands::Symbol {
             keypair,
             account,
             new_symbol,
-        } => update_symbol_one(client, keypair, &account, &new_symbol),
+        } => update_symbol_one(&client, keypair, &account, &new_symbol),
         UpdateSubcommands::Creators {
             keypair,
             account,
             new_creators,
             append,
-        } => update_creator_by_position(client, keypair, &account, &new_creators, append).await,
+        } => update_creator_by_position(&client, keypair, &account, &new_creators, append).await,
         UpdateSubcommands::CreatorsAll {
             keypair,
             mint_list,
+            cache_file,
             new_creators,
             append,
             retries,
-        } => update_creator_all(client, keypair, &mint_list, &new_creators, append, retries).await,
+        } => {
+            update_creator_all(UpdateCreatorAllArgs {
+                client,
+                keypair_path: keypair,
+                mint_list,
+                cache_file,
+                new_creators,
+                should_append: append,
+                retries,
+            })
+            .await
+        }
         UpdateSubcommands::Data {
             keypair,
             account,
             new_data_file,
-        } => update_data_one(client, keypair, &account, &new_data_file),
+        } => update_data_one(&client, keypair, &account, &new_data_file),
         UpdateSubcommands::DataAll { keypair, data_dir } => {
-            update_data_all(client, keypair, &data_dir)
+            update_data_all(&client, keypair, &data_dir)
         }
         UpdateSubcommands::Uri {
             keypair,
             account,
             new_uri,
-        } => update_uri_one(client, keypair, &account, &new_uri),
+        } => update_uri_one(&client, keypair, &account, &new_uri),
         UpdateSubcommands::UriAll { keypair, json_file } => {
-            update_uri_all(client, keypair, &json_file)
+            update_uri_all(&client, keypair, &json_file)
         }
     }
 }
