@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -34,6 +36,21 @@ pub struct NFTCreator {
     pub share: u8,
 }
 
+#[derive(Debug)]
+pub enum Indexers {
+    TheIndexIO,
+}
+
+impl FromStr for Indexers {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "the_index_io" => Ok(Indexers::TheIndexIO),
+            _ => Err(format!("Invalid method: {}", s)),
+        }
+    }
+}
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FoundError {
     pub domain: String,

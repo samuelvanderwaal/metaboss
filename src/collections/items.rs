@@ -2,6 +2,7 @@ use super::common::*;
 use crate::collections::data::*;
 use crate::derive::derive_metadata_pda;
 use crate::spinner::create_alt_spinner;
+use crate::theindexio::THE_INDEX_MAINNET;
 use borsh::BorshDeserialize;
 
 pub async fn get_collection_items(

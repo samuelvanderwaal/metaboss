@@ -29,7 +29,7 @@ Or get the binary yourself: [binary](https://github.com/samuelvanderwaal/metabos
 So you're a Rust dev. . .
 
 ```bash
-cargo install --locked metaboss
+cargo install metaboss
 ```
 
 ### See Usage Commands

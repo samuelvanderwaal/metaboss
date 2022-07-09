@@ -63,7 +63,7 @@ Linux, MacOS and Windows binaries available in [releases](https://github.com/sam
 ### Install From crates.io
 
 ```bash
-cargo install --locked metaboss
+cargo install metaboss
 ```
 
 ### Install From Source
@@ -98,7 +98,7 @@ git checkout main
 Install or build with Rust:
 
 ```bash
-cargo install --locked --path ./
+cargo install --path ./
 ```
 
 or
