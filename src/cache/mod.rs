@@ -86,6 +86,8 @@ pub struct RunActionArgs {
 pub trait Action {
     async fn action(args: RunActionArgs) -> Result<(), ActionError>;
 
+    fn name() -> &'static str;
+
     async fn run(args: BatchActionArgs) -> AnyResult<()> {
         if args.cache_file.is_some() && args.mint_list.is_some() {
             return Err(anyhow!(
@@ -94,7 +96,7 @@ pub trait Action {
         }
 
         // Default name, if we don't get an output_file option or a cache file.
-        let mut cache_file_name = String::from("mb-cache-update.json");
+        let mut cache_file_name = format!("mb-cache-{}.json", Self::name());
         let mut cache = Cache::new();
 
         let mut mint_list: Vec<String> = if let Some(mint_list) = args.mint_list {

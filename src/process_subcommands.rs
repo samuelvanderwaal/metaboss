@@ -393,7 +393,24 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             account,
             new_symbol,
-        } => update_symbol_one(&client, keypair, &account, &new_symbol),
+        } => update_symbol_one(client, keypair, account, new_symbol).await,
+        UpdateSubcommands::SymbolAll {
+            keypair,
+            mint_list,
+            cache_file,
+            new_symbol,
+            retries,
+        } => {
+            update_symbol_all(UpdateSymbolAllArgs {
+                client,
+                keypair,
+                mint_list,
+                cache_file,
+                new_symbol,
+                retries,
+            })
+            .await
+        }
         UpdateSubcommands::Creators {
             keypair,
             account,

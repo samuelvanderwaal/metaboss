@@ -794,13 +794,35 @@ pub enum UpdateSubcommands {
         account: String,
 
         /// New name for the metadata
-        #[structopt(short = "s", long)]
+        #[structopt(short, long)]
         new_symbol: String,
+    },
+    /// Update all symbols for a list of mint addresses.
+    SymbolAll {
+        /// Path to the update_authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint list
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// New symbol: a string up to 10 characters long
+        #[structopt(short, long)]
+        new_symbol: String,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
     },
     /// Update the creators field by position inside the data struct on an NFT
     #[structopt(name = "creators")]
     Creators {
-        /// Path to the creator's keypair file
+        /// Path to the update authority keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 
@@ -809,14 +831,14 @@ pub enum UpdateSubcommands {
         account: String,
 
         /// New creators in the format: address1:share:verified,address2:share:verified,...
-        #[structopt(short = "c", long)]
+        #[structopt(short = "n", long)]
         new_creators: String,
 
         /// Should be appended instead of overwriting
         #[structopt(short = "A", long = "append")]
         append: bool,
     },
-    /// Update all the creators fields for a list of mints
+    /// Update all the creators fields for a list of mint addresses.
     #[structopt(name = "creators-all")]
     CreatorsAll {
         /// Path to the creator's keypair file
@@ -832,7 +854,7 @@ pub enum UpdateSubcommands {
         cache_file: Option<String>,
 
         /// New creators in the format: address1:share:verified,address2:share:verified,...
-        #[structopt(short = "n", long)]
+        #[structopt(short, long)]
         new_creators: String,
 
         /// Should be appended instead of overwriting
