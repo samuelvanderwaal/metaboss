@@ -1,11 +1,10 @@
 use anyhow::Result;
-use mpl_token_metadata::{
-    id,
-    instruction::update_metadata_accounts,
-    state::{Data, Metadata},
-};
+use borsh::BorshDeserialize;
+use mpl_token_metadata::{id, instruction::burn_nft, state::Metadata};
 use retry::{delay::Exponential, retry};
-use solana_client::rpc_client::RpcClient;
+pub use solana_client::{
+    nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient,
+};
 use solana_sdk::{
     pubkey::Pubkey,
     signature::Signature,
@@ -16,9 +15,9 @@ use spl_associated_token_account::get_associated_token_address;
 use spl_token;
 use std::str::FromStr;
 
-use crate::derive::derive_metadata_pda;
+use crate::derive::{derive_edition_pda, derive_metadata_pda};
 use crate::parse::parse_keypair;
-use crate::{decode::decode, parse::parse_solana_config};
+use crate::parse::parse_solana_config;
 
 pub fn burn_one(
     client: &RpcClient,
@@ -30,7 +29,7 @@ pub fn burn_one(
     let keypair = parse_keypair(keypair_path, solana_opts);
     let owner_pubkey = keypair.pubkey();
 
-    let sig = burn(client, &keypair, &owner_pubkey, &mint_pubkey, 1)?;
+    let sig = burn(client, &keypair, owner_pubkey, mint_pubkey)?;
 
     println!("TxId: {}", sig);
 
@@ -40,49 +39,41 @@ pub fn burn_one(
 pub fn burn(
     client: &RpcClient,
     signer: &Keypair,
-    owner_pubkey: &Pubkey,
-    mint_pubkey: &Pubkey,
-    amount: u64,
+    owner_pubkey: Pubkey,
+    mint_pubkey: Pubkey,
 ) -> Result<Signature> {
-    let assoc = get_associated_token_address(owner_pubkey, mint_pubkey);
+    let assoc = get_associated_token_address(&owner_pubkey, &mint_pubkey);
     let spl_token_program_id = spl_token::id();
+    let metadata_pubkey = derive_metadata_pda(&mint_pubkey);
+    let master_edition = derive_edition_pda(&mint_pubkey);
 
-    let burn_ix = spl_token::instruction::burn(
-        &spl_token_program_id,
-        &assoc,
+    let md_account = client.get_account_data(&metadata_pubkey)?;
+    let metadata = Metadata::deserialize(&mut md_account.as_slice())?;
+
+    // Is it a verified collection item?
+    let collection_md = if let Some(collection) = metadata.collection {
+        if collection.verified {
+            let collection_metadata_pubkey = derive_metadata_pda(&collection.key);
+            Some(collection_metadata_pubkey)
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    let burn_ix = burn_nft(
+        id(),
+        metadata_pubkey,
+        owner_pubkey,
         mint_pubkey,
-        &signer.pubkey(),
-        &[&signer.pubkey()],
-        amount,
-    )?;
+        assoc,
+        master_edition,
+        spl_token_program_id,
+        collection_md,
+    );
 
-    let close_associated_token_account = spl_token::instruction::close_account(
-        &spl_token_program_id,
-        &assoc,
-        &signer.pubkey(),
-        &signer.pubkey(),
-        &[&signer.pubkey()],
-    )?;
-
-    let mut instructions = vec![burn_ix, close_associated_token_account];
-
-    let metadata: Metadata = decode(client, &mint_pubkey.to_string())?;
-
-    if signer.pubkey() == metadata.update_authority {
-        let metadata_pubkey = derive_metadata_pda(mint_pubkey);
-
-        let data = default_data();
-
-        let clear_metadata_account = update_metadata_accounts(
-            id(),
-            metadata_pubkey,
-            signer.pubkey(),
-            None,
-            Some(data),
-            None,
-        );
-        instructions.push(clear_metadata_account);
-    }
+    let instructions = vec![burn_ix];
 
     let recent_blockhash = client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
@@ -92,6 +83,7 @@ pub fn burn(
         recent_blockhash,
     );
 
+    println!("Sending tx...");
     // Send tx with retries.
     let res = retry(
         Exponential::from_millis_with_factor(250, 2.0).take(3),
@@ -100,14 +92,4 @@ pub fn burn(
     let sig = res?;
 
     Ok(sig)
-}
-
-fn default_data() -> Data {
-    Data {
-        name: String::default(),
-        symbol: String::default(),
-        uri: String::default(),
-        seller_fee_basis_points: u16::default(),
-        creators: None,
-    }
 }

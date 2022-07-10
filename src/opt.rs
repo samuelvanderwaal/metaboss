@@ -1,6 +1,6 @@
 use structopt::StructOpt;
 
-use crate::collections::GetCollectionItemsMethods;
+use crate::{collections::GetCollectionItemsMethods, data::Indexers};
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "Metaboss", about = "Metaplex NFT 'Swiss Army Knife' tool.")]
@@ -281,6 +281,21 @@ pub enum CollectionsSubcommands {
         #[structopt(short, long)]
         delegate_authority: String,
     },
+    /// Set the size of a collection that doesn't already have the size set.
+    #[structopt(name = "set-size")]
+    SetSize {
+        /// Path to the collection update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Collection mint address
+        #[structopt(short, long)]
+        collection_mint: String,
+
+        /// Collection size
+        #[structopt(short, long)]
+        size: u64,
+    },
     /// Migrate a collection to the on-chain standard.
     #[structopt(name = "migrate")]
     Migrate {
@@ -324,7 +339,7 @@ pub enum CollectionsSubcommands {
         method: GetCollectionItemsMethods,
 
         /// API Key for an indexer, if used.
-        #[structopt(short, long)]
+        #[structopt(short = "k", long)]
         api_key: Option<String>,
     },
     /// Check a list of items belong to a collection parent.
@@ -661,6 +676,25 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
+    /// Snapshot holders from an indexer.
+    #[structopt(name = "indexed-holders")]
+    IndexedHolders {
+        /// Indexer to use for getting collection items. See docs.
+        #[structopt(short, long, default_value = "the_index_io")]
+        indexer: Indexers,
+
+        /// API key for the indexer.
+        #[structopt(short, long)]
+        api_key: String,
+
+        /// First verified creator.
+        #[structopt(short, long)]
+        creator: String,
+
+        /// Path to directory to save output files.
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
     ///Snapshot all candy machine config and state accounts for a given update_authority
     #[structopt(name = "cm-accounts")]
     CMAccounts {
@@ -695,10 +729,44 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
+    /// Snapshot mints from an indexer.
+    #[structopt(name = "indexed-mints")]
+    IndexedMints {
+        /// Indexer to use for getting collection items. See docs.
+        #[structopt(short, long, default_value = "the_index_io")]
+        indexer: Indexers,
+
+        /// API key for the indexer.
+        #[structopt(short, long)]
+        api_key: String,
+
+        /// First verified creator.
+        #[structopt(short, long)]
+        creator: String,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]
 pub enum UpdateSubcommands {
+    /// Update the seller fee basis points field inside the data struct on an NFT
+    #[structopt(name = "seller-fee-basis-points")]
+    SellerFeeBasisPoints {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+
+        /// New seller fee basis points for the metadata
+        #[structopt(short, long)]
+        new_seller_fee_basis_points: u16,
+    },
     /// Update the name field inside the data struct on an NFT
     #[structopt(name = "name")]
     Name {

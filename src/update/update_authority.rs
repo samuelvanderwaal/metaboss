@@ -8,7 +8,7 @@ use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
 use std::{fs::File, str::FromStr};
 
 use crate::decode::get_metadata_pda;
-use crate::limiter::create_rate_limiter;
+use crate::limiter::create_default_rate_limiter;
 use crate::parse::parse_keypair;
 use crate::{constants::*, parse::parse_solana_config};
 
@@ -65,7 +65,7 @@ pub fn set_update_authority_all(
     keypair_payer_path: Option<String>,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     let file = File::open(json_file)?;
     let items: Vec<String> = serde_json::from_reader(file)?;

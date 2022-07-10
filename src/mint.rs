@@ -36,7 +36,7 @@ use crate::sign::sign_one;
 use crate::{constants::*, parse::convert_local_to_remote_data};
 use crate::{data::NFTData, derive::derive_metadata_pda};
 use crate::{find::find_missing_editions, parse::*};
-use crate::{limiter::create_rate_limiter, spinner::create_spinner};
+use crate::{limiter::create_default_rate_limiter, spinner::create_spinner};
 
 const MINT_LAYOUT: u64 = 82;
 
@@ -103,7 +103,7 @@ pub fn mint_from_files(
     sign: bool,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     let path = Path::new(&list_dir).join("*.json");
     let pattern = path
@@ -422,14 +422,21 @@ fn mint_edition(
     )?;
 
     // Derive associated token account
-    let assoc = get_associated_token_address(&receiver, &metadata_mint);
+    let assoc = get_associated_token_address(&funder.pubkey(), &metadata_mint);
     let new_assoc = get_associated_token_address(&receiver, &new_mint);
 
     let create_assoc_account_ix =
         create_associated_token_account(&funder.pubkey(), &receiver, &new_mint);
 
     // Mint to instruction
-    let mint_to_ix = mint_to(&TOKEN_PROGRAM_ID, &new_mint, &new_assoc, &receiver, &[], 1)?;
+    let mint_to_ix = mint_to(
+        &TOKEN_PROGRAM_ID,
+        &new_mint,
+        &new_assoc,
+        &funder.pubkey(),
+        &[],
+        1,
+    )?;
 
     let mint_editions_ix = mint_new_edition_from_master_edition_via_token(
         TOKEN_METADATA_PROGRAM_ID,
@@ -439,7 +446,7 @@ fn mint_edition(
         new_mint,
         funder.pubkey(),
         funder.pubkey(),
-        receiver,
+        funder.pubkey(),
         assoc,
         funder.pubkey(),
         metadata,

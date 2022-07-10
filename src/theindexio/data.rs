@@ -1,4 +1,5 @@
-use super::common::*;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CollectionMetadata {
@@ -61,12 +62,12 @@ pub struct CollectionNft {
 pub struct JRPCRequest {
     method: String,
     jsonrpc: String,
-    params: Vec<String>,
+    params: Value,
     id: u8,
 }
 
 impl JRPCRequest {
-    pub fn new(method: &str, params: Vec<String>) -> Self {
+    pub fn new(method: &str, params: Value) -> Self {
         Self {
             method: method.to_string(),
             jsonrpc: "2.0".to_string(),
@@ -77,26 +78,48 @@ impl JRPCRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct RpcResponse {
+pub struct GPAResponse {
     pub jsonrpc: String,
     pub id: u8,
-    pub result: Vec<CollectionNft>,
+    pub result: Vec<GPAResult>,
 }
 
-#[derive(Debug)]
-pub enum GetCollectionItemsMethods {
-    TheIndexIO,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GPAResult {
+    pub pubkey: String,
+    pub account: IndexIoAccount,
 }
 
-impl FromStr for GetCollectionItemsMethods {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "the_index_io" => Ok(GetCollectionItemsMethods::TheIndexIO),
-            _ => Err(format!("Invalid method: {}", s)),
-        }
-    }
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TLAResult {
+    pub context: Context,
+    pub value: Vec<LargestAccount>,
 }
 
-pub const PARALLEL_LIMIT: usize = 50;
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Context {
+    pub slot: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LargestAccount {
+    pub address: String,
+    pub amount: String,
+    pub decimals: u8,
+    #[serde(rename = "uiAmount")]
+    pub ui_amount: f32,
+    #[serde(rename = "uiAmountString")]
+    pub ui_amount_string: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct IndexIoAccount {
+    pub data: Value,
+    pub executable: bool,
+    pub lamports: u64,
+    pub owner: String,
+    #[serde(rename = "rentEpoch")]
+    pub rent_epoch: u64,
+}
+
+pub const THE_INDEX_MAINNET: &str = "https://rpc.theindex.io/mainnet-beta";

@@ -1,6 +1,6 @@
 use crate::data::UpdateUriData;
 use crate::decode::{decode, get_metadata_pda};
-use crate::limiter::create_rate_limiter;
+use crate::limiter::create_default_rate_limiter;
 use crate::parse::parse_keypair;
 use crate::{constants::*, parse::parse_solana_config};
 use anyhow::Result;
@@ -35,7 +35,7 @@ pub fn update_uri_all(
     json_file: &str,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_rate_limiter();
+    let handle = create_default_rate_limiter();
 
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);

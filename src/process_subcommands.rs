@@ -4,8 +4,8 @@ use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_cl
 use crate::burn::burn_one;
 use crate::collections::{
     approve_delegate, check_collection_items, get_collection_items, migrate_collection,
-    revoke_delegate, set_and_verify_nft_collection, unverify_nft_collection, verify_nft_collection,
-    MigrateArgs,
+    revoke_delegate, set_and_verify_nft_collection, set_size, unverify_nft_collection,
+    verify_nft_collection, MigrateArgs,
 };
 use crate::decode::{decode_master_edition, decode_metadata};
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
@@ -14,7 +14,10 @@ use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one};
 use crate::opt::*;
 use crate::parse::{parse_errors_code, parse_errors_file};
 use crate::sign::{sign_all, sign_one};
-use crate::snapshot::{snapshot_cm_accounts, snapshot_holders, snapshot_mints};
+use crate::snapshot::{
+    snapshot_cm_accounts, snapshot_holders, snapshot_indexed_holders, snapshot_indexed_mints,
+    snapshot_mints, SnapshotMintsArgs,
+};
 use crate::update::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
 
@@ -116,6 +119,12 @@ pub async fn process_collections(
             delegate_authority,
         } => revoke_delegate(client, keypair, collection_mint, delegate_authority),
 
+        CollectionsSubcommands::SetSize {
+            keypair,
+            collection_mint,
+            size,
+        } => set_size(client, keypair, collection_mint, size),
+
         CollectionsSubcommands::Migrate {
             keypair,
             mint_address,
@@ -143,6 +152,7 @@ pub async fn process_collections(
             method,
             api_key,
         } => get_collection_items(collection_mint, method, api_key).await,
+
         CollectionsSubcommands::CheckItems {
             collection_mint,
             item_list,
@@ -309,7 +319,7 @@ pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()>
     }
 }
 
-pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Result<()> {
+pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Result<()> {
     match commands {
         SnapshotSubcommands::Holders {
             update_authority,
@@ -327,6 +337,12 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
             v2,
             &output,
         ),
+        SnapshotSubcommands::IndexedHolders {
+            indexer,
+            api_key,
+            creator,
+            output,
+        } => snapshot_indexed_holders(indexer, api_key, &creator, &output).await,
         SnapshotSubcommands::CMAccounts {
             update_authority,
             output,
@@ -337,12 +353,37 @@ pub fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Re
             update_authority,
             v2,
             output,
-        } => snapshot_mints(client, &creator, position, update_authority, v2, output),
+        } => snapshot_mints(
+            client,
+            SnapshotMintsArgs {
+                creator,
+                position,
+                update_authority,
+                v2,
+                output,
+            },
+        ),
+        SnapshotSubcommands::IndexedMints {
+            indexer,
+            api_key,
+            creator,
+            output,
+        } => snapshot_indexed_mints(indexer, api_key, &creator, output).await,
     }
 }
 
 pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> Result<()> {
     match commands {
+        UpdateSubcommands::SellerFeeBasisPoints {
+            keypair,
+            account,
+            new_seller_fee_basis_points,
+        } => update_seller_fee_basis_points_one(
+            &client,
+            keypair,
+            &account,
+            &new_seller_fee_basis_points,
+        ),
         UpdateSubcommands::Name {
             keypair,
             account,
