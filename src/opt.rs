@@ -14,7 +14,7 @@ pub struct Opt {
     pub timeout: u64,
 
     /// Log level
-    #[structopt(short, long, global = true, default_value = "warn")]
+    #[structopt(short, long, global = true, default_value = "off")]
     pub log_level: String,
 
     #[structopt(subcommand)]
@@ -832,7 +832,7 @@ pub enum UpdateSubcommands {
         cache_file: Option<String>,
 
         /// New creators in the format: address1:share:verified,address2:share:verified,...
-        #[structopt(short = "c", long)]
+        #[structopt(short = "n", long)]
         new_creators: String,
 
         /// Should be appended instead of overwriting

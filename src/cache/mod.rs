@@ -174,7 +174,7 @@ pub trait Action {
                 mint_list = cache.keys().map(|m| m.to_string()).collect();
             } else if update_failed.is_empty() {
                 // None failed so we exit the loop.
-                println!("All items successfully update!");
+                println!("All actions successfully run!");
                 break;
             } else {
                 println!("Reached max retries. Writing remaining items to cache.");
