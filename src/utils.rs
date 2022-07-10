@@ -54,9 +54,7 @@ pub async fn async_send_and_confirm_transaction(
     Ok(sig.to_string())
 }
 
-pub async fn retry_with_cache() {
-    
-}
+pub async fn retry_with_cache() {}
 
 pub fn generate_phf_map_var(var_name: &str) -> String {
     format!("pub static {var_name}: phf::Map<&'static str, &'static str> = phf_map! {{\n")
