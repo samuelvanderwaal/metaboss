@@ -69,6 +69,7 @@ pub struct CacheItem {
 pub struct BatchActionArgs {
     pub client: RpcClient,
     pub keypair: Keypair,
+    pub payer: Option<Keypair>,
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
     pub new_value: String,
@@ -78,6 +79,7 @@ pub struct BatchActionArgs {
 pub struct RunActionArgs {
     pub client: Arc<RpcClient>,
     pub keypair: Arc<Keypair>,
+    pub payer: Arc<Keypair>,
     pub mint_account: String,
     pub new_value: String,
 }
@@ -127,14 +129,19 @@ pub trait Action {
 
         let mut counter = 0u8;
         let client = Arc::new(args.client);
-
         let keypair = Arc::new(args.keypair);
+        let payer = if let Some(payer) = args.payer {
+            Arc::new(payer)
+        } else {
+            keypair.clone()
+        };
 
         loop {
             let remaining_mints = mint_list.clone();
 
             info!("Sending network requests...");
             let spinner = create_alt_spinner("Sending network requests....");
+
             // Create a vector of futures to execute.
             let update_tasks: Vec<_> = remaining_mints
                 .into_iter()
@@ -142,6 +149,7 @@ pub trait Action {
                     tokio::spawn(Self::action(RunActionArgs {
                         client: client.clone(),
                         keypair: keypair.clone(),
+                        payer: payer.clone(),
                         mint_account: mint_address,
                         new_value: args.new_value.clone(),
                     }))
