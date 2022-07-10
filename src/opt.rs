@@ -538,8 +538,8 @@ pub enum MintSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum SetSubcommands {
-    /// Set primary sale happened to true
-    #[structopt(name = "primary-sale-happened")]
+    /// Set primary sale happened to true, enabling secondary sale royalties.
+    #[structopt(name = "secondary-sale")]
     PrimarySaleHappened {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
@@ -548,6 +548,25 @@ pub enum SetSubcommands {
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
         account: String,
+    },
+    /// Set primary sale happened to true for a list of mint addresses, enabling secondary sale royalties.
+    #[structopt(name = "secondary-sale-all")]
+    PrimarySaleHappenedAll {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint list
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
     },
     /// Set update authority to a new account
     #[structopt(name = "update-authority")]

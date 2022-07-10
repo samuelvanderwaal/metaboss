@@ -269,10 +269,25 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
     }
 }
 
-pub fn process_set(client: &RpcClient, commands: SetSubcommands) -> Result<()> {
+pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<()> {
     match commands {
         SetSubcommands::PrimarySaleHappened { keypair, account } => {
-            set_primary_sale_happened(client, keypair, &account)
+            set_primary_sale_happened_one(client, keypair, &account)
+        }
+        SetSubcommands::PrimarySaleHappenedAll {
+            keypair,
+            mint_list,
+            cache_file,
+            retries,
+        } => {
+            set_primary_sale_happened_all(SetPrimarySaleHappenedAllArgs {
+                client,
+                keypair,
+                mint_list,
+                cache_file,
+                retries,
+            })
+            .await
         }
         SetSubcommands::UpdateAuthority {
             keypair,
@@ -280,7 +295,7 @@ pub fn process_set(client: &RpcClient, commands: SetSubcommands) -> Result<()> {
             new_update_authority,
             keypair_payer,
         } => set_update_authority(
-            client,
+            &client,
             keypair,
             &account,
             &new_update_authority,
@@ -292,17 +307,17 @@ pub fn process_set(client: &RpcClient, commands: SetSubcommands) -> Result<()> {
             new_update_authority,
             keypair_payer,
         } => set_update_authority_all(
-            client,
+            &client,
             keypair,
             &mint_accounts_file,
             &new_update_authority,
             keypair_payer,
         ),
-        SetSubcommands::Immutable { keypair, account } => set_immutable(client, keypair, &account),
+        SetSubcommands::Immutable { keypair, account } => set_immutable(&client, keypair, &account),
         SetSubcommands::ImmutableAll {
             keypair,
             mint_accounts_file,
-        } => set_immutable_all(client, keypair, &mint_accounts_file),
+        } => set_immutable_all(&client, keypair, &mint_accounts_file),
     }
 }
 
