@@ -2,7 +2,6 @@ use anyhow::{anyhow, Result as AnyResult};
 use async_trait::async_trait;
 use log::warn;
 use mpl_token_metadata::state::DataV2;
-use serde::{Deserialize, Serialize};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::signature::Keypair;
 use std::cmp;
@@ -145,11 +144,6 @@ pub struct UpdateCreatorAllArgs {
     pub retries: u8,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CacheItem {
-    pub error: Option<String>,
-}
-
 pub async fn update_creator_all(args: UpdateCreatorAllArgs) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair_path, solana_opts);
@@ -171,6 +165,10 @@ pub struct UpdateCreatorAll {}
 
 #[async_trait]
 impl Action for UpdateCreatorAll {
+    fn name() -> &'static str {
+        "update-creator-all"
+    }
+
     async fn action(args: RunActionArgs) -> Result<(), ActionError> {
         update_creator(
             args.client,
