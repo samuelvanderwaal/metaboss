@@ -1,19 +1,4 @@
-use anyhow::{anyhow, Result as AnyResult};
-use async_trait::async_trait;
-use log::warn;
-use mpl_token_metadata::state::DataV2;
-use solana_client::rpc_client::RpcClient;
-use solana_sdk::signature::Keypair;
-use std::cmp;
-use std::sync::Arc;
-
-use crate::cache::{Action, BatchActionArgs, RunActionArgs};
-use crate::decode::decode;
-use crate::errors::ActionError;
-use crate::parse::parse_solana_config;
-use crate::parse::{parse_cli_creators, parse_keypair};
-
-use super::update_data;
+use super::{common::*, update_data};
 
 pub type UpdateResults = Vec<Result<(), ActionError>>;
 

@@ -313,11 +313,24 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             &new_update_authority,
             keypair_payer,
         ),
-        SetSubcommands::Immutable { keypair, account } => set_immutable(&client, keypair, &account),
+        SetSubcommands::Immutable { keypair, account } => {
+            set_immutable_one(&client, keypair, &account)
+        }
         SetSubcommands::ImmutableAll {
             keypair,
-            mint_accounts_file,
-        } => set_immutable_all(&client, keypair, &mint_accounts_file),
+            mint_list,
+            cache_file,
+            retries,
+        } => {
+            set_immutable_all(SetImmutableAllArgs {
+                client,
+                keypair,
+                mint_list,
+                cache_file,
+                retries,
+            })
+            .await
+        }
     }
 }
 

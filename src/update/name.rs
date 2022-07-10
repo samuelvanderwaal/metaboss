@@ -1,19 +1,11 @@
-use anyhow::Result;
-use mpl_token_metadata::state::DataV2;
-use solana_client::rpc_client::RpcClient;
-
-use crate::decode::decode;
-use crate::parse::parse_keypair;
-use crate::parse::parse_solana_config;
-
-use super::update_data;
+use super::{common::*, update_data};
 
 pub fn update_name_one(
     client: &RpcClient,
     keypair: Option<String>,
     mint_account: &str,
     new_name: &str,
-) -> Result<()> {
+) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let parsed_keypair = parse_keypair(keypair, solana_opts);
 
