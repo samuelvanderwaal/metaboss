@@ -133,9 +133,13 @@ pub async fn update_creator_all(args: UpdateCreatorAllArgs) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair_path, solana_opts);
 
+    // We don't support an optional payer for this action currently.
+    let payer = None;
+
     let args = BatchActionArgs {
         client: args.client,
         keypair,
+        payer,
         mint_list: args.mint_list,
         cache_file: args.cache_file,
         new_value: args.new_creators,

@@ -1,40 +1,44 @@
-use anyhow::Result;
-use indicatif::ParallelProgressIterator;
-use log::{error, info};
-use mpl_token_metadata::instruction::update_metadata_accounts_v2;
-use rayon::prelude::*;
-use solana_client::rpc_client::RpcClient;
-use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
-use std::{fs::File, str::FromStr};
+use super::common::*;
 
-use crate::decode::get_metadata_pda;
-use crate::limiter::create_default_rate_limiter;
-use crate::parse::parse_keypair;
-use crate::{constants::*, parse::parse_solana_config};
+pub struct SetUpdateAuthorityAllArgs {
+    pub client: RpcClient,
+    pub keypair: Option<String>,
+    pub payer: Option<String>,
+    pub mint_list: Option<String>,
+    pub cache_file: Option<String>,
+    pub new_authority: String,
+    pub retries: u8,
+}
 
-pub fn set_update_authority(
+pub struct SetUpdateAuthorityArgs {
+    pub client: Arc<RpcClient>,
+    pub keypair: Arc<Keypair>,
+    pub payer: Arc<Keypair>,
+    pub mint_account: String,
+    pub new_authority: String,
+}
+
+pub fn set_update_authority_one(
     client: &RpcClient,
     keypair_path: Option<String>,
     mint_account: &str,
     new_update_authority: &str,
     keypair_payer_path: Option<String>,
-) -> Result<()> {
+) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path.clone(), solana_opts);
 
     let solana_opts = parse_solana_config();
     let keypair_payer = parse_keypair(keypair_payer_path.or(keypair_path), solana_opts);
 
-    let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint_pubkey = Pubkey::from_str(mint_account)?;
-
     let update_authority = keypair.pubkey();
     let new_update_authority = Pubkey::from_str(new_update_authority)?;
 
     let metadata_account = get_metadata_pda(mint_pubkey);
 
     let ix = update_metadata_accounts_v2(
-        program_id,
+        TOKEN_METADATA_PROGRAM_ID,
         metadata_account,
         update_authority,
         Some(new_update_authority),
@@ -57,41 +61,83 @@ pub fn set_update_authority(
     Ok(())
 }
 
-pub fn set_update_authority_all(
-    client: &RpcClient,
-    keypair_path: Option<String>,
-    json_file: &str,
-    new_update_authority: &str,
-    keypair_payer_path: Option<String>,
-) -> Result<()> {
-    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_default_rate_limiter();
+async fn set_update_authority(args: SetUpdateAuthorityArgs) -> Result<(), ActionError> {
+    let mint_pubkey = Pubkey::from_str(&args.mint_account).expect("Invalid mint account");
+    let update_authority = args.keypair.pubkey();
+    let new_update_authority =
+        Pubkey::from_str(&args.new_authority).expect("Invalid new update authority");
 
-    let file = File::open(json_file)?;
-    let items: Vec<String> = serde_json::from_reader(file)?;
+    let metadata_account = get_metadata_pda(mint_pubkey);
 
-    info!("Setting update_authority...");
-    items.par_iter().progress().for_each(|item| {
-        let mut handle = handle.clone();
-        if use_rate_limit {
-            handle.wait();
-        }
+    let ix = update_metadata_accounts_v2(
+        TOKEN_METADATA_PROGRAM_ID,
+        metadata_account,
+        update_authority,
+        Some(new_update_authority),
+        None,
+        None,
+        None,
+    );
+    let recent_blockhash = args
+        .client
+        .get_latest_blockhash()
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
+    let tx = Transaction::new_signed_with_payer(
+        &[ix],
+        Some(&args.keypair.pubkey()),
+        &[&*args.keypair, &*args.payer],
+        recent_blockhash,
+    );
 
-        // If someone uses a json list that contains a mint account that has already
-        //  been updated this will throw an error. We print that error and continue
-        match set_update_authority(
-            client,
-            keypair_path.clone(),
-            item,
-            new_update_authority,
-            keypair_payer_path.clone(),
-        ) {
-            Ok(_) => {}
-            Err(error) => {
-                error!("Error occurred! {}", error)
-            }
-        };
-    });
+    let sig = args
+        .client
+        .send_and_confirm_transaction(&tx)
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
+    info!("Tx sig: {:?}", sig);
+
+    Ok(())
+}
+
+pub struct SetUpdateAuthorityAll {}
+
+#[async_trait]
+impl Action for SetUpdateAuthorityAll {
+    fn name() -> &'static str {
+        "set-update-authority-all"
+    }
+
+    async fn action(args: RunActionArgs) -> Result<(), ActionError> {
+        // Set Update Authority can have an optional payer.
+        set_update_authority(SetUpdateAuthorityArgs {
+            client: args.client.clone(),
+            keypair: args.keypair.clone(),
+            payer: args.payer.clone(),
+            mint_account: args.mint_account,
+            new_authority: args.new_value,
+        })
+        .await
+    }
+}
+
+pub async fn set_update_authority_all(args: SetUpdateAuthorityAllArgs) -> AnyResult<()> {
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(args.keypair, solana_opts);
+
+    let solana_opts = parse_solana_config();
+    let payer = args
+        .payer
+        .map(|path| parse_keypair(Some(path), solana_opts));
+
+    let args = BatchActionArgs {
+        client: args.client,
+        keypair,
+        payer,
+        mint_list: args.mint_list,
+        cache_file: args.cache_file,
+        new_value: args.new_authority,
+        retries: args.retries,
+    };
+    SetUpdateAuthorityAll::run(args).await?;
 
     Ok(())
 }

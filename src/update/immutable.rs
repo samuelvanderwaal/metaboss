@@ -107,9 +107,13 @@ pub async fn set_immutable_all(args: SetImmutableAllArgs) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
+    // We don't support an optional payer for this action currently.
+    let payer = None;
+
     let args = BatchActionArgs {
         client: args.client,
         keypair,
+        payer,
         mint_list: args.mint_list,
         cache_file: args.cache_file,
         new_value: "".to_string(),

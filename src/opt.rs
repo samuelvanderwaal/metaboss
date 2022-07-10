@@ -580,7 +580,7 @@ pub enum SetSubcommands {
         account: String,
 
         /// New update authority address
-        #[structopt(short = "u", long)]
+        #[structopt(short, long)]
         new_update_authority: String,
 
         //Path to the payers's keypair file
@@ -594,17 +594,25 @@ pub enum SetSubcommands {
         #[structopt(short, long)]
         keypair: Option<String>,
 
-        /// Path to JSON mint accounts file
-        #[structopt(short = "a", long)]
-        mint_accounts_file: String,
+        /// Path to the optional payers's keypair file
+        #[structopt(short, long)]
+        payer: Option<String>,
+
+        /// Path to mint list file
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
 
         /// New update authority address
-        #[structopt(short = "u", long)]
-        new_update_authority: String,
+        #[structopt(short, long)]
+        new_authority: String,
 
-        //Path to the payers's keypair file
-        #[structopt(short = "p", long)]
-        keypair_payer: Option<String>,
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
     },
     /// Set is-mutable to false, preventing any future updates to the NFT
     #[structopt(name = "immutable")]
