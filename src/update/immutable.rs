@@ -1,33 +1,33 @@
-use crate::decode::get_metadata_pda;
-use crate::limiter::create_default_rate_limiter;
-use crate::parse::parse_keypair;
-use crate::{constants::*, parse::parse_solana_config};
-use anyhow::Result;
-use indicatif::ParallelProgressIterator;
-use log::{error, info};
-use mpl_token_metadata::instruction::update_metadata_accounts_v2;
-use rayon::prelude::*;
-use solana_client::rpc_client::RpcClient;
-use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
-use std::{fs::File, str::FromStr};
+use super::common::*;
 
-pub fn set_immutable(
+struct SetImmutableArgs {
+    client: Arc<RpcClient>,
+    keypair: Arc<Keypair>,
+    mint_account: String,
+}
+
+pub struct SetImmutableAllArgs {
+    pub client: RpcClient,
+    pub keypair: Option<String>,
+    pub mint_list: Option<String>,
+    pub cache_file: Option<String>,
+    pub retries: u8,
+}
+
+pub fn set_immutable_one(
     client: &RpcClient,
     keypair_path: Option<String>,
     account: &str,
-) -> Result<()> {
+) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
-    let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint_account = Pubkey::from_str(account)?;
-
     let update_authority = keypair.pubkey();
-
     let metadata_account = get_metadata_pda(mint_account);
 
     let ix = update_metadata_accounts_v2(
-        program_id,
+        TOKEN_METADATA_PROGRAM_ID,
         metadata_account,
         update_authority,
         None,
@@ -50,33 +50,72 @@ pub fn set_immutable(
     Ok(())
 }
 
-pub fn set_immutable_all(
-    client: &RpcClient,
-    keypair_path: Option<String>,
-    json_file: &str,
-) -> Result<()> {
-    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_default_rate_limiter();
+async fn set_immutable(args: SetImmutableArgs) -> Result<(), ActionError> {
+    let mint_pubkey = Pubkey::from_str(&args.mint_account).expect("Invalid mint pubkey");
+    let update_authority = args.keypair.pubkey();
+    let metadata_account = get_metadata_pda(mint_pubkey);
 
-    let file = File::open(json_file)?;
-    let items: Vec<String> = serde_json::from_reader(file)?;
+    let ix = update_metadata_accounts_v2(
+        TOKEN_METADATA_PROGRAM_ID,
+        metadata_account,
+        update_authority,
+        None,
+        None,
+        None,
+        Some(false),
+    );
+    let recent_blockhash = args
+        .client
+        .get_latest_blockhash()
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
+    let tx = Transaction::new_signed_with_payer(
+        &[ix],
+        Some(&update_authority),
+        &[&*args.keypair],
+        recent_blockhash,
+    );
 
-    info!("Setting immutable...");
-    items.par_iter().progress().for_each(|item| {
-        let mut handle = handle.clone();
-        if use_rate_limit {
-            handle.wait();
-        }
+    let sig = args
+        .client
+        .send_and_confirm_transaction(&tx)
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
-        // If someone uses a json list that contains a mint account that has already
-        //  been updated this will throw an error. We print that error and continue
-        match set_immutable(client, keypair_path.clone(), item) {
-            Ok(_) => {}
-            Err(error) => {
-                error!("Error occurred! {}", error)
-            }
-        };
-    });
+    info!("Tx sig: {:?}", sig);
+
+    Ok(())
+}
+
+pub struct SetImmutableAll {}
+
+#[async_trait]
+impl Action for SetImmutableAll {
+    fn name() -> &'static str {
+        "set-immutable-all"
+    }
+
+    async fn action(args: RunActionArgs) -> Result<(), ActionError> {
+        set_immutable(SetImmutableArgs {
+            client: args.client.clone(),
+            keypair: args.keypair.clone(),
+            mint_account: args.mint_account.clone(),
+        })
+        .await
+    }
+}
+
+pub async fn set_immutable_all(args: SetImmutableAllArgs) -> AnyResult<()> {
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(args.keypair, solana_opts);
+
+    let args = BatchActionArgs {
+        client: args.client,
+        keypair,
+        mint_list: args.mint_list,
+        cache_file: args.cache_file,
+        new_value: "".to_string(),
+        retries: args.retries,
+    };
+    SetImmutableAll::run(args).await?;
 
     Ok(())
 }

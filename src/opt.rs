@@ -467,7 +467,7 @@ pub enum MintSubcommands {
     /// Mint one or more editions from a Master NFT.
     #[structopt(name = "editions")]
     Editions {
-        /// Path to the update_authority keypair file
+        /// Path to the update_authority's keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 
@@ -500,7 +500,7 @@ pub enum MintSubcommands {
     #[structopt(name = "list")]
     /// Mint a list of NFTs from a directory of JSON files
     List {
-        /// Path to the update_authority keypair file
+        /// Path to the update_authority's keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 
@@ -541,7 +541,7 @@ pub enum SetSubcommands {
     /// Set primary sale happened to true, enabling secondary sale royalties.
     #[structopt(name = "secondary-sale")]
     PrimarySaleHappened {
-        /// Path to the creator's keypair file
+        /// Path to the update authority's keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 
@@ -552,7 +552,7 @@ pub enum SetSubcommands {
     /// Set primary sale happened to true for a list of mint addresses, enabling secondary sale royalties.
     #[structopt(name = "secondary-sale-all")]
     PrimarySaleHappenedAll {
-        /// Path to the creator's keypair file
+        /// Path to the update authority's keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 
@@ -571,7 +571,7 @@ pub enum SetSubcommands {
     /// Set update authority to a new account
     #[structopt(name = "update-authority")]
     UpdateAuthority {
-        /// Path to the creator's keypair file
+        /// Path to the update authority's keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 
@@ -590,7 +590,7 @@ pub enum SetSubcommands {
     /// Set update authority on multiple accounts to a new account
     #[structopt(name = "update-authority-all")]
     UpdateAuthorityAll {
-        /// Path to the creator's keypair file
+        /// Path to the update authority's keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 
@@ -609,7 +609,7 @@ pub enum SetSubcommands {
     /// Set is-mutable to false, preventing any future updates to the NFT
     #[structopt(name = "immutable")]
     Immutable {
-        /// Path to the creator's keypair file
+        /// Path to the update authority's keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 
@@ -618,13 +618,21 @@ pub enum SetSubcommands {
         account: String,
     },
     ImmutableAll {
-        /// Path to the creator's keypair file
+        /// Path to the update authority's keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 
-        /// Path to JSON mint accounts file
+        /// Mint list
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
         #[structopt(short, long)]
-        mint_accounts_file: String,
+        cache_file: Option<String>,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
     },
 }
 

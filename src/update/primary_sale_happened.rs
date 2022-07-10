@@ -1,19 +1,4 @@
-use crate::cache::{Action, BatchActionArgs, RunActionArgs};
-use crate::decode::get_metadata_pda;
-use crate::errors::ActionError;
-use crate::parse::parse_keypair;
-use crate::{constants::*, parse::parse_solana_config};
-use anyhow::Result;
-use async_trait::async_trait;
-use log::info;
-use mpl_token_metadata::{
-    instruction::update_metadata_accounts_v2, ID as TOKEN_METADATA_PROGRAM_ID,
-};
-use solana_client::rpc_client::RpcClient;
-use solana_sdk::signature::Keypair;
-use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::Transaction};
-use std::str::FromStr;
-use std::sync::Arc;
+use super::common::*;
 
 pub struct SetPrimarySaleHappenedAllArgs {
     pub client: RpcClient,
@@ -33,19 +18,16 @@ pub fn set_primary_sale_happened_one(
     client: RpcClient,
     keypair_path: Option<String>,
     mint_account: &str,
-) -> Result<()> {
+) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
-    let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint_pubkey = Pubkey::from_str(mint_account)?;
-
     let update_authority = keypair.pubkey();
-
     let metadata_account = get_metadata_pda(mint_pubkey);
 
     let ix = update_metadata_accounts_v2(
-        program_id,
+        TOKEN_METADATA_PROGRAM_ID,
         metadata_account,
         update_authority,
         None,
@@ -107,7 +89,7 @@ pub struct SetPrimarySaleHappenedAll {}
 #[async_trait]
 impl Action for SetPrimarySaleHappenedAll {
     fn name() -> &'static str {
-        "set-primary-sale-happened-all"
+        "set-secondary-all"
     }
 
     async fn action(args: RunActionArgs) -> Result<(), ActionError> {
@@ -120,7 +102,7 @@ impl Action for SetPrimarySaleHappenedAll {
     }
 }
 
-pub async fn set_primary_sale_happened_all(args: SetPrimarySaleHappenedAllArgs) -> Result<()> {
+pub async fn set_primary_sale_happened_all(args: SetPrimarySaleHappenedAllArgs) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 

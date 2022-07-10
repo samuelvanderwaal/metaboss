@@ -1,20 +1,4 @@
-use std::sync::Arc;
-
-use anyhow::Result;
-use async_trait::async_trait;
-use mpl_token_metadata::state::DataV2;
-use solana_client::rpc_client::RpcClient;
-use solana_sdk::signature::Keypair;
-
-use crate::cache::Action;
-use crate::cache::BatchActionArgs;
-use crate::cache::RunActionArgs;
-use crate::decode::decode;
-use crate::errors::ActionError;
-use crate::parse::parse_keypair;
-use crate::parse::parse_solana_config;
-
-use super::update_data;
+use super::{common::*, update_data};
 
 pub struct UpdateSymbolAllArgs {
     pub client: RpcClient,
@@ -37,7 +21,7 @@ pub async fn update_symbol_one(
     keypair_path: Option<String>,
     mint_account: String,
     new_symbol: String,
-) -> Result<()> {
+) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
@@ -99,7 +83,7 @@ impl Action for UpdateSymbolAll {
     }
 }
 
-pub async fn update_symbol_all(args: UpdateSymbolAllArgs) -> Result<()> {
+pub async fn update_symbol_all(args: UpdateSymbolAllArgs) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
