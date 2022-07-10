@@ -455,12 +455,14 @@ fn get_mints_by_update_authority(
     client: &RpcClient,
     update_authority: &str,
 ) -> Result<Vec<(Pubkey, Account)>> {
+    #[allow(deprecated)]
+    let filter = RpcFilterType::Memcmp(Memcmp {
+        offset: 1, // key
+        bytes: MemcmpEncodedBytes::Base58(update_authority.to_string()),
+        encoding: None,
+    });
     let config = RpcProgramAccountsConfig {
-        filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
-            offset: 1, // key
-            bytes: MemcmpEncodedBytes::Base58(update_authority.to_string()),
-            encoding: None,
-        })]),
+        filters: Some(vec![filter]),
         account_config: RpcAccountInfoConfig {
             encoding: Some(UiAccountEncoding::Base64),
             data_slice: None,
@@ -519,12 +521,14 @@ fn get_cm_accounts_by_update_authority(
     update_authority: &str,
 ) -> Result<Vec<(Pubkey, Account)>> {
     let candy_machine_program_id = Pubkey::from_str(CANDY_MACHINE_PROGRAM_ID)?;
+    #[allow(deprecated)]
+    let filter = RpcFilterType::Memcmp(Memcmp {
+        offset: 8, // key
+        bytes: MemcmpEncodedBytes::Base58(update_authority.to_string()),
+        encoding: None,
+    });
     let config = RpcProgramAccountsConfig {
-        filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
-            offset: 8, // key
-            bytes: MemcmpEncodedBytes::Base58(update_authority.to_string()),
-            encoding: None,
-        })]),
+        filters: Some(vec![filter]),
         account_config: RpcAccountInfoConfig {
             encoding: Some(UiAccountEncoding::Base64),
             data_slice: None,
@@ -550,10 +554,9 @@ pub fn get_cm_creator_accounts(
         error!("CM Creator position cannot be greator than 4");
         std::process::exit(1);
     }
-
-    let config = RpcProgramAccountsConfig {
-        filters: Some(vec![RpcFilterType::Memcmp(Memcmp {
-            offset: 1 + // key
+    #[allow(deprecated)]
+    let filter = RpcFilterType::Memcmp(Memcmp {
+        offset: 1 + // key
             32 + // update auth
             32 + // mint
             4 + // name string length
@@ -571,9 +574,12 @@ pub fn get_cm_creator_accounts(
                 1 + // verified
                 1 // share
             ),
-            bytes: MemcmpEncodedBytes::Base58(creator.to_string()),
-            encoding: None,
-        })]),
+        bytes: MemcmpEncodedBytes::Base58(creator.to_string()),
+        encoding: None,
+    });
+
+    let config = RpcProgramAccountsConfig {
+        filters: Some(vec![filter]),
         account_config: RpcAccountInfoConfig {
             encoding: Some(UiAccountEncoding::Base64),
             data_slice: None,
@@ -594,6 +600,7 @@ fn get_holder_token_accounts(
     client: &RpcClient,
     mint_account: String,
 ) -> Result<Vec<(Pubkey, Account)>> {
+    #[allow(deprecated)]
     let filter1 = RpcFilterType::Memcmp(Memcmp {
         offset: 0,
         bytes: MemcmpEncodedBytes::Base58(mint_account),

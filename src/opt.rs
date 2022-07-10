@@ -281,6 +281,21 @@ pub enum CollectionsSubcommands {
         #[structopt(short, long)]
         delegate_authority: String,
     },
+    /// Set the size of a collection that doesn't already have the size set.
+    #[structopt(name = "set-size")]
+    SetSize {
+        /// Path to the collection update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Collection mint address
+        #[structopt(short, long)]
+        collection_mint: String,
+
+        /// Collection size
+        #[structopt(short, long)]
+        size: u64,
+    },
     /// Migrate a collection to the on-chain standard.
     #[structopt(name = "migrate")]
     Migrate {
