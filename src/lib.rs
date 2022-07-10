@@ -1,4 +1,5 @@
 pub mod burn;
+pub mod cache;
 pub mod collections;
 pub mod constants;
 pub mod data;
@@ -15,7 +16,7 @@ pub mod sign;
 pub mod snapshot;
 pub mod spinner;
 pub mod theindexio;
-pub mod update_metadata;
+pub mod update;
 pub mod uses;
 pub mod utils;
 pub mod wtf_errors;

@@ -54,6 +54,8 @@ pub async fn async_send_and_confirm_transaction(
     Ok(sig.to_string())
 }
 
+pub async fn retry_with_cache() {}
+
 pub fn generate_phf_map_var(var_name: &str) -> String {
     format!("pub static {var_name}: phf::Map<&'static str, &'static str> = phf_map! {{\n")
 }
@@ -209,4 +211,8 @@ pub fn find_errors(hex_code: &str) -> Vec<FoundError> {
     }
 
     found_errors
+}
+
+pub fn clone_keypair(keypair: &Keypair) -> Keypair {
+    Keypair::from_bytes(&keypair.to_bytes()).unwrap()
 }

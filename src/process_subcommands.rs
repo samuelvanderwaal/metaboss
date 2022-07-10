@@ -18,7 +18,7 @@ use crate::snapshot::{
     snapshot_cm_accounts, snapshot_holders, snapshot_indexed_holders, snapshot_indexed_mints,
     snapshot_mints, SnapshotMintsArgs,
 };
-use crate::update_metadata::*;
+use crate::update::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
 
 pub fn process_uses(client: &RpcClient, commands: UsesSubcommands) -> Result<()> {
@@ -372,14 +372,14 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
     }
 }
 
-pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result<()> {
+pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> Result<()> {
     match commands {
         UpdateSubcommands::SellerFeeBasisPoints {
             keypair,
             account,
             new_seller_fee_basis_points,
         } => update_seller_fee_basis_points_one(
-            client,
+            &client,
             keypair,
             &account,
             &new_seller_fee_basis_points,
@@ -388,33 +388,52 @@ pub fn process_update(client: &RpcClient, commands: UpdateSubcommands) -> Result
             keypair,
             account,
             new_name,
-        } => update_name_one(client, keypair, &account, &new_name),
+        } => update_name_one(&client, keypair, &account, &new_name),
         UpdateSubcommands::Symbol {
             keypair,
             account,
             new_symbol,
-        } => update_symbol_one(client, keypair, &account, &new_symbol),
+        } => update_symbol_one(&client, keypair, &account, &new_symbol),
         UpdateSubcommands::Creators {
             keypair,
             account,
             new_creators,
             append,
-        } => update_creator_by_position(client, keypair, &account, &new_creators, append),
+        } => update_creator_by_position(&client, keypair, &account, &new_creators, append).await,
+        UpdateSubcommands::CreatorsAll {
+            keypair,
+            mint_list,
+            cache_file,
+            new_creators,
+            append,
+            retries,
+        } => {
+            update_creator_all(UpdateCreatorAllArgs {
+                client,
+                keypair_path: keypair,
+                mint_list,
+                cache_file,
+                new_creators,
+                should_append: append,
+                retries,
+            })
+            .await
+        }
         UpdateSubcommands::Data {
             keypair,
             account,
             new_data_file,
-        } => update_data_one(client, keypair, &account, &new_data_file),
+        } => update_data_one(&client, keypair, &account, &new_data_file),
         UpdateSubcommands::DataAll { keypair, data_dir } => {
-            update_data_all(client, keypair, &data_dir)
+            update_data_all(&client, keypair, &data_dir)
         }
         UpdateSubcommands::Uri {
             keypair,
             account,
             new_uri,
-        } => update_uri_one(client, keypair, &account, &new_uri),
+        } => update_uri_one(&client, keypair, &account, &new_uri),
         UpdateSubcommands::UriAll { keypair, json_file } => {
-            update_uri_all(client, keypair, &json_file)
+            update_uri_all(&client, keypair, &json_file)
         }
     }
 }

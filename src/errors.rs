@@ -30,6 +30,18 @@ pub enum MigrateError {
 }
 
 #[derive(Error, Debug)]
+pub enum UpdateError {
+    #[error("Action failed with error: {1}")]
+    UpdateFailed(MintAddress, NetworkError),
+}
+
+#[derive(Error, Debug)]
+pub enum ActionError {
+    #[error("Action failed with error: {1}")]
+    ActionFailed(MintAddress, NetworkError),
+}
+
+#[derive(Error, Debug)]
 pub enum SolConfigError {
     #[error("no home env var found")]
     MissingHomeEnvVar,

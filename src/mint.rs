@@ -180,7 +180,7 @@ pub fn mint_from_uris(
                     sign,
                 ) {
                     Ok(_) => (),
-                    Err(e) => error!("Failed to mint {:?}: {}", &uri, e),
+                    Err(e) => println!("Failed to mint {:?}: {}", &uri, e),
                 }
             });
     } else {

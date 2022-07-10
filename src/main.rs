@@ -18,7 +18,8 @@ use metaboss::process_subcommands::*;
 async fn main() -> Result<()> {
     let options = Opt::from_args();
 
-    solana_logger::setup_with_default("solana=off");
+    let log_level = format!("solana={}", options.log_level);
+    solana_logger::setup_with_default(&log_level);
 
     let sol_config = parse_solana_config();
 
@@ -28,10 +29,10 @@ async fn main() -> Result<()> {
         (config.json_rpc_url, config.commitment)
     } else {
         info!(
-            "Could not find a valid Solana-CLI config file. Defaulting to https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/ devnet node."
+            "Could not find a valid Solana-CLI config file. Defaulting to https://devnet.genesysgo.net devnet node."
         );
         (
-            String::from("https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/"),
+            String::from("https://devnet.genesysgo.net"),
             String::from("confirmed"),
         )
     };
@@ -65,7 +66,9 @@ async fn main() -> Result<()> {
         Command::Derive { derive_subcommands } => process_derive(derive_subcommands),
         Command::Find { find_subcommands } => process_find(&client, find_subcommands)?,
         Command::Mint { mint_subcommands } => process_mint(&client, mint_subcommands)?,
-        Command::Update { update_subcommands } => process_update(&client, update_subcommands)?,
+        Command::Update { update_subcommands } => {
+            process_update(client, update_subcommands).await?
+        }
         Command::Set { set_subcommands } => process_set(&client, set_subcommands)?,
         Command::Sign { sign_subcommands } => process_sign(&client, sign_subcommands)?,
         Command::Snapshot {
