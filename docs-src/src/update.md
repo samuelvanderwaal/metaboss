@@ -4,6 +4,8 @@
 
 Update various aspects of an NFT.
 
+See also **Set** commands for updatable values that cannot be reversed (e.g. set immutable).
+
 ### Update Data
 
 Update the `Data` struct on a NFT from a JSON file.
@@ -113,7 +115,17 @@ Update the on-chain symbol of a NFT, keeping the rest of the `Data` struct the s
 #### Usage
 
 ```bash
- metaboss update name --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT> --new-symbol <NEW_SYMBOL>
+ metaboss update symbol --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT> --new-symbol <NEW_SYMBOL>
+ ```
+
+ ### Update Symbol All
+
+Update the on-chain symbol of a list of NFTs, keeping the rest of the `Data` struct the same.
+
+#### Usage
+
+```bash
+ metaboss update symbol-all --keypair <PATH_TO_KEYPAIR> -L <PATH_TO_LIST_MINT_ADDRESSES> --new-symbol <NEW_SYMBOL>
  ```
 
 ### Update Creators
@@ -135,6 +147,14 @@ metaboss update creators -k ~/.config/solana/devnet.json -a 4rxTT8pKeYFrFgNBgTsp
 ```
 
 Using the `--append` flag will set the shares to 0 and append to the existing creators list, otherwise the creators are overwritten with the list you pass in.
+
+### Update Creators All
+
+Same as update creators but takes a mint list instead of a single account.
+
+```bash
+metaboss update creators-all  -k ~/.config/solana/devnet.json -L mints.json -c 42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB:70:false,AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ:30:false
+```
 
 ### Update URI
 
@@ -167,4 +187,24 @@ metaboss update uri-all --keypair <PATH_TO_KEYPAIR> --json-file <PATH_TO_JSON_FI
         "new_uri": "https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw"
     }
 ]
+```
+
+### Update Seller Fee Basis Points
+
+Update the seller fee basis points field on an NFT, keeping the rest of the `Data` struct the same.
+
+#### Usage
+
+```bash
+metaboss update sfbp --keypair <PATH_TO_KEYPAIR> -a <MINT_ACCOUNT> -n <NEW_SELLER_FEE_BASIS_POINTS_VALUE>
+```
+
+### Update Seller Fee Basis Points All
+
+Update the seller fee basis points field on a a list of NFTs, keeping the rest of the `Data` struct the same.
+
+#### Usage
+
+```bash
+metaboss update sfbp-all --keypair <PATH_TO_KEYPAIR> -L <PATH_TO_MINT_LIST.json> -n <NEW_SELLER_FEE_BASIS_POINTS_VALUE>
 ```

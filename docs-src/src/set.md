@@ -4,15 +4,19 @@
 
 Set non-Data struct values for a NFT.
 
-### Set Primary-Sale-Happened
+### Set Secondary Sale
 
-Set `primary_sale_happened` to be `true`.
+Set `primary_sale_happened` to be `true`, enabling secondary sale royalties.
 
 ```bash
-metaboss set primary-sale-happened --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT>
+metaboss set secondary-sale --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT>
 ```
 
 Outputs a TxId to the command line so you can check the result.
+
+### Set Secondary Sale All
+
+Same as `set secondary-sale` but takes a mint list instead of a single account file.
 
 ### Set Update-Authority
 
