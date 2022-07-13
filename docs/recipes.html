@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Withdraw - Metaboss</title>
+        <title>Recipes - Metaboss</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">4.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">5.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">6.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">7.</strong> Collections</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">8.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">9.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">10.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">11.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">12.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">13.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">14.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">15.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html" class="active"><strong aria-hidden="true">16.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">17.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html" class="active"><strong aria-hidden="true">4.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">5.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">6.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">7.</strong> Collections</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">8.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">9.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">10.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">11.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">12.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">13.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">14.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">15.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">16.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">17.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -142,18 +142,24 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="withdraw-deprecated"><a class="header" href="#withdraw-deprecated">Withdraw (Deprecated)</a></h2>
-<p>Use Metaplex's <a href="https://docs.metaplex.com/sugar/introduction">Sugar</a> tool for withdrawing from candy machines instead.</p>
+                        <h2 id="update-list-of-nft-metadata"><a class="header" href="#update-list-of-nft-metadata">Update List of NFT Metadata</a></h2>
+<ol>
+<li>Get your NFT mint list using <code>metaboss snapshot</code> or another tool.</li>
+<li>Decode all the metadata into files using <code>metaboss decode mint -L &lt;NFT_MINT_LIST_FILE&gt; --full -o &lt;DATA_FILES_DIR&gt;</code>.</li>
+<li>Update the specific data you want changed in each file in the <code>&lt;DATA_FILES_DIR&gt;</code>.</li>
+<li>Update the NFTs with <code>metaboss update data-all -d &lt;DATA_FILES_DIR&gt;</code>.</li>
+</ol>
+<p><strong>Note</strong>: many fields have specific <code>update &lt;field&gt;-all</code> commands which are easier to use as they don't require updating a bunch of metadata files manually. Check the <code>update</code> and <code>set</code> sections first to see if they have what you need.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="update.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="examples.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="contact.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="global_options.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -163,11 +169,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="update.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="examples.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="contact.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="global_options.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

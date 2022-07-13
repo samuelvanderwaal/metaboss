@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">5.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">6.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">7.</strong> Collections</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">8.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">9.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">10.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">11.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">12.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">13.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">14.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">15.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">16.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">17.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">4.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">5.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">6.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">7.</strong> Collections</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">8.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">9.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">10.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">11.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">12.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">13.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">14.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">15.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">16.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">17.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -286,46 +286,14 @@ git checkout main
     &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
 ]
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="examples-1"><a class="header" href="#examples-1">Examples</a></h2>
-<h3 id="update-the-uri-of-an-existing-nft-1"><a class="header" href="#update-the-uri-of-an-existing-nft-1">Update the URI of an existing NFT</a></h3>
-<pre><code class="language-bash">metaboss update uri -k ~/.config/solana/devnet.json -a CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp -u https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls
-</code></pre>
-<h3 id="mint-a-new-nft-1"><a class="header" href="#mint-a-new-nft-1">Mint a new NFT</a></h3>
-<p>Prepare a JSON file.</p>
-<pre><code class="language-json">{
-    &quot;name&quot;: &quot;TestNFT2&quot;,
-    &quot;symbol&quot;: &quot;TNFT&quot;,
-    &quot;uri&quot;: &quot;https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw&quot;,
-    &quot;seller_fee_basis_points&quot;: 200,
-    &quot;creators&quot;: [
-        {
-            &quot;address&quot;: &quot;AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ&quot;,
-            &quot;verified&quot;: false,
-            &quot;share&quot;: 50
-        },
-        {
-            &quot;address&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
-            &quot;verified&quot;: false,
-            &quot;share&quot;: 50
-        }
-    ]
-}
-</code></pre>
-<p>Call command. In this case we do not set <code>--receiver</code> so we mint directly to the <code>keypair</code> address.</p>
-<pre><code class="language-bash">metaboss mint one -k ~/.config/solana/devnet.json -d ./new_nft.json
-</code></pre>
-<h3 id="snapshot-candy-machine-mint-accounts-1"><a class="header" href="#snapshot-candy-machine-mint-accounts-1">Snapshot Candy Machine Mint Accounts</a></h3>
-<p>We call the command with no output specified so it creates the file in the current directory.</p>
-<pre><code class="language-bash">metaboss snapshot mints -c BHZWQEtGRMs7voC7vDyVQCXawB1P6UvxG899ATGwxmaR
-</code></pre>
-<p>The file <code>BHZWQEtGRMs7voC7vDyVQCXawB1P6UvxG899ATGwxmaR_mint_accounts.json</code> is created with the contents:</p>
-<pre><code class="language-json">[
-    &quot;D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28&quot;,
-    &quot;4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW&quot;,
-    &quot;J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz&quot;,
-    &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
-]
-</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="update-list-of-nft-metadata"><a class="header" href="#update-list-of-nft-metadata">Update List of NFT Metadata</a></h2>
+<ol>
+<li>Get your NFT mint list using <code>metaboss snapshot</code> or another tool.</li>
+<li>Decode all the metadata into files using <code>metaboss decode mint -L &lt;NFT_MINT_LIST_FILE&gt; --full -o &lt;DATA_FILES_DIR&gt;</code>.</li>
+<li>Update the specific data you want changed in each file in the <code>&lt;DATA_FILES_DIR&gt;</code>.</li>
+<li>Update the NFTs with <code>metaboss update data-all -d &lt;DATA_FILES_DIR&gt;</code>.</li>
+</ol>
+<p><strong>Note</strong>: many fields have specific <code>update &lt;field&gt;-all</code> commands which are easier to use as they don't require updating a bunch of metadata files manually. Check the <code>update</code> and <code>set</code> sections first to see if they have what you need.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="global-options"><a class="header" href="#global-options">Global Options</a></h2>
 <p>These are the options that apply to all subcommands and can be passed in at any level.</p>
 <pre><code class="language-bash">metaboss &lt;option&gt; &lt;subcommand&gt; &lt;subcommand&gt;

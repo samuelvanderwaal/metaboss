@@ -3,7 +3,7 @@
 - [Overview](./overview.md)
 - [Quick Start](./quick_start.md)
 - [Examples](./examples.md)
-- [Recipes](./examples.md)
+- [Recipes](./recipes.md)
 - [Global Options](./global_options.md)
 - [Burn](./burn.md)
 - [Collections](./collections.md)
