@@ -52,7 +52,7 @@ pub async fn update_creator_by_position(
     Ok(())
 }
 
-pub async fn update_creator(
+async fn update_creator(
     client: Arc<RpcClient>,
     keypair: Arc<Keypair>,
     mint_account: String,

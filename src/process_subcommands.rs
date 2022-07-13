@@ -419,6 +419,23 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             &account,
             &new_seller_fee_basis_points,
         ),
+        UpdateSubcommands::SellerFeeBasisPointsAll {
+            keypair,
+            mint_list,
+            cache_file,
+            new_sfbp,
+            retries,
+        } => {
+            update_seller_fee_basis_points_all(UpdateSellerFeeBasisPointsAllArgs {
+                client,
+                keypair,
+                mint_list,
+                cache_file,
+                new_sfbp,
+                retries,
+            })
+            .await
+        }
         UpdateSubcommands::Name {
             keypair,
             account,
