@@ -788,7 +788,7 @@ pub enum SnapshotSubcommands {
 #[derive(Debug, StructOpt)]
 pub enum UpdateSubcommands {
     /// Update the seller fee basis points field inside the data struct on an NFT
-    #[structopt(name = "seller-fee-basis-points")]
+    #[structopt(name = "sfbp")]
     SellerFeeBasisPoints {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
@@ -801,6 +801,29 @@ pub enum UpdateSubcommands {
         /// New seller fee basis points for the metadata
         #[structopt(short, long)]
         new_seller_fee_basis_points: u16,
+    },
+    /// Update the seller fee basis points field inside the data struct on an NFT
+    #[structopt(name = "sfbp-all")]
+    SellerFeeBasisPointsAll {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Path to the mint list file
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// New seller fee basis points for the metadata
+        #[structopt(short, long)]
+        new_sfbp: u16,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
     },
     /// Update the name field inside the data struct on an NFT
     #[structopt(name = "name")]

@@ -8,7 +8,7 @@ pub use solana_client::rpc_client::RpcClient;
 pub use solana_sdk::{
     pubkey::Pubkey, signature::Keypair, signer::Signer, transaction::Transaction,
 };
-pub use std::{cmp, str::FromStr, sync::Arc};
+pub use std::{cmp, fmt::Display, str::FromStr, sync::Arc};
 
 pub use crate::cache::{Action, BatchActionArgs, RunActionArgs};
 pub use crate::decode::{decode, get_metadata_pda};
