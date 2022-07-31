@@ -101,11 +101,11 @@ pub enum BurnSubcommands {
     /// Burn one NFT.
     #[structopt(name = "one")]
     One {
-        /// Path to the authority & funder keypair file
+        /// Path to the owner keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 
-        /// Token mint account
+        /// Token mint account of the NFT
         #[structopt(short, long)]
         account: String,
     },
