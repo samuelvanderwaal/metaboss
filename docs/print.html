@@ -313,7 +313,7 @@ git checkout main
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="burn"><a class="header" href="#burn">Burn</a></h2>
 <h3 id="burn-one"><a class="header" href="#burn-one">Burn One</a></h3>
-<p>Burn a single NFT by burning the SPL token and closing the associated token account. If the keypair is also the NFT <code>update_authority</code> this will set the metadata account to blank/default values.</p>
+<p>Fully burn a single NFT by calling the Token Metadata program <a href="https://docs.metaplex.com/programs/token-metadata/instructions#burn-a-nft">burn_nft</a> handler.</p>
 <h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
 <pre><code class="language-bash">metaboss burn one -k &lt;OWNER_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
