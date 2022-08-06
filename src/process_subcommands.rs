@@ -1,7 +1,7 @@
 use anyhow::Result;
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 
-use crate::burn::burn_one;
+use crate::burn::{burn_all, burn_one, BurnAllArgs};
 use crate::collections::{
     approve_delegate, check_collection_items, get_collection_items, migrate_collection,
     revoke_delegate, set_and_verify_nft_collection, set_size, unverify_nft_collection,
@@ -161,9 +161,24 @@ pub async fn process_collections(
     }
 }
 
-pub fn process_burn(client: &RpcClient, commands: BurnSubcommands) -> Result<()> {
+pub async fn process_burn(client: RpcClient, commands: BurnSubcommands) -> Result<()> {
     match commands {
-        BurnSubcommands::One { keypair, account } => burn_one(client, keypair, account),
+        BurnSubcommands::One { keypair, account } => burn_one(client, keypair, account).await,
+        BurnSubcommands::All {
+            keypair,
+            mint_list,
+            cache_file,
+            retries,
+        } => {
+            burn_all(BurnAllArgs {
+                client,
+                keypair,
+                mint_list,
+                cache_file,
+                retries,
+            })
+            .await
+        }
     }
 }
 

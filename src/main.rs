@@ -60,23 +60,23 @@ async fn main() -> Result<()> {
         Command::Collections {
             collections_subcommands,
         } => process_collections(client, async_client, collections_subcommands).await?,
-        Command::Uses { uses_subcommands } => process_uses(&client, uses_subcommands)?,
-        Command::Burn { burn_subcommands } => process_burn(&client, burn_subcommands)?,
+        Command::Burn { burn_subcommands } => process_burn(client, burn_subcommands).await?,
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
         Command::Derive { derive_subcommands } => process_derive(derive_subcommands),
         Command::Find { find_subcommands } => process_find(&client, find_subcommands)?,
         Command::Mint { mint_subcommands } => process_mint(&client, mint_subcommands)?,
-        Command::Update { update_subcommands } => {
-            process_update(client, update_subcommands).await?
-        }
+        Command::ParseErrors {
+            parse_errors_file_subcommands,
+        } => process_parse_errors_file(parse_errors_file_subcommands)?,
         Command::Set { set_subcommands } => process_set(client, set_subcommands).await?,
         Command::Sign { sign_subcommands } => process_sign(&client, sign_subcommands)?,
         Command::Snapshot {
             snapshot_subcommands,
         } => process_snapshot(&client, snapshot_subcommands).await?,
-        Command::ParseErrors {
-            parse_errors_file_subcommands,
-        } => process_parse_errors_file(parse_errors_file_subcommands)?,
+        Command::Update { update_subcommands } => {
+            process_update(client, update_subcommands).await?
+        }
+        Command::Uses { uses_subcommands } => process_uses(&client, uses_subcommands)?,
     }
 
     println!("Done!");

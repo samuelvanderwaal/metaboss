@@ -148,6 +148,20 @@
 <h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
 <pre><code class="language-bash">metaboss burn one -k &lt;OWNER_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
+<h3 id="burn-all"><a class="header" href="#burn-all">Burn All</a></h3>
+<p>Fully burn multiple NFTs by providing a JSON list file of mint accounts.</p>
+<p>E.g. JSON file:</p>
+<pre><code class="language-json">[
+    &quot;D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28&quot;,
+    &quot;4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW&quot;,
+    &quot;J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz&quot;,
+    &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
+]
+</code></pre>
+<h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
+<pre><code class="language-bash">metaboss burn all -k &lt;OWNER_KEYPAIR&gt; -L &lt;JSON_LIST_OF_MINTS_ACCOUNTS&gt;
+</code></pre>
+<p>As in all other commands, keypair can be elided if set in the Solana config file.</p>
 
                     </main>
 
