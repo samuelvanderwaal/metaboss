@@ -109,6 +109,25 @@ pub enum BurnSubcommands {
         #[structopt(short, long)]
         account: String,
     },
+    /// Burn a batch of NFTs.
+    #[structopt(name = "all")]
+    All {
+        /// Path to the owner keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Path to the mint list file
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
+    },
 }
 
 #[derive(Debug, StructOpt)]
