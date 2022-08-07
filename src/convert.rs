@@ -21,7 +21,10 @@ pub fn bytes_to_hex(bytes_str: &str) {
         .trim_start_matches('[')
         .trim_end_matches(']')
         .split(',')
-        .map(|c| c.parse().unwrap_or_else(|_| panic!("failed to parse {}", c)))
+        .map(|c| {
+            c.parse()
+                .unwrap_or_else(|_| panic!("failed to parse {}", c))
+        })
         .collect();
     println!("{:?}", hex::encode(bytes));
 }
