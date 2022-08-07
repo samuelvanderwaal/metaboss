@@ -18,10 +18,10 @@ pub fn base58_to_hex(base58: &str) -> Result<()> {
 
 pub fn bytes_to_hex(bytes_str: &str) {
     let bytes: Vec<u8> = bytes_str
-        .trim_start_matches("[")
-        .trim_end_matches("]")
-        .split(",")
-        .map(|c| c.parse().expect(&format!("failed to parse {}", c)))
+        .trim_start_matches('[')
+        .trim_end_matches(']')
+        .split(',')
+        .map(|c| c.parse().unwrap_or_else(|_| panic!("failed to parse {}", c)))
         .collect();
     println!("{:?}", hex::encode(bytes));
 }
