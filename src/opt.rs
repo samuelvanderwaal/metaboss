@@ -47,6 +47,12 @@ pub enum Command {
         #[structopt(subcommand)]
         burn_subcommands: BurnSubcommands,
     },
+    /// Convert various things into other things
+    #[structopt(name = "convert")]
+    Convert {
+        #[structopt(subcommand)]
+        convert_subcommands: ConvertSubcommands,
+    },
     /// Decode on-chain data into JSON format
     #[structopt(name = "decode")]
     Decode {
@@ -127,6 +133,45 @@ pub enum BurnSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "1")]
         retries: u8,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum ConvertSubcommands {
+    /// Convert a hex string to base58.
+    #[structopt(name = "hex-to-base58")]
+    HexToBase58 {
+        /// Hex string to convert
+        #[structopt(short, long)]
+        value: String,
+    },
+    /// Convert a base58 string to hex.
+    #[structopt(name = "base58-to-hex")]
+    Base58ToHex {
+        /// Base58 string to convert
+        #[structopt(short, long)]
+        value: String,
+    },
+    /// Convert a hex string to bytes.
+    #[structopt(name = "hex-to-bytes")]
+    HexToBytes {
+        /// Hex string to convert
+        #[structopt(short, long)]
+        value: String,
+    },
+    /// Convert bytes to hex.
+    #[structopt(name = "bytes-to-hex")]
+    BytesToHex {
+        /// Bytes to convert
+        #[structopt(short, long)]
+        value: String,
+    },
+    /// Convert a base58 string to bytes.
+    #[structopt(name = "base58-to-bytes")]
+    Base58ToBytes {
+        /// Base58 string to convert
+        #[structopt(short, long)]
+        value: String,
     },
 }
 

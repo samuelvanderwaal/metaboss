@@ -7,6 +7,7 @@ use crate::collections::{
     revoke_delegate, set_and_verify_nft_collection, set_size, unverify_nft_collection,
     verify_nft_collection, MigrateArgs,
 };
+use crate::convert::*;
 use crate::decode::{decode_master_edition, decode_metadata};
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
 use crate::find::find_missing_editions_process;
@@ -179,6 +180,19 @@ pub async fn process_burn(client: RpcClient, commands: BurnSubcommands) -> Resul
             })
             .await
         }
+    }
+}
+
+pub fn process_convert(commands: ConvertSubcommands) -> Result<()> {
+    match commands {
+        ConvertSubcommands::Base58ToHex { value } => base58_to_hex(&value),
+        ConvertSubcommands::HexToBase58 { value } => hex_to_base58(&value),
+        ConvertSubcommands::BytesToHex { value } => {
+            bytes_to_hex(&value);
+            Ok(())
+        }
+        ConvertSubcommands::HexToBytes { value } => hex_to_bytes(&value),
+        ConvertSubcommands::Base58ToBytes { value } => base58_to_bytes(&value),
     }
 }
 
