@@ -1,9 +1,9 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use mpl_token_metadata::state::{Creator, Data};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::keypair::Keypair;
-use solana_sdk::{pubkey::Pubkey, signature::read_keypair_file};
 use std::fs::read_to_string;
 use std::path::PathBuf;
 use std::{env, fs, path::Path, str::FromStr};
@@ -28,22 +28,6 @@ pub fn creator_is_verified(creators_opt: &Option<Vec<Creator>>, position: usize)
     }
     false
 }
-
-// pub fn parse_keypair(path: &String) -> Result<Keypair> {
-//     let secret_string = fs::read_to_string(path).context("Can't find key file")?;
-
-//     // Try to decode the secret string as a JSON array of ints first and then as a base58 encoded string to support Phantom private keys.
-//     let secret_bytes: Vec<u8> = match serde_json::from_str(&secret_string) {
-//         Ok(bytes) => bytes,
-//         Err(_) => match bs58::decode(&secret_string.trim()).into_vec() {
-//             Ok(bytes) => bytes,
-//             Err(_) => return Err(anyhow!("Unsupported key type!")),
-//         },
-//     };
-
-//     let keypair = Keypair::from_bytes(&secret_bytes)?;
-//     Ok(keypair)
-// }
 
 pub fn parse_solana_config() -> Option<SolanaConfig> {
     let home = if cfg!(unix) {
@@ -76,18 +60,32 @@ pub fn parse_keypair(
     sol_config_option: Option<SolanaConfig>,
 ) -> Keypair {
     let keypair = match keypair_opt {
-        Some(keypair_path) => {
-            read_keypair_file(&keypair_path).expect("Failed to read keypair file.")
-        }
+        Some(keypair_path) => read_keypair(&keypair_path).expect("Failed to read keypair file."),
         None => match sol_config_option {
             Some(ref sol_config) => {
-                read_keypair_file(&sol_config.keypair_path).expect("Failed to read keypair file.")
+                read_keypair(&sol_config.keypair_path).expect("Failed to read keypair file.")
             }
-            None => read_keypair_file(&*shellexpand::tilde("~/.config/solana/id.json"))
+            None => read_keypair(&(*shellexpand::tilde("~/.config/solana/id.json")).to_string())
                 .expect("Failed to read keypair file."),
         },
     };
     keypair
+}
+
+pub fn read_keypair(path: &String) -> Result<Keypair> {
+    let secret_string: String = fs::read_to_string(path).context("Can't find key file")?;
+
+    // Try to decode the secret string as a JSON array of ints first and then as a base58 encoded string to support Phantom private keys.
+    let secret_bytes: Vec<u8> = match serde_json::from_str(&secret_string) {
+        Ok(bytes) => bytes,
+        Err(_) => match bs58::decode(&secret_string.trim()).into_vec() {
+            Ok(bytes) => bytes,
+            Err(_) => return Err(anyhow!("Unsupported key type!")),
+        },
+    };
+
+    let keypair = Keypair::from_bytes(&secret_bytes)?;
+    Ok(keypair)
 }
 
 fn convert_creator(c: &NFTCreator) -> Result<Creator> {
@@ -254,25 +252,25 @@ pub fn parse_errors_code(error_code: &str) -> Result<()> {
     Ok(())
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-// #[test]
-// fn parses_white_space_keys() {
-//     // Arrange
-//     let whitespace_key_path = String::from("./tests/test_key_whitespace.txt");
-//     let newline_key_path = String::from("./tests/test_key_newline.txt");
-//     let phantom_key_path = String::from("./tests/test_key_phantom.txt");
+    #[test]
+    fn parses_white_space_keys() {
+        // Arrange
+        let whitespace_key_path = String::from("./tests/test_key_whitespace.txt");
+        let newline_key_path = String::from("./tests/test_key_newline.txt");
+        let phantom_key_path = String::from("./tests/test_key_phantom.txt");
 
-//     // Act
-//     let whitespace_res = parse_keypair(&whitespace_key_path);
-//     let newline_res = parse_keypair(&newline_key_path);
-//     let phantom_res = parse_keypair(&phantom_key_path);
+        // Act
+        let whitespace_res = read_keypair(&whitespace_key_path);
+        let newline_res = read_keypair(&newline_key_path);
+        let phantom_res = read_keypair(&phantom_key_path);
 
-//     // Assert
-//     assert!(whitespace_res.is_ok());
-//     assert!(newline_res.is_ok());
-//     assert!(phantom_res.is_ok());
-// }
-// }
+        // Assert
+        assert!(whitespace_res.is_ok());
+        assert!(newline_res.is_ok());
+        assert!(phantom_res.is_ok());
+    }
+}
