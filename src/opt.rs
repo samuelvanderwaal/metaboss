@@ -1,6 +1,8 @@
 use structopt::StructOpt;
 
-use crate::{collections::GetCollectionItemsMethods, data::Indexers};
+use crate::{
+    collections::GetCollectionItemsMethods, constants::DEFAULT_BATCH_SIZE, data::Indexers,
+};
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "Metaboss", about = "Metaplex NFT 'Swiss Army Knife' tool.")]
@@ -123,6 +125,10 @@ pub enum BurnSubcommands {
         /// Cache file
         #[structopt(short, long)]
         cache_file: Option<String>,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
 
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "1")]
@@ -583,6 +589,10 @@ pub enum SetSubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
 
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "1")]
         retries: u8,
@@ -629,6 +639,10 @@ pub enum SetSubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
 
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "1")]
         retries: u8,
@@ -656,6 +670,10 @@ pub enum SetSubcommands {
         /// Cache file
         #[structopt(short, long)]
         cache_file: Option<String>,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
 
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "1")]
@@ -840,6 +858,10 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         new_sfbp: u16,
 
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "1")]
         retries: u8,
@@ -892,6 +914,10 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         new_symbol: String,
 
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "1")]
         retries: u8,
@@ -937,6 +963,10 @@ pub enum UpdateSubcommands {
         /// Should be appended instead of overwriting
         #[structopt(short = "A", long = "append")]
         append: bool,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
 
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "1")]

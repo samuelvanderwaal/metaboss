@@ -5,6 +5,7 @@ pub struct SetPrimarySaleHappenedAllArgs {
     pub keypair: Option<String>,
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
+    pub batch_size: usize,
     pub retries: u8,
 }
 
@@ -116,6 +117,7 @@ pub async fn set_primary_sale_happened_all(args: SetPrimarySaleHappenedAllArgs) 
         mint_list: args.mint_list,
         cache_file: args.cache_file,
         new_value: "".to_string(),
+        batch_size: args.batch_size,
         retries: args.retries,
     };
     SetPrimarySaleHappenedAll::run(args).await?;

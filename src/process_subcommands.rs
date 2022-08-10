@@ -168,6 +168,7 @@ pub async fn process_burn(client: RpcClient, commands: BurnSubcommands) -> Resul
             keypair,
             mint_list,
             cache_file,
+            batch_size,
             retries,
         } => {
             burn_all(BurnAllArgs {
@@ -175,6 +176,7 @@ pub async fn process_burn(client: RpcClient, commands: BurnSubcommands) -> Resul
                 keypair,
                 mint_list,
                 cache_file,
+                batch_size,
                 retries,
             })
             .await
@@ -293,6 +295,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             keypair,
             mint_list,
             cache_file,
+            batch_size,
             retries,
         } => {
             set_primary_sale_happened_all(SetPrimarySaleHappenedAllArgs {
@@ -300,6 +303,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 keypair,
                 mint_list,
                 cache_file,
+                batch_size,
                 retries,
             })
             .await
@@ -322,6 +326,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             mint_list,
             new_authority,
             cache_file,
+            batch_size,
             retries,
         } => {
             set_update_authority_all(SetUpdateAuthorityAllArgs {
@@ -331,6 +336,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 mint_list,
                 new_authority,
                 cache_file,
+                batch_size,
                 retries,
             })
             .await
@@ -342,6 +348,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             keypair,
             mint_list,
             cache_file,
+            batch_size,
             retries,
         } => {
             set_immutable_all(SetImmutableAllArgs {
@@ -349,6 +356,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 keypair,
                 mint_list,
                 cache_file,
+                batch_size,
                 retries,
             })
             .await
@@ -439,6 +447,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             mint_list,
             cache_file,
             new_sfbp,
+            batch_size,
             retries,
         } => {
             update_seller_fee_basis_points_all(UpdateSellerFeeBasisPointsAllArgs {
@@ -447,6 +456,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 mint_list,
                 cache_file,
                 new_sfbp,
+                batch_size,
                 retries,
             })
             .await
@@ -466,6 +476,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             mint_list,
             cache_file,
             new_symbol,
+            batch_size,
             retries,
         } => {
             update_symbol_all(UpdateSymbolAllArgs {
@@ -474,6 +485,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 mint_list,
                 cache_file,
                 new_symbol,
+                batch_size,
                 retries,
             })
             .await
@@ -490,6 +502,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             cache_file,
             new_creators,
             append,
+            batch_size,
             retries,
         } => {
             update_creator_all(UpdateCreatorAllArgs {
@@ -499,6 +512,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 cache_file,
                 new_creators,
                 should_append: append,
+                batch_size,
                 retries,
             })
             .await
