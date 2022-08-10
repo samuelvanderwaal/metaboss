@@ -13,6 +13,7 @@ pub struct UpdateSellerFeeBasisPointsAllArgs {
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
     pub new_sfbp: u16,
+    pub batch_size: usize,
     pub retries: u8,
 }
 
@@ -109,6 +110,7 @@ pub async fn update_seller_fee_basis_points_all(
         mint_list: args.mint_list,
         cache_file: args.cache_file,
         new_value: args.new_sfbp.to_string(),
+        batch_size: args.batch_size,
         retries: args.retries,
     };
     UpdateSellerFeeBasisPointsAll::run(args).await?;

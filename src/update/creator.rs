@@ -126,6 +126,7 @@ pub struct UpdateCreatorAllArgs {
     pub cache_file: Option<String>,
     pub new_creators: String,
     pub should_append: bool,
+    pub batch_size: usize,
     pub retries: u8,
 }
 
@@ -143,6 +144,7 @@ pub async fn update_creator_all(args: UpdateCreatorAllArgs) -> AnyResult<()> {
         mint_list: args.mint_list,
         cache_file: args.cache_file,
         new_value: args.new_creators,
+        batch_size: args.batch_size,
         retries: args.retries,
     };
     UpdateCreatorAll::run(args).await?;

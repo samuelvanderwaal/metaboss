@@ -55,6 +55,7 @@ pub struct BurnAllArgs {
     pub keypair: Option<String>,
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
+    pub batch_size: usize,
     pub retries: u8,
 }
 
@@ -100,6 +101,7 @@ pub async fn burn_all(args: BurnAllArgs) -> AnyResult<()> {
         mint_list: args.mint_list,
         cache_file: args.cache_file,
         new_value: String::new(),
+        batch_size: args.batch_size,
         retries: args.retries,
     };
     BurnAll::run(args).await?;

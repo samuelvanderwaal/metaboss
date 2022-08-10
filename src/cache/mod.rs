@@ -9,6 +9,7 @@ use std::fs::{File, OpenOptions};
 use std::path::Path;
 use std::sync::Arc;
 use std::{io::Write, ops::Deref};
+use tokio::sync::Semaphore;
 
 use crate::errors::ActionError;
 use crate::spinner::create_alt_spinner;
@@ -73,6 +74,7 @@ pub struct BatchActionArgs {
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
     pub new_value: String,
+    pub batch_size: usize,
     pub retries: u8,
 }
 
@@ -138,23 +140,24 @@ pub trait Action {
 
         loop {
             let remaining_mints = mint_list.clone();
+            let semaphore = Arc::new(Semaphore::new(args.batch_size as usize));
 
             info!("Sending network requests...");
-            let spinner = create_alt_spinner("Sending network requests....");
+            let mut update_tasks = Vec::new();
 
+            let spinner = create_alt_spinner("Sending network requests....");
             // Create a vector of futures to execute.
-            let update_tasks: Vec<_> = remaining_mints
-                .into_iter()
-                .map(|mint_address| {
-                    tokio::spawn(Self::action(RunActionArgs {
-                        client: client.clone(),
-                        keypair: keypair.clone(),
-                        payer: payer.clone(),
-                        mint_account: mint_address,
-                        new_value: args.new_value.clone(),
-                    }))
-                })
-                .collect();
+            for mint_address in remaining_mints {
+                let _ = semaphore.clone().acquire_owned().await.unwrap();
+
+                update_tasks.push(tokio::spawn(Self::action(RunActionArgs {
+                    client: client.clone(),
+                    keypair: keypair.clone(),
+                    payer: payer.clone(),
+                    mint_account: mint_address,
+                    new_value: args.new_value.clone(),
+                })));
+            }
             spinner.finish();
 
             let update_tasks_len = update_tasks.len();
