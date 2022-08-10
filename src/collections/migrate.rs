@@ -38,7 +38,7 @@ impl MigrateCache {
     }
 
     pub fn write<W: Write>(self, writer: W) -> AnyResult<()> {
-        serde_json::to_writer(writer, &self)?;
+        serde_json::to_writer_pretty(writer, &self)?;
         Ok(())
     }
 

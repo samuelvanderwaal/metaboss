@@ -133,7 +133,7 @@ pub async fn check_collection_items(
     if debug {
         println!("Writing debug file...");
         let out = File::create(format!("{collection_mint}-debug-collections.json"))?;
-        serde_json::to_writer(out, &collections)?;
+        serde_json::to_writer_pretty(out, &collections)?;
     }
 
     // Check if there's the only one and correct collection parent associated with the mint list and that all items in the list belong to it.

@@ -38,7 +38,7 @@ impl Cache {
     }
 
     pub fn write<W: Write>(self, writer: W) -> AnyResult<()> {
-        serde_json::to_writer(writer, &self)?;
+        serde_json::to_writer_pretty(writer, &self)?;
         Ok(())
     }
 
@@ -161,9 +161,6 @@ pub trait Action {
                         mint_account: mint_address,
                         new_value: args.new_value.clone(),
                     });
-
-                    // Increment the counter and update the progress bar.
-                    // pb.inc(1);
 
                     // Move the permit into the thread to take ownership of it and then drop it
                     // when the future is complete.
