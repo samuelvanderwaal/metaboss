@@ -116,7 +116,7 @@ pub fn decode_metadata_all(
             };
 
             debug!("Writing to file for mint account: {}", mint_account);
-            match serde_json::to_writer(&mut file, &json_metadata) {
+            match serde_json::to_writer_pretty(&mut file, &json_metadata) {
                 Ok(_) => (),
                 Err(err) => {
                     error!(
@@ -161,7 +161,7 @@ pub fn decode_metadata(
         let metadata = decode(client, mint_account)?;
         let json_metadata = decode_to_json(metadata, full)?;
         let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
-        serde_json::to_writer(&mut file, &json_metadata)?;
+        serde_json::to_writer_pretty(&mut file, &json_metadata)?;
     } else if let Some(list_path) = list_path {
         decode_metadata_all(client, list_path, full, output)?;
     } else {

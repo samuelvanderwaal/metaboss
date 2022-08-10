@@ -28,7 +28,7 @@ pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()>
         ));
     };
 
-    let mint_accounts = get_mint_accounts(
+    let mut mint_addresses = get_mint_accounts(
         client,
         &args.creator,
         args.position,
@@ -36,8 +36,9 @@ pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()>
         args.v2,
     )?;
 
+    mint_addresses.sort_unstable();
     let mut file = File::create(format!("{}/{}_mint_accounts.json", args.output, prefix))?;
-    serde_json::to_writer(&mut file, &mint_accounts)?;
+    serde_json::to_writer_pretty(&mut file, &mint_addresses)?;
 
     Ok(())
 }
@@ -67,8 +68,9 @@ pub async fn snapshot_indexed_mints(
         mint_addresses.push(metadata.mint.to_string());
     }
 
+    mint_addresses.sort_unstable();
     let mut file = File::create(format!("{output}/{creator}_mint_accounts.json"))?;
-    serde_json::to_writer(&mut file, &mint_addresses)?;
+    serde_json::to_writer_pretty(&mut file, &mint_addresses)?;
 
     Ok(())
 }
@@ -257,8 +259,9 @@ pub fn snapshot_holders(
         ));
     };
 
+    nft_holders.lock().unwrap().sort_unstable();
     let mut file = File::create(format!("{}/{}_holders.json", output, prefix))?;
-    serde_json::to_writer(&mut file, &nft_holders)?;
+    serde_json::to_writer_pretty(&mut file, &nft_holders)?;
 
     Ok(())
 }
@@ -319,7 +322,7 @@ pub async fn snapshot_indexed_holders(
             .map(|e| e.to_string())
             .collect::<Vec<_>>();
         let f = File::create(format!("{}/{}_errors.json", output, creator))?;
-        serde_json::to_writer(&f, &errors)?;
+        serde_json::to_writer_pretty(&f, &errors)?;
     }
 
     // Unwrap sucessful
@@ -327,7 +330,7 @@ pub async fn snapshot_indexed_holders(
     println!("Found {} holders", nft_holders.len());
 
     let mut file = File::create(format!("{output}/{creator}_holders.json"))?;
-    serde_json::to_writer(&mut file, &nft_holders)?;
+    serde_json::to_writer_pretty(&mut file, &nft_holders)?;
 
     Ok(())
 }
@@ -511,7 +514,7 @@ pub fn snapshot_cm_accounts(
     };
 
     let mut file = File::create(format!("{}/{}_accounts.json", output, update_authority))?;
-    serde_json::to_writer(&mut file, &candy_machine_program_accounts)?;
+    serde_json::to_writer_pretty(&mut file, &candy_machine_program_accounts)?;
 
     Ok(())
 }

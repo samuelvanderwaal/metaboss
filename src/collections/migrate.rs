@@ -9,6 +9,7 @@ use crate::{
 use crate::{parse::parse_keypair, snapshot::get_mint_accounts};
 use borsh::BorshDeserialize;
 use mpl_token_metadata::instruction::set_and_verify_sized_collection_item;
+use std::ops::{Deref, DerefMut};
 
 pub struct MigrateArgs {
     pub client: RpcClient,
@@ -32,13 +33,28 @@ impl Default for MigrateCache {
     }
 }
 
+impl Deref for MigrateCache {
+    type Target = IndexMap<String, CacheItem>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for MigrateCache {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
 impl MigrateCache {
     pub fn new() -> Self {
         MigrateCache(IndexMap::new())
     }
 
-    pub fn write<W: Write>(self, writer: W) -> AnyResult<()> {
-        serde_json::to_writer(writer, &self)?;
+    pub fn write<W: Write>(&mut self, writer: W) -> AnyResult<()> {
+        self.sort_unstable_keys();
+        serde_json::to_writer_pretty(writer, &self)?;
         Ok(())
     }
 
@@ -46,7 +62,7 @@ impl MigrateCache {
         let errors = errors.iter().map(|r| r.as_ref()).map(Result::unwrap_err);
 
         // Clear out old errors.
-        self.0.clear();
+        self.clear();
 
         for error in errors {
             match error {
@@ -55,7 +71,7 @@ impl MigrateCache {
                         error: Some(error.to_string()),
                     };
 
-                    self.0.insert(mint_address.to_string(), item);
+                    self.insert(mint_address.to_string(), item);
                 }
             }
         }
