@@ -6,10 +6,13 @@ use log::info;
 use serde::{Deserialize, Serialize};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::signature::Keypair;
-use std::fs::{File, OpenOptions};
-use std::path::Path;
-use std::sync::Arc;
-use std::{io::Write, ops::Deref};
+use std::{
+    fs::{File, OpenOptions},
+    io::Write,
+    ops::{Deref, DerefMut},
+    path::Path,
+    sync::Arc,
+};
 use tokio::sync::Semaphore;
 
 use crate::errors::ActionError;
@@ -32,12 +35,19 @@ impl Deref for Cache {
     }
 }
 
+impl DerefMut for Cache {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
 impl Cache {
     pub fn new() -> Self {
         Cache(IndexMap::new())
     }
 
-    pub fn write<W: Write>(self, writer: W) -> AnyResult<()> {
+    pub fn write<W: Write>(&mut self, writer: W) -> AnyResult<()> {
+        self.sort_unstable_keys();
         serde_json::to_writer_pretty(writer, &self)?;
         Ok(())
     }
@@ -46,7 +56,7 @@ impl Cache {
         let errors = errors.iter().map(|r| r.as_ref()).map(Result::unwrap_err);
 
         // Clear out old errors.
-        self.0.clear();
+        self.clear();
 
         for error in errors {
             match error {
@@ -55,7 +65,7 @@ impl Cache {
                         error: Some(error.to_string()),
                     };
 
-                    self.0.insert(mint_address.to_string(), item);
+                    self.insert(mint_address.to_string(), item);
                 }
             }
         }

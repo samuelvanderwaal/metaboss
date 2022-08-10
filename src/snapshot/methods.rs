@@ -28,7 +28,7 @@ pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()>
         ));
     };
 
-    let mint_accounts = get_mint_accounts(
+    let mut mint_addresses = get_mint_accounts(
         client,
         &args.creator,
         args.position,
@@ -36,8 +36,9 @@ pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()>
         args.v2,
     )?;
 
+    mint_addresses.sort_unstable();
     let mut file = File::create(format!("{}/{}_mint_accounts.json", args.output, prefix))?;
-    serde_json::to_writer_pretty(&mut file, &mint_accounts)?;
+    serde_json::to_writer_pretty(&mut file, &mint_addresses)?;
 
     Ok(())
 }
@@ -67,6 +68,7 @@ pub async fn snapshot_indexed_mints(
         mint_addresses.push(metadata.mint.to_string());
     }
 
+    mint_addresses.sort_unstable();
     let mut file = File::create(format!("{output}/{creator}_mint_accounts.json"))?;
     serde_json::to_writer_pretty(&mut file, &mint_addresses)?;
 
@@ -257,6 +259,7 @@ pub fn snapshot_holders(
         ));
     };
 
+    nft_holders.lock().unwrap().sort_unstable();
     let mut file = File::create(format!("{}/{}_holders.json", output, prefix))?;
     serde_json::to_writer_pretty(&mut file, &nft_holders)?;
 

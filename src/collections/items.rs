@@ -38,7 +38,7 @@ pub async fn get_collection_items_by_the_index_io(
 
     let res: RpcResponse = response.json().await?;
 
-    let mints: Vec<String> = res
+    let mut mints: Vec<String> = res
         .result
         .iter()
         .map(|nft| nft.metadata.mint.clone())
@@ -46,6 +46,8 @@ pub async fn get_collection_items_by_the_index_io(
 
     let file_name = format!("{collection_mint}_collection_items.json");
     let f = File::create(&file_name).unwrap();
+
+    mints.sort_unstable();
     serde_json::to_writer_pretty(f, &mints).unwrap();
     println!("Data written to {file_name}");
 
