@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result as AnyResult};
 use async_trait::async_trait;
 use indexmap::IndexMap;
+use indicatif::ProgressBar;
 use log::info;
 use serde::{Deserialize, Serialize};
 use solana_client::rpc_client::RpcClient;
@@ -12,7 +13,6 @@ use std::{io::Write, ops::Deref};
 use tokio::sync::Semaphore;
 
 use crate::errors::ActionError;
-use crate::spinner::create_alt_spinner;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Cache(pub IndexMap<String, CacheItem>);
@@ -137,38 +137,55 @@ pub trait Action {
         } else {
             keypair.clone()
         };
+        let semaphore = Arc::new(Semaphore::new(args.batch_size as usize));
 
         loop {
             let remaining_mints = mint_list.clone();
-            let semaphore = Arc::new(Semaphore::new(args.batch_size as usize));
 
             info!("Sending network requests...");
             let mut update_tasks = Vec::new();
+            println!("Updating NFTs. . .");
+            let pb = ProgressBar::new(remaining_mints.len() as u64);
 
-            let spinner = create_alt_spinner("Sending network requests....");
             // Create a vector of futures to execute.
             for mint_address in remaining_mints {
-                let _ = semaphore.clone().acquire_owned().await.unwrap();
+                // Limit total number of concurrent requests to args.batch_size.
+                let permit = semaphore.clone().acquire_owned().await.unwrap();
 
-                update_tasks.push(tokio::spawn(Self::action(RunActionArgs {
-                    client: client.clone(),
-                    keypair: keypair.clone(),
-                    payer: payer.clone(),
-                    mint_account: mint_address,
-                    new_value: args.new_value.clone(),
-                })));
+                // Create task to run the action in a separate thread.
+                let task = tokio::spawn({
+                    let fut = Self::action(RunActionArgs {
+                        client: client.clone(),
+                        keypair: keypair.clone(),
+                        payer: payer.clone(),
+                        mint_account: mint_address,
+                        new_value: args.new_value.clone(),
+                    });
+
+                    // Increment the counter and update the progress bar.
+                    // pb.inc(1);
+
+                    // Move the permit into the thread to take ownership of it and then drop it
+                    // when the future is complete.
+                    drop(permit);
+
+                    fut
+                });
+
+                // Collect all the tasks in our futures vector.
+                update_tasks.push(task);
             }
-            spinner.finish();
 
             let update_tasks_len = update_tasks.len();
 
             // Wait for all the tasks to resolve and push the results to our results vector
             let mut update_results = Vec::new();
-            let spinner = create_alt_spinner("Awaiting results...");
             for task in update_tasks {
                 update_results.push(task.await.unwrap());
+                // Increment the counter and update the progress bar.
+                pb.inc(1);
             }
-            spinner.finish();
+            pb.finish_and_clear();
 
             // Partition migration results.
             let (_update_successful, update_failed): (CacheResults, CacheResults) =
