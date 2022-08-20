@@ -304,12 +304,12 @@ git checkout main
 </code></pre>
 <h2 id="options"><a class="header" href="#options">Options</a></h2>
 <p>-r, --rpc <rpc> The RPC endpoint to use for commands.</p>
-<p>Metaboss will try to read your Solana config settings for both the RPC endpoint and also the Commitment setting by reading from <code>$HOME/.config/solana/cli/config.yml</code>. If it can't find a config file it defaults to using <code>https://psytrbhymqlkfrhudd.dev.genesysgo.net:8899/</code> and <code>confirmed</code>.</p>
+<p>Metaboss will try to read your Solana config settings for both the RPC endpoint and also the Commitment setting by reading from <code>$HOME/.config/solana/cli/config.yml</code>. If it can't find a config file it defaults to using <code>https://dev.genesysgo.net</code> and <code>confirmed</code>.</p>
 <p>Running Metaboss with the <code>--rpc</code> option will override the above with whatever RPC endpoint the user provides.</p>
-<p>-t, --timeout <timeout> The timeout in seconds to use for RPC calls.</p>
+<p>-T, --timeout <timeout> The timeout in seconds to use for RPC calls.</p>
 <p>This defaults to 90 seconds which should be fine for most cases but can be overriden if needed.</p>
 <p>Example:</p>
-<pre><code class="language-bash">metaboss snapshot holders -r https://ssc-dao.genesysgo.net/ -t 120 -u DC2mkgwhy56w3viNtHDjJQmc7SGu2QX785bS4aexojwX
+<pre><code class="language-bash">metaboss snapshot holders -r https://ssc-dao.genesysgo.net/ -T 120 -u DC2mkgwhy56w3viNtHDjJQmc7SGu2QX785bS4aexojwX
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="burn"><a class="header" href="#burn">Burn</a></h2>
 <h3 id="burn-one"><a class="header" href="#burn-one">Burn One</a></h3>
