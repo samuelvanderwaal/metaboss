@@ -229,7 +229,7 @@ pub fn parse_errors_file() -> Result<()> {
             fs::write(wtf_error_path, error_file_content)?;
             Ok(())
         }
-        Err(_) => return Err(anyhow!("Error folder doesn't exist")),
+        Err(_) => Err(anyhow!("Error folder doesn't exist")),
     }
 }
 
