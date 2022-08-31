@@ -111,6 +111,13 @@ pub static METADATA_ERROR: phf::Map<&'static str, &'static str> = phf_map! {
     "6A" => "NotACollectionParent: This NFT is not a collection parent NFT.",
     "6B" => "CouldNotDetermineTokenStandard: Could not determine a TokenStandard type.",
     "6C" => "MissingEditionAccount: This mint account has an edition but none was provided.",
+    "6D" => "NotAMasterEdition: This edition is not a Master Edition",
+    "6E" => "MasterEditionHasPrints: This Master Edition has existing prints",
+    "6F" => "BorshDeserializationError: Borsh Deserialization Error",
+    "70" => "CannotUpdateVerifiedCollection: Cannot update a verified colleciton in this command",
+    "71" => "CollectionMasterEditionAccountInvalid: Edition account aoesnt match collection ",
+    "72" => "AlreadyVerified: Item is already verified.",
+    "73" => "AlreadyUnverified: Item is already unverified.",
 };
 
 pub static AUCTIONEER_ERROR: phf::Map<&'static str, &'static str> = phf_map! {
@@ -122,6 +129,8 @@ pub static AUCTIONEER_ERROR: phf::Map<&'static str, &'static str> = phf_map! {
     "1775" => "SignerNotAuth: The signer must be the Auction House authority",
     "1776" => "NotHighestBidder: Execute Sale must be run on the highest bidder",
     "1777" => "BelowReservePrice: The bid price must be greater than the reserve price",
+    "1778" => "BelowBidIncrement: The bid must match the highest bid plus the minimum bid increment",
+    "1779" => "CannotCancelHighestBid: The highest bidder is not allowed to cancel",
 };
 
 pub static AUCTION_HOUSE_ERROR: phf::Map<&'static str, &'static str> = phf_map! {
@@ -166,6 +175,9 @@ pub static AUCTION_HOUSE_ERROR: phf::Map<&'static str, &'static str> = phf_map! 
     "1796" => "MissingElementForPartialOrder: Partial order size and price must both be provided in a partial buy.",
     "1797" => "NotEnoughTokensAvailableForPurchase: Amount of tokens available for purchase is less than the partial order amount.",
     "1798" => "PartialPriceMismatch: Calculated partial price does not not partial price that was provided.",
+    "1799" => "AuctionHouseAlreadyDelegated: Auction House already delegated.",
+    "179A" => "AuctioneerAuthorityMismatch: Auctioneer Authority Mismatch",
+    "179B" => "InsufficientFunds: Insufficient funds in escrow account to purchase.",
 };
 
 pub static CANDY_ERROR: phf::Map<&'static str, &'static str> = phf_map! {
@@ -204,6 +216,22 @@ pub static CANDY_ERROR: phf::Map<&'static str, &'static str> = phf_map! {
     "1790" => "MissingSetCollectionDuringMint: Missing set collection during mint IX for Candy Machine with collection set",
     "1791" => "NoChangingCollectionDuringMint: Can't change collection settings after items have begun to be minted",
     "1792" => "CandyCollectionRequiresRetainAuthority: Retain authority must be true for Candy Machines with a collection set",
+    "1793" => "GatewayProgramError: Error within Gateway program",
+    "1794" => "NoChangingFreezeDuringMint",
+    "1795" => "NoChangingAuthorityWithFreeze: Can't change authority while freeze is enabled. Disable freeze first.",
+    "1796" => "NoChangingTokenWithFreeze: Can't change token while freeze is enabled. Disable freeze first.",
+    "1797" => "InvalidThawNft: Cannot thaw NFT unless all NFTs are minted or Candy Machine authority enables thawing",
+    "1798" => "IncorrectRemainingAccountsLen: The number of remaining accounts passed in doesn't match the Candy Machine settings",
+    "1799" => "MissingFreezeAta: FreezePDA ATA needs to be passed in if token mint is enabled.",
+    "179A" => "IncorrectFreezeAta: Incorrect freeze ATA address.",
+    "179B" => "FreezePDAMismatch: FreezePDA doesn't belong to this Candy Machine.",
+    "179C" => "EnteredFreezeIsMoreThanMaxFreeze: Freeze time can't be longer than MAX_FREEZE_TIME.",
+    "179D" => "NoWithdrawWithFreeze: Can't withdraw Candy Machine while freeze is active. Disable freeze first.",
+    "179E" => "NoWithdrawWithFrozenFunds",
+    "179F" => "MissingRemoveFreezeTokenAccounts: Missing required remaining accounts for remove_freeze with token mint.",
+    "17A0" => "InvalidFreezeWithdrawTokenAddress: Can't withdraw SPL Token from freeze PDA into itself",
+    "17A1" => "NoUnlockWithNFTsStillFrozen: Can't unlock funds while NFTs are still frozen. Run thaw on all NFTs first.",
+    "17A2" => "SizedCollectionMetadataMustBeMutable: Setting a sized collection requires the collection metadata to be mutable.",
 };
 
 pub static ANCHOR_ERROR: phf::Map<&'static str, &'static str> = phf_map! {
@@ -256,6 +284,8 @@ pub static ANCHOR_ERROR: phf::Map<&'static str, &'static str> = phf_map! {
     "BC5" => "AccountNotProgramData: The given account is not a program data account",
     "BC6" => "AccountNotAssociatedTokenAccount: The given account is not the associated token account",
     "BC7" => "AccountSysvarMismatch: The given public key does not match the required sysvar",
+    "BC8" => "AccountReallocExceedsLimit: The account reallocation exceeds the MAX_PERMITTED_DATA_INCREASE limit",
+    "BC9" => "AccountDuplicateReallocs: The account was duplicated for more than one reallocation",
     "FA0" => "StateInvalidAddress: The given state account does not have the correct address",
     "1004" => "DeclaredProgramIdMismatch: The declared program id does not match the actual program id",
     "1388" => "Deprecated: The API being used is deprecated and should no longer be used",
