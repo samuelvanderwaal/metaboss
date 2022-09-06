@@ -234,6 +234,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             primary_sale_happened,
             max_editions,
             sign,
+            sized,
         } => mint_one(
             client,
             keypair,
@@ -244,6 +245,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             primary_sale_happened,
             max_editions,
             sign,
+            sized,
         )
         .map(|_| ()),
         MintSubcommands::Editions {

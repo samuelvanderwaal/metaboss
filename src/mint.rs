@@ -4,9 +4,10 @@ use log::{error, info};
 use metaboss_lib::decode::*;
 use mpl_token_metadata::{
     instruction::{
-        create_master_edition, create_metadata_accounts_v2,
+        create_master_edition, create_metadata_accounts_v3,
         mint_new_edition_from_master_edition_via_token, update_metadata_accounts_v2,
     },
+    state::CollectionDetails,
     ID as TOKEN_METADATA_PROGRAM_ID,
 };
 use rayon::prelude::*;
@@ -69,6 +70,7 @@ pub fn mint_list(
             primary_sale_happened,
             max_editions,
             sign,
+            false,
         )?;
     } else if let Some(external_metadata_uris) = external_metadata_uris {
         mint_from_uris(
@@ -101,6 +103,7 @@ pub fn mint_from_files(
     primary_sale_happened: bool,
     max_editions: i64,
     sign: bool,
+    sized: bool,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_default_rate_limiter();
@@ -131,6 +134,7 @@ pub fn mint_from_files(
             primary_sale_happened,
             max_editions,
             sign,
+            sized,
         ) {
             Ok(_) => (),
             Err(e) => error!("Failed to mint {:?}: {}", &path, e),
@@ -178,6 +182,7 @@ pub fn mint_from_uris(
                     primary_sale_happened,
                     max_editions,
                     sign,
+                    false,
                 ) {
                     Ok(_) => (),
                     Err(e) => println!("Failed to mint {:?}: {}", &uri, e),
@@ -210,6 +215,7 @@ pub fn mint_from_uris(
                     primary_sale_happened,
                     max_editions,
                     sign,
+                    false,
                 ) {
                     Ok(m) => MintResult {
                         uri: uri.clone(),
@@ -256,6 +262,7 @@ pub fn mint_one<P: AsRef<Path>>(
     primary_sale_happened: bool,
     max_editions: i64,
     sign: bool,
+    sized: bool,
 ) -> Result<String> {
     if !is_only_one_option(&nft_data_file, &external_metadata_uri) {
         return Err(anyhow!(
@@ -307,6 +314,7 @@ pub fn mint_one<P: AsRef<Path>>(
         immutable,
         primary_sale_happened,
         max_editions,
+        sized,
     )?;
     info!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account);
     let message = format!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account,);
@@ -498,6 +506,7 @@ pub fn mint_missing_editions(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn mint(
     client: &RpcClient,
     funder: Keypair,
@@ -506,6 +515,7 @@ pub fn mint(
     immutable: bool,
     primary_sale_happened: bool,
     max_editions: i64,
+    sized: bool,
 ) -> Result<(Signature, Pubkey)> {
     let metaplex_program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint = Keypair::new();
@@ -578,7 +588,13 @@ pub fn mint(
     let (master_edition_account, _pda) =
         Pubkey::find_program_address(master_edition_seeds, &metaplex_program_id);
 
-    let create_metadata_account_ix = create_metadata_accounts_v2(
+    let collection_details = if sized {
+        Some(CollectionDetails::V1 { size: 0 })
+    } else {
+        None
+    };
+
+    let create_metadata_account_ix = create_metadata_accounts_v3(
         metaplex_program_id,
         metadata_account,
         mint.pubkey(),
@@ -594,6 +610,7 @@ pub fn mint(
         !immutable,
         None,
         None,
+        collection_details,
     );
 
     let create_master_edition_account_ix = create_master_edition(
