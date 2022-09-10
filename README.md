@@ -33,6 +33,14 @@ Suggestions and PRs welcome!
 **Note: This is experimental software for a young ecosystem. Use at your own risk. The author is not responsible for misuse of the software or for the user failing to test specific commands on devnet before using on production NFTs.**
 
 
+## Alternate Tools
+
+Some alternate tools that do similar things:
+
+* [Banana Tools](https://tools.0xbanana.com/)
+* [NFT Armory](https://www.nftarmory.me/)
+* [Pentacles Tools](https://cryptostraps.tools/nft-mints)
+
 ## Installation
 
 ### Install Binary
