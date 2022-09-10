@@ -43,7 +43,7 @@ pub enum Command {
         #[structopt(subcommand)]
         uses_subcommands: UsesSubcommands,
     },
-    /// Burn token
+    /// Full Burn a NFT
     #[structopt(name = "burn")]
     Burn {
         #[structopt(subcommand)]
