@@ -24,7 +24,7 @@ pub const PUBLIC_RPC_URLS: &[&str] = &[
 pub const DEFAULT_RPC_DELAY_MS: u32 = 200;
 
 // This is a str so it can be used in Structopt arguments
-pub const DEFAULT_BATCH_SIZE: &str = "1000";
+pub const DEFAULT_BATCH_SIZE: &str = "10";
 
 pub const ERROR_FILE_BEGIN: &str = r#"#![allow(unused)]
 use phf::phf_map;

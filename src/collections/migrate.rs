@@ -10,6 +10,7 @@ use crate::{parse::parse_keypair, snapshot::get_mint_accounts};
 use borsh::BorshDeserialize;
 use mpl_token_metadata::instruction::set_and_verify_sized_collection_item;
 use std::ops::{Deref, DerefMut};
+use tokio::sync::Semaphore;
 
 pub struct MigrateArgs {
     pub client: RpcClient,
@@ -20,6 +21,7 @@ pub struct MigrateArgs {
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
     pub retries: u8,
+    pub batch_size: usize,
     pub output_file: Option<String>,
 }
 
@@ -58,15 +60,15 @@ impl MigrateCache {
         Ok(())
     }
 
-    pub fn update_errors(&mut self, errors: Vec<Result<(), MigrateError>>) {
-        let errors = errors.iter().map(|r| r.as_ref()).map(Result::unwrap_err);
+    pub fn update_errors(&mut self, errors: Vec<MigrateError>) {
+        // let errors = errors.iter().map(|r| r.as_ref()).map(Result::unwrap_err);
 
         // Clear out old errors.
         self.clear();
 
         for error in errors {
             match error {
-                MigrateError::MigrationFailed(mint_address, _) => {
+                MigrateError::MigrationFailed(ref mint_address, _) => {
                     let item = CacheItem {
                         error: Some(error.to_string()),
                     };
@@ -213,33 +215,35 @@ pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
         info!("Sending network requests...");
         let spinner = create_spinner("Sending network requests....");
         // Create a vector of futures to execute.
-        let migrate_tasks: Vec<_> = remaining_mints
-            .into_iter()
-            .map(|mint_account| {
-                tokio::spawn(set_and_verify(
-                    async_client.clone(),
-                    keypair.clone(),
-                    mint_account,
-                    args.mint_address.clone(),
-                    false,
-                ))
-            })
-            .collect();
+        let mut migrate_tasks = Vec::new();
+        let semaphore = Arc::new(Semaphore::new(args.batch_size));
+
+        for mint in remaining_mints {
+            let permit = Arc::clone(&semaphore).acquire_owned().await.unwrap();
+            let async_client = async_client.clone();
+            let keypair = keypair.clone();
+            let mint_address = args.mint_address.clone();
+
+            migrate_tasks.push(tokio::spawn(async move {
+                let _permit = permit;
+
+                set_and_verify(async_client, keypair, mint, mint_address, false).await
+            }));
+        }
         spinner.finish();
 
         let migrate_tasks_len = migrate_tasks.len();
 
         // Wait for all the tasks to resolve and push the results to our results vector
-        let mut migrate_results = Vec::new();
+        let mut migrate_failed = Vec::new();
         let spinner = create_spinner("Awaiting results...");
         for task in migrate_tasks {
-            migrate_results.push(task.await.unwrap());
+            match task.await.unwrap() {
+                Ok(_) => (),
+                Err(e) => migrate_failed.push(e),
+            }
         }
         spinner.finish();
-
-        // Partition migration results.
-        let (_migrate_successful, migrate_failed): (MigrateResults, MigrateResults) =
-            migrate_results.into_iter().partition(Result::is_ok);
 
         // If some of the migrations failed, ask user if they wish to retry and the loop starts again.
         // Otherwise, break out of the loop and write the cache to disk.
