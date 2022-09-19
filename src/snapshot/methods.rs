@@ -33,6 +33,7 @@ pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()>
         &args.creator,
         args.position,
         args.update_authority,
+        args.allow_unverified,
         args.v2,
     )?;
 
@@ -80,6 +81,7 @@ pub fn get_mint_accounts(
     creator: &Option<String>,
     position: usize,
     update_authority: Option<String>,
+    allow_unverified: bool,
     v2: bool,
 ) -> Result<Vec<String>> {
     let spinner = create_spinner("Getting accounts...");
@@ -116,7 +118,7 @@ pub fn get_mint_accounts(
             }
         };
 
-        if creator_is_verified(&metadata.data.creators, position) {
+        if creator_is_verified(&metadata.data.creators, position) || allow_unverified {
             mint_accounts.push(metadata.mint.to_string());
         }
     }
@@ -124,32 +126,24 @@ pub fn get_mint_accounts(
     Ok(mint_accounts)
 }
 
-pub fn snapshot_holders(
-    client: &RpcClient,
-    update_authority: &Option<String>,
-    creator: &Option<String>,
-    position: usize,
-    mint_accounts_file: &Option<String>,
-    v2: bool,
-    output: &str,
-) -> Result<()> {
+pub fn snapshot_holders(client: &RpcClient, args: SnapshotHoldersArgs) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_default_rate_limiter();
 
     let spinner = create_spinner("Getting accounts...");
-    let accounts = if let Some(update_authority) = update_authority {
+    let accounts = if let Some(ref update_authority) = args.update_authority {
         get_mints_by_update_authority(client, update_authority)?
-    } else if let Some(creator) = creator {
+    } else if let Some(ref creator) = args.creator {
         // Support v2 cm ids
-        if v2 {
+        if args.v2 {
             let creator_pubkey =
                 Pubkey::from_str(creator).expect("Failed to parse pubkey from creator!");
             let cmv2_creator = derive_cmv2_pda(&creator_pubkey);
-            get_cm_creator_accounts(client, &cmv2_creator.to_string(), position)?
+            get_cm_creator_accounts(client, &cmv2_creator.to_string(), args.position)?
         } else {
-            get_cm_creator_accounts(client, creator, position)?
+            get_cm_creator_accounts(client, creator, args.position)?
         }
-    } else if let Some(mint_accounts_file) = mint_accounts_file {
+    } else if let Some(ref mint_accounts_file) = args.mint_accounts_file {
         let file = File::open(mint_accounts_file)?;
         let mint_accounts: Vec<String> = serde_json::from_reader(&file)?;
         get_mint_account_infos(client, mint_accounts)?
@@ -184,7 +178,9 @@ pub fn snapshot_holders(
             };
 
             // Check that first creator is verified
-            if !creator_is_verified(&metadata.data.creators, position) {
+            if !creator_is_verified(&metadata.data.creators, args.position)
+                && !args.allow_unverified
+            {
                 return;
             }
 
@@ -247,12 +243,12 @@ pub fn snapshot_holders(
             }
         });
 
-    let prefix = if let Some(update_authority) = update_authority {
+    let prefix = if let Some(ref update_authority) = &args.update_authority {
         update_authority.clone()
-    } else if let Some(creator) = creator {
-        creator.clone()
-    } else if let Some(mint_accounts_file) = mint_accounts_file {
-        str::replace(mint_accounts_file, ".json", "")
+    } else if let Some(creator) = args.creator {
+        creator
+    } else if let Some(mint_accounts_file) = args.mint_accounts_file {
+        str::replace(&mint_accounts_file, ".json", "")
     } else {
         return Err(anyhow!(
             "Must specify either --update-authority or --candy-machine-id or --mint-accounts-file"
@@ -260,7 +256,7 @@ pub fn snapshot_holders(
     };
 
     nft_holders.lock().unwrap().sort_unstable();
-    let mut file = File::create(format!("{}/{}_holders.json", output, prefix))?;
+    let mut file = File::create(format!("{}/{}_holders.json", args.output, prefix))?;
     serde_json::to_writer_pretty(&mut file, &nft_holders)?;
 
     Ok(())
