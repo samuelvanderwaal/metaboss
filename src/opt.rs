@@ -492,6 +492,10 @@ pub enum MintSubcommands {
         /// Sign NFT after minting it
         #[structopt(long)]
         sign: bool,
+
+        /// Create a sized collection parent NFT
+        #[structopt(long)]
+        sized: bool,
     },
     /// Mint one or more editions from a Master NFT.
     #[structopt(name = "editions")]
