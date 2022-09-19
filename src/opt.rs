@@ -348,6 +348,10 @@ pub enum CollectionsSubcommands {
         #[structopt(long, default_value = "1")]
         retries: u8,
 
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
         /// Output file path for the cache file. Defaults to mb-cache-migrate.json.
         #[structopt(short, long)]
         output_file: Option<String>,
