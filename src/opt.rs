@@ -752,6 +752,10 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long)]
         mint_accounts_file: Option<String>,
 
+        /// Allow fetching items with unverified creator or update authority.
+        #[structopt(long)]
+        allow_unverified: bool,
+
         /// Path to directory to save output files.
         #[structopt(short, long, default_value = ".")]
         output: String,
@@ -804,6 +808,10 @@ pub enum SnapshotSubcommands {
         /// Candy machine v2 id
         #[structopt(long = "v2")]
         v2: bool,
+
+        /// Allow fetching items with unverified creator or update authority.
+        #[structopt(long)]
+        allow_unverified: bool,
 
         /// Path to directory to save output file
         #[structopt(short, long, default_value = ".")]

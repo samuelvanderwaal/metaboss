@@ -16,7 +16,7 @@ use crate::parse::{parse_errors_code, parse_errors_file};
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{
     snapshot_cm_accounts, snapshot_holders, snapshot_indexed_holders, snapshot_indexed_mints,
-    snapshot_mints, SnapshotMintsArgs,
+    snapshot_mints, SnapshotHoldersArgs, SnapshotMintsArgs,
 };
 use crate::update::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
@@ -389,15 +389,19 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             position,
             mint_accounts_file,
             v2,
+            allow_unverified,
             output,
         } => snapshot_holders(
             client,
-            &update_authority,
-            &creator,
-            position,
-            &mint_accounts_file,
-            v2,
-            &output,
+            SnapshotHoldersArgs {
+                update_authority,
+                creator,
+                position,
+                mint_accounts_file,
+                v2,
+                allow_unverified,
+                output,
+            },
         ),
         SnapshotSubcommands::IndexedHolders {
             indexer,
@@ -414,6 +418,7 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             position,
             update_authority,
             v2,
+            allow_unverified,
             output,
         } => snapshot_mints(
             client,
@@ -422,6 +427,7 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
                 position,
                 update_authority,
                 v2,
+                allow_unverified,
                 output,
             },
         ),
