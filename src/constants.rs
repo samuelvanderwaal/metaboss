@@ -40,3 +40,5 @@ lazy_static! {
             .copied()
             .collect();
 }
+
+pub const MINT_LAYOUT: u64 = 82;
