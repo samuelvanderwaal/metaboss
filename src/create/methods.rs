@@ -51,7 +51,7 @@ pub struct CreateFungibleArgs {
     pub keypair: Option<String>,
     pub metadata: String,
     pub decimals: u8,
-    pub initial_supply: Option<u64>,
+    pub initial_supply: Option<f64>,
     pub immutable: bool,
 }
 
@@ -95,7 +95,7 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         &mint.pubkey(),
         &keypair.pubkey(),
         Some(&keypair.pubkey()),
-        0,
+        args.decimals,
     )?;
     instructions.push(init_mint_ix);
 
@@ -108,6 +108,9 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
     instructions.push(create_assoc_account_ix);
 
     if let Some(initial_supply) = args.initial_supply {
+        // Convert float to native token units
+        let supply = (initial_supply * 10_f64.powi(args.decimals as i32)) as u64;
+
         // Mint to instruction
         let mint_to_ix = mint_to(
             &TOKEN_PROGRAM_ID,
@@ -115,7 +118,7 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
             &assoc,
             &keypair.pubkey(),
             &[],
-            initial_supply,
+            supply,
         )?;
         instructions.push(mint_to_ix);
     }

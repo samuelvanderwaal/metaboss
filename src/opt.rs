@@ -179,7 +179,7 @@ pub enum CreateSubcommands {
 
         /// Mint this amount to your keypair.
         #[structopt(short, long)]
-        initial_supply: Option<u64>,
+        initial_supply: Option<f64>,
 
         /// Create metadata account as immutable.
         #[structopt(long)]
