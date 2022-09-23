@@ -155,7 +155,7 @@ async fn get_mint_collection<'a>(
     let mint_pubkey = Pubkey::from_str(&mint)?;
     let metadata_pubkey = derive_metadata_pda(&mint_pubkey);
     let data = client.get_account_data(&metadata_pubkey).await?;
-    let md = Metadata::deserialize(&mut data.as_slice())?;
+    let md = <Metadata as BorshDeserialize>::deserialize(&mut data.as_slice())?;
 
     Ok((mint, md.collection))
 }

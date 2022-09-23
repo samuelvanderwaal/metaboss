@@ -49,6 +49,12 @@ pub enum Command {
         #[structopt(subcommand)]
         burn_subcommands: BurnSubcommands,
     },
+    /// Create accounts
+    #[structopt(name = "create")]
+    Create {
+        #[structopt(subcommand)]
+        create_subcommands: CreateSubcommands,
+    },
     /// Decode on-chain data into JSON format
     #[structopt(name = "decode")]
     Decode {
@@ -133,6 +139,51 @@ pub enum BurnSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "1")]
         retries: u8,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum CreateSubcommands {
+    /// Create a metadata account for an existing SPL token mint.
+    Metadata {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account
+        #[structopt(short = "a", long)]
+        mint: String,
+
+        /// Path to JSON file of metadata
+        #[structopt(short, long)]
+        metadata: String,
+
+        /// Create metadata account as immutable.
+        #[structopt(long)]
+        immutable: bool,
+    },
+
+    /// Create a new SPL Token mint and metadata account.
+    Fungible {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Path to JSON file of metadata
+        #[structopt(short, long)]
+        metadata: String,
+
+        /// SPL token decmials, defaults to 0.
+        #[structopt(short, long, default_value = "0")]
+        decimals: u8,
+
+        /// Mint this amount to your keypair.
+        #[structopt(short, long)]
+        initial_supply: Option<f64>,
+
+        /// Create metadata account as immutable.
+        #[structopt(long)]
+        immutable: bool,
     },
 }
 

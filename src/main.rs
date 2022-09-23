@@ -61,6 +61,7 @@ async fn main() -> Result<()> {
             collections_subcommands,
         } => process_collections(client, async_client, collections_subcommands).await?,
         Command::Burn { burn_subcommands } => process_burn(client, burn_subcommands).await?,
+        Command::Create { create_subcommands } => process_create(client, create_subcommands)?,
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
         Command::Derive { derive_subcommands } => process_derive(derive_subcommands),
         Command::Find { find_subcommands } => process_find(&client, find_subcommands)?,

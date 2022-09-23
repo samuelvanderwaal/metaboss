@@ -114,8 +114,9 @@ async fn set_and_verify(
         .get_account_data(&collection_md_pubkey)
         .await
         .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
-    let collection_metadata = Metadata::deserialize(&mut collection_md_account.as_slice())
-        .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
+    let collection_metadata =
+        <Metadata as BorshDeserialize>::deserialize(&mut collection_md_account.as_slice())
+            .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
 
     let set_and_verify_ix = if collection_metadata.collection_details.is_some() {
         set_and_verify_sized_collection_item(

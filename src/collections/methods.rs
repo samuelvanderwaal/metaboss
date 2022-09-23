@@ -36,7 +36,8 @@ pub fn set_and_verify_nft_collection(
 
     // Is it a sized collection?
     let collection_md_account = client.get_account_data(&collection_md_pubkey)?;
-    let collection_metadata = Metadata::deserialize(&mut collection_md_account.as_slice())?;
+    let collection_metadata =
+        <Metadata as BorshDeserialize>::deserialize(&mut collection_md_account.as_slice())?;
 
     let set_and_verify_ix = if collection_metadata.collection_details.is_some() {
         set_and_verify_sized_collection_item(
@@ -90,7 +91,8 @@ pub fn unverify_nft_collection(
 
     // Is it a sized collection?
     let collection_md_account = client.get_account_data(&collection_md_pubkey)?;
-    let collection_metadata = Metadata::deserialize(&mut collection_md_account.as_slice())?;
+    let collection_metadata =
+        <Metadata as BorshDeserialize>::deserialize(&mut collection_md_account.as_slice())?;
 
     // Choose which handler to use based on if collection is sized or not.
     let unverify_collection_ix = if collection_metadata.collection_details.is_some() {
@@ -142,7 +144,8 @@ pub fn verify_nft_collection(
 
     // Is it a sized collection?
     let collection_md_account = client.get_account_data(&collection_md_pubkey)?;
-    let collection_metadata = Metadata::deserialize(&mut collection_md_account.as_slice())?;
+    let collection_metadata =
+        <Metadata as BorshDeserialize>::deserialize(&mut collection_md_account.as_slice())?;
 
     // Choose which handler to use based on if collection is sized or not.
     let verify_collection_ix = if collection_metadata.collection_details.is_some() {
