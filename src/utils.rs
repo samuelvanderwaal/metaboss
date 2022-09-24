@@ -173,37 +173,38 @@ pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<Stri
 }
 
 pub fn find_errors(hex_code: &str) -> Vec<FoundError> {
+    let hex_code = hex_code.to_uppercase();
     let mut found_errors: Vec<FoundError> = Vec::new();
 
-    if let Some(e) = ANCHOR_ERROR.get(hex_code).cloned() {
+    if let Some(e) = ANCHOR_ERROR.get(&hex_code).cloned() {
         found_errors.push(FoundError {
             domain: "Anchor Program".to_string(),
             message: e.to_string(),
         });
     }
 
-    if let Some(e) = METADATA_ERROR.get(hex_code).cloned() {
+    if let Some(e) = METADATA_ERROR.get(&hex_code).cloned() {
         found_errors.push(FoundError {
             domain: "Token Metadata".to_string(),
             message: e.to_string(),
         });
     }
 
-    if let Some(e) = AUCTION_HOUSE_ERROR.get(hex_code).cloned() {
+    if let Some(e) = AUCTION_HOUSE_ERROR.get(&hex_code).cloned() {
         found_errors.push(FoundError {
             domain: "Auction House".to_string(),
             message: e.to_string(),
         });
     }
 
-    if let Some(e) = AUCTIONEER_ERROR.get(hex_code).cloned() {
+    if let Some(e) = AUCTIONEER_ERROR.get(&hex_code).cloned() {
         found_errors.push(FoundError {
             domain: "Auctioneer".to_string(),
             message: e.to_string(),
         });
     }
 
-    if let Some(e) = CANDY_ERROR.get(hex_code).cloned() {
+    if let Some(e) = CANDY_ERROR.get(&hex_code).cloned() {
         found_errors.push(FoundError {
             domain: "Candy Machine".to_string(),
             message: e.to_string(),
