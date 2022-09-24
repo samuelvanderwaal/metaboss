@@ -9,6 +9,7 @@ use crate::collections::{
     revoke_delegate, set_and_verify_nft_collection, set_size, unverify_nft_collection,
     verify_nft_collection, MigrateArgs,
 };
+use crate::create::{create_fungible, create_metadata, CreateFungibleArgs, CreateMetadataArgs};
 use crate::decode::{decode_master_edition, decode_metadata, decode_print_edition};
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
 use crate::find::find_missing_editions_process;
@@ -214,6 +215,37 @@ pub async fn process_burn_print(client: RpcClient, commands: BurnPrintSubcommand
             })
             .await
         }
+    }
+}
+
+pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<()> {
+    match commands {
+        CreateSubcommands::Metadata {
+            keypair,
+            mint,
+            metadata,
+            immutable,
+        } => create_metadata(CreateMetadataArgs {
+            client,
+            keypair,
+            mint,
+            metadata,
+            immutable,
+        }),
+        CreateSubcommands::Fungible {
+            keypair,
+            metadata,
+            decimals,
+            initial_supply,
+            immutable,
+        } => create_fungible(CreateFungibleArgs {
+            client,
+            keypair,
+            metadata,
+            decimals,
+            initial_supply,
+            immutable,
+        }),
     }
 }
 

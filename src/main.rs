@@ -64,6 +64,7 @@ async fn main() -> Result<()> {
         Command::BurnPrint {
             burn_print_subcommands,
         } => process_burn_print(client, burn_print_subcommands).await?,
+        Command::Create { create_subcommands } => process_create(client, create_subcommands)?,
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
         Command::Derive { derive_subcommands } => process_derive(derive_subcommands),
         Command::Find { find_subcommands } => process_find(&client, find_subcommands)?,
