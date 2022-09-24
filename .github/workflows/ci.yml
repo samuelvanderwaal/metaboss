@@ -17,7 +17,7 @@ jobs:
         run: |
           echo "Installing libudev-dev"
           sudo apt-get install libudev-dev
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "Installing libudev-dev"
           sudo apt-get install libudev-dev
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -57,7 +57,7 @@ jobs:
         run: |
           echo "Installing libudev-dev"
           sudo apt-get install libudev-dev
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -79,7 +79,7 @@ jobs:
         run: |
           echo "Installing libudev-dev"
           sudo apt-get install libudev-dev
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
