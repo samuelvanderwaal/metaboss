@@ -276,7 +276,6 @@ pub async fn burn_print(args: BurnPrintArgs) -> AnyResult<Signature> {
 
     let edition_marker_pda =
         derive_edition_marker_pda(&args.master_mint_pubkey, print_edition.edition);
-    println!("Edition marker: {}", edition_marker_pda);
 
     let burn_ix = burn_edition_nft(
         id(),

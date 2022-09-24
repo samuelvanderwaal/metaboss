@@ -82,8 +82,6 @@ pub fn derive_edition_marker_pda(pubkey: &Pubkey, edition_num: u64) -> Pubkey {
 
     let num: String = (edition_num / 248).to_string();
 
-    println!("num: {}", num);
-
     let seeds = &[
         METADATA_PREFIX.as_bytes(),
         metaplex_pubkey.as_ref(),
