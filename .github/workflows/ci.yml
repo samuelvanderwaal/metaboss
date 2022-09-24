@@ -16,6 +16,7 @@ jobs:
         shell: bash
         run: |
           echo "Installing libudev-dev"
+          sudo apt-get update
           sudo apt-get install libudev-dev
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -36,6 +37,7 @@ jobs:
         shell: bash
         run: |
           echo "Installing libudev-dev"
+          sudo apt-get update
           sudo apt-get install libudev-dev
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -56,6 +58,7 @@ jobs:
         shell: bash
         run: |
           echo "Installing libudev-dev"
+          sudo apt-get update
           sudo apt-get install libudev-dev
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -78,6 +81,7 @@ jobs:
         shell: bash
         run: |
           echo "Installing libudev-dev"
+          sudo apt-get update
           sudo apt-get install libudev-dev
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
