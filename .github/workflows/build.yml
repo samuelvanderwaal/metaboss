@@ -33,11 +33,6 @@ jobs:
         id: build
         shell: bash
         run: |
-          if [[ "${RUNNER_OS}" == "Linux" ]]; then
-            echo "Installing libudev-dev"
-            sudo apt-get install libudev-dev
-          fi
-          
           cargo build --all --release
           
           binary_extension=""
