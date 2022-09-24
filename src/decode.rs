@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result as AnyResult};
 use borsh::BorshDeserialize;
 use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
-use metaboss_lib::decode::decode_master_edition_from_mint;
+use metaboss_lib::decode::{decode_edition_from_mint, decode_master_edition_from_mint};
 use mpl_token_metadata::state::CollectionDetails;
 use mpl_token_metadata::state::{Key, Metadata, TokenStandard, UseMethod};
 use rayon::prelude::*;
@@ -133,6 +133,13 @@ pub fn decode_metadata_all(
 pub fn decode_master_edition(client: &RpcClient, mint_account: &str) -> AnyResult<()> {
     let master_edition = decode_master_edition_from_mint(client, mint_account)?;
     println!("{:?}", master_edition);
+
+    Ok(())
+}
+
+pub fn decode_print_edition(client: &RpcClient, mint_account: &str) -> AnyResult<()> {
+    let print_edition = decode_edition_from_mint(client, mint_account)?;
+    println!("{:?}", print_edition);
 
     Ok(())
 }

@@ -13,7 +13,7 @@ jobs:
       matrix:
         os:
           - windows-latest
-          - ubuntu-latest
+          - buildjet-4vcpu-ubuntu-2204
           - macos-latest
 
     runs-on: ${{ matrix.os }}

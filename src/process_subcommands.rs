@@ -1,14 +1,16 @@
 use anyhow::Result;
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 
-use crate::burn::{burn_all, burn_one, BurnAllArgs};
+use crate::burn::{
+    burn_all, burn_one, burn_print_all, burn_print_one, BurnAllArgs, BurnPrintAllArgs,
+};
 use crate::collections::{
     approve_delegate, check_collection_items, get_collection_items, migrate_collection,
     revoke_delegate, set_and_verify_nft_collection, set_size, unverify_nft_collection,
     verify_nft_collection, MigrateArgs,
 };
 use crate::create::{create_fungible, create_metadata, CreateFungibleArgs, CreateMetadataArgs};
-use crate::decode::{decode_master_edition, decode_metadata};
+use crate::decode::{decode_master_edition, decode_metadata, decode_print_edition};
 use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
 use crate::find::find_missing_editions_process;
 use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one};
@@ -187,6 +189,35 @@ pub async fn process_burn(client: RpcClient, commands: BurnSubcommands) -> Resul
     }
 }
 
+pub async fn process_burn_print(client: RpcClient, commands: BurnPrintSubcommands) -> Result<()> {
+    match commands {
+        BurnPrintSubcommands::One {
+            keypair,
+            account,
+            master_edition,
+        } => burn_print_one(client, keypair, account, master_edition).await,
+        BurnPrintSubcommands::All {
+            keypair,
+            mint_list,
+            master_mint,
+            cache_file,
+            batch_size,
+            retries,
+        } => {
+            burn_print_all(BurnPrintAllArgs {
+                client,
+                keypair,
+                mint_list,
+                master_mint,
+                cache_file,
+                batch_size,
+                retries,
+            })
+            .await
+        }
+    }
+}
+
 pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<()> {
     match commands {
         CreateSubcommands::Metadata {
@@ -235,6 +266,7 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
             output,
         )?,
         DecodeSubcommands::Master { account } => decode_master_edition(client, &account)?,
+        DecodeSubcommands::Edition { account } => decode_print_edition(client, &account)?,
     }
     Ok(())
 }

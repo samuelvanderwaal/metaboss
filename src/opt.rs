@@ -49,6 +49,12 @@ pub enum Command {
         #[structopt(subcommand)]
         burn_subcommands: BurnSubcommands,
     },
+    /// Full Burn a print edition NFT
+    #[structopt(name = "burn-print")]
+    BurnPrint {
+        #[structopt(subcommand)]
+        burn_print_subcommands: BurnPrintSubcommands,
+    },
     /// Create accounts
     #[structopt(name = "create")]
     Create {
@@ -127,6 +133,52 @@ pub enum BurnSubcommands {
         /// Path to the mint list file
         #[structopt(short = "L", long)]
         mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum BurnPrintSubcommands {
+    /// Burn one NFT.
+    #[structopt(name = "one")]
+    One {
+        /// Path to the owner keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Token mint account of the print edition NFT
+        #[structopt(short, long)]
+        account: String,
+
+        /// Token mint account of the master edition NFT
+        #[structopt(short, long)]
+        master_edition: String,
+    },
+    /// Burn a batch of NFTs.
+    #[structopt(name = "all")]
+    All {
+        /// Path to the owner keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Path to the mint list file
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Master Edition mint account
+        #[structopt(short, long)]
+        master_mint: String,
 
         /// Cache file
         #[structopt(short, long)]
@@ -466,6 +518,11 @@ pub enum DecodeSubcommands {
     },
     /// Decode a mint account's master edition
     Master {
+        #[structopt(short, long)]
+        account: String,
+    },
+    /// Decode a mint account's print edition
+    Edition {
         #[structopt(short, long)]
         account: String,
     },

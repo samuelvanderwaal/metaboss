@@ -9,15 +9,9 @@ name: Format and Compile Checks
 jobs:
   check:
     name: Check
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
-      - name: Setup
-        id: setup
-        shell: bash
-        run: |
-          echo "Installing libudev-dev"
-          sudo apt install libudev-dev
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -29,15 +23,9 @@ jobs:
 
   test:
     name: Test Suite
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
-      - name: Setup
-        id: setup
-        shell: bash
-        run: |
-          echo "Installing libudev-dev"
-          sudo apt-get install libudev-dev
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -49,15 +37,9 @@ jobs:
 
   fmt:
     name: Rustfmt
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
-      - name: Setup
-        id: setup
-        shell: bash
-        run: |
-          echo "Installing libudev-dev"
-          sudo apt-get install libudev-dev
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -71,15 +53,9 @@ jobs:
 
   clippy:
     name: Clippy
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
-      - name: Setup
-        id: setup
-        shell: bash
-        run: |
-          echo "Installing libudev-dev"
-          sudo apt-get install libudev-dev
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
