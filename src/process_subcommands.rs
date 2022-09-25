@@ -607,6 +607,22 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
         UpdateSubcommands::UriAll { keypair, json_file } => {
             update_uri_all(&client, keypair, &json_file)
         }
+        UpdateSubcommands::Uses {
+            keypair,
+            account,
+            method,
+            remaining,
+            total,
+            overwrite,
+        } => update_uses_one(UsesArgs {
+            client,
+            keypair,
+            account,
+            method,
+            remaining,
+            total,
+            overwrite,
+        }),
     }
 }
 

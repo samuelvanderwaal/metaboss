@@ -1148,6 +1148,33 @@ pub enum UpdateSubcommands {
         #[structopt(short = "u", long)]
         json_file: String,
     },
+    /// Update the Uses data on a NFT
+    #[structopt(name = "uses")]
+    Uses {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+
+        /// Method: burn, multiple, single
+        #[structopt(short, long)]
+        method: String,
+
+        /// New uses
+        #[structopt(short = "R", long)]
+        remaining: u64,
+
+        /// New max uses
+        #[structopt(short, long)]
+        total: u64,
+
+        /// Override existing values
+        #[structopt(long)]
+        overwrite: bool,
+    },
 }
 
 #[derive(Debug, StructOpt)]
