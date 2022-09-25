@@ -153,19 +153,22 @@ pub fn parse_seller_fee_basis_points(body: &Value) -> Result<u16> {
 }
 
 pub fn convert_local_to_remote_data(local: NFTData) -> Result<Data> {
-    let creators = local
-        .creators
-        .ok_or_else(|| anyhow!("No creators specified in json file!"))?
-        .iter()
-        .map(convert_creator)
-        .collect::<Result<Vec<Creator>>>()?;
+    let creators = match local.creators {
+        Some(nft_creators) => Some(
+            nft_creators
+                .iter()
+                .map(convert_creator)
+                .collect::<Result<Vec<_>>>()?,
+        ),
+        _ => None,
+    };
 
     let data = Data {
         name: local.name,
         symbol: local.symbol,
         uri: local.uri,
         seller_fee_basis_points: local.seller_fee_basis_points,
-        creators: Some(creators),
+        creators,
     };
     Ok(data)
 }
