@@ -76,7 +76,7 @@ async fn main() -> Result<()> {
         Command::Sign { sign_subcommands } => process_sign(&client, sign_subcommands)?,
         Command::Snapshot {
             snapshot_subcommands,
-        } => process_snapshot(&client, snapshot_subcommands).await?,
+        } => process_snapshot(client, snapshot_subcommands).await?,
         Command::Update { update_subcommands } => {
             process_update(client, update_subcommands).await?
         }

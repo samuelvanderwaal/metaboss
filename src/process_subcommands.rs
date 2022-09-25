@@ -18,8 +18,9 @@ use crate::opt::*;
 use crate::parse::{parse_errors_code, parse_errors_file};
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{
-    snapshot_cm_accounts, snapshot_holders, snapshot_indexed_holders, snapshot_indexed_mints,
-    snapshot_mints, SnapshotHoldersArgs, SnapshotMintsArgs,
+    snapshot_cm_accounts, snapshot_crawled_mints, snapshot_holders, snapshot_indexed_holders,
+    snapshot_indexed_mints, snapshot_mints, CrawlSnapshotMintsArgs, SnapshotHoldersArgs,
+    SnapshotMintsArgs,
 };
 use crate::update::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
@@ -445,7 +446,7 @@ pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()>
     }
 }
 
-pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands) -> Result<()> {
+pub async fn process_snapshot(client: RpcClient, commands: SnapshotSubcommands) -> Result<()> {
     match commands {
         SnapshotSubcommands::Holders {
             update_authority,
@@ -456,7 +457,7 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             allow_unverified,
             output,
         } => snapshot_holders(
-            client,
+            &client,
             SnapshotHoldersArgs {
                 update_authority,
                 creator,
@@ -476,7 +477,7 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
         SnapshotSubcommands::CMAccounts {
             update_authority,
             output,
-        } => snapshot_cm_accounts(client, &update_authority, &output),
+        } => snapshot_cm_accounts(&client, &update_authority, &output),
         SnapshotSubcommands::Mints {
             creator,
             position,
@@ -485,7 +486,7 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             allow_unverified,
             output,
         } => snapshot_mints(
-            client,
+            &client,
             SnapshotMintsArgs {
                 creator,
                 position,
@@ -501,6 +502,19 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             creator,
             output,
         } => snapshot_indexed_mints(indexer, api_key, &creator, output).await,
+        SnapshotSubcommands::CrawledMints {
+            candy_machine_id,
+            v2,
+            output,
+        } => {
+            snapshot_crawled_mints(CrawlSnapshotMintsArgs {
+                client,
+                candy_machine_id,
+                v2,
+                output,
+            })
+            .await
+        }
     }
 }
 

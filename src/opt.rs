@@ -944,6 +944,21 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
+    /// Snapshot mints by transaction crawling. Requires historical node.
+    #[structopt(name = "crawled-mints")]
+    CrawledMints {
+        /// Candy Machine ID
+        #[structopt(short, long)]
+        candy_machine_id: String,
+
+        /// Specify if it's a v2 candy machine, for performance improvement.
+        #[structopt(long)]
+        v2: bool,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]

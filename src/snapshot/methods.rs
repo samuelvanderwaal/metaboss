@@ -1,3 +1,5 @@
+use solana_transaction_crawler::crawler::Crawler;
+
 use super::common::*;
 use super::data::*;
 
@@ -40,6 +42,36 @@ pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()>
     mint_addresses.sort_unstable();
     let mut file = File::create(format!("{}/{}_mint_accounts.json", args.output, prefix))?;
     serde_json::to_writer_pretty(&mut file, &mint_addresses)?;
+
+    Ok(())
+}
+
+pub async fn snapshot_crawled_mints(args: CrawlSnapshotMintsArgs) -> Result<()> {
+    let candy_pubkey = Pubkey::from_str(&args.candy_machine_id)?;
+
+    let spinner = create_spinner("Getting accounts...");
+
+    let crawled_accounts = if args.v2 {
+        Crawler::get_cmv2_mints(args.client, candy_pubkey).await?
+    } else {
+        Crawler::get_first_verified_creator_mints(args.client, candy_pubkey).await?
+    };
+
+    let mint_addresses = &crawled_accounts
+        .get("mint")
+        .ok_or(anyhow!("No mint accounts found for candy machine id!"))?;
+    spinner.finish();
+
+    // Turn mints into a vector so we can sort.
+    // Benchmarked this at 32.791 us on my machine. Acceptable.
+    let mut mints: Vec<&String> = mint_addresses.into_iter().collect();
+
+    mints.sort_unstable();
+    let mut file = File::create(format!(
+        "{}/{}_mint_accounts.json",
+        args.output, args.candy_machine_id
+    ))?;
+    serde_json::to_writer_pretty(&mut file, &mints)?;
 
     Ok(())
 }

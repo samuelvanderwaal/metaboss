@@ -47,3 +47,10 @@ pub struct SnapshotHoldersArgs {
     pub allow_unverified: bool,
     pub output: String,
 }
+
+pub struct CrawlSnapshotMintsArgs {
+    pub client: RpcClient,
+    pub candy_machine_id: String,
+    pub v2: bool,
+    pub output: String,
+}
