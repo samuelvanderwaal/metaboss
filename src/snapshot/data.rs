@@ -51,6 +51,26 @@ pub struct SnapshotHoldersArgs {
 pub struct CrawlSnapshotMintsArgs {
     pub client: RpcClient,
     pub candy_machine_id: String,
-    pub v2: bool,
+    pub method: CrawlMethod,
     pub output: String,
+}
+
+#[derive(Debug)]
+pub enum CrawlMethod {
+    V1,
+    V2,
+    Authority,
+}
+
+impl FromStr for CrawlMethod {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "v1" => Ok(CrawlMethod::V1),
+            "v2" => Ok(CrawlMethod::V2),
+            "authority" => Ok(CrawlMethod::Authority),
+            _ => Err(format!("Invalid method: {}", s)),
+        }
+    }
 }

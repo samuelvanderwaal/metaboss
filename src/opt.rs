@@ -2,6 +2,7 @@ use structopt::StructOpt;
 
 use crate::{
     collections::GetCollectionItemsMethods, constants::DEFAULT_BATCH_SIZE, data::Indexers,
+    snapshot::CrawlMethod,
 };
 
 #[derive(Debug, StructOpt)]
@@ -951,9 +952,9 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long)]
         candy_machine_id: String,
 
-        /// Specify if it's a v2 candy machine, for performance improvement.
+        /// Specify if it's a "v1", "v2" candy machine, or by update "authority".
         #[structopt(long)]
-        v2: bool,
+        method: CrawlMethod,
 
         /// Path to directory to save output file
         #[structopt(short, long, default_value = ".")]

@@ -504,13 +504,13 @@ pub async fn process_snapshot(client: RpcClient, commands: SnapshotSubcommands) 
         } => snapshot_indexed_mints(indexer, api_key, &creator, output).await,
         SnapshotSubcommands::CrawledMints {
             candy_machine_id,
-            v2,
+            method,
             output,
         } => {
             snapshot_crawled_mints(CrawlSnapshotMintsArgs {
                 client,
                 candy_machine_id,
-                v2,
+                method,
                 output,
             })
             .await

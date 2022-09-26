@@ -3706,9 +3706,9 @@ dependencies = [
 
 [[package]]
 name = "solana-transaction-crawler"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69fc05922f9e3384e497cad7adef1ab565fbfafc4a6c7d355702312bf4c78b0a"
+checksum = "78a1e16c8c849b96f992aba7578a205c2b540422a3bea8ee4d8670e021504069"
 dependencies = [
  "rayon",
  "retry",
