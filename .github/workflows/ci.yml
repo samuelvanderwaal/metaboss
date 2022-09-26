@@ -11,6 +11,11 @@ jobs:
     name: Check
     runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
+      - name: libudev
+          id: build
+          shell: bash
+          run: |
+            sudo apt-get install libudev-dev
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
