@@ -18,10 +18,10 @@ jobs:
           toolchain: stable
           override: true
       - name: libudev
-          id: build
-          shell: bash
-          run: |
-            sudo apt-get install libudev-dev
+        id: build
+        shell: bash
+        run: |
+          sudo apt-get install libudev-dev
       - uses: actions-rs/cargo@v1
         with:
           command: check
