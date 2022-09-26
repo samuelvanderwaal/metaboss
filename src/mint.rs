@@ -338,7 +338,10 @@ pub fn mint_editions(
     let spinner = create_spinner("Minting...");
     if let Some(next_editions) = next_editions {
         for _ in 0..next_editions {
-            mint_next_edition(client, &keypair_path, &account, receiver)?;
+            match mint_next_edition(client, &keypair_path, &account, receiver) {
+                Ok(_) => (),
+                Err(e) => println!("Failed to mint next edition: {}", e),
+            }
         }
         return Ok(());
     }

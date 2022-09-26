@@ -11,7 +11,9 @@ use crate::collections::{
 };
 use crate::create::{create_fungible, create_metadata, CreateFungibleArgs, CreateMetadataArgs};
 use crate::decode::{decode_master_edition, decode_metadata, decode_print_edition};
-use crate::derive::{get_cmv2_pda, get_edition_pda, get_generic_pda, get_metadata_pda};
+use crate::derive::{
+    get_cmv2_pda, get_edition_marker_pda, get_edition_pda, get_generic_pda, get_metadata_pda,
+};
 use crate::find::find_missing_editions_process;
 use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one};
 use crate::opt::*;
@@ -276,6 +278,10 @@ pub fn process_derive(commands: DeriveSubcommands) {
         DeriveSubcommands::Pda { seeds, program_id } => get_generic_pda(seeds, program_id),
         DeriveSubcommands::Metadata { mint_account } => get_metadata_pda(mint_account),
         DeriveSubcommands::Edition { mint_account } => get_edition_pda(mint_account),
+        DeriveSubcommands::EditionMarker {
+            mint_account,
+            edition_num,
+        } => get_edition_marker_pda(mint_account, edition_num),
         DeriveSubcommands::CMV2Creator { candy_machine_id } => get_cmv2_pda(candy_machine_id),
     }
 }

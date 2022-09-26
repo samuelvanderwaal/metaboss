@@ -39,6 +39,12 @@ pub fn get_edition_pda(mint_account: String) {
     println!("{}", derive_edition_pda(&pubkey));
 }
 
+pub fn get_edition_marker_pda(mint_account: String, edition_num: u64) {
+    let pubkey =
+        Pubkey::from_str(&mint_account).expect("Failed to parse pubkey from mint account!");
+    println!("{}", derive_edition_marker_pda(&pubkey, edition_num));
+}
+
 pub fn get_cmv2_pda(candy_machine_id: String) {
     let pubkey =
         Pubkey::from_str(&candy_machine_id).expect("Failed to parse pubkey from candy_machine_id!");

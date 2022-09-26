@@ -538,12 +538,22 @@ pub enum DeriveSubcommands {
         /// Program id to derive PDA from
         program_id: String,
     },
+
     /// Derive Metadata PDA
     #[structopt(name = "metadata")]
     Metadata { mint_account: String },
+
     /// Derive Edition PDA
     #[structopt(name = "edition")]
     Edition { mint_account: String },
+
+    /// Derive Edition Marker PDA
+    #[structopt(name = "edition-marker")]
+    EditionMarker {
+        mint_account: String,
+        edition_num: u64,
+    },
+
     /// Derive CMV2 PDA
     #[structopt(name = "cmv2-creator")]
     CMV2Creator { candy_machine_id: String },
