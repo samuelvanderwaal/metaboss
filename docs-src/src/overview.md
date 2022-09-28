@@ -9,6 +9,7 @@ The Solana Metaplex NFT 'Swiss Army Knife' tool.
 
 Current Commands:
 
+```
 SUBCOMMANDS:
     burn            Full Burn a NFT
     burn-print      Full Burn a print edition NFT
@@ -25,6 +26,7 @@ SUBCOMMANDS:
     snapshot        Get snapshots of various blockchain states
     update          Update various aspects of NFTs
     uses            NFT uses commands
+```
 
 Each subcommand has additional commands. Run `metaboss <subcommand> --help` and `metaboss <subcommand> <command> --help` for more information on particular commands.
 
