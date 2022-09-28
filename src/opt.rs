@@ -526,6 +526,17 @@ pub enum DecodeSubcommands {
         #[structopt(short, long)]
         account: String,
     },
+    /// Decode a mint account's edition marker account
+    EditionMarker {
+        #[structopt(short, long)]
+        account: String,
+
+        #[structopt(short, long)]
+        edition_num: Option<u64>,
+
+        #[structopt(short, long)]
+        marker_num: Option<u64>,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -538,12 +549,22 @@ pub enum DeriveSubcommands {
         /// Program id to derive PDA from
         program_id: String,
     },
+
     /// Derive Metadata PDA
     #[structopt(name = "metadata")]
     Metadata { mint_account: String },
+
     /// Derive Edition PDA
     #[structopt(name = "edition")]
     Edition { mint_account: String },
+
+    /// Derive Edition Marker PDA
+    #[structopt(name = "edition-marker")]
+    EditionMarker {
+        mint_account: String,
+        edition_num: u64,
+    },
+
     /// Derive CMV2 PDA
     #[structopt(name = "cmv2-creator")]
     CMV2Creator { candy_machine_id: String },

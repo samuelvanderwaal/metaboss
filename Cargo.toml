@@ -21,7 +21,7 @@ indexmap = { version = "1.8.1", features = ["serde"] }
 indicatif = { version = "0.16.2", features = ["rayon"] }
 lazy_static = "1.4.0"
 log = "0.4.14"
-metaboss_lib = "0.0.4"
+metaboss_lib = "0.0.6"
 mpl-token-metadata = { version = "1.4", features = ["serde-feature"] }
 num_cpus = "1.13.0"
 phf = { version = "0.10", features = ["macros"] }
@@ -38,7 +38,7 @@ solana-account-decoder = "1.10.17"
 solana-logger = "1.11.1"
 solana-program = "1.10.17"
 solana-sdk = "1.10.17"
-spl-associated-token-account = "~1.0.5"
+spl-associated-token-account = "~1.0.3"
 spl-token = "3.2.0"
 structopt = "0.3.23"
 thiserror = "1.0.30"

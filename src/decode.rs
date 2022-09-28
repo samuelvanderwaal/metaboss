@@ -2,7 +2,9 @@ use anyhow::{anyhow, Result as AnyResult};
 use borsh::BorshDeserialize;
 use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
-use metaboss_lib::decode::{decode_edition_from_mint, decode_master_edition_from_mint};
+use metaboss_lib::decode::{
+    decode_edition_from_mint, decode_edition_marker_from_mint, decode_master_edition_from_mint,
+};
 use mpl_token_metadata::state::CollectionDetails;
 use mpl_token_metadata::state::{Key, Metadata, TokenStandard, UseMethod};
 use rayon::prelude::*;
@@ -140,6 +142,26 @@ pub fn decode_master_edition(client: &RpcClient, mint_account: &str) -> AnyResul
 pub fn decode_print_edition(client: &RpcClient, mint_account: &str) -> AnyResult<()> {
     let print_edition = decode_edition_from_mint(client, mint_account)?;
     println!("{:?}", print_edition);
+
+    Ok(())
+}
+
+pub fn decode_edition_marker(
+    client: &RpcClient,
+    mint_account: &str,
+    edition_num: Option<u64>,
+    marker_num: Option<u64>,
+) -> AnyResult<()> {
+    let edition_num = if let Some(num) = edition_num {
+        num
+    } else if let Some(num) = marker_num {
+        num * 248
+    } else {
+        return Err(anyhow!("Edition or marker number is required"));
+    };
+
+    let edition_marker = decode_edition_marker_from_mint(client, mint_account, edition_num)?;
+    println!("{:?}", edition_marker);
 
     Ok(())
 }
