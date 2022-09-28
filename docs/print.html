@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">4.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">5.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">6.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">7.</strong> Collections</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">8.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">9.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">10.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">11.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">12.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">13.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">14.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">15.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">16.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">17.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">8.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">9.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">10.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">11.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">12.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">13.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">14.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">15.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">16.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">17.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">18.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">19.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -149,41 +149,54 @@
 <a href="https://crates.io/crates/metaboss"><img src="https://img.shields.io/crates/v/metaboss" alt="Crate" /></a>
 <a href="https://crates.io/crates/metaboss"><img src="https://img.shields.io/crates/d/metaboss" alt="Downloads" /></a></p>
 <p>The Solana Metaplex NFT 'Swiss Army Knife' tool.</p>
-<p>Current supported features:</p>
-<ul>
-<li>
-<p>Decode the metadata of a token mint account</p>
-</li>
-<li>
-<p>Mint new NFTs from a JSON file</p>
-</li>
-<li>
-<p>Set <code>primary_sale_happened</code> bool on an NFT's metadata</p>
-</li>
-<li>
-<p>Set <code>update_authorty</code> address on an NFT's metadata</p>
-</li>
-<li>
-<p>Verify a creator by signing the metadata accounts for all tokens in a list, for a given candy machine id or a single mint account</p>
-</li>
-<li>
-<p>Get a snapshot of current NFT holders for a given candy machine ID or update authority</p>
-</li>
-<li>
-<p>Get a list of mint accounts for a given candy machine ID or update authority</p>
-</li>
-<li>
-<p>Get a list of all candy machine state and config accounts for a given update authority</p>
-</li>
-<li>
-<p>Update all metadata Data struct fields for a NFT</p>
-</li>
-<li>
-<p>Update just the URI for a NFT</p>
-</li>
-</ul>
+<p>Current Commands:</p>
+<p>SUBCOMMANDS:
+burn            Full Burn a NFT
+burn-print      Full Burn a print edition NFT
+collections     NFT collections commands
+create          Create accounts
+decode          Decode on-chain data into JSON format
+derive          Derive PDAs for various account types
+find            Find things
+help            Prints this message or the help of the given subcommand(s)
+mint            Mint new NFTs from JSON files
+parse-errors    Parse Errors commands
+set             Set non-Data struct values for a NFT
+sign            Sign metadata for an unverified creator
+snapshot        Get snapshots of various blockchain states
+update          Update various aspects of NFTs
+uses            NFT uses commands</p>
+<p>Each subcommand has additional commands. Run <code>metaboss &lt;subcommand&gt; --help</code> and <code>metaboss &lt;subcommand&gt; &lt;command&gt; --help</code> for more information on particular commands.</p>
 <p>Suggestions and PRs welcome!</p>
 <p><strong>Note: This is experimental software for a young ecosystem. Use at your own risk. The author is not responsible for misuse of the software or failing to test specific commands before using on production NFTs.</strong></p>
+<p><strong>Test on devnet or localnet before using on mainnet.</strong></p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
+<h3 id="install-binary"><a class="header" href="#install-binary">Install Binary</a></h3>
+<p>Copy the following to a terminal:</p>
+<pre><code>bash &lt;(curl -sSf https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh)
+</code></pre>
+<p>If you get errors you may need dependencies:</p>
+<p>Ubuntu:</p>
+<pre><code>sudo apt install libssl-dev libudev-dev pkg-config
+</code></pre>
+<p>MacOS may need openssl:</p>
+<pre><code>brew install openssl@3
+</code></pre>
+<p>Or get the binary yourself: <a href="https://github.com/samuelvanderwaal/metaboss/releases">binary</a>.</p>
+<h3 id="install-with-cargo"><a class="header" href="#install-with-cargo">Install With Cargo</a></h3>
+<p>So you're a Rust dev. . .</p>
+<pre><code class="language-bash">cargo install metaboss
+</code></pre>
+<h3 id="see-usage-commands"><a class="header" href="#see-usage-commands">See Usage Commands</a></h3>
+<pre><code class="language-bash">metaboss -h
+</code></pre>
+<p>Decode a mint account's metadata:</p>
+<pre><code class="language-bash">metaboss decode mint -a 23gaZq8578xHozMWADsmZ2hAFqZ15iyHmQtRw14meds2
+</code></pre>
+<p>Get a snapshot of mint accounts by first verified creator:</p>
+<pre><code class="language-bash">metaboss snapshot mint -c PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
 <h2 id="recommended-way-to-install"><a class="header" href="#recommended-way-to-install">Recommended Way to Install</a></h2>
 <p>For non-technical users, the recommended way to install is to use the install script to install on <strong>MacOs</strong>, <strong>Ubuntu</strong>, or other <strong>Unix-like OS</strong>, by copying the following into a terminal:</p>
 <pre><code>bash &lt;(curl -sSf https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh)
@@ -219,32 +232,6 @@ git checkout main
 <h2 id="set-up-your-solana-config"><a class="header" href="#set-up-your-solana-config">Set Up Your Solana Config</a></h2>
 <p>If you have the <a href="https://docs.solana.com/cli/install-solana-cli-tools">Solana CLI</a> installed (recommended) you can setup your RPC and keypair so you don't have to pass them into Metaboss:</p>
 <pre><code>solana config set --url &lt;rpc url&gt; --keypair &lt;path to keypair file&gt;
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
-<h3 id="install-binary"><a class="header" href="#install-binary">Install Binary</a></h3>
-<p>Copy the following to a terminal:</p>
-<pre><code>bash &lt;(curl -sSf https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh)
-</code></pre>
-<p>If you get errors you may need dependencies:</p>
-<p>Ubuntu:</p>
-<pre><code>sudo apt install libssl-dev libudev-dev pkg-config
-</code></pre>
-<p>MacOS may need openssl:</p>
-<pre><code>brew install openssl@3
-</code></pre>
-<p>Or get the binary yourself: <a href="https://github.com/samuelvanderwaal/metaboss/releases">binary</a>.</p>
-<h3 id="install-with-cargo"><a class="header" href="#install-with-cargo">Install With Cargo</a></h3>
-<p>So you're a Rust dev. . .</p>
-<pre><code class="language-bash">cargo install metaboss
-</code></pre>
-<h3 id="see-usage-commands"><a class="header" href="#see-usage-commands">See Usage Commands</a></h3>
-<pre><code class="language-bash">metaboss -h
-</code></pre>
-<p>Decode a mint account's metadata:</p>
-<pre><code class="language-bash">metaboss decode mint -a 23gaZq8578xHozMWADsmZ2hAFqZ15iyHmQtRw14meds2
-</code></pre>
-<p>Get a snapshot of mint accounts by first verified creator:</p>
-<pre><code class="language-bash">metaboss snapshot mint -c PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
 <h3 id="update-the-uri-of-an-existing-nft"><a class="header" href="#update-the-uri-of-an-existing-nft">Update the URI of an existing NFT</a></h3>
@@ -312,6 +299,7 @@ git checkout main
 <pre><code class="language-bash">metaboss snapshot holders -r https://ssc-dao.genesysgo.net/ -T 120 -u DC2mkgwhy56w3viNtHDjJQmc7SGu2QX785bS4aexojwX
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="burn"><a class="header" href="#burn">Burn</a></h2>
+<p>Burn Master Editions NFTs, as long as they do not have any editions (supply == 0). Only the owner/token holder of the NFT can burn it.</p>
 <h3 id="burn-one"><a class="header" href="#burn-one">Burn One</a></h3>
 <p>Fully burn a single NFT by calling the Token Metadata program <a href="https://docs.metaplex.com/programs/token-metadata/instructions#burn-a-nft">burn_nft</a> handler.</p>
 <h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
@@ -329,6 +317,28 @@ git checkout main
 </code></pre>
 <h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
 <pre><code class="language-bash">metaboss burn all -k &lt;OWNER_KEYPAIR&gt; -L &lt;JSON_LIST_OF_MINTS_ACCOUNTS&gt;
+</code></pre>
+<p>As in all other commands, keypair can be elided if set in the Solana config file.</p>
+<h2 id="burn-print"><a class="header" href="#burn-print">Burn-Print</a></h2>
+<p>Burn Print Edition NFTs. Only the owner/token holder of the NFT can burn it.</p>
+<h3 id="burn-print-one"><a class="header" href="#burn-print-one">Burn-Print One</a></h3>
+<p>Fully burn a single Print Edition NFT by called the Token Metadata <a href="https://docs.metaplex.com/programs/token-metadata/instructions#burn-a-print-edition-nft">burn_edition_nft</a> handler.</p>
+<h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
+<pre><code class="language-bash">metaboss burn-print one -k &lt;OWNER_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
+</code></pre>
+<h3 id="burn-print-all"><a class="header" href="#burn-print-all">Burn-Print All</a></h3>
+<p>Fully burn multiple Print Edition NFTs by providing a JSON list file of mint accounts.</p>
+<p>E.g. JSON file:</p>
+<pre><code class="language-json">[
+    &quot;D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28&quot;,
+    &quot;4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW&quot;,
+    &quot;J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz&quot;,
+    &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
+]
+</code></pre>
+<p>Due to on-chain limitations, you also have to provide the mint account of the Master Edition NFT.</p>
+<h4 id="usage-3"><a class="header" href="#usage-3">Usage</a></h4>
+<pre><code class="language-bash">metaboss burn-print all -k &lt;OWNER_KEYPAIR&gt; -L &lt;JSON_LIST_OF_MINT_ACCOUNTS&gt; -m &lt;MASTER_EDITION_MINT_ACCOUNT&gt;
 </code></pre>
 <p>As in all other commands, keypair can be elided if set in the Solana config file.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="collections"><a class="header" href="#collections">Collections</a></h1>
@@ -406,10 +416,38 @@ git checkout main
 </code></pre>
 <p>This command has a <code>--debug</code> flag, which creates a JSON file when set with a mapping of all collection NFTs found associated with the list of addresses and which ones belong to each.</p>
 <p>Report bugs and questions to the <a href="https://discord.gg/2f7N25NJkg">Metaboss Discord</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="create"><a class="header" href="#create">Create</a></h2>
+<h3 id="fungible"><a class="header" href="#fungible">Fungible</a></h3>
+<p>Create a new SPL token mint and corresponding metadata account.</p>
+<h4 id="usage-4"><a class="header" href="#usage-4">Usage</a></h4>
+<p>Specify the token decimals and path to a metadata file that contains the <code>name</code>, <code>symbol</code> and <code>uri</code> fields in a JSON format.</p>
+<pre><code class="language-bash">metaboss create fungible -d &lt;decimals&gt; -m &lt;metadata_file&gt;
+</code></pre>
+<p>E.g.:</p>
+<p>// crab.json</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Crabbie&quot;,
+  &quot;symbol&quot;: &quot;CRAB&quot;,
+  &quot;uri&quot;: &quot;https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k&quot;
+}
+</code></pre>
+<pre><code class="language-bash">metaboss create fungible -d 6 -m crab.json
+</code></pre>
+<p>Use the <code>--initial-suply</code> option to mint the specified amount directly to your keypair upon token creation. The amount is specified is the UI amount as a float. E.g. <code>--initial-supply 10.123</code> with three decimals will mint 10123 base unit tokens to your keypair.</p>
+<pre><code class="language-bash">
+```bash
+metaboss create fungible -d 3 -m crab.json --initial-supply 10.1
+</code></pre>
+<h3 id="metadata"><a class="header" href="#metadata">Metadata</a></h3>
+<p>Decorate an existing SPL token mint with metadata.</p>
+<h4 id="usage-5"><a class="header" href="#usage-5">Usage</a></h4>
+<p>Specify the existing mint address and path to a metadata file that contains the <code>name</code>, <code>symbol</code> and <code>uri</code> fields in a JSON format.</p>
+<pre><code class="language-bash">metaboss create metadata -a &lt;mint_address&gt; -m &lt;metadata_file&gt;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="decode"><a class="header" href="#decode">Decode</a></h2>
 <h3 id="decode-mint"><a class="header" href="#decode-mint">Decode Mint</a></h3>
 <p>Decodes a mint account's metadata into a JSON file. It accepts either a single account or a list of accounts.</p>
-<h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
+<h4 id="usage-6"><a class="header" href="#usage-6">Usage</a></h4>
 <pre><code class="language-bash">metaboss decode mint --account &lt;MINT_ACCOUNT&gt; -o &lt;OUPUT_DIRECTORY&gt;
 </code></pre>
 <p>The command will write the metadata JSON file to the output directory with the mint account as the name: e.g. <code>CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp.json</code>. The output option defaults to the current directory.</p>
@@ -421,10 +459,26 @@ git checkout main
 <p>The command will write each metadata JSON file to the output directory as a separate file with the mint account as the name: e.g. <code>CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp.json</code>. The output option defaults to the current directory.</p>
 <p>As of v0.4.0, the default output will only be the <code>Data</code> struct matching the input format of the <code>update data</code> and <code>update data-all</code> commands. To get the full <code>Metadata</code> struct, use the <code>--full</code> option.</p>
 <p>Use <code>--raw</code> to get the account data as raw bytes for debugging purposes.</p>
+<h3 id="decode-edition"><a class="header" href="#decode-edition">Decode Edition</a></h3>
+<p>Decodes a single Print Edition account from a mint account into a JSON file. This is a Print Edition PDA.</p>
+<h4 id="usage-7"><a class="header" href="#usage-7">Usage</a></h4>
+<pre><code class="language-bash">metaboss decode edition --account &lt;MINT_ACCOUNT&gt; 
+</code></pre>
+<h3 id="decode-edition-marker"><a class="header" href="#decode-edition-marker">Decode Edition Marker</a></h3>
+<p>Decodes a single Edition Marker PDA account from a mint account into a JSON file. This takes the Master Edition NFT mint account and either the edition number or the desired edition marker number, zero-indexed.</p>
+<h4 id="usage-8"><a class="header" href="#usage-8">Usage</a></h4>
+<p>In this example, it will decode the 2nd Edition Marker PDA which corresponds to Edition numbers 248-495.</p>
+<pre><code class="language-bash">metaboss decode edition-marker --account &lt;MASTER_EDITION_MINT_ACCOUNT&gt; -m 1
+</code></pre>
+<h3 id="decode-master"><a class="header" href="#decode-master">Decode Master</a></h3>
+<p>Decodes a single Master Edition account from a mint account into a JSON file. This is a Master Edition PDA.</p>
+<h4 id="usage-9"><a class="header" href="#usage-9">Usage</a></h4>
+<pre><code class="language-bash">metaboss decode master --account &lt;MINT_ACCOUNT&gt; 
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="derive"><a class="header" href="#derive">Derive</a></h2>
 <h3 id="derive-candy-machine-v2-creator"><a class="header" href="#derive-candy-machine-v2-creator">Derive Candy Machine V2 Creator</a></h3>
 <p>Derive the candy machine creator PDA from the candy machine id.</p>
-<h4 id="usage-3"><a class="header" href="#usage-3">Usage</a></h4>
+<h4 id="usage-10"><a class="header" href="#usage-10">Usage</a></h4>
 <pre><code class="language-bash">metaboss derive cmv2-creator &lt;candy_machine_id&gt;
 </code></pre>
 <h3 id="derive-edition"><a class="header" href="#derive-edition">Derive Edition</a></h3>
@@ -437,7 +491,7 @@ git checkout main
 </code></pre>
 <h3 id="derive-pda"><a class="header" href="#derive-pda">Derive PDA</a></h3>
 <p>Derive a generic PDA from a list of seeds and a program id.</p>
-<h4 id="usage-4"><a class="header" href="#usage-4">Usage</a></h4>
+<h4 id="usage-11"><a class="header" href="#usage-11">Usage</a></h4>
 <pre><code class="language-bash">metaboss derive pda &lt;seed1&gt;,&lt;seed2&gt;,&lt;seed3&gt; &lt;program_id&gt;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="find"><a class="header" href="#find">Find</a></h2>
@@ -473,7 +527,7 @@ Candy Machine | IncorrectOwner: Account does not have correct owner!
 <p>For both subcommands the <code>--immutable</code> flag sets the NFT data to be immutable and the <code>--primary-sale-happened</code> flag sets the primary sale happened bool to true.</p>
 <h3 id="mint-one"><a class="header" href="#mint-one">Mint One</a></h3>
 <p>Mint a single NFT from a JSON file.</p>
-<h4 id="usage-5"><a class="header" href="#usage-5">Usage</a></h4>
+<h4 id="usage-12"><a class="header" href="#usage-12">Usage</a></h4>
 <pre><code class="language-bash">metaboss mint one --keypair &lt;KEYPAIR&gt; --nft-data-file &lt;PATH_TO_NFT_DATA_FILE&gt; --receiver &lt;RECEIVER_ADDRESS&gt;
 </code></pre>
 <pre><code class="language-bash">metaboss mint one --keypair &lt;KEYPAIR&gt; --external-metadata-uri &lt;EXTERNAL_METADATA_URI&gt; --receiver &lt;RECEIVER_ADDRESS&gt; --immutable --primary-sale-happened
@@ -505,7 +559,7 @@ Candy Machine | IncorrectOwner: Account does not have correct owner!
 <p>To find the full list of options for each command use <code>-h</code> or <code>--help</code> as normal.</p>
 <h3 id="mint-list"><a class="header" href="#mint-list">Mint List</a></h3>
 <p>Mint multiple NFTs from a list of JSON files.</p>
-<h4 id="usage-6"><a class="header" href="#usage-6">Usage</a></h4>
+<h4 id="usage-13"><a class="header" href="#usage-13">Usage</a></h4>
 <pre><code class="language-bash">metaboss mint list --keypair &lt;KEYPAIR&gt; --nft-data-dir &lt;PATH_TO_NFT_DATA_FILE&gt; --receiver &lt;RECEIVER_ADDRESS&gt;
 </code></pre>
 <p>This command functions the same as <code>mint one</code> except instead of a single JSON file, provide a path to a directory with multiple JSON files, one for each NFT to be minted.</p>
@@ -552,13 +606,13 @@ Candy Machine | IncorrectOwner: Account does not have correct owner!
 <p>Sign metadata for an unverified creator.</p>
 <h3 id="sign-one"><a class="header" href="#sign-one">Sign One</a></h3>
 <p>Sign the metadata for a single mint account.</p>
-<h4 id="usage-7"><a class="header" href="#usage-7">Usage</a></h4>
+<h4 id="usage-14"><a class="header" href="#usage-14">Usage</a></h4>
 <pre><code class="language-bash">metaboss sign one --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="sign-all"><a class="header" href="#sign-all">Sign All</a></h3>
 <p>Sign all metadata from a JSON list or for a given first verified creator. First verified creator can be the candy machine creator id or whatever the first verified creator in the creators array is for your NFTs.</p>
-<h4 id="usage-8"><a class="header" href="#usage-8">Usage</a></h4>
+<h4 id="usage-15"><a class="header" href="#usage-15">Usage</a></h4>
 <pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --creator &lt;FIRST_CREATOR&gt;
 </code></pre>
 <p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with the candy machine id.</strong>
@@ -583,7 +637,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <p>Get snapshots of various blockchain states.</p>
 <h3 id="snapshot-cm-accounts"><a class="header" href="#snapshot-cm-accounts">Snapshot CM-Accounts</a></h3>
 <p>Snapshot all candy machine config and state accounts for a given update_authority.</p>
-<h4 id="usage-9"><a class="header" href="#usage-9">Usage</a></h4>
+<h4 id="usage-16"><a class="header" href="#usage-16">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot cm-accounts --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>Creates a JSON file in the output directory with the name format of <code>&lt;UPDATE_AUTHORITY&gt;_accounts.json</code>, consisting of an object with the fields <code>config_accounts</code> and <code>candy_machine_accounts</code>:</p>
@@ -613,7 +667,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <h3 id="snapshot-holders"><a class="header" href="#snapshot-holders">Snapshot Holders</a></h3>
 <p>Snapshot all current holders of NFTs filtered by verified candy_machine_id/first creator or update_authority.
 <strong>Note:</strong> Update authority can be faked so use that option with caution.</p>
-<h4 id="usage-10"><a class="header" href="#usage-10">Usage</a></h4>
+<h4 id="usage-17"><a class="header" href="#usage-17">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot holders --creator &lt;CREATOR_ADDRESS&gt; -p &lt;POSITION&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
@@ -644,7 +698,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 </code></pre>
 <h3 id="snapshot-mints"><a class="header" href="#snapshot-mints">Snapshot Mints</a></h3>
 <p>Snapshot all mint accounts for a given verified candy machine id/first creator or update authority</p>
-<h4 id="usage-11"><a class="header" href="#usage-11">Usage</a></h4>
+<h4 id="usage-18"><a class="header" href="#usage-18">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot mints --creator &lt;FIRST_CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
@@ -666,11 +720,11 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <h3 id="indexed-data"><a class="header" href="#indexed-data">Indexed Data</a></h3>
 <p>Metaboss now has experimental support for running snapshot commands using off-chain, indexed data from https://theindex.io/. Other indexers or methods may be supported later. To use this feature, you need to sign up for a free account with TheIndex to get an API key.</p>
 <h3 id="snapshot-indexed-mints"><a class="header" href="#snapshot-indexed-mints">Snapshot Indexed Mints</a></h3>
-<h4 id="usage-12"><a class="header" href="#usage-12">Usage</a></h4>
+<h4 id="usage-19"><a class="header" href="#usage-19">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot indexed-mints --creator &lt;FIRST_VERIFIED_CREATOR&gt; --api-key &lt;THEINDEX.IO_API_KEY&gt;
 </code></pre>
 <h3 id="snapshot-indexed-holders"><a class="header" href="#snapshot-indexed-holders">Snapshot Indexed Holders</a></h3>
-<h4 id="usage-13"><a class="header" href="#usage-13">Usage</a></h4>
+<h4 id="usage-20"><a class="header" href="#usage-20">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot indexed-holders --creator &lt;FIRST_VERIFIED_CREATOR&gt; --api-key &lt;THEINDEX.IO_API_KEY&gt;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="update"><a class="header" href="#update">Update</a></h2>
@@ -679,7 +733,7 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>See also <strong>Set</strong> commands for updatable values that cannot be reversed (e.g. set immutable).</p>
 <h3 id="update-data"><a class="header" href="#update-data">Update Data</a></h3>
 <p>Update the <code>Data</code> struct on a NFT from a JSON file.</p>
-<h4 id="usage-14"><a class="header" href="#usage-14">Usage</a></h4>
+<h4 id="usage-21"><a class="header" href="#usage-21">Usage</a></h4>
 <pre><code class="language-bash">metaboss update data --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-data-file &lt;PATH_TO_NEW_DATA_FILE&gt;
 </code></pre>
 <p>The JSON file should include all the fields of the metadata <code>Data</code> struct and should match <code>creator</code> <code>verified</code> bools for existing creators. E.g. if your NFT was minted by the Metaplex Candy Machine program, and you wish to keep your candy machine as a verified creator <em>you must add the candy machine to your creators array with <code>verified</code> set to <code>true</code></em>.</p>
@@ -712,7 +766,7 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="update-data-all"><a class="header" href="#update-data-all">Update Data All</a></h3>
 <p>Update the <code>Data</code> struct on a list of NFTs from JSON files.</p>
-<h4 id="usage-15"><a class="header" href="#usage-15">Usage</a></h4>
+<h4 id="usage-22"><a class="header" href="#usage-22">Usage</a></h4>
 <pre><code class="language-bash">metaboss update data-all --keypair &lt;PATH_TO_KEYPAIR&gt; --data-dir &lt;PATH_TO_DATA_DIR&gt;
 </code></pre>
 <p>Each JSON file in the data directory should include the mint account and all the fields of the metadata <code>Data</code> struct and should match <code>creator</code> <code>verified</code> bools for existing creators. E.g. if your NFT was minted by the Metaplex Candy Machine program, and you wish to keep your candy machine as a verified creator <em>you must add the candy machine to your creators array with <code>verified</code> set to <code>true</code></em>.</p>
@@ -748,22 +802,22 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="update-name"><a class="header" href="#update-name">Update Name</a></h3>
 <p>Update the on-chain name of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-16"><a class="header" href="#usage-16">Usage</a></h4>
+<h4 id="usage-23"><a class="header" href="#usage-23">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update name --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-name &lt;NEW_NAME&gt;
 </code></pre>
 <h3 id="update-symbol"><a class="header" href="#update-symbol">Update Symbol</a></h3>
 <p>Update the on-chain symbol of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-17"><a class="header" href="#usage-17">Usage</a></h4>
+<h4 id="usage-24"><a class="header" href="#usage-24">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update symbol --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-symbol &lt;NEW_SYMBOL&gt;
 </code></pre>
 <h3 id="update-symbol-all"><a class="header" href="#update-symbol-all">Update Symbol All</a></h3>
 <p>Update the on-chain symbol of a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-18"><a class="header" href="#usage-18">Usage</a></h4>
+<h4 id="usage-25"><a class="header" href="#usage-25">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update symbol-all --keypair &lt;PATH_TO_KEYPAIR&gt; -L &lt;PATH_TO_LIST_MINT_ADDRESSES&gt; --new-symbol &lt;NEW_SYMBOL&gt;
 </code></pre>
 <h3 id="update-creators"><a class="header" href="#update-creators">Update Creators</a></h3>
 <p>Update the creators of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-19"><a class="header" href="#usage-19">Usage</a></h4>
+<h4 id="usage-26"><a class="header" href="#usage-26">Usage</a></h4>
 <pre><code class="language-bash">metaboss update creators -k &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -c &lt;CREATOR1:SHARE:VERIFIED,CREATOR2:SHARE:VERIFIED&gt;
 </code></pre>
 <p>Creators should be a comma-delimited list of creator:share:verified. E.g. </p>
@@ -777,12 +831,12 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 </code></pre>
 <h3 id="update-uri"><a class="header" href="#update-uri">Update URI</a></h3>
 <p>Update the metadata URI, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-20"><a class="header" href="#usage-20">Usage</a></h4>
+<h4 id="usage-27"><a class="header" href="#usage-27">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-uri &lt;NEW_URI&gt;
 </code></pre>
 <h3 id="update-uri-all"><a class="header" href="#update-uri-all">Update URI All</a></h3>
 <p>Update the metadata URI for a list of mint accounts, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-21"><a class="header" href="#usage-21">Usage</a></h4>
+<h4 id="usage-28"><a class="header" href="#usage-28">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri-all --keypair &lt;PATH_TO_KEYPAIR&gt; --json-file &lt;PATH_TO_JSON_FILE&gt;
 </code></pre>
 <pre><code class="language-json">[
@@ -798,12 +852,12 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 </code></pre>
 <h3 id="update-seller-fee-basis-points"><a class="header" href="#update-seller-fee-basis-points">Update Seller Fee Basis Points</a></h3>
 <p>Update the seller fee basis points field on an NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-22"><a class="header" href="#usage-22">Usage</a></h4>
+<h4 id="usage-29"><a class="header" href="#usage-29">Usage</a></h4>
 <pre><code class="language-bash">metaboss update sfbp --keypair &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
 <h3 id="update-seller-fee-basis-points-all"><a class="header" href="#update-seller-fee-basis-points-all">Update Seller Fee Basis Points All</a></h3>
 <p>Update the seller fee basis points field on a a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-23"><a class="header" href="#usage-23">Usage</a></h4>
+<h4 id="usage-30"><a class="header" href="#usage-30">Usage</a></h4>
 <pre><code class="language-bash">metaboss update sfbp-all --keypair &lt;PATH_TO_KEYPAIR&gt; -L &lt;PATH_TO_MINT_LIST.json&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="withdraw-deprecated"><a class="header" href="#withdraw-deprecated">Withdraw (Deprecated)</a></h2>

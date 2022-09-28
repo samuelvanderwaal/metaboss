@@ -2,11 +2,13 @@
 
 - [Overview](./overview.md)
 - [Quick Start](./quick_start.md)
+- [Installation](./installation.md)
 - [Examples](./examples.md)
 - [Recipes](./recipes.md)
 - [Global Options](./global_options.md)
 - [Burn](./burn.md)
 - [Collections](./collections.md)
+- [Create](./create.md)
 - [Decode](./decode.md)
 - [Derive](./derive.md)
 - [Find](./find.md)

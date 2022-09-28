@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Decode - Metaboss</title>
+        <title>Create - Metaboss</title>
 
 
         <!-- Custom HTML head -->
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">8.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">9.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html" class="active"><strong aria-hidden="true">10.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">11.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">12.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">13.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">14.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">15.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">16.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">17.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">18.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">19.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">8.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html" class="active"><strong aria-hidden="true">9.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">10.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">11.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">12.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">13.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">14.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">15.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">16.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">17.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">18.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">19.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -142,47 +142,44 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="decode"><a class="header" href="#decode">Decode</a></h2>
-<h3 id="decode-mint"><a class="header" href="#decode-mint">Decode Mint</a></h3>
-<p>Decodes a mint account's metadata into a JSON file. It accepts either a single account or a list of accounts.</p>
+                        <h2 id="create"><a class="header" href="#create">Create</a></h2>
+<h3 id="fungible"><a class="header" href="#fungible">Fungible</a></h3>
+<p>Create a new SPL token mint and corresponding metadata account.</p>
 <h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
-<pre><code class="language-bash">metaboss decode mint --account &lt;MINT_ACCOUNT&gt; -o &lt;OUPUT_DIRECTORY&gt;
+<p>Specify the token decimals and path to a metadata file that contains the <code>name</code>, <code>symbol</code> and <code>uri</code> fields in a JSON format.</p>
+<pre><code class="language-bash">metaboss create fungible -d &lt;decimals&gt; -m &lt;metadata_file&gt;
 </code></pre>
-<p>The command will write the metadata JSON file to the output directory with the mint account as the name: e.g. <code>CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp.json</code>. The output option defaults to the current directory.</p>
-<pre><code class="language-bash">metaboss decode mint --list-file &lt;LIST_FILE&gt; -o &lt;OUPUT_DIRECTORY&gt;
+<p>E.g.:</p>
+<p>// crab.json</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Crabbie&quot;,
+  &quot;symbol&quot;: &quot;CRAB&quot;,
+  &quot;uri&quot;: &quot;https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k&quot;
+}
 </code></pre>
-<p>The JSON list file should be an array of mint accounts to be decoded:</p>
-<pre><code class="language-json">[&quot;xSy...&quot;, &quot;Cnb...&quot; ...]
+<pre><code class="language-bash">metaboss create fungible -d 6 -m crab.json
 </code></pre>
-<p>The command will write each metadata JSON file to the output directory as a separate file with the mint account as the name: e.g. <code>CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp.json</code>. The output option defaults to the current directory.</p>
-<p>As of v0.4.0, the default output will only be the <code>Data</code> struct matching the input format of the <code>update data</code> and <code>update data-all</code> commands. To get the full <code>Metadata</code> struct, use the <code>--full</code> option.</p>
-<p>Use <code>--raw</code> to get the account data as raw bytes for debugging purposes.</p>
-<h3 id="decode-edition"><a class="header" href="#decode-edition">Decode Edition</a></h3>
-<p>Decodes a single Print Edition account from a mint account into a JSON file. This is a Print Edition PDA.</p>
+<p>Use the <code>--initial-suply</code> option to mint the specified amount directly to your keypair upon token creation. The amount is specified is the UI amount as a float. E.g. <code>--initial-supply 10.123</code> with three decimals will mint 10123 base unit tokens to your keypair.</p>
+<pre><code class="language-bash">
+```bash
+metaboss create fungible -d 3 -m crab.json --initial-supply 10.1
+</code></pre>
+<h3 id="metadata"><a class="header" href="#metadata">Metadata</a></h3>
+<p>Decorate an existing SPL token mint with metadata.</p>
 <h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
-<pre><code class="language-bash">metaboss decode edition --account &lt;MINT_ACCOUNT&gt; 
-</code></pre>
-<h3 id="decode-edition-marker"><a class="header" href="#decode-edition-marker">Decode Edition Marker</a></h3>
-<p>Decodes a single Edition Marker PDA account from a mint account into a JSON file. This takes the Master Edition NFT mint account and either the edition number or the desired edition marker number, zero-indexed.</p>
-<h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
-<p>In this example, it will decode the 2nd Edition Marker PDA which corresponds to Edition numbers 248-495.</p>
-<pre><code class="language-bash">metaboss decode edition-marker --account &lt;MASTER_EDITION_MINT_ACCOUNT&gt; -m 1
-</code></pre>
-<h3 id="decode-master"><a class="header" href="#decode-master">Decode Master</a></h3>
-<p>Decodes a single Master Edition account from a mint account into a JSON file. This is a Master Edition PDA.</p>
-<h4 id="usage-3"><a class="header" href="#usage-3">Usage</a></h4>
-<pre><code class="language-bash">metaboss decode master --account &lt;MINT_ACCOUNT&gt; 
+<p>Specify the existing mint address and path to a metadata file that contains the <code>name</code>, <code>symbol</code> and <code>uri</code> fields in a JSON format.</p>
+<pre><code class="language-bash">metaboss create metadata -a &lt;mint_address&gt; -m &lt;metadata_file&gt;
 </code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="create.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="collections.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="derive.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="decode.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -192,11 +189,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="create.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="collections.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="derive.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="decode.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
