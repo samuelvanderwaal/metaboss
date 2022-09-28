@@ -36,6 +36,9 @@ jobs:
           cargo build --all --release
           
           binary_extension=""
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            binary_path="metaboss-ubuntu-latest"
+          fi
           if [[ "${RUNNER_OS}" == "Windows" ]]; then
             binary_extension=".exe"
           fi
