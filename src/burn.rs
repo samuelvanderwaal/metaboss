@@ -25,6 +25,7 @@ use crate::{
     derive::{derive_edition_marker_pda, derive_edition_pda, derive_metadata_pda},
     errors::ActionError,
     parse::{parse_keypair, parse_solana_config},
+    utils::get_largest_token_account_owner,
 };
 
 pub async fn burn_one(
@@ -262,8 +263,12 @@ pub async fn burn_print_all(args: BurnPrintAllArgs) -> AnyResult<()> {
 pub async fn burn_print(args: BurnPrintArgs) -> AnyResult<Signature> {
     let print_edition_token =
         get_associated_token_address(&args.keypair.pubkey(), &args.mint_pubkey);
+
+    // Find the master edition holder.
+    let master_edition_owner =
+        get_largest_token_account_owner(&args.client, args.master_mint_pubkey)?;
     let master_edition_token =
-        get_associated_token_address(&args.keypair.pubkey(), &args.master_mint_pubkey);
+        get_associated_token_address(&master_edition_owner, &args.master_mint_pubkey);
 
     let spl_token_program_id = spl_token::id();
     let metadata_pubkey = derive_metadata_pda(&args.mint_pubkey);

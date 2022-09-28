@@ -526,6 +526,17 @@ pub enum DecodeSubcommands {
         #[structopt(short, long)]
         account: String,
     },
+    /// Decode a mint account's edition marker account
+    EditionMarker {
+        #[structopt(short, long)]
+        account: String,
+
+        #[structopt(short, long)]
+        edition_num: Option<u64>,
+
+        #[structopt(short, long)]
+        marker_num: Option<u64>,
+    },
 }
 
 #[derive(Debug, StructOpt)]

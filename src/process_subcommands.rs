@@ -10,7 +10,9 @@ use crate::collections::{
     verify_nft_collection, MigrateArgs,
 };
 use crate::create::{create_fungible, create_metadata, CreateFungibleArgs, CreateMetadataArgs};
-use crate::decode::{decode_master_edition, decode_metadata, decode_print_edition};
+use crate::decode::{
+    decode_edition_marker, decode_master_edition, decode_metadata, decode_print_edition,
+};
 use crate::derive::{
     get_cmv2_pda, get_edition_marker_pda, get_edition_pda, get_generic_pda, get_metadata_pda,
 };
@@ -269,6 +271,11 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
         )?,
         DecodeSubcommands::Master { account } => decode_master_edition(client, &account)?,
         DecodeSubcommands::Edition { account } => decode_print_edition(client, &account)?,
+        DecodeSubcommands::EditionMarker {
+            account,
+            edition_num,
+            marker_num,
+        } => decode_edition_marker(client, &account, edition_num, marker_num)?,
     }
     Ok(())
 }

@@ -1,9 +1,17 @@
 use anyhow::{anyhow, Result};
 use retry::{delay::Exponential, retry};
+use serde::Deserialize;
+use serde_json::json;
+use solana_client::rpc_request::RpcRequest;
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
+use solana_program::program_pack::Pack;
+use solana_program::pubkey::Pubkey;
+use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::{
     instruction::Instruction, signature::Keypair, signer::Signer, transaction::Transaction,
 };
+use spl_token::state::Account;
+use std::str::FromStr;
 use std::{ops::Add, sync::Arc};
 
 use crate::data::FoundError;
@@ -216,4 +224,59 @@ pub fn find_errors(hex_code: &str) -> Vec<FoundError> {
 
 pub fn clone_keypair(keypair: &Keypair) -> Keypair {
     Keypair::from_bytes(&keypair.to_bytes()).unwrap()
+}
+
+pub fn get_largest_token_account_owner(client: &RpcClient, mint: Pubkey) -> Result<Pubkey> {
+    let request = RpcRequest::Custom {
+        method: "getTokenLargestAccounts",
+    };
+    let params = json!([mint.to_string(), { "commitment": "confirmed" }]);
+    let result: JRpcResponse = client.send(request, params)?;
+
+    let token_accounts: Vec<TokenAccount> = result
+        .value
+        .into_iter()
+        .filter(|account| account.amount.parse::<u64>().unwrap() == 1)
+        .collect();
+
+    if token_accounts.len() > 1 {
+        return Err(anyhow!(
+            "Mint account {} had more than one token account with 1 token",
+            mint
+        ));
+    }
+
+    if token_accounts.is_empty() {
+        return Err(anyhow!(
+            "Mint account {} had zero token accounts with 1 token",
+            mint
+        ));
+    }
+
+    let token_account = Pubkey::from_str(&token_accounts[0].address).unwrap();
+
+    let account = client
+        .get_account_with_commitment(&token_account, CommitmentConfig::confirmed())
+        .unwrap()
+        .value
+        .unwrap();
+    let account_data = Account::unpack(&account.data).unwrap();
+
+    Ok(account_data.owner)
+}
+
+#[derive(Debug, Deserialize)]
+pub struct JRpcResponse {
+    value: Vec<TokenAccount>,
+}
+
+#[derive(Debug, Deserialize)]
+struct TokenAccount {
+    address: String,
+    amount: String,
+    // decimals: u8,
+    // #[serde(rename = "uiAmount")]
+    // ui_amount: f32,
+    // #[serde(rename = "uiAmountString")]
+    // ui_amount_string: String,
 }
