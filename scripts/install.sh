@@ -52,6 +52,8 @@ case "$PROCESSOR" in
         ;;
 esac
  
+RELEASE_URL="https://github.com/samuelvanderwaal/metaboss/releases/"
+RELEASE="latest"
 BIN="metaboss"
 VERSION="ubuntu-latest"
 
@@ -75,8 +77,10 @@ echo "$(CYN "1.") 🖥  $(CYN "Downloading distribution")"
 echo ""
 
 # downloads the distribution file
-REMOTE="https://github.com/samuelvanderwaal/metaboss/releases/latest/download/"
-curl -L $REMOTE$BIN"-"$DIST --output "$SOURCE/$DIST"
+URL="$RELEASE_URL$RELEASE/download/$BIN-$DIST"
+echo "Remote URL: $URL"
+echo ""
+curl -f -L $URL --output "$SOURCE/$DIST"
 abort_on_error $?
 
 SIZE=$(wc -c "$SOURCE/$DIST" | grep -oE "[0-9]+" | head -n 1)
