@@ -77,9 +77,9 @@ if [ "$answer" != "${answer#[Yy]}" ] ;then
 else
         printf "You can find all the releases here $RELEASE_URL"
         echo ""
-        printf "Enter relase version (e.g, v0.8.7, 0.8.6): "
+        printf "Enter relase version (e.g, 0.8.7, 0.8.6): "
         read release
-        RELEASE="$release"
+        RELEASE="v$release"
 fi
 
 # creates a temporary directory to save the distribution file
