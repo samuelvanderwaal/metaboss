@@ -8,7 +8,9 @@ use crate::{
 };
 use crate::{parse::parse_keypair, snapshot::get_mint_accounts};
 use borsh::BorshDeserialize;
-use mpl_token_metadata::instruction::set_and_verify_sized_collection_item;
+use mpl_token_metadata::instruction::{
+    set_and_verify_sized_collection_item, unverify_sized_collection_item,
+};
 use std::ops::{Deref, DerefMut};
 use tokio::sync::Semaphore;
 
@@ -118,8 +120,35 @@ async fn set_and_verify(
         <Metadata as BorshDeserialize>::deserialize(&mut collection_md_account.as_slice())
             .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
 
-    let set_and_verify_ix = if collection_metadata.collection_details.is_some() {
-        set_and_verify_sized_collection_item(
+    let mut instructions = Vec::new();
+    if collection_metadata.collection_details.is_some() {
+        // Must unverify verified sized collection items from their current collection.
+        let nft_md_account = async_client
+            .get_account_data(&nft_metadata_pubkey)
+            .await
+            .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
+        let nft_metadata =
+            <Metadata as BorshDeserialize>::deserialize(&mut nft_md_account.as_slice())
+                .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
+
+        if let Some(current_collection) = nft_metadata.collection {
+            let current_collection_mint = current_collection.key;
+            let current_collection_md_pubkey = derive_metadata_pda(&current_collection_mint);
+            let current_collection_edition_pubkey = derive_edition_pda(&current_collection_mint);
+
+            instructions.push(unverify_sized_collection_item(
+                metadata_program_id(),
+                nft_metadata_pubkey,
+                authority_keypair.pubkey(),
+                authority_keypair.pubkey(),
+                current_collection_mint,
+                current_collection_md_pubkey,
+                current_collection_edition_pubkey,
+                None,
+            ));
+        }
+
+        instructions.push(set_and_verify_sized_collection_item(
             metadata_program_id(),
             nft_metadata_pubkey,
             authority_keypair.pubkey(),
@@ -129,9 +158,9 @@ async fn set_and_verify(
             collection_md_pubkey,
             collection_edition_pubkey,
             collection_authority_record,
-        )
+        ));
     } else {
-        set_and_verify_collection(
+        instructions.push(set_and_verify_collection(
             metadata_program_id(),
             nft_metadata_pubkey,
             authority_keypair.pubkey(),
@@ -141,10 +170,10 @@ async fn set_and_verify(
             collection_md_pubkey,
             collection_edition_pubkey,
             collection_authority_record,
-        )
+        ));
     };
 
-    async_send_and_confirm_transaction(async_client, authority_keypair, &[set_and_verify_ix])
+    async_send_and_confirm_transaction(async_client, authority_keypair, &instructions)
         .await
         .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
 
