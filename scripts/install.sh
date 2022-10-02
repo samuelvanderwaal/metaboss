@@ -52,7 +52,7 @@ case "$PROCESSOR" in
         ;;
 esac
  
-RELEASE_URL="https://github.com/samuelvanderwaal/metaboss/releases/"
+RELEASE_URL="https://github.com/samuelvanderwaal/metaboss/releases"
 RELEASE="latest"
 BIN="metaboss"
 VERSION="ubuntu-latest"
@@ -70,6 +70,18 @@ fi
 
 DIST="$VERSION"
 
+printf "Do you want the latest release(y/n): "
+read answer
+if [ "$answer" != "${answer#[Yy]}" ] ;then 
+        echo ""; 
+else
+        printf "You can find all the releases here $RELEASE_URL"
+        echo ""
+        printf "Enter relase version (e.g, v0.8.7, v0.8.6): "
+        read release
+        RELEASE="$release"
+fi
+
 # creates a temporary directory to save the distribution file
 SOURCE="$(mktemp -d)"
 
@@ -77,7 +89,11 @@ echo "$(CYN "1.") 🖥  $(CYN "Downloading distribution")"
 echo ""
 
 # downloads the distribution file
-URL="$RELEASE_URL$RELEASE/download/$BIN-$DIST"
+if [ $RELEASE != "latest" ] ;then
+    URL="$RELEASE_URL/download/$RELEASE/$BIN-$DIST"
+else 
+    URL="$RELEASE_URL/$RELEASE/download/$BIN-$DIST"
+fi 
 echo "Remote URL: $URL"
 echo ""
 curl -f -L $URL --output "$SOURCE/$DIST"
