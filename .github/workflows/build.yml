@@ -36,16 +36,15 @@ jobs:
           cargo build --all --release
           
           binary_extension=""
+
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             binary_path="metaboss-ubuntu-latest"
           fi
           if [[ "${RUNNER_OS}" == "Windows" ]]; then
             binary_extension=".exe"
           fi
-           if [[ "${RUNNER_OS}" == "macOS" ]]; then
+          if [[ "${RUNNER_OS}" == "macOS" ]]; then
             binary_path="metaboss-macos-intel-latest${binary_extension}"
-          else
-            binary_path="metaboss-${{ matrix.os }}${binary_extension}"
           fi
           mv "target/release/metaboss${binary_extension}" "${binary_path}"
           echo "::set-output name=binary_path::${binary_path}"
