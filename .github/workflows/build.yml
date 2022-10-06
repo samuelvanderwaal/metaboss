@@ -42,6 +42,7 @@ jobs:
           fi
           if [[ "${RUNNER_OS}" == "Windows" ]]; then
             binary_extension=".exe"
+            binary_path="metaboss-windows-latest${binary_extension}"
           fi
           if [[ "${RUNNER_OS}" == "macOS" ]]; then
             binary_path="metaboss-macos-intel-latest${binary_extension}"
