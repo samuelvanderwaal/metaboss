@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
     tags:
-      - "v*.*.*"
+      - 'v*.*.*'
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
       matrix:
         os:
           - windows-latest
-          - buildjet-4vcpu-ubuntu-2204
+          - buildjet-4vcpu-ubuntu-2004
           - macos-latest
 
     runs-on: ${{ matrix.os }}
@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           cargo build --all --release
-          
+
           binary_extension=""
 
           if [[ "$RUNNER_OS" == "Linux" ]]; then
