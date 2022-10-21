@@ -493,6 +493,12 @@ pub enum CollectionsSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum DecodeSubcommands {
+    /// Decode Mint account data.
+    MintAccount {
+        /// Mint address
+        #[structopt(short = "a", long)]
+        mint_address: String,
+    },
     /// Decode a mint account's metadata
     #[structopt(name = "mint")]
     Mint {
