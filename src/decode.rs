@@ -4,6 +4,7 @@ use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
 use metaboss_lib::decode::{
     decode_edition_from_mint, decode_edition_marker_from_mint, decode_master_edition_from_mint,
+    decode_mint,
 };
 use mpl_token_metadata::state::CollectionDetails;
 use mpl_token_metadata::state::{Key, Metadata, TokenStandard, UseMethod};
@@ -198,6 +199,13 @@ pub fn decode_metadata(
             "Please specify either a mint account or a list of mint accounts, but not both."
         ));
     };
+
+    Ok(())
+}
+
+pub fn decode_mint_account(client: &RpcClient, mint_account: &str) -> AnyResult<()> {
+    let mint = decode_mint(client, mint_account)?;
+    println!("{:?}", mint);
 
     Ok(())
 }

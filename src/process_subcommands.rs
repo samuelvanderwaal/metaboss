@@ -11,7 +11,8 @@ use crate::collections::{
 };
 use crate::create::{create_fungible, create_metadata, CreateFungibleArgs, CreateMetadataArgs};
 use crate::decode::{
-    decode_edition_marker, decode_master_edition, decode_metadata, decode_print_edition,
+    decode_edition_marker, decode_master_edition, decode_metadata, decode_mint_account,
+    decode_print_edition,
 };
 use crate::derive::{
     get_cmv2_pda, get_edition_marker_pda, get_edition_pda, get_generic_pda, get_metadata_pda,
@@ -255,6 +256,9 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
 
 pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result<()> {
     match commands {
+        DecodeSubcommands::MintAccount { mint_address } => {
+            decode_mint_account(client, &mint_address)?
+        }
         DecodeSubcommands::Mint {
             account,
             full,
