@@ -219,6 +219,20 @@ pub fn find_errors(hex_code: &str) -> Vec<FoundError> {
         });
     }
 
+    if let Some(e) = CANDY_CORE_ERROR.get(&hex_code).cloned() {
+        found_errors.push(FoundError {
+            domain: "Candy Core".to_string(),
+            message: e.to_string(),
+        });
+    }
+
+    if let Some(e) = CANDY_GUARD_ERROR.get(&hex_code).cloned() {
+        found_errors.push(FoundError {
+            domain: "Candy Guard".to_string(),
+            message: e.to_string(),
+        });
+    }
+
     found_errors
 }
 

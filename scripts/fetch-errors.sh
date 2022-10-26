@@ -39,6 +39,10 @@ download_file "https://raw.githubusercontent.com/project-serum/anchor/master/lan
 
 download_file "https://raw.githubusercontent.com/metaplex-foundation/metaplex-program-library/master/candy-machine/program/src/errors.rs" "$DOWNLOAD_DIST/candy-error.rs"
 
+download_file "https://raw.githubusercontent.com/metaplex-foundation/metaplex-program-library/master/candy-machine-core/program/src/errors.rs" "$DOWNLOAD_DIST/candy-core-error.rs"
+
+download_file "https://raw.githubusercontent.com/metaplex-foundation/mpl-candy-guard/main/program/src/errors.rs" "$DOWNLOAD_DIST/candy-guard-error.rs"
+
 download_file "https://raw.githubusercontent.com/metaplex-foundation/metaplex-program-library/master/auction-house/program/src/errors.rs" "$DOWNLOAD_DIST/auction-house-error.rs"
 
 download_file "https://raw.githubusercontent.com/metaplex-foundation/metaplex-program-library/master/auctioneer/program/src/errors.rs" "$DOWNLOAD_DIST/auctioneer-error.rs"
