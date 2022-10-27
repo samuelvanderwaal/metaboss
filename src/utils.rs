@@ -16,7 +16,8 @@ use std::{ops::Add, sync::Arc};
 
 use crate::data::FoundError;
 use crate::wtf_errors::{
-    ANCHOR_ERROR, AUCTIONEER_ERROR, AUCTION_HOUSE_ERROR, CANDY_ERROR, METADATA_ERROR,
+    ANCHOR_ERROR, AUCTIONEER_ERROR, AUCTION_HOUSE_ERROR, CANDY_CORE_ERROR, CANDY_ERROR,
+    CANDY_GUARD_ERROR, METADATA_ERROR,
 };
 
 pub fn send_and_confirm_transaction(
@@ -93,6 +94,8 @@ pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<Stri
 
     let enum_name = if is_anchor {
         String::from("ErrorCode")
+    } else if file_name_capitalized == "CANDY_CORE_ERROR" {
+        String::from("CandyError")
     } else {
         file_names_split
             .into_iter()
@@ -215,6 +218,20 @@ pub fn find_errors(hex_code: &str) -> Vec<FoundError> {
     if let Some(e) = CANDY_ERROR.get(&hex_code).cloned() {
         found_errors.push(FoundError {
             domain: "Candy Machine".to_string(),
+            message: e.to_string(),
+        });
+    }
+
+    if let Some(e) = CANDY_CORE_ERROR.get(&hex_code).cloned() {
+        found_errors.push(FoundError {
+            domain: "Candy Core".to_string(),
+            message: e.to_string(),
+        });
+    }
+
+    if let Some(e) = CANDY_GUARD_ERROR.get(&hex_code).cloned() {
+        found_errors.push(FoundError {
+            domain: "Candy Guard".to_string(),
             message: e.to_string(),
         });
     }
