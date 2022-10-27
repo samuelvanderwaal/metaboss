@@ -378,4 +378,5 @@ pub static METADATA_ERROR: phf::Map<&'static str, &'static str> = phf_map! {
     "80" => "InsufficientTokens: Insufficient tokens for transfer",
     "81" => "BorshSerializationError: Borsh Serialization Error",
     "82" => "NoFreezeAuthoritySet: Cannot create NFT with no Freeze Authority.",
+    "83" => "InvalidCollectionSizeChange: Invalid collection size change",
 };

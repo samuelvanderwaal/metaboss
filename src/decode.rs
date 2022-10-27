@@ -354,6 +354,8 @@ fn parse_key(key: Key) -> String {
         Key::EditionMarker => String::from("EditionMarker"),
         Key::UseAuthorityRecord => String::from("UseAuthorityRecord"),
         Key::CollectionAuthorityRecord => String::from("CollectionAuthorityRecord"),
+        Key::TokenOwnedEscrow => String::from("TokenOwnedEscrow"),
+        Key::EscrowConstraintModel => String::from("EscrowConstraintModel"),
     }
 }
 
