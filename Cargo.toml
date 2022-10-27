@@ -22,7 +22,7 @@ indicatif = { version = "0.16.2", features = ["rayon"] }
 lazy_static = "1.4.0"
 log = "0.4.17"
 metaboss_lib = "0.0.7"
-mpl-token-metadata = { version = "1.4.2", features = ["serde-feature"] }
+mpl-token-metadata = { version = "1.6.0", features = ["serde-feature"] }
 num_cpus = "1.13.1"
 phf = { version = "0.10", features = ["macros"] }
 ratelimit = "0.4.4"
