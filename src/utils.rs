@@ -94,22 +94,20 @@ pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<Stri
 
     let enum_name = if is_anchor {
         String::from("ErrorCode")
+    } else if file_name_capitalized == "CANDY_CORE_ERROR" {
+        String::from("CandyError")
     } else {
-        if file_name_capitalized == "CANDY_CORE_ERROR" {
-            String::from("CandyError")
-        } else {
-            file_names_split
-                .into_iter()
-                .map(|s| {
-                    format!(
-                        "{}{}",
-                        s.get(0..1).unwrap().to_ascii_uppercase(),
-                        s.get(1..).unwrap()
-                    )
-                })
-                .collect::<Vec<String>>()
-                .join("")
-        }
+        file_names_split
+            .into_iter()
+            .map(|s| {
+                format!(
+                    "{}{}",
+                    s.get(0..1).unwrap().to_ascii_uppercase(),
+                    s.get(1..).unwrap()
+                )
+            })
+            .collect::<Vec<String>>()
+            .join("")
     };
 
     let error_index = match file_contents.find(&enum_name) {
