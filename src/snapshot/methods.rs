@@ -2,7 +2,7 @@ use super::common::*;
 use super::data::*;
 
 use crate::data::Indexers;
-use crate::derive::derive_cmv2_pda;
+use crate::derive::{derive_cmv2_pda, derive_cmv3_pda};
 use crate::limiter::create_default_rate_limiter;
 use crate::limiter::create_rate_limiter;
 use crate::parse::{creator_is_verified, is_only_one_option};
@@ -35,6 +35,7 @@ pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()>
         args.update_authority,
         args.allow_unverified,
         args.v2,
+        args.v3,
     )?;
 
     mint_addresses.sort_unstable();
@@ -83,18 +84,22 @@ pub fn get_mint_accounts(
     update_authority: Option<String>,
     allow_unverified: bool,
     v2: bool,
+    v3: bool,
 ) -> Result<Vec<String>> {
     let spinner = create_spinner("Getting accounts...");
 
     let accounts = if let Some(ref update_authority) = update_authority {
         get_mints_by_update_authority(client, update_authority)?
     } else if let Some(ref creator) = creator {
-        // Support v2 cm ids
+        // Support v2 & v3 cm ids
+        let creator_pubkey =
+            Pubkey::from_str(creator).expect("Failed to parse pubkey from creator!");
         if v2 {
-            let creator_pubkey =
-                Pubkey::from_str(creator).expect("Failed to parse pubkey from creator!");
             let cmv2_creator = derive_cmv2_pda(&creator_pubkey);
             get_cm_creator_accounts(client, &cmv2_creator.to_string(), position)?
+        } else if v3 {
+            let cmv3_creator = derive_cmv3_pda(&creator_pubkey);
+            get_cm_creator_accounts(client, &cmv3_creator.to_string(), position)?
         } else {
             get_cm_creator_accounts(client, creator, position)?
         }
@@ -134,12 +139,15 @@ pub fn snapshot_holders(client: &RpcClient, args: SnapshotHoldersArgs) -> Result
     let accounts = if let Some(ref update_authority) = args.update_authority {
         get_mints_by_update_authority(client, update_authority)?
     } else if let Some(ref creator) = args.creator {
-        // Support v2 cm ids
+        // Support v2 & v3 cm ids
+        let creator_pubkey =
+            Pubkey::from_str(creator).expect("Failed to parse pubkey from creator!");
         if args.v2 {
-            let creator_pubkey =
-                Pubkey::from_str(creator).expect("Failed to parse pubkey from creator!");
             let cmv2_creator = derive_cmv2_pda(&creator_pubkey);
             get_cm_creator_accounts(client, &cmv2_creator.to_string(), args.position)?
+        } else if args.v3 {
+            let cmv3_creator = derive_cmv3_pda(&creator_pubkey);
+            get_cm_creator_accounts(client, &cmv3_creator.to_string(), args.position)?
         } else {
             get_cm_creator_accounts(client, creator, args.position)?
         }

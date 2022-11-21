@@ -470,6 +470,7 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             position,
             mint_accounts_file,
             v2,
+            v3,
             allow_unverified,
             output,
         } => snapshot_holders(
@@ -480,6 +481,7 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
                 position,
                 mint_accounts_file,
                 v2,
+                v3,
                 allow_unverified,
                 output,
             },
@@ -499,6 +501,7 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             position,
             update_authority,
             v2,
+            v3,
             allow_unverified,
             output,
         } => snapshot_mints(
@@ -508,6 +511,7 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
                 position,
                 update_authority,
                 v2,
+                v3,
                 allow_unverified,
                 output,
             },

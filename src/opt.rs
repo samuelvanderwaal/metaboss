@@ -883,6 +883,10 @@ pub enum SnapshotSubcommands {
         #[structopt(long = "v2")]
         v2: bool,
 
+        /// Candy machine v3 id
+        #[structopt(long = "v3")]
+        v3: bool,
+
         /// Path to JSON file with list of mint accounts to sign
         #[structopt(short, long)]
         mint_accounts_file: Option<String>,
@@ -943,6 +947,10 @@ pub enum SnapshotSubcommands {
         /// Candy machine v2 id
         #[structopt(long = "v2")]
         v2: bool,
+
+        /// Candy machine v3 id
+        #[structopt(long = "v3")]
+        v3: bool,
 
         /// Allow fetching items with unverified creator or update authority.
         #[structopt(long)]
