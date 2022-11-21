@@ -457,8 +457,17 @@ pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()>
             creator,
             position,
             v2,
+            v3,
             mint_accounts_file,
-        } => sign_all(client, keypair, &creator, position, v2, mint_accounts_file),
+        } => sign_all(
+            client,
+            keypair,
+            &creator,
+            position,
+            v2,
+            v3,
+            mint_accounts_file,
+        ),
     }
 }
 
