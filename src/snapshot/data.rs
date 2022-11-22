@@ -34,6 +34,7 @@ pub struct SnapshotMintsArgs {
     pub position: usize,
     pub update_authority: Option<String>,
     pub v2: bool,
+    pub v3: bool,
     pub allow_unverified: bool,
     pub output: String,
 }
@@ -44,6 +45,7 @@ pub struct SnapshotHoldersArgs {
     pub update_authority: Option<String>,
     pub mint_accounts_file: Option<String>,
     pub v2: bool,
+    pub v3: bool,
     pub allow_unverified: bool,
     pub output: String,
 }

@@ -856,6 +856,10 @@ pub enum SignSubcommands {
         #[structopt(long = "v2")]
         v2: bool,
 
+        /// Candy machine v3 id
+        #[structopt(long = "v3")]
+        v3: bool,
+
         /// Path to JSON file with list of mint accounts to sign
         #[structopt(short, long)]
         mint_accounts_file: Option<String>,
@@ -871,7 +875,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long)]
         update_authority: Option<String>,
 
-        /// Creator to filter accounts by (for CM v2 use --v2 if candy_machine account is passed)
+        /// Creator to filter accounts by (for CM v2 use --v2, for CM v3 use --v3 if candy_machine account is passed)
         #[structopt(short, long)]
         creator: Option<String>,
 
@@ -882,6 +886,10 @@ pub enum SnapshotSubcommands {
         /// Candy machine v2 id
         #[structopt(long = "v2")]
         v2: bool,
+
+        /// Candy machine v3 id
+        #[structopt(long = "v3")]
+        v3: bool,
 
         /// Path to JSON file with list of mint accounts to sign
         #[structopt(short, long)]
@@ -928,7 +936,7 @@ pub enum SnapshotSubcommands {
     /// Snapshot all mint accounts for a given candy_machine_id / creatoro or update authority
     #[structopt(name = "mints")]
     Mints {
-        /// Creator to filter accounts by (for CM v2 use --v2 if candy_machine account is passed)
+        /// Creator to filter accounts by (for CM v2 use --v2, for CM v3 use --v3 if candy_machine account is passed)
         #[structopt(short, long)]
         creator: Option<String>,
 
@@ -943,6 +951,10 @@ pub enum SnapshotSubcommands {
         /// Candy machine v2 id
         #[structopt(long = "v2")]
         v2: bool,
+
+        /// Candy machine v3 id
+        #[structopt(long = "v3")]
+        v3: bool,
 
         /// Allow fetching items with unverified creator or update authority.
         #[structopt(long)]

@@ -225,7 +225,15 @@ pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
 
     let mut mint_accounts = if let Some(candy_machine_id) = args.candy_machine_id {
         println!("Using candy machine id to fetch mint list. . .");
-        get_mint_accounts(&args.client, &Some(candy_machine_id), 0, None, false, true)?
+        get_mint_accounts(
+            &args.client,
+            &Some(candy_machine_id),
+            0,
+            None,
+            false,
+            true,
+            false,
+        )?
     } else if let Some(mint_list) = args.mint_list {
         let f = File::open(mint_list)?;
         serde_json::from_reader(f)?

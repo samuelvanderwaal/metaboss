@@ -22,7 +22,7 @@ use std::{
 };
 
 use crate::decode::get_metadata_pda;
-use crate::derive::derive_cmv2_pda;
+use crate::derive::{derive_cmv2_pda, derive_cmv3_pda};
 use crate::limiter::create_default_rate_limiter;
 use crate::parse::{is_only_one_option, parse_keypair};
 use crate::snapshot::get_cm_creator_accounts;
@@ -54,6 +54,7 @@ pub fn sign_all(
     creator: &Option<String>,
     position: usize,
     v2: bool,
+    v3: bool,
     mint_accounts_file: Option<String>,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
@@ -66,13 +67,21 @@ pub fn sign_all(
     }
 
     if let Some(creator) = creator {
+        let creator_pubkey =
+            Pubkey::from_str(creator).expect("Failed to parse pubkey from creator!");
         if v2 {
-            let creator_pubkey =
-                Pubkey::from_str(creator).expect("Failed to parse pubkey from creator!");
             let cmv2_creator = derive_cmv2_pda(&creator_pubkey);
             sign_candy_machine_accounts(
                 client,
                 &cmv2_creator.to_string(),
+                creator_keypair,
+                position,
+            )?
+        } else if v3 {
+            let cmv3_creator = derive_cmv3_pda(&creator_pubkey);
+            sign_candy_machine_accounts(
+                client,
+                &cmv3_creator.to_string(),
                 creator_keypair,
                 position,
             )?
