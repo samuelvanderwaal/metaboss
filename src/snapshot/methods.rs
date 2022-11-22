@@ -59,7 +59,7 @@ pub async fn snapshot_indexed_mints(
 
     for result in results {
         let bs64_data = &result.account.data.as_array().unwrap()[0];
-        let data = base64::decode(&bs64_data.as_str().unwrap())?;
+        let data = base64::decode(bs64_data.as_str().unwrap())?;
         let metadata: Metadata = match try_from_slice_unchecked(&data) {
             Ok(metadata) => metadata,
             Err(_) => {
@@ -341,7 +341,7 @@ pub async fn snapshot_indexed_holders(
 
 pub async fn get_holder_from_gpa_result(api_key: String, result: GPAResult) -> Result<Holder> {
     let bs64_data = &result.account.data.as_array().unwrap()[0];
-    let data = base64::decode(&bs64_data.as_str().unwrap())?;
+    let data = base64::decode(bs64_data.as_str().unwrap())?;
     let metadata: Metadata = match try_from_slice_unchecked(&data) {
         Ok(metadata) => metadata,
         Err(_) => {
@@ -366,7 +366,7 @@ pub async fn get_holder_from_gpa_result(api_key: String, result: GPAResult) -> R
 
     for token_result in token_results {
         let bs64_data = &token_result.account.data.as_array().unwrap()[0];
-        let data = base64::decode(&bs64_data.as_str().unwrap())?;
+        let data = base64::decode(bs64_data.as_str().unwrap())?;
 
         let parsed_account = match parse_account_data(
             &metadata.mint,
