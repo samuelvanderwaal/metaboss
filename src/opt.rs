@@ -237,6 +237,19 @@ pub enum CreateSubcommands {
         #[structopt(long)]
         immutable: bool,
     },
+    // Decorate an existing mint + metadata account with a master edition account.
+    MasterEdition {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account
+        #[structopt(short = "a", long)]
+        mint: String,
+
+        #[structopt(short, long)]
+        max_supply: Option<u64>,
+    },
 }
 
 #[derive(Debug, StructOpt)]

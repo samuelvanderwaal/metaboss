@@ -1,3 +1,6 @@
+use metaboss_lib::derive::derive_edition_pda;
+use mpl_token_metadata::instruction::create_master_edition_v3;
+
 use super::*;
 
 pub struct CreateMetadataArgs {
@@ -161,6 +164,53 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
     println!("Signature: {sig}");
     println!("Mint: {}", mint.pubkey());
     println!("Metadata: {}", metadata_pubkey);
+
+    Ok(())
+}
+
+pub struct CreateMasterEditionArgs {
+    pub client: RpcClient,
+    pub keypair: Option<String>,
+    pub mint: String,
+    pub max_supply: Option<u64>,
+}
+
+pub fn create_master_edition(args: CreateMasterEditionArgs) -> Result<()> {
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(args.keypair, solana_opts);
+
+    let mint_pubkey = Pubkey::from_str(&args.mint)?;
+    let metadata_pubkey = derive_metadata_pda(&mint_pubkey);
+    let edition_pubkey = derive_edition_pda(&mint_pubkey);
+
+    let ix = create_master_edition_v3(
+        METADATA_PROGRAM_ID,
+        edition_pubkey,
+        mint_pubkey,
+        keypair.pubkey(),
+        keypair.pubkey(),
+        metadata_pubkey,
+        keypair.pubkey(),
+        args.max_supply,
+    );
+
+    let recent_blockhash = args.client.get_latest_blockhash()?;
+    let tx = Transaction::new_signed_with_payer(
+        &[ix],
+        Some(&keypair.pubkey()),
+        &[&keypair],
+        recent_blockhash,
+    );
+
+    // Send tx with retries.
+    let res = retry(
+        Exponential::from_millis_with_factor(250, 2.0).take(3),
+        || args.client.send_and_confirm_transaction(&tx),
+    );
+
+    let sig = res?;
+    println!("Signature: {sig}");
+    println!("Edition: {}", edition_pubkey);
 
     Ok(())
 }

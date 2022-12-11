@@ -4,7 +4,7 @@ use log::{error, info};
 use metaboss_lib::decode::*;
 use mpl_token_metadata::{
     instruction::{
-        create_master_edition, create_metadata_accounts_v3,
+        create_master_edition_v3, create_metadata_accounts_v3,
         mint_new_edition_from_master_edition_via_token, update_metadata_accounts_v2,
     },
     state::CollectionDetails,
@@ -613,7 +613,7 @@ pub fn mint(
         collection_details,
     );
 
-    let create_master_edition_account_ix = create_master_edition(
+    let create_master_edition_account_ix = create_master_edition_v3(
         metaplex_program_id,
         master_edition_account,
         mint.pubkey(),

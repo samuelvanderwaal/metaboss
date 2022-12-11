@@ -9,7 +9,10 @@ use crate::collections::{
     revoke_delegate, set_and_verify_nft_collection, set_size, unverify_nft_collection,
     verify_nft_collection, MigrateArgs,
 };
-use crate::create::{create_fungible, create_metadata, CreateFungibleArgs, CreateMetadataArgs};
+use crate::create::{
+    create_fungible, create_master_edition, create_metadata, CreateFungibleArgs,
+    CreateMasterEditionArgs, CreateMetadataArgs,
+};
 use crate::decode::{
     decode_edition_marker, decode_master_edition, decode_metadata, decode_mint_account,
     decode_print_edition,
@@ -250,6 +253,16 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
             decimals,
             initial_supply,
             immutable,
+        }),
+        CreateSubcommands::MasterEdition {
+            keypair,
+            mint,
+            max_supply,
+        } => create_master_edition(CreateMasterEditionArgs {
+            client,
+            keypair,
+            mint,
+            max_supply,
         }),
     }
 }
