@@ -537,16 +537,19 @@ pub enum DecodeSubcommands {
     },
     /// Decode a mint account's master edition
     Master {
+        /// Mint account
         #[structopt(short, long)]
         account: String,
     },
     /// Decode a mint account's print edition
     Edition {
+        /// Mint account
         #[structopt(short, long)]
         account: String,
     },
     /// Decode a mint account's edition marker account
     EditionMarker {
+        /// Mint account
         #[structopt(short, long)]
         account: String,
 
@@ -555,6 +558,16 @@ pub enum DecodeSubcommands {
 
         #[structopt(short, long)]
         marker_num: Option<u64>,
+    },
+    /// Decode a metadata account directly
+    Metadata {
+        // Metadata PDA account
+        #[structopt(short, long)]
+        account: String,
+
+        /// Path to directory to save output files.
+        #[structopt(short, long, default_value = ".")]
+        output: String,
     },
 }
 

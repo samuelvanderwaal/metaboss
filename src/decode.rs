@@ -6,12 +6,10 @@ use metaboss_lib::decode::{
     decode_edition_from_mint, decode_edition_marker_from_mint, decode_master_edition_from_mint,
     decode_mint,
 };
-use mpl_token_metadata::state::CollectionDetails;
-use mpl_token_metadata::state::{Key, Metadata, TokenStandard, UseMethod};
+use mpl_token_metadata::state::Metadata;
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
 use serde::Serialize;
-use serde_json::{json, Value};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::pubkey::Pubkey;
 use std::fs::File;
@@ -91,21 +89,6 @@ pub fn decode_metadata_all(
                 },
             };
 
-            debug!(
-                "Converting metadata into JSON for mint account {}",
-                mint_account
-            );
-            let json_metadata = match decode_to_json(metadata, full) {
-                Ok(j) => j,
-                Err(err) => {
-                    error!(
-                        "Failed to decode metadata to JSON for mint account: {}, error: {}",
-                        mint_account, err
-                    );
-                    return;
-                }
-            };
-
             debug!("Creating file for mint account: {}", mint_account);
             let mut file = match File::create(format!("{}/{}.json", output, mint_account)) {
                 Ok(f) => f,
@@ -119,7 +102,11 @@ pub fn decode_metadata_all(
             };
 
             debug!("Writing to file for mint account: {}", mint_account);
-            match serde_json::to_writer_pretty(&mut file, &json_metadata) {
+            match if full {
+                serde_json::to_writer_pretty(&mut file, &metadata)
+            } else {
+                serde_json::to_writer(&mut file, &metadata.data)
+            } {
                 Ok(_) => (),
                 Err(err) => {
                     error!(
@@ -167,7 +154,7 @@ pub fn decode_edition_marker(
     Ok(())
 }
 
-pub fn decode_metadata(
+pub fn decode_metadata_from_mint(
     client: &RpcClient,
     account: Option<&String>,
     full: bool,
@@ -189,9 +176,8 @@ pub fn decode_metadata(
             return Ok(());
         }
         let metadata = decode(client, mint_account)?;
-        let json_metadata = decode_to_json(metadata, full)?;
         let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
-        serde_json::to_writer_pretty(&mut file, &json_metadata)?;
+        serde_json::to_writer_pretty(&mut file, &metadata)?;
     } else if let Some(list_path) = list_path {
         decode_metadata_all(client, list_path, full, output)?;
     } else {
@@ -199,6 +185,16 @@ pub fn decode_metadata(
             "Please specify either a mint account or a list of mint accounts, but not both."
         ));
     };
+
+    Ok(())
+}
+
+pub fn decode_metadata(client: &RpcClient, account: &str, output: &str) -> AnyResult<()> {
+    let pubkey = Pubkey::from_str(account)?;
+    let metadata = metaboss_lib::decode::decode_metadata(client, &pubkey)?;
+
+    let mut file = File::create(format!("{}/{}.json", output, pubkey))?;
+    serde_json::to_writer_pretty(&mut file, &metadata)?;
 
     Ok(())
 }
@@ -254,79 +250,6 @@ pub fn decode(client: &RpcClient, mint_account: &str) -> Result<Metadata, Decode
     Ok(metadata)
 }
 
-fn decode_to_json(metadata: Metadata, full: bool) -> AnyResult<Value> {
-    let mut creators: Vec<JSONCreator> = Vec::new();
-
-    if let Some(c) = metadata.data.creators {
-        creators = c
-            .iter()
-            .map(|c| JSONCreator {
-                address: c.address.to_string(),
-                verified: c.verified,
-                share: c.share,
-            })
-            .collect::<Vec<JSONCreator>>();
-    }
-
-    let data_json = json!({
-        "name": metadata.data.name.trim_matches(char::from(0)),
-        "symbol": metadata.data.symbol.trim_matches(char::from(0)),
-        "seller_fee_basis_points": metadata.data.seller_fee_basis_points,
-        "uri": metadata.data.uri.trim_matches(char::from(0)),
-        "creators": creators,
-    });
-
-    if !full {
-        return Ok(data_json);
-    }
-
-    let mut token_standard: Option<String> = None;
-    if let Some(ts) = metadata.token_standard {
-        token_standard = Some(parse_token_standard(ts))
-    }
-
-    let mut collection: Option<JSONCollection> = None;
-    if let Some(c) = metadata.collection {
-        collection = Some(JSONCollection {
-            verified: c.verified,
-            key: c.key.to_string(),
-        })
-    }
-
-    let mut collection_details: Option<JSONCollectionDetails> = None;
-    if let Some(details) = metadata.collection_details {
-        match details {
-            CollectionDetails::V1 { size } => {
-                collection_details = Some(JSONCollectionDetails::V1 { size })
-            }
-        }
-    }
-
-    let mut uses: Option<JSONUses> = None;
-    if let Some(u) = metadata.uses {
-        uses = Some(JSONUses {
-            use_method: parse_use_method(u.use_method),
-            remaining: u.remaining,
-            total: u.total,
-        })
-    }
-
-    let json_metadata = json!({
-        "key": parse_key(metadata.key),
-        "update_authority": metadata.update_authority.to_string(),
-        "mint_account": metadata.mint.to_string(),
-        "nft_data": data_json,
-        "primary_sale_happened": metadata.primary_sale_happened,
-        "is_mutable": metadata.is_mutable,
-        "edition_nonce": metadata.edition_nonce,
-        "token_standard": token_standard,
-        "collection": collection,
-        "uses": uses,
-        "collection_details": collection_details,
-    });
-    Ok(json_metadata)
-}
-
 pub fn get_metadata_pda(pubkey: Pubkey) -> Pubkey {
     let metaplex_pubkey = METAPLEX_PROGRAM_ID
         .parse::<Pubkey>()
@@ -340,37 +263,4 @@ pub fn get_metadata_pda(pubkey: Pubkey) -> Pubkey {
 
     let (pda, _) = Pubkey::find_program_address(seeds, &metaplex_pubkey);
     pda
-}
-
-fn parse_key(key: Key) -> String {
-    match key {
-        Key::Uninitialized => String::from("Uninitialized"),
-        Key::EditionV1 => String::from("EditionV1"),
-        Key::MasterEditionV1 => String::from("MasterEditionV1"),
-        Key::ReservationListV1 => String::from("ReservationListV1"),
-        Key::MetadataV1 => String::from("MetadataV1"),
-        Key::ReservationListV2 => String::from("ReservationListV2"),
-        Key::MasterEditionV2 => String::from("MasterEditionV2"),
-        Key::EditionMarker => String::from("EditionMarker"),
-        Key::UseAuthorityRecord => String::from("UseAuthorityRecord"),
-        Key::CollectionAuthorityRecord => String::from("CollectionAuthorityRecord"),
-        Key::TokenOwnedEscrow => String::from("TokenOwnedEscrow"),
-    }
-}
-
-fn parse_token_standard(token_standard: TokenStandard) -> String {
-    match token_standard {
-        TokenStandard::NonFungible => String::from("NonFungible"),
-        TokenStandard::FungibleAsset => String::from("FungibleAsset"),
-        TokenStandard::Fungible => String::from("Fungible"),
-        TokenStandard::NonFungibleEdition => String::from("NonFungibleEdition"),
-    }
-}
-
-fn parse_use_method(use_method: UseMethod) -> String {
-    match use_method {
-        UseMethod::Burn => String::from("Burn"),
-        UseMethod::Single => String::from("Single"),
-        UseMethod::Multiple => String::from("Multiple"),
-    }
 }
