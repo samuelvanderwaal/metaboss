@@ -147,7 +147,7 @@ pub trait Action {
         } else {
             keypair.clone()
         };
-        let semaphore = Arc::new(Semaphore::new(args.batch_size as usize));
+        let semaphore = Arc::new(Semaphore::new(args.batch_size));
 
         loop {
             let remaining_mints = mint_list.clone();
