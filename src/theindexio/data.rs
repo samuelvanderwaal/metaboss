@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CollectionMetadata {
+pub struct IndexedMetadata {
     pub update_authority: String,
     pub mint: String,
     pub name: String,
@@ -54,8 +54,8 @@ pub struct Collection {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CollectionNft {
-    pub metadata: CollectionMetadata,
+pub struct Nft {
+    pub metadata: IndexedMetadata,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -82,6 +82,13 @@ pub struct GPAResponse {
     pub jsonrpc: String,
     pub id: u8,
     pub result: Vec<GPAResult>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NftResponse {
+    pub jsonrpc: String,
+    pub id: u8,
+    pub result: Vec<Nft>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

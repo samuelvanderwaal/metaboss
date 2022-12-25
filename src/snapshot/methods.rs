@@ -1,5 +1,6 @@
 use super::common::*;
 use super::data::*;
+use super::NftsByCreatorArgs;
 
 use crate::data::Indexers;
 use crate::derive::{derive_cmv2_pda, derive_cmv3_pda};
@@ -45,15 +46,15 @@ pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()>
     Ok(())
 }
 
-pub async fn snapshot_indexed_mints(
-    indexer: Indexers,
-    api_key: String,
-    creator: &str,
-    output: String,
-) -> Result<()> {
-    let results = match indexer {
-        Indexers::TheIndexIO => theindexio::get_verified_creator_accounts(api_key, creator).await?,
+pub async fn snapshot_indexed_mints(args: NftsByCreatorArgs) -> Result<()> {
+    let results = match args.indexer {
+        Indexers::TheIndexIO => theindexio::get_verified_creator_accounts(args.clone()).await?,
+        Indexers::Helius => todo!(),
     };
+
+    let NftsByCreatorArgs {
+        creator, output, ..
+    } = args;
 
     let mut mint_addresses = Vec::new();
 
@@ -270,18 +271,20 @@ pub fn snapshot_holders(client: &RpcClient, args: SnapshotHoldersArgs) -> Result
     Ok(())
 }
 
-pub async fn snapshot_indexed_holders(
-    indexer: Indexers,
-    api_key: String,
-    creator: &str,
-    output: &str,
-) -> Result<()> {
-    println!("creator: {}", creator);
-    let md_results = match indexer {
-        Indexers::TheIndexIO => {
-            theindexio::get_verified_creator_accounts(api_key.clone(), creator).await?
+pub async fn snapshot_indexed_holders(args: NftsByCreatorArgs) -> Result<()> {
+    let md_results = match args.indexer {
+        Indexers::TheIndexIO => theindexio::get_verified_creator_accounts(args.clone()).await?,
+        Indexers::Helius => {
+            todo!()
         }
     };
+
+    let NftsByCreatorArgs {
+        creator,
+        output,
+        api_key,
+        ..
+    } = args;
 
     let delay = 1_000_000;
 

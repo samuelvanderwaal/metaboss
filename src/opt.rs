@@ -996,6 +996,44 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
+    /// Get NFT mints by creator from various indexers.
+    #[structopt(name = "mints-by-creator")]
+    MintsByCreator {
+        /// Indexer to use for getting collection items. See docs.
+        #[structopt(short, long, default_value = "helius")]
+        indexer: Indexers,
+
+        /// API key for the indexer.
+        #[structopt(short, long)]
+        api_key: String,
+
+        /// First verified creator address.
+        #[structopt(short = "c", long)]
+        address: String,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
+    /// Get NFT mints by collection from various indexers.
+    #[structopt(name = "mints-by-collection")]
+    MintsByCollection {
+        /// Indexer to use for getting collection items. See docs.
+        #[structopt(short, long, default_value = "helius")]
+        indexer: Indexers,
+
+        /// API key for the indexer.
+        #[structopt(short, long)]
+        api_key: String,
+
+        /// Collection parent mint address.
+        #[structopt(short = "c", long)]
+        address: String,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]
