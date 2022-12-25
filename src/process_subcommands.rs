@@ -27,7 +27,8 @@ use crate::parse::{parse_errors_code, parse_errors_file};
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{
     snapshot_cm_accounts, snapshot_holders, snapshot_indexed_holders, snapshot_indexed_mints,
-    snapshot_mints, SnapshotHoldersArgs, SnapshotMintsArgs,
+    snapshot_mints, snapshot_mints_by_collection, snapshot_mints_by_creator, GetMintsArgs, Method,
+    NftsByCreatorArgs, SnapshotHoldersArgs, SnapshotMintsArgs,
 };
 use crate::update::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
@@ -513,7 +514,15 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             api_key,
             creator,
             output,
-        } => snapshot_indexed_holders(indexer, api_key, &creator, &output).await,
+        } => {
+            snapshot_indexed_holders(NftsByCreatorArgs {
+                creator,
+                api_key,
+                indexer,
+                output,
+            })
+            .await
+        }
         SnapshotSubcommands::CMAccounts {
             update_authority,
             output,
@@ -543,7 +552,45 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
             api_key,
             creator,
             output,
-        } => snapshot_indexed_mints(indexer, api_key, &creator, output).await,
+        } => {
+            snapshot_indexed_mints(NftsByCreatorArgs {
+                creator,
+                api_key,
+                indexer,
+                output,
+            })
+            .await
+        }
+        SnapshotSubcommands::MintsByCreator {
+            indexer,
+            api_key,
+            address,
+            output,
+        } => {
+            snapshot_mints_by_creator(GetMintsArgs {
+                indexer,
+                api_key,
+                method: Method::Creator,
+                address,
+                output,
+            })
+            .await
+        }
+        SnapshotSubcommands::MintsByCollection {
+            indexer,
+            api_key,
+            address,
+            output,
+        } => {
+            snapshot_mints_by_collection(GetMintsArgs {
+                indexer,
+                api_key,
+                method: Method::Collection,
+                address,
+                output,
+            })
+            .await
+        }
     }
 }
 

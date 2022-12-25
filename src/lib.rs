@@ -8,6 +8,7 @@ pub mod decode;
 pub mod derive;
 pub mod errors;
 pub mod find;
+pub mod helius;
 pub mod limiter;
 pub mod mint;
 pub mod opt;

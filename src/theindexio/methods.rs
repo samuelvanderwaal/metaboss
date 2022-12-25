@@ -1,4 +1,9 @@
-use crate::spinner::create_alt_spinner;
+use std::fs::File;
+
+use crate::{
+    snapshot::{GetMintsArgs, Method, NftsByCreatorArgs},
+    spinner::{create_alt_spinner, create_spinner},
+};
 use anyhow::Result;
 use spl_token::ID as SPL_TOKEN_ID;
 
@@ -6,10 +11,53 @@ use super::data::*;
 
 use serde_json::json;
 
-pub async fn get_verified_creator_accounts(
-    api_key: String,
-    creator: &str,
-) -> Result<Vec<GPAResult>> {
+pub async fn get_mints(args: GetMintsArgs) -> Result<()> {
+    let GetMintsArgs {
+        method,
+        address,
+        output,
+        api_key,
+        indexer,
+        ..
+    } = args;
+
+    let method_name = match method {
+        Method::Creator => "getNFTsByCreator",
+        Method::Collection => "getNFTsByCollection",
+    };
+
+    let url = format!("{THE_INDEX_MAINNET}/{api_key}");
+    let params = json!([address]);
+
+    let jrpc = JRPCRequest::new(method_name, params);
+
+    let client = reqwest::Client::new();
+
+    let spinner = create_spinner("Fetching data from TheIndex.io. . .");
+    let response = client.post(url).json(&jrpc).send().await?;
+    spinner.finish();
+
+    let res: NftResponse = response.json().await?;
+
+    let mut mint_addresses = res
+        .result
+        .into_iter()
+        .map(|nft| nft.metadata.mint)
+        .collect::<Vec<String>>();
+
+    mint_addresses.sort_unstable();
+    let prefix = address[0..6].to_string();
+    let mut file = File::create(format!("{output}/{prefix}_{method}_mints_{indexer}.json"))?;
+    serde_json::to_writer_pretty(&mut file, &mint_addresses)?;
+
+    Ok(())
+}
+
+pub async fn get_verified_creator_accounts(args: NftsByCreatorArgs) -> Result<Vec<GPAResult>> {
+    let NftsByCreatorArgs {
+        creator, api_key, ..
+    } = args;
+
     let method = "getProgramAccounts";
     let url = format!("{THE_INDEX_MAINNET}/{api_key}");
     let params = json!(
