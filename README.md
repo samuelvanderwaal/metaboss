@@ -39,7 +39,7 @@ Some alternate tools that do similar things:
 
 * [Banana Tools](https://tools.0xbanana.com/)
 * [NFT Armory](https://www.nftarmory.me/)
-* [Pentacles Tools](https://cryptostraps.tools/nft-mints)
+* [Crypto Straps Tools](https://cryptostraps.tools/nft-mints)
 
 ## Installation
 
