@@ -144,7 +144,7 @@ pub async fn check_collection_items(
         return Err(anyhow!("Not all mints from the list belong to this parent. Run with --debug to see more details."));
     }
 
-    println!("All mints in are the collection!");
+    println!("All mints are in the collection!");
     Ok(())
 }
 
