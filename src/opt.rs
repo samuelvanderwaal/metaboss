@@ -1,3 +1,6 @@
+use std::path::PathBuf;
+
+use solana_program::pubkey::Pubkey;
 use structopt::StructOpt;
 
 use crate::{
@@ -243,12 +246,18 @@ pub enum CreateSubcommands {
         #[structopt(short, long)]
         keypair: Option<String>,
 
+        /// Path to the mint authority keypair file if different from update authority
+        #[structopt(short, long)]
+        mint_authority: Option<PathBuf>,
+
         /// Mint account
         #[structopt(short = "a", long)]
-        mint: String,
+        mint: Pubkey,
 
-        #[structopt(short, long)]
-        max_supply: Option<u64>,
+        /// Maximum number of print editions that can be minted.
+        /// -1 means no limit.
+        #[structopt(short = "s", long, default_value = "0")]
+        max_supply: i64,
     },
 }
 

@@ -257,11 +257,13 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
         }),
         CreateSubcommands::MasterEdition {
             keypair,
+            mint_authority,
             mint,
             max_supply,
         } => create_master_edition(CreateMasterEditionArgs {
             client,
             keypair,
+            mint_authority,
             mint,
             max_supply,
         }),

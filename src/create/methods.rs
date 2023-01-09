@@ -1,5 +1,9 @@
+use std::path::PathBuf;
+
+use anyhow::anyhow;
 use metaboss_lib::derive::derive_edition_pda;
 use mpl_token_metadata::instruction::create_master_edition_v3;
+use solana_sdk::signature::read_keypair_file;
 
 use super::*;
 
@@ -171,34 +175,49 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
 pub struct CreateMasterEditionArgs {
     pub client: RpcClient,
     pub keypair: Option<String>,
-    pub mint: String,
-    pub max_supply: Option<u64>,
+    pub mint_authority: Option<PathBuf>,
+    pub mint: Pubkey,
+    pub max_supply: i64,
 }
 
 pub fn create_master_edition(args: CreateMasterEditionArgs) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
-    let mint_pubkey = Pubkey::from_str(&args.mint)?;
+    let mint_authority = if let Some(mint_authority) = args.mint_authority {
+        read_keypair_file(&mint_authority)
+            .map_err(|e| anyhow!(format!("Failed to read mint authority keypair file: {e}")))?
+    } else {
+        Keypair::from_bytes(&keypair.to_bytes())
+            .map_err(|e| anyhow!(format!("Failed to create mint authority keypair: {e}")))?
+    };
+
+    let mint_pubkey = args.mint;
     let metadata_pubkey = derive_metadata_pda(&mint_pubkey);
     let edition_pubkey = derive_edition_pda(&mint_pubkey);
+
+    let max_supply = match args.max_supply {
+        i64::MIN..=-2 => panic!("Max supply: must be greater than -1"),
+        -1 => None,
+        0.. => Some(args.max_supply as u64),
+    };
 
     let ix = create_master_edition_v3(
         METADATA_PROGRAM_ID,
         edition_pubkey,
         mint_pubkey,
         keypair.pubkey(),
-        keypair.pubkey(),
+        mint_authority.pubkey(),
         metadata_pubkey,
         keypair.pubkey(),
-        args.max_supply,
+        max_supply,
     );
 
     let recent_blockhash = args.client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&keypair.pubkey()),
-        &[&keypair],
+        &[&keypair, &mint_authority],
         recent_blockhash,
     );
 
