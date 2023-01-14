@@ -15,7 +15,7 @@ use crate::create::{
 };
 use crate::decode::{
     decode_edition_marker, decode_master_edition, decode_metadata, decode_mint_account,
-    decode_print_edition,
+    decode_print_edition, decode_token_account,
 };
 use crate::derive::{
     get_cmv2_pda, get_edition_marker_pda, get_edition_pda, get_generic_pda, get_metadata_pda,
@@ -274,6 +274,9 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
     match commands {
         DecodeSubcommands::MintAccount { mint_address } => {
             decode_mint_account(client, &mint_address)?
+        }
+        DecodeSubcommands::TokenAccount { token_address } => {
+            decode_token_account(client, &token_address)?
         }
         DecodeSubcommands::Mint {
             account,

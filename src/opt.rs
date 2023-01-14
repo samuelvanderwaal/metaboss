@@ -521,6 +521,12 @@ pub enum DecodeSubcommands {
         #[structopt(short = "a", long)]
         mint_address: String,
     },
+    /// Decode Token account data.
+    TokenAccount {
+        /// Token account address
+        #[structopt(short = "a", long)]
+        token_address: String,
+    },
     /// Decode a mint account's metadata
     #[structopt(name = "mint")]
     Mint {

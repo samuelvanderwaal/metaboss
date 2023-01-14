@@ -4,7 +4,7 @@ use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
 use metaboss_lib::decode::{
     decode_edition_from_mint, decode_edition_marker_from_mint, decode_master_edition_from_mint,
-    decode_mint,
+    decode_mint, decode_token,
 };
 use mpl_token_metadata::state::CollectionDetails;
 use mpl_token_metadata::state::{Key, Metadata, TokenStandard, UseMethod};
@@ -206,6 +206,13 @@ pub fn decode_metadata(
 pub fn decode_mint_account(client: &RpcClient, mint_account: &str) -> AnyResult<()> {
     let mint = decode_mint(client, mint_account)?;
     println!("{:?}", mint);
+
+    Ok(())
+}
+
+pub fn decode_token_account(client: &RpcClient, token_account: &str) -> AnyResult<()> {
+    let account = decode_token(client, token_account)?;
+    println!("{:?}", account);
 
     Ok(())
 }
