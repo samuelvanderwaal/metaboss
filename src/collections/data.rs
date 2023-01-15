@@ -99,4 +99,4 @@ impl FromStr for GetCollectionItemsMethods {
     }
 }
 
-pub const PARALLEL_LIMIT: usize = 50;
+pub const PARALLEL_LIMIT: usize = 10;
