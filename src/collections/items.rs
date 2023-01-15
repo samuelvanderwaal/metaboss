@@ -143,7 +143,7 @@ pub async fn check_collection_items(
         return Err(anyhow!("Not all mints from the list belong to this parent. Run with --debug to see more details."));
     }
 
-    if mint_items.len() != mint_list_length || keys.len() == 0 {
+    if mint_items.len() != mint_list_length || keys.is_empty() {
         return Err(anyhow!(
             "Missed some mints from the list. Run with --debug to see more details."
         ));
