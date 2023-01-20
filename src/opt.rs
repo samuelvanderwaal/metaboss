@@ -515,6 +515,11 @@ pub enum CollectionsSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum DecodeSubcommands {
+    BpfUpgradeableState {
+        /// BpfUpgradeableState address
+        #[structopt(short = "a", long)]
+        bpf_upgradeable_state_address: String,
+    },
     /// Decode Mint account data.
     MintAccount {
         /// Mint address
