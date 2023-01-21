@@ -362,6 +362,8 @@ fn parse_key(key: Key) -> String {
         Key::UseAuthorityRecord => String::from("UseAuthorityRecord"),
         Key::CollectionAuthorityRecord => String::from("CollectionAuthorityRecord"),
         Key::TokenOwnedEscrow => String::from("TokenOwnedEscrow"),
+        Key::TokenRecord => String::from("TokenRecord"),
+        Key::MetadataDelegate => String::from("MetadataDelegate"),
     }
 }
 
@@ -371,6 +373,7 @@ fn parse_token_standard(token_standard: TokenStandard) -> String {
         TokenStandard::FungibleAsset => String::from("FungibleAsset"),
         TokenStandard::Fungible => String::from("Fungible"),
         TokenStandard::NonFungibleEdition => String::from("NonFungibleEdition"),
+        TokenStandard::ProgrammableNonFungible => String::from("ProgrammableNonFungible"),
     }
 }
 

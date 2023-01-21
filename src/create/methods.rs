@@ -110,8 +110,12 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
     let assoc = get_associated_token_address(&keypair.pubkey(), &mint.pubkey());
 
     // Create associated account instruction
-    let create_assoc_account_ix =
-        create_associated_token_account(&keypair.pubkey(), &keypair.pubkey(), &mint.pubkey());
+    let create_assoc_account_ix = create_associated_token_account(
+        &keypair.pubkey(),
+        &keypair.pubkey(),
+        &mint.pubkey(),
+        &spl_token::ID,
+    );
     instructions.push(create_assoc_account_ix);
 
     if let Some(initial_supply) = args.initial_supply {
