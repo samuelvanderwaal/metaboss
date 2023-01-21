@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use metaboss_lib::mint::PrintSupply;
 use solana_program::pubkey::Pubkey;
 use structopt::StructOpt;
 
@@ -621,6 +622,28 @@ pub enum FindSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum MintSubcommands {
+    /// Mint an asset from the new Token Metadata Program v1.7 handlers.
+    Asset {
+        /// Path to the update_authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Receiving address, if different from update authority.
+        #[structopt(short = "R", long)]
+        receiver: Option<String>,
+
+        /// Asset data
+        #[structopt(short = "d", long)]
+        asset_data: Option<String>,
+
+        /// Amount of tokens to mint, for NonFungible types this must be 1.
+        #[structopt(long, default_value = "1")]
+        amount: u64,
+
+        /// Max supply of print editions. Only applies to NonFungible types.
+        #[structopt(short = "s", long)]
+        max_print_edition_supply: Option<PrintSupply>,
+    },
     /// Mint a single NFT from a JSON file
     #[structopt(name = "one")]
     One {
