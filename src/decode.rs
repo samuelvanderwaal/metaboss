@@ -3,8 +3,8 @@ use borsh::BorshDeserialize;
 use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
 use metaboss_lib::decode::{
-    decode_edition_from_mint, decode_edition_marker_from_mint, decode_master_edition_from_mint,
-    decode_mint, decode_token,
+    decode_bpf_loader_upgradeable_state, decode_edition_from_mint, decode_edition_marker_from_mint,
+    decode_master_edition_from_mint, decode_mint, decode_token,
 };
 use mpl_token_metadata::state::CollectionDetails;
 use mpl_token_metadata::state::{Key, Metadata, TokenStandard, UseMethod};
@@ -259,6 +259,17 @@ pub fn decode(client: &RpcClient, mint_account: &str) -> Result<Metadata, Decode
     };
 
     Ok(metadata)
+}
+
+pub fn process_decode_bpf_loader_upgradable_state(
+    client: &RpcClient,
+    address: &str,
+) -> AnyResult<()> {
+    let state = decode_bpf_loader_upgradeable_state(client, address)?;
+
+    println!("{:?}", state);
+
+    Ok(())
 }
 
 fn decode_to_json(metadata: Metadata, full: bool) -> AnyResult<Value> {
