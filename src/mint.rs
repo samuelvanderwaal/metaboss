@@ -1,7 +1,10 @@
 use anyhow::{anyhow, Result};
 use glob::glob;
 use log::{error, info};
-use metaboss_lib::decode::*;
+use metaboss_lib::{
+    decode::*,
+    mint::{mint_asset, MintAssetArgs, PrintSupply},
+};
 use mpl_token_metadata::{
     instruction::{
         create_master_edition_v3, create_metadata_accounts_v3,
@@ -30,7 +33,12 @@ use spl_token::{
     instruction::{initialize_mint, mint_to},
     ID as TOKEN_PROGRAM_ID,
 };
-use std::{fs, fs::File, path::Path, str::FromStr};
+use std::{
+    fs,
+    fs::File,
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 
 use crate::derive::derive_edition_pda;
 use crate::sign::sign_one;
@@ -666,4 +674,45 @@ pub fn mint(
     let sig = res?;
 
     Ok((sig, mint.pubkey()))
+}
+
+pub fn process_mint_asset(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    receiver: Option<String>,
+    asset_data: PathBuf,
+    decimals: Option<u8>,
+    amount: u64,
+    max_print_edition_supply: Option<PrintSupply>,
+) -> Result<()> {
+    let solana_opts = parse_solana_config();
+    // Authority is the payer as well.
+    let authority = parse_keypair(keypair_path, solana_opts);
+
+    let receiver = if let Some(receiver) = receiver {
+        Pubkey::from_str(&receiver)?
+    } else {
+        authority.pubkey()
+    };
+
+    let f = File::open(asset_data)?;
+    let asset_data = serde_json::from_reader(f)?;
+
+    let args = MintAssetArgs::V1 {
+        payer: None,
+        authority: &authority,
+        receiver,
+        asset_data,
+        amount,
+        mint_decimals: decimals,
+        max_print_edition_supply,
+        authorization_data: None,
+    };
+
+    let mint_result = mint_asset(client, args)?;
+
+    println!("Minted asset: {:?}", mint_result.mint);
+    println!("Transaction signature: {:?}", mint_result.signature);
+
+    Ok(())
 }

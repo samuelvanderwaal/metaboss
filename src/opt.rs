@@ -112,6 +112,12 @@ pub enum Command {
         #[structopt(subcommand)]
         snapshot_subcommands: SnapshotSubcommands,
     },
+    /// Transfer Metaplex assets
+    #[structopt(name = "transfer")]
+    Transfer {
+        #[structopt(subcommand)]
+        transfer_subcommands: TransferSubcommands,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -634,13 +640,18 @@ pub enum MintSubcommands {
 
         /// Asset data
         #[structopt(short = "d", long)]
-        asset_data: Option<String>,
+        asset_data: PathBuf,
+
+        /// Mint decimals for fungible tokens.
+        #[structopt(long)]
+        decimals: Option<u8>,
 
         /// Amount of tokens to mint, for NonFungible types this must be 1.
         #[structopt(long, default_value = "1")]
         amount: u64,
 
         /// Max supply of print editions. Only applies to NonFungible types.
+        /// 0 for no prints, n for n prints, 'unlimited' for unlimited prints.
         #[structopt(short = "s", long)]
         max_print_edition_supply: Option<PrintSupply>,
     },
@@ -1306,16 +1317,23 @@ pub enum UpdateSubcommands {
 }
 
 #[derive(Debug, StructOpt)]
-pub enum WithdrawSubcommands {
-    /// Withdraw funds from a candy machine v2
-    #[structopt(name = "cm-v2")]
-    CMV2 {
-        /// Candy Machine V2 ID
-        candy_machine_id: String,
-
-        /// Path to the creator's keypair file
+pub enum TransferSubcommands {
+    Asset {
+        /// Path to the update_authority keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
+
+        /// Receiving address, if different from update authority.
+        #[structopt(short = "R", long)]
+        receiver: String,
+
+        /// Mint account of token to transfer
+        #[structopt(short, long)]
+        mint: String,
+
+        /// Amount of tokens to transfer, for NonFungible types this must be 1.
+        #[structopt(long, default_value = "1")]
+        amount: u64,
     },
 }
 
