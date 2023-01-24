@@ -1,11 +1,11 @@
 use std::path::PathBuf;
 
-use metaboss_lib::mint::PrintSupply;
 use solana_program::pubkey::Pubkey;
 use structopt::StructOpt;
 
 use crate::{
     collections::GetCollectionItemsMethods, constants::DEFAULT_BATCH_SIZE, data::Indexers,
+    mint::Supply,
 };
 
 #[derive(Debug, StructOpt)]
@@ -653,7 +653,7 @@ pub enum MintSubcommands {
         /// Max supply of print editions. Only applies to NonFungible types.
         /// 0 for no prints, n for n prints, 'unlimited' for unlimited prints.
         #[structopt(short = "s", long)]
-        max_print_edition_supply: Option<PrintSupply>,
+        max_print_edition_supply: Option<Supply>,
     },
     /// Mint a single NFT from a JSON file
     #[structopt(name = "one")]

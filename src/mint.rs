@@ -3,14 +3,14 @@ use glob::glob;
 use log::{error, info};
 use metaboss_lib::{
     decode::*,
-    mint::{mint_asset, MintAssetArgs, PrintSupply},
+    mint::{mint_asset, MintAssetArgs},
 };
 use mpl_token_metadata::{
     instruction::{
         create_master_edition_v3, create_metadata_accounts_v3,
         mint_new_edition_from_master_edition_via_token, update_metadata_accounts_v2,
     },
-    state::CollectionDetails,
+    state::{AssetData, CollectionDetails, PrintSupply},
     ID as TOKEN_METADATA_PROGRAM_ID,
 };
 use rayon::prelude::*;
@@ -683,7 +683,7 @@ pub fn process_mint_asset(
     asset_data: PathBuf,
     decimals: Option<u8>,
     amount: u64,
-    max_print_edition_supply: Option<PrintSupply>,
+    max_print_edition_supply: Option<Supply>,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
     // Authority is the payer as well.
@@ -696,7 +696,9 @@ pub fn process_mint_asset(
     };
 
     let f = File::open(asset_data)?;
-    let asset_data = serde_json::from_reader(f)?;
+    let asset_data: AssetData = serde_json::from_reader(f)?;
+
+    let print_supply = max_print_edition_supply.map(|s| s.into());
 
     let args = MintAssetArgs::V1 {
         payer: None,
@@ -705,7 +707,7 @@ pub fn process_mint_asset(
         asset_data,
         amount,
         mint_decimals: decimals,
-        max_print_edition_supply,
+        print_supply,
         authorization_data: None,
     };
 
@@ -715,4 +717,36 @@ pub fn process_mint_asset(
     println!("Transaction signature: {:?}", mint_result.signature);
 
     Ok(())
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Supply {
+    Zero,
+    Unlimited,
+    Limited(u64),
+}
+
+impl FromStr for Supply {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "0" => Ok(Supply::Zero),
+            "unlimited" => Ok(Supply::Unlimited),
+            _ => {
+                let supply = s.parse::<u64>().map_err(|_| "Invalid supply")?;
+                Ok(Supply::Limited(supply))
+            }
+        }
+    }
+}
+
+impl From<Supply> for PrintSupply {
+    fn from(supply: Supply) -> Self {
+        match supply {
+            Supply::Zero => PrintSupply::Zero,
+            Supply::Unlimited => PrintSupply::Unlimited,
+            Supply::Limited(supply) => PrintSupply::Limited(supply),
+        }
+    }
 }

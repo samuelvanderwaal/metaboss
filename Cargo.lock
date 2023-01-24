@@ -209,9 +209,9 @@ dependencies = [
 
 [[package]]
 name = "async-trait"
-version = "0.1.62"
+version = "0.1.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "689894c2db1ea643a50834b999abf1c110887402542955ff5451dab8f861f9ed"
+checksum = "eff18d764974428cf3a9328e23fc5c986f5fbed46e6cd4cdf42544df5d297ec1"
 dependencies = [
  "proc-macro2 1.0.50",
  "quote 1.0.23",
@@ -785,8 +785,18 @@ version = "0.13.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a01d95850c592940db9b8194bc39f4bc0e89dee5c4265e4b1807c34a9aba453c"
 dependencies = [
- "darling_core",
- "darling_macro",
+ "darling_core 0.13.4",
+ "darling_macro 0.13.4",
+]
+
+[[package]]
+name = "darling"
+version = "0.14.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0dd3cd20dc6b5a876612a6e5accfe7f3dd883db6d07acfbf14c128f61550dfa"
+dependencies = [
+ "darling_core 0.14.2",
+ "darling_macro 0.14.2",
 ]
 
 [[package]]
@@ -804,12 +814,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "darling_core"
+version = "0.14.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a784d2ccaf7c98501746bf0be29b2022ba41fd62a2e622af997a03e9f972859f"
+dependencies = [
+ "fnv",
+ "ident_case",
+ "proc-macro2 1.0.50",
+ "quote 1.0.23",
+ "strsim 0.10.0",
+ "syn 1.0.107",
+]
+
+[[package]]
 name = "darling_macro"
 version = "0.13.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c972679f83bdf9c42bd905396b6c3588a843a17f0f16dfcfa3e2c5d57441835"
 dependencies = [
- "darling_core",
+ "darling_core 0.13.4",
+ "quote 1.0.23",
+ "syn 1.0.107",
+]
+
+[[package]]
+name = "darling_macro"
+version = "0.14.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7618812407e9402654622dd402b0a89dff9ba93badd6540781526117b92aab7e"
+dependencies = [
+ "darling_core 0.14.2",
  "quote 1.0.23",
  "syn 1.0.107",
 ]
@@ -1352,6 +1387,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "hex"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
+
+[[package]]
 name = "histogram"
 version = "0.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1816,6 +1857,7 @@ dependencies = [
  "retry",
  "serde",
  "serde_json",
+ "serde_with 2.2.0",
  "serde_yaml",
  "shellexpand",
  "solana-account-decoder",
@@ -1833,7 +1875,6 @@ dependencies = [
 [[package]]
 name = "metaboss_lib"
 version = "0.0.10"
-source = "git+https://github.com/samuelvanderwaal/metaboss_lib?branch=feat/programmable-nfts#6646e6143d6f907d15b37a61a52d7ea72f824f69"
 dependencies = [
  "anyhow",
  "mpl-token-metadata",
@@ -1901,8 +1942,7 @@ dependencies = [
 [[package]]
 name = "mpl-token-metadata"
 version = "1.7.0-beta.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a80496bd2d781bf2b5b406847e1f9422c87334dc9c1273474465989d36e4238d"
+source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/programmable-asset#ec9b44f0f977d32fd6342ae015128ba058f2fabf"
 dependencies = [
  "arrayref",
  "borsh",
@@ -1913,7 +1953,7 @@ dependencies = [
  "num-derive",
  "num-traits",
  "serde",
- "serde_with",
+ "serde_with 1.14.0",
  "shank",
  "solana-program",
  "spl-associated-token-account",
@@ -1934,8 +1974,7 @@ dependencies = [
 [[package]]
 name = "mpl-token-metadata-context-derive"
 version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4e6f84ee9941d37274d5148d6ecc7a34773368216ceab150851a5c231308c4ab"
+source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/programmable-asset#ec9b44f0f977d32fd6342ae015128ba058f2fabf"
 dependencies = [
  "quote 1.0.23",
  "syn 1.0.107",
@@ -1958,8 +1997,7 @@ dependencies = [
 [[package]]
 name = "mpl-utils"
 version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6195ce98b92f1d0ea06d0cc9b2392d81673e02b8fb063589926fa73ee6b071a"
+source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/programmable-asset#ec9b44f0f977d32fd6342ae015128ba058f2fabf"
 dependencies = [
  "arrayref",
  "borsh",
@@ -2650,9 +2688,9 @@ dependencies = [
 
 [[package]]
 name = "rayon-core"
-version = "1.10.1"
+version = "1.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cac410af5d00ab6884528b4ab69d1e8e146e8d471201800fa1b4524126de6ad3"
+checksum = "356a0625f1954f730c0201cdab48611198dc6ce21f4acff55089b5a78e6e835b"
 dependencies = [
  "crossbeam-channel",
  "crossbeam-deque",
@@ -3023,7 +3061,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "678b5a069e50bf00ecd22d0cd8ddf7c236f68581b03db652061ed5eb13a312ff"
 dependencies = [
  "serde",
- "serde_with_macros",
+ "serde_with_macros 1.5.2",
+]
+
+[[package]]
+name = "serde_with"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "30d904179146de381af4c93d3af6ca4984b3152db687dacb9c3c35e86f39809c"
+dependencies = [
+ "base64 0.13.1",
+ "chrono",
+ "hex",
+ "indexmap",
+ "serde",
+ "serde_json",
+ "serde_with_macros 2.2.0",
+ "time 0.3.17",
 ]
 
 [[package]]
@@ -3032,7 +3086,19 @@ version = "1.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e182d6ec6f05393cc0e5ed1bf81ad6db3a8feedf8ee515ecdd369809bcce8082"
 dependencies = [
- "darling",
+ "darling 0.13.4",
+ "proc-macro2 1.0.50",
+ "quote 1.0.23",
+ "syn 1.0.107",
+]
+
+[[package]]
+name = "serde_with_macros"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1966009f3c05f095697c537312f5415d1e3ed31ce0a56942bac4c771c5c335e"
+dependencies = [
+ "darling 0.14.2",
  "proc-macro2 1.0.50",
  "quote 1.0.23",
  "syn 1.0.107",

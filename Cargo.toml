@@ -22,8 +22,10 @@ indicatif = { version = "0.16.2", features = ["rayon"] }
 lazy_static = "1.4.0"
 log = "0.4.17"
 # metaboss_lib = "0.0.9"
-metaboss_lib = { git = "https://github.com/samuelvanderwaal/metaboss_lib", branch = "feat/programmable-nfts" }
-mpl-token-metadata = { version = "1.7.0-beta.1", features = ["serde-feature"] }
+# metaboss_lib = { git = "https://github.com/samuelvanderwaal/metaboss_lib", branch = "feat/programmable-nfts" }
+metaboss_lib = { path = "/home/cilantro/Coding/Solana/metaboss_lib" }
+# mpl-token-metadata = { version = "1.7.0-beta.1", features = ["serde-feature"] }
+mpl-token-metadata = { git = "https://github.com/metaplex-foundation/metaplex-program-library", branch = "feat/programmable-asset", features = ["no-entrypoint", "serde-feature"] }
 num_cpus = "1.13.1"
 phf = { version = "0.10", features = ["macros"] }
 ratelimit = "0.4.4"
@@ -32,6 +34,7 @@ reqwest = { version = "0.11.12", features = ["json"] }
 retry = "1.3.1"
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.85"
+serde_with = "2.2.0"
 serde_yaml = "0.8.26"
 shellexpand = "2.1.2"
 solana-client = "1.10.32"
