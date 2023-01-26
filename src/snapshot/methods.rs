@@ -328,7 +328,7 @@ pub async fn snapshot_indexed_holders(args: NftsByCreatorArgs) -> Result<()> {
             .map(Result::unwrap_err)
             .map(|e| e.to_string())
             .collect::<Vec<_>>();
-        let f = File::create(format!("{}/{}_errors.json", output, creator))?;
+        let f = File::create(format!("{output}/{creator}_errors.json"))?;
         serde_json::to_writer_pretty(&f, &errors)?;
     }
 
@@ -522,7 +522,7 @@ pub fn snapshot_cm_accounts(
         candy_machine_accounts,
     };
 
-    let mut file = File::create(format!("{}/{}_accounts.json", output, update_authority))?;
+    let mut file = File::create(format!("{output}/{update_authority}_accounts.json"))?;
     serde_json::to_writer_pretty(&mut file, &candy_machine_program_accounts)?;
 
     Ok(())

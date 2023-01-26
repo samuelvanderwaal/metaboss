@@ -41,7 +41,7 @@ pub fn send_and_confirm_transaction(
 
     let sig = res?;
 
-    println!("TxId: {}", sig);
+    println!("TxId: {sig}");
     Ok(sig.to_string())
 }
 
@@ -159,8 +159,7 @@ pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<Stri
             }
 
             parsed_error_line = format!(
-                "    \"{:X}\" => \"{}{}",
-                starting_error_number, error_enum, parsed_error_line
+                "    \"{starting_error_number:X}\" => \"{error_enum}{parsed_error_line}"
             );
         } else if error_line.starts_with("#[") && error_line.ends_with(")]") {
             let parsed_message = error_line
@@ -169,7 +168,7 @@ pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<Stri
                 .replace("msg(\"", "")
                 .replace("\")]", "");
 
-            parsed_error_line = format!(": {}\",\n", parsed_message);
+            parsed_error_line = format!(": {parsed_message}\",\n");
         }
 
         if parsed_error_line.contains("=>") {

@@ -46,7 +46,7 @@ pub fn set_immutable_one(
 
     let sig = client.send_and_confirm_transaction(&tx)?;
     info!("Tx sig: {:?}", sig);
-    println!("Tx sig: {:?}", sig);
+    println!("Tx sig: {sig:?}");
 
     Ok(())
 }

@@ -48,7 +48,7 @@ pub fn update_rule_set_one(
     let update_result = update_asset(client, args)?;
 
     println!("Updated asset: {mint:?}");
-    println!("Update signature: {:?}", update_result);
+    println!("Update signature: {update_result:?}");
 
     Ok(())
 }
@@ -99,7 +99,7 @@ pub fn clear_rule_set_one(
     let update_result = update_asset(client, args)?;
 
     println!("Updated asset: {mint:?}");
-    println!("Update signature: {:?}", update_result);
+    println!("Update signature: {update_result:?}");
 
     Ok(())
 }

@@ -57,7 +57,7 @@ pub fn set_update_authority_one(
 
     let sig = client.send_and_confirm_transaction(&tx)?;
     info!("Tx sig: {:?}", sig);
-    println!("Tx sig: {:?}", sig);
+    println!("Tx sig: {sig:?}");
 
     Ok(())
 }

@@ -48,7 +48,7 @@ pub async fn burn_one(
 
     let sig = burn(args).await?;
 
-    println!("TxId: {}", sig);
+    println!("TxId: {sig}");
 
     Ok(())
 }
@@ -76,7 +76,7 @@ pub async fn burn_print_one(
 
     let sig = burn_print(args).await?;
 
-    println!("TxId: {}", sig);
+    println!("TxId: {sig}");
 
     Ok(())
 }

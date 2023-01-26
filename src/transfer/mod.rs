@@ -40,7 +40,7 @@ pub fn process_transfer_asset(
     let transfer_result = transfer_asset(client, args)?;
 
     println!("Transferred asset: {mint:?}");
-    println!("Transaction signature: {:?}", transfer_result);
+    println!("Transaction signature: {transfer_result:?}");
 
     Ok(())
 }

@@ -188,7 +188,7 @@ pub fn parse_cli_creators(new_creators: String, should_append: bool) -> Result<V
         let mut c = nc.split(':');
         let address = c.next().ok_or_else(|| anyhow!("Missing address!"))?;
         let address = Pubkey::from_str(address)
-            .map_err(|_| anyhow!(format!("Invalid creator address: {:?}!", address)))?;
+            .map_err(|_| anyhow!(format!("Invalid creator address: {address:?}!")))?;
         let share = if should_append {
             c.next();
             0u8

@@ -326,7 +326,7 @@ pub fn mint_one<P: AsRef<Path>>(
     )?;
     info!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account);
     let message = format!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account,);
-    println!("{}", message);
+    println!("{message}");
     if sign {
         //TODO: Error handling
         sign_one(client, keypair_path, mint_account.to_string())?;

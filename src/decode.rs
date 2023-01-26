@@ -90,7 +90,7 @@ pub fn decode_metadata_all(
             };
 
             debug!("Creating file for mint account: {}", mint_account);
-            let mut file = match File::create(format!("{}/{}.json", output, mint_account)) {
+            let mut file = match File::create(format!("{output}/{mint_account}.json")) {
                 Ok(f) => f,
                 Err(err) => {
                     error!(
@@ -110,7 +110,6 @@ pub fn decode_metadata_all(
                             "Failed to write to JSON file for mint account: {}, error: {}",
                             mint_account, err
                         );
-                        return;
                     }
                 }
             } else {
@@ -121,7 +120,6 @@ pub fn decode_metadata_all(
                             "Failed to write to JSON file for mint account: {}, error: {}",
                             mint_account, err
                         );
-                        return;
                     }
                 }
             }
@@ -132,14 +130,14 @@ pub fn decode_metadata_all(
 
 pub fn decode_master_edition(client: &RpcClient, mint_account: &str) -> AnyResult<()> {
     let master_edition = decode_master_edition_from_mint(client, mint_account)?;
-    println!("{:?}", master_edition);
+    println!("{master_edition:?}");
 
     Ok(())
 }
 
 pub fn decode_print_edition(client: &RpcClient, mint_account: &str) -> AnyResult<()> {
     let print_edition = decode_edition_from_mint(client, mint_account)?;
-    println!("{:?}", print_edition);
+    println!("{print_edition:?}");
 
     Ok(())
 }
@@ -159,7 +157,7 @@ pub fn decode_edition_marker(
     };
 
     let edition_marker = decode_edition_marker_from_mint(client, mint_account, edition_num)?;
-    println!("{:?}", edition_marker);
+    println!("{edition_marker:?}");
 
     Ok(())
 }
@@ -182,11 +180,11 @@ pub fn decode_metadata(
     if let Some(mint_account) = account {
         if raw {
             let data = decode_raw(client, mint_account)?;
-            println!("{:?}", data);
+            println!("{data:?}");
             return Ok(());
         }
         let metadata = decode(client, mint_account)?;
-        let mut file = File::create(format!("{}/{}.json", output, mint_account))?;
+        let mut file = File::create(format!("{output}/{mint_account}.json"))?;
         serde_json::to_writer_pretty(&mut file, &metadata)?;
     } else if let Some(list_path) = list_path {
         decode_metadata_all(client, list_path, full, output)?;
@@ -201,14 +199,14 @@ pub fn decode_metadata(
 
 pub fn decode_mint_account(client: &RpcClient, mint_account: &str) -> AnyResult<()> {
     let mint = decode_mint(client, mint_account)?;
-    println!("{:?}", mint);
+    println!("{mint:?}");
 
     Ok(())
 }
 
 pub fn decode_token_account(client: &RpcClient, token_account: &str) -> AnyResult<()> {
     let account = decode_token(client, token_account)?;
-    println!("{:?}", account);
+    println!("{account:?}");
 
     Ok(())
 }
@@ -259,7 +257,7 @@ pub fn process_decode_bpf_loader_upgradable_state(
 ) -> AnyResult<()> {
     let state = decode_bpf_loader_upgradeable_state(client, address)?;
 
-    println!("{:?}", state);
+    println!("{state:?}");
 
     Ok(())
 }
