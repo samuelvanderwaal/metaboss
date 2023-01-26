@@ -3,8 +3,8 @@ use borsh::BorshDeserialize;
 use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
 use metaboss_lib::decode::{
-    decode_edition_from_mint, decode_edition_marker_from_mint, decode_master_edition_from_mint,
-    decode_mint, decode_token,
+    decode_bpf_loader_upgradeable_state, decode_edition_from_mint, decode_edition_marker_from_mint,
+    decode_master_edition_from_mint, decode_mint, decode_token,
 };
 use mpl_token_metadata::state::Metadata;
 use rayon::prelude::*;
@@ -251,6 +251,17 @@ pub fn decode(client: &RpcClient, mint_account: &str) -> Result<Metadata, Decode
 
     Metadata::deserialize(&mut account_data.as_slice())
         .map_err(|e| DecodeError::DecodeMetadataFailed(e.to_string()))
+}
+
+pub fn process_decode_bpf_loader_upgradable_state(
+    client: &RpcClient,
+    address: &str,
+) -> AnyResult<()> {
+    let state = decode_bpf_loader_upgradeable_state(client, address)?;
+
+    println!("{:?}", state);
+
+    Ok(())
 }
 
 pub fn get_metadata_pda(pubkey: Pubkey) -> Pubkey {
