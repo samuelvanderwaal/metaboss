@@ -36,6 +36,6 @@ metaboss transfer asset --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM -R P
 
 **Amount**
 
-For non-fungible types such as `NonFungible` and `ProgrammableNonFungible`, the amount can only be `1` and that is the default value for the CLI argument in not specified. 
+For non-fungible types such as `NonFungible` and `ProgrammableNonFungible`, the amount can only be `1` and that is the default value for the CLI argument if not specified. 
 
 For fungible types, specify the amount to be transferred with `--amount <number>`.
