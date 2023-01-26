@@ -9,7 +9,6 @@
 
         <!-- Custom HTML head -->
         
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -35,13 +34,13 @@
     </head>
     <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -57,7 +56,7 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
@@ -69,7 +68,7 @@
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
+        <script>
             var html = document.querySelector('html');
             var sidebar = 'hidden';
             if (document.body.clientWidth >= 1080) {
@@ -100,7 +99,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -133,7 +132,7 @@
                 </div>
 
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -569,6 +568,66 @@ Candy Machine | IncorrectOwner: Account does not have correct owner!
 <p>To mint from URIs provide the path to a JSON file containing a list of URIs.</p>
 <p>By default, new NFTs are minted as mutable, to make them immutable use the <code>--immutable</code> option.</p>
 <p>Use the <code>--sign</code> option to sign the metadata with the keypair immediately after minting.</p>
+<h3 id="mint-asset"><a class="header" href="#mint-asset">Mint Asset</a></h3>
+<p>Mint various types of Metaplex assets, including pNFTs.</p>
+<pre><code>USAGE:
+    metaboss mint asset [OPTIONS] --asset-data &lt;asset-data&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+        --amount &lt;amount&gt;
+            Amount of tokens to mint, for NonFungible types this must be 1 [default: 1]
+
+    -d, --asset-data &lt;asset-data&gt;                                Asset data
+        --decimals &lt;decimals&gt;                                    Mint decimals for fungible tokens
+    -k, --keypair &lt;keypair&gt;                                      Path to the update_authority keypair file
+    -l, --log-level &lt;log-level&gt;                                  Log level [default: off]
+    -s, --max-print-edition-supply &lt;max-print-edition-supply&gt;
+            Max supply of print editions. Only applies to NonFungible types. 0 for no prints, n for n prints,
+            'unlimited' for unlimited prints
+    -R, --receiver &lt;receiver&gt;                                    Receiving address, if different from update authority
+    -r, --rpc &lt;rpc&gt;
+            RPC endpoint url to override using the Solana config or the hard-coded default
+
+    -T, --timeout &lt;timeout&gt;
+            Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<h4 id="usage-14"><a class="header" href="#usage-14">Usage</a></h4>
+<p>You need an asset json file of this format:</p>
+<pre><code class="language-json">    {
+        &quot;name&quot;: &quot;Studious Crab #1&quot;,
+        &quot;symbol&quot;: &quot;CRAB&quot;,
+        &quot;uri&quot;: &quot;https://arweave.net/uVtABL4PYv0wVke3LL4DLMkqkSMcQl1qswRZNkJ0a0g&quot;,
+        &quot;seller_fee_basis_points&quot;: 100,
+        &quot;creators&quot;: [
+            {
+                &quot;address&quot;: &quot;ccc9XfyEMh9sU6DRkUmqQGJqgdKb6QyUaaT5h5BGYw4&quot;,
+                &quot;verified&quot;: true,
+                &quot;share&quot;: 100
+            }
+        ],
+        &quot;primary_sale_happened&quot;: false,
+        &quot;is_mutable&quot;: true,
+        &quot;token_standard&quot;: &quot;ProgrammableNonFungible&quot;,
+        &quot;collection&quot;: null,
+        &quot;uses&quot;: null,
+        &quot;collection_details&quot;: null,
+        &quot;rule_set&quot;: null
+    }
+</code></pre>
+<p>Substitute appropriate values for each field. The creator can only be set as verified if it is the same keypair as the one used to mint the asset, otherwise leave it as <code>false</code>.</p>
+<pre><code class="language-bash">metaboss mint asset -d &lt;asset_json_file&gt; -k &lt;keypair&gt; -R &lt;receiver&gt; -s &lt;print_supply&gt;
+</code></pre>
+<p>E.g.:</p>
+<pre><code class="language-bash">metaboss mint asset -d crab.json -k ccc9XfyEMh9sU6DRkUmqQGJqgdKb6QyUaaT5h5BGYw4.json -R  PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8 -s 0
+</code></pre>
+<p>Leave off the <code>--receiver</code> option to mint to your keypair.</p>
+<p><strong>Print Supply</strong></p>
+<p>All non-fungible type assets: currently <code>NonFungible</code> and <code>ProgrammableNonFungible</code>, require the <code>print-supply</code> option to be specified to set the maximum number of print editions that can be minted from the asset. For most PFP, 1/1, style NFTs, this should be set to <code>0</code> to prevent any editions being minted. Other options are: <code>n</code> for a limited number of <code>n</code> editions (e.g. <code>10</code>), or <code>unlimited</code> to allow unlimited editions to be minted.</p>
+<p>Fungible types such as <code>Fungible</code> and <code>FungibleAsset</code> should leave this value off as it has no meaning for them and the <code>mint asset</code> command will fail if that is specified for a fungible type.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="set"><a class="header" href="#set">Set</a></h2>
 <p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution.</strong></p>
 <p>Set non-Data struct values for a NFT.</p>
@@ -607,13 +666,13 @@ Candy Machine | IncorrectOwner: Account does not have correct owner!
 <p>Sign metadata for an unverified creator.</p>
 <h3 id="sign-one"><a class="header" href="#sign-one">Sign One</a></h3>
 <p>Sign the metadata for a single mint account.</p>
-<h4 id="usage-14"><a class="header" href="#usage-14">Usage</a></h4>
+<h4 id="usage-15"><a class="header" href="#usage-15">Usage</a></h4>
 <pre><code class="language-bash">metaboss sign one --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="sign-all"><a class="header" href="#sign-all">Sign All</a></h3>
 <p>Sign all metadata from a JSON list or for a given first verified creator. First verified creator can be the candy machine creator id or whatever the first verified creator in the creators array is for your NFTs.</p>
-<h4 id="usage-15"><a class="header" href="#usage-15">Usage</a></h4>
+<h4 id="usage-16"><a class="header" href="#usage-16">Usage</a></h4>
 <pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --creator &lt;FIRST_CREATOR&gt;
 </code></pre>
 <p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with the candy machine id.</strong>
@@ -638,7 +697,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <p>Get snapshots of various blockchain states.</p>
 <h3 id="snapshot-cm-accounts"><a class="header" href="#snapshot-cm-accounts">Snapshot CM-Accounts</a></h3>
 <p>Snapshot all candy machine config and state accounts for a given update_authority.</p>
-<h4 id="usage-16"><a class="header" href="#usage-16">Usage</a></h4>
+<h4 id="usage-17"><a class="header" href="#usage-17">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot cm-accounts --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>Creates a JSON file in the output directory with the name format of <code>&lt;UPDATE_AUTHORITY&gt;_accounts.json</code>, consisting of an object with the fields <code>config_accounts</code> and <code>candy_machine_accounts</code>:</p>
@@ -668,7 +727,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <h3 id="snapshot-holders"><a class="header" href="#snapshot-holders">Snapshot Holders</a></h3>
 <p>Snapshot all current holders of NFTs filtered by verified candy_machine_id/first creator or update_authority.
 <strong>Note:</strong> Update authority can be faked so use that option with caution.</p>
-<h4 id="usage-17"><a class="header" href="#usage-17">Usage</a></h4>
+<h4 id="usage-18"><a class="header" href="#usage-18">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot holders --creator &lt;CREATOR_ADDRESS&gt; -p &lt;POSITION&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
@@ -699,7 +758,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 </code></pre>
 <h3 id="snapshot-mints"><a class="header" href="#snapshot-mints">Snapshot Mints</a></h3>
 <p>Snapshot all mint accounts for a given verified candy machine id/first creator or update authority</p>
-<h4 id="usage-18"><a class="header" href="#usage-18">Usage</a></h4>
+<h4 id="usage-19"><a class="header" href="#usage-19">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot mints --creator &lt;FIRST_CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
@@ -721,11 +780,11 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <h3 id="indexed-data"><a class="header" href="#indexed-data">Indexed Data</a></h3>
 <p>Metaboss now has experimental support for running snapshot commands using off-chain, indexed data from https://theindex.io/. Other indexers or methods may be supported later. To use this feature, you need to sign up for a free account with TheIndex to get an API key.</p>
 <h3 id="snapshot-indexed-mints"><a class="header" href="#snapshot-indexed-mints">Snapshot Indexed Mints</a></h3>
-<h4 id="usage-19"><a class="header" href="#usage-19">Usage</a></h4>
+<h4 id="usage-20"><a class="header" href="#usage-20">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot indexed-mints --creator &lt;FIRST_VERIFIED_CREATOR&gt; --api-key &lt;THEINDEX.IO_API_KEY&gt;
 </code></pre>
 <h3 id="snapshot-indexed-holders"><a class="header" href="#snapshot-indexed-holders">Snapshot Indexed Holders</a></h3>
-<h4 id="usage-20"><a class="header" href="#usage-20">Usage</a></h4>
+<h4 id="usage-21"><a class="header" href="#usage-21">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot indexed-holders --creator &lt;FIRST_VERIFIED_CREATOR&gt; --api-key &lt;THEINDEX.IO_API_KEY&gt;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="update"><a class="header" href="#update">Update</a></h2>
@@ -734,7 +793,7 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>See also <strong>Set</strong> commands for updatable values that cannot be reversed (e.g. set immutable).</p>
 <h3 id="update-data"><a class="header" href="#update-data">Update Data</a></h3>
 <p>Update the <code>Data</code> struct on a NFT from a JSON file.</p>
-<h4 id="usage-21"><a class="header" href="#usage-21">Usage</a></h4>
+<h4 id="usage-22"><a class="header" href="#usage-22">Usage</a></h4>
 <pre><code class="language-bash">metaboss update data --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-data-file &lt;PATH_TO_NEW_DATA_FILE&gt;
 </code></pre>
 <p>The JSON file should include all the fields of the metadata <code>Data</code> struct and should match <code>creator</code> <code>verified</code> bools for existing creators. E.g. if your NFT was minted by the Metaplex Candy Machine program, and you wish to keep your candy machine as a verified creator <em>you must add the candy machine to your creators array with <code>verified</code> set to <code>true</code></em>.</p>
@@ -767,7 +826,7 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="update-data-all"><a class="header" href="#update-data-all">Update Data All</a></h3>
 <p>Update the <code>Data</code> struct on a list of NFTs from JSON files.</p>
-<h4 id="usage-22"><a class="header" href="#usage-22">Usage</a></h4>
+<h4 id="usage-23"><a class="header" href="#usage-23">Usage</a></h4>
 <pre><code class="language-bash">metaboss update data-all --keypair &lt;PATH_TO_KEYPAIR&gt; --data-dir &lt;PATH_TO_DATA_DIR&gt;
 </code></pre>
 <p>Each JSON file in the data directory should include the mint account and all the fields of the metadata <code>Data</code> struct and should match <code>creator</code> <code>verified</code> bools for existing creators. E.g. if your NFT was minted by the Metaplex Candy Machine program, and you wish to keep your candy machine as a verified creator <em>you must add the candy machine to your creators array with <code>verified</code> set to <code>true</code></em>.</p>
@@ -803,22 +862,22 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="update-name"><a class="header" href="#update-name">Update Name</a></h3>
 <p>Update the on-chain name of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-23"><a class="header" href="#usage-23">Usage</a></h4>
+<h4 id="usage-24"><a class="header" href="#usage-24">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update name --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-name &lt;NEW_NAME&gt;
 </code></pre>
 <h3 id="update-symbol"><a class="header" href="#update-symbol">Update Symbol</a></h3>
 <p>Update the on-chain symbol of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-24"><a class="header" href="#usage-24">Usage</a></h4>
+<h4 id="usage-25"><a class="header" href="#usage-25">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update symbol --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-symbol &lt;NEW_SYMBOL&gt;
 </code></pre>
 <h3 id="update-symbol-all"><a class="header" href="#update-symbol-all">Update Symbol All</a></h3>
 <p>Update the on-chain symbol of a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-25"><a class="header" href="#usage-25">Usage</a></h4>
+<h4 id="usage-26"><a class="header" href="#usage-26">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update symbol-all --keypair &lt;PATH_TO_KEYPAIR&gt; -L &lt;PATH_TO_LIST_MINT_ADDRESSES&gt; --new-symbol &lt;NEW_SYMBOL&gt;
 </code></pre>
 <h3 id="update-creators"><a class="header" href="#update-creators">Update Creators</a></h3>
 <p>Update the creators of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-26"><a class="header" href="#usage-26">Usage</a></h4>
+<h4 id="usage-27"><a class="header" href="#usage-27">Usage</a></h4>
 <pre><code class="language-bash">metaboss update creators -k &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -c &lt;CREATOR1:SHARE:VERIFIED,CREATOR2:SHARE:VERIFIED&gt;
 </code></pre>
 <p>Creators should be a comma-delimited list of creator:share:verified. E.g. </p>
@@ -832,12 +891,12 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 </code></pre>
 <h3 id="update-uri"><a class="header" href="#update-uri">Update URI</a></h3>
 <p>Update the metadata URI, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-27"><a class="header" href="#usage-27">Usage</a></h4>
+<h4 id="usage-28"><a class="header" href="#usage-28">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-uri &lt;NEW_URI&gt;
 </code></pre>
 <h3 id="update-uri-all"><a class="header" href="#update-uri-all">Update URI All</a></h3>
 <p>Update the metadata URI for a list of mint accounts, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-28"><a class="header" href="#usage-28">Usage</a></h4>
+<h4 id="usage-29"><a class="header" href="#usage-29">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri-all --keypair &lt;PATH_TO_KEYPAIR&gt; --json-file &lt;PATH_TO_JSON_FILE&gt;
 </code></pre>
 <pre><code class="language-json">[
@@ -853,13 +912,58 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 </code></pre>
 <h3 id="update-seller-fee-basis-points"><a class="header" href="#update-seller-fee-basis-points">Update Seller Fee Basis Points</a></h3>
 <p>Update the seller fee basis points field on an NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-29"><a class="header" href="#usage-29">Usage</a></h4>
+<h4 id="usage-30"><a class="header" href="#usage-30">Usage</a></h4>
 <pre><code class="language-bash">metaboss update sfbp --keypair &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
 <h3 id="update-seller-fee-basis-points-all"><a class="header" href="#update-seller-fee-basis-points-all">Update Seller Fee Basis Points All</a></h3>
 <p>Update the seller fee basis points field on a a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-30"><a class="header" href="#usage-30">Usage</a></h4>
+<h4 id="usage-31"><a class="header" href="#usage-31">Usage</a></h4>
 <pre><code class="language-bash">metaboss update sfbp-all --keypair &lt;PATH_TO_KEYPAIR&gt; -L &lt;PATH_TO_MINT_LIST.json&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
+</code></pre>
+<h3 id="update-rule-set"><a class="header" href="#update-rule-set">Update Rule Set</a></h3>
+<p>Update a Metaplex pNFT's rule set pubkey.</p>
+<pre><code>USAGE:
+    metaboss update rule-set [OPTIONS] --mint &lt;mint&gt; --new-rule-set &lt;new-rule-set&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -k, --keypair &lt;keypair&gt;              Path to the creator's keypair file
+    -l, --log-level &lt;log-level&gt;          Log level [default: off]
+    -a, --mint &lt;mint&gt;                    Mint account of token to transfer
+    -n, --new-rule-set &lt;new-rule-set&gt;    New rule set pubkey
+    -r, --rpc &lt;rpc&gt;                      RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;              Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<h4 id="usage-32"><a class="header" href="#usage-32">Usage</a></h4>
+<pre><code class="language-bash">metaboss update rule-set --mint &lt;MINT_ADDRESS&gt; --new-rule-set &lt;NEW_RULE_SET_PUBKEY&gt;
+</code></pre>
+<p>E.g.:</p>
+<pre><code class="language-bash">metaboss update rule-set --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM -n D4YHFZPWASGpvBDJSUrPtqZqxTgTm7eL5rikBY9Y5dwf
+</code></pre>
+<h3 id="update-clear-rule-set"><a class="header" href="#update-clear-rule-set">Update Clear Rule Set</a></h3>
+<p>Remove the rule set on a pNFT.</p>
+<pre><code>USAGE:
+    metaboss update clear-rule-set [OPTIONS] --mint &lt;mint&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -k, --keypair &lt;keypair&gt;        Path to the creator's keypair file
+    -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -a, --mint &lt;mint&gt;              Mint account of token to transfer
+    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<h4 id="usage-33"><a class="header" href="#usage-33">Usage</a></h4>
+<pre><code class="language-bash">metaboss update clear-rule-set --mint &lt;MINT_ADDRESS&gt;
+</code></pre>
+<p>E.g.:</p>
+<pre><code class="language-bash">metaboss update clear-rule-set --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="withdraw-deprecated"><a class="header" href="#withdraw-deprecated">Withdraw (Deprecated)</a></h2>
 <p>Use Metaplex's <a href="https://docs.metaplex.com/sugar/introduction">Sugar</a> tool for withdrawing from candy machines instead.</p>
@@ -890,22 +994,22 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 
 
 
-        <script type="text/javascript">
+        <script>
             window.playground_copyable = true;
         </script>
 
 
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
 
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
 
-        <script type="text/javascript">
+        <script>
         window.addEventListener('load', function() {
             window.setTimeout(window.print, 100);
         });
