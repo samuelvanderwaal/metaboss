@@ -1,4 +1,4 @@
-use super::common::*;
+use super::*;
 
 pub struct SetUpdateAuthorityAllArgs {
     pub client: RpcClient,

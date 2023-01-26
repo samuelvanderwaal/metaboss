@@ -1087,6 +1087,30 @@ pub enum SnapshotSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum UpdateSubcommands {
+    /// Update the rule set of a pNFT.
+    RuleSet {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account of token to transfer
+        #[structopt(short = "a", long)]
+        mint: String,
+
+        /// New rule set pubkey
+        #[structopt(short, long)]
+        new_rule_set: String,
+    },
+    /// Clear the rule set of a pNFT.
+    ClearRuleSet {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account of token to transfer
+        #[structopt(short = "a", long)]
+        mint: String,
+    },
     /// Update the seller fee basis points field inside the data struct on an NFT
     #[structopt(name = "sfbp")]
     SellerFeeBasisPoints {

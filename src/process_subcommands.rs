@@ -629,6 +629,15 @@ pub fn process_transfer(client: RpcClient, commands: TransferSubcommands) -> Res
 
 pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> Result<()> {
     match commands {
+        UpdateSubcommands::RuleSet {
+            keypair,
+            mint,
+            new_rule_set,
+        } => update_rule_set_one(&client, keypair, &mint, &new_rule_set),
+        UpdateSubcommands::ClearRuleSet { keypair, mint } => {
+            clear_rule_set_one(&client, keypair, &mint)
+        }
+
         UpdateSubcommands::SellerFeeBasisPoints {
             keypair,
             account,

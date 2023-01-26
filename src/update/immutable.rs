@@ -1,4 +1,4 @@
-use super::common::*;
+use super::*;
 
 struct SetImmutableArgs {
     client: Arc<RpcClient>,
