@@ -208,3 +208,69 @@ Update the seller fee basis points field on a a list of NFTs, keeping the rest o
 ```bash
 metaboss update sfbp-all --keypair <PATH_TO_KEYPAIR> -L <PATH_TO_MINT_LIST.json> -n <NEW_SELLER_FEE_BASIS_POINTS_VALUE>
 ```
+
+### Update Rule Set
+
+Update a Metaplex pNFT's rule set pubkey.
+
+```
+USAGE:
+    metaboss update rule-set [OPTIONS] --mint <mint> --new-rule-set <new-rule-set>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -k, --keypair <keypair>              Path to the creator's keypair file
+    -l, --log-level <log-level>          Log level [default: off]
+    -a, --mint <mint>                    Mint account of token to transfer
+    -n, --new-rule-set <new-rule-set>    New rule set pubkey
+    -r, --rpc <rpc>                      RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout <timeout>              Timeout to override default value of 90 seconds [default: 90]
+```
+
+#### Usage
+
+```bash
+metaboss update rule-set --mint <MINT_ADDRESS> --new-rule-set <NEW_RULE_SET_PUBKEY>
+```
+
+E.g.:
+
+```bash
+metaboss update rule-set --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM -n D4YHFZPWASGpvBDJSUrPtqZqxTgTm7eL5rikBY9Y5dwf
+```
+
+
+### Update Clear Rule Set
+
+Remove the rule set on a pNFT.
+
+```
+USAGE:
+    metaboss update clear-rule-set [OPTIONS] --mint <mint>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -k, --keypair <keypair>        Path to the creator's keypair file
+    -l, --log-level <log-level>    Log level [default: off]
+    -a, --mint <mint>              Mint account of token to transfer
+    -r, --rpc <rpc>                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout <timeout>        Timeout to override default value of 90 seconds [default: 90]
+```
+
+#### Usage
+
+```bash
+metaboss update clear-rule-set --mint <MINT_ADDRESS>
+```
+
+E.g.:
+
+```bash
+metaboss update clear-rule-set --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM
+```

@@ -61,6 +61,7 @@ To find the full list of options for each command use `-h` or `--help` as normal
 
 Mint multiple NFTs from a list of JSON files.
 
+
 #### Usage
 
 ```bash
@@ -77,3 +78,84 @@ To mint from URIs provide the path to a JSON file containing a list of URIs.
 By default, new NFTs are minted as mutable, to make them immutable use the `--immutable` option.
 
 Use the `--sign` option to sign the metadata with the keypair immediately after minting.
+
+
+### Mint Asset
+
+Mint various types of Metaplex assets, including pNFTs.
+
+
+```
+USAGE:
+    metaboss mint asset [OPTIONS] --asset-data <asset-data>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+        --amount <amount>
+            Amount of tokens to mint, for NonFungible types this must be 1 [default: 1]
+
+    -d, --asset-data <asset-data>                                Asset data
+        --decimals <decimals>                                    Mint decimals for fungible tokens
+    -k, --keypair <keypair>                                      Path to the update_authority keypair file
+    -l, --log-level <log-level>                                  Log level [default: off]
+    -s, --max-print-edition-supply <max-print-edition-supply>
+            Max supply of print editions. Only applies to NonFungible types. 0 for no prints, n for n prints,
+            'unlimited' for unlimited prints
+    -R, --receiver <receiver>                                    Receiving address, if different from update authority
+    -r, --rpc <rpc>
+            RPC endpoint url to override using the Solana config or the hard-coded default
+
+    -T, --timeout <timeout>
+            Timeout to override default value of 90 seconds [default: 90]
+```
+
+#### Usage
+
+You need an asset json file of this format:
+
+```json
+    {
+        "name": "Studious Crab #1",
+        "symbol": "CRAB",
+        "uri": "https://arweave.net/uVtABL4PYv0wVke3LL4DLMkqkSMcQl1qswRZNkJ0a0g",
+        "seller_fee_basis_points": 100,
+        "creators": [
+            {
+                "address": "ccc9XfyEMh9sU6DRkUmqQGJqgdKb6QyUaaT5h5BGYw4",
+                "verified": true,
+                "share": 100
+            }
+        ],
+        "primary_sale_happened": false,
+        "is_mutable": true,
+        "token_standard": "ProgrammableNonFungible",
+        "collection": null,
+        "uses": null,
+        "collection_details": null,
+        "rule_set": null
+    }
+```
+
+Substitute appropriate values for each field. The creator can only be set as verified if it is the same keypair as the one used to mint the asset, otherwise leave it as `false`.
+
+
+```bash
+metaboss mint asset -d <asset_json_file> -k <keypair> -R <receiver> -s <print_supply>
+```
+
+E.g.:
+
+```bash
+metaboss mint asset -d crab.json -k ccc9XfyEMh9sU6DRkUmqQGJqgdKb6QyUaaT5h5BGYw4.json -R  PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8 -s 0
+```
+
+Leave off the `--receiver` option to mint to your keypair.
+
+**Print Supply**
+
+All non-fungible type assets: currently `NonFungible` and `ProgrammableNonFungible`, require the `print-supply` option to be specified to set the maximum number of print editions that can be minted from the asset. For most PFP, 1/1, style NFTs, this should be set to `0` to prevent any editions being minted. Other options are: `n` for a limited number of `n` editions (e.g. `10`), or `unlimited` to allow unlimited editions to be minted.
+
+Fungible types such as `Fungible` and `FungibleAsset` should leave this value off as it has no meaning for them and the `mint asset` command will fail if that is specified for a fungible type.
