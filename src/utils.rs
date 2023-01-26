@@ -158,9 +158,8 @@ pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<Stri
                 starting_error_number = error_code_combo[1].trim().parse::<i64>()?;
             }
 
-            parsed_error_line = format!(
-                "    \"{starting_error_number:X}\" => \"{error_enum}{parsed_error_line}"
-            );
+            parsed_error_line =
+                format!("    \"{starting_error_number:X}\" => \"{error_enum}{parsed_error_line}");
         } else if error_line.starts_with("#[") && error_line.ends_with(")]") {
             let parsed_message = error_line
                 .replace("#[", "")
