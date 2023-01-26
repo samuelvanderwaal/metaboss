@@ -52,7 +52,7 @@ impl FromStr for Indexers {
         match s {
             "helius" => Ok(Indexers::Helius),
             "the_index_io" => Ok(Indexers::TheIndexIO),
-            _ => Err(format!("Invalid method: {}", s)),
+            _ => Err(format!("Invalid method: {s}")),
         }
     }
 }

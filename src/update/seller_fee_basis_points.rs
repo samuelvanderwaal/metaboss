@@ -1,4 +1,4 @@
-use super::{common::*, update_data};
+use super::*;
 
 pub struct UpdateSellerFeeBasisPointsArgs {
     pub client: Arc<RpcClient>,
@@ -78,7 +78,7 @@ impl Action for UpdateSellerFeeBasisPointsAll {
         let sfbp = args.new_value.parse::<u16>().map_err(|e| {
             ActionError::ActionFailed(
                 args.mint_account.to_string(),
-                format!("Invalid new_sfbp: {}", e),
+                format!("Invalid new_sfbp: {e}"),
             )
         })?;
 

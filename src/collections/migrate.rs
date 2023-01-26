@@ -95,7 +95,7 @@ async fn set_and_verify(
     is_delegate_present: bool,
 ) -> Result<(), MigrateError> {
     let nft_metadata_pubkey = derive_metadata_pda(
-        &Pubkey::from_str(&nft_mint).unwrap_or_else(|_| panic!("invalid pubkey: {:?}", nft_mint)),
+        &Pubkey::from_str(&nft_mint).unwrap_or_else(|_| panic!("invalid pubkey: {nft_mint:?}")),
     );
     let collection_mint_pubkey = Pubkey::from_str(&collection_mint).unwrap();
     let collection_md_pubkey = derive_metadata_pda(&collection_mint_pubkey);

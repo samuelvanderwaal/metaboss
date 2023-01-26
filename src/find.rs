@@ -39,8 +39,8 @@ pub fn find_missing_editions(client: &RpcClient, mint: &str) -> Result<Vec<u64>>
 
     spinner.finish();
 
-    println!("Edition numbers: {:?}", edition_nums);
-    println!("Missing numbers: {:?}", missing_nums);
+    println!("Edition numbers: {edition_nums:?}");
+    println!("Missing numbers: {missing_nums:?}");
 
     Ok(missing_nums)
 }

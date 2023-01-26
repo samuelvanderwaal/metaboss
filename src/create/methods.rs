@@ -48,7 +48,7 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
 
     let sig = send_and_confirm_transaction(&args.client, keypair, &instructions)?;
 
-    println!("Signature: {}", sig);
+    println!("Signature: {sig}");
 
     Ok(())
 }
@@ -110,8 +110,12 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
     let assoc = get_associated_token_address(&keypair.pubkey(), &mint.pubkey());
 
     // Create associated account instruction
-    let create_assoc_account_ix =
-        create_associated_token_account(&keypair.pubkey(), &keypair.pubkey(), &mint.pubkey());
+    let create_assoc_account_ix = create_associated_token_account(
+        &keypair.pubkey(),
+        &keypair.pubkey(),
+        &mint.pubkey(),
+        &spl_token::ID,
+    );
     instructions.push(create_assoc_account_ix);
 
     if let Some(initial_supply) = args.initial_supply {
@@ -167,7 +171,7 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
     let sig = res?;
     println!("Signature: {sig}");
     println!("Mint: {}", mint.pubkey());
-    println!("Metadata: {}", metadata_pubkey);
+    println!("Metadata: {metadata_pubkey}");
 
     Ok(())
 }
@@ -229,7 +233,7 @@ pub fn create_master_edition(args: CreateMasterEditionArgs) -> Result<()> {
 
     let sig = res?;
     println!("Signature: {sig}");
-    println!("Edition: {}", edition_pubkey);
+    println!("Edition: {edition_pubkey}");
 
     Ok(())
 }

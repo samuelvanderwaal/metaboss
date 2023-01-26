@@ -21,7 +21,7 @@ use crate::derive::{
     get_cmv2_pda, get_edition_marker_pda, get_edition_pda, get_generic_pda, get_metadata_pda,
 };
 use crate::find::find_missing_editions_process;
-use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one};
+use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one, process_mint_asset};
 use crate::opt::*;
 use crate::parse::{parse_errors_code, parse_errors_file};
 use crate::sign::{sign_all, sign_one};
@@ -30,6 +30,7 @@ use crate::snapshot::{
     snapshot_mints, snapshot_mints_by_collection, snapshot_mints_by_creator, GetMintsArgs, Method,
     NftsByCreatorArgs, SnapshotHoldersArgs, SnapshotMintsArgs,
 };
+use crate::transfer::process_transfer_asset;
 use crate::update::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
 
@@ -330,6 +331,22 @@ pub fn process_find(client: &RpcClient, commands: FindSubcommands) -> Result<()>
 
 pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()> {
     match commands {
+        MintSubcommands::Asset {
+            keypair,
+            receiver,
+            asset_data,
+            amount,
+            decimals,
+            max_print_edition_supply,
+        } => process_mint_asset(
+            client,
+            keypair,
+            receiver,
+            asset_data,
+            decimals,
+            amount,
+            max_print_edition_supply,
+        ),
         MintSubcommands::One {
             keypair,
             receiver,
@@ -602,8 +619,28 @@ pub async fn process_snapshot(client: &RpcClient, commands: SnapshotSubcommands)
     }
 }
 
+pub fn process_transfer(client: RpcClient, commands: TransferSubcommands) -> Result<()> {
+    match commands {
+        TransferSubcommands::Asset {
+            keypair,
+            receiver,
+            mint,
+            amount,
+        } => process_transfer_asset(&client, keypair, receiver, mint, amount),
+    }
+}
+
 pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> Result<()> {
     match commands {
+        UpdateSubcommands::RuleSet {
+            keypair,
+            mint,
+            new_rule_set,
+        } => update_rule_set_one(&client, keypair, &mint, &new_rule_set),
+        UpdateSubcommands::ClearRuleSet { keypair, mint } => {
+            clear_rule_set_one(&client, keypair, &mint)
+        }
+
         UpdateSubcommands::SellerFeeBasisPoints {
             keypair,
             account,

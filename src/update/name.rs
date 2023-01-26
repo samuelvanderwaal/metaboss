@@ -1,4 +1,4 @@
-use super::{common::*, update_data};
+use super::*;
 
 pub fn update_name_one(
     client: &RpcClient,

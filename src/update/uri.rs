@@ -107,7 +107,7 @@ pub fn update_uri(
 
         let sig = client.send_and_confirm_transaction(&tx)?;
         info!("Tx sig: {:?}", sig);
-        println!("Tx sig: {:?}", sig);
+        println!("Tx sig: {sig:?}");
     } else {
         println!("URI is the same.");
     }

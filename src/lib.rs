@@ -18,6 +18,7 @@ pub mod sign;
 pub mod snapshot;
 pub mod spinner;
 pub mod theindexio;
+pub mod transfer;
 pub mod update;
 pub mod uses;
 pub mod utils;

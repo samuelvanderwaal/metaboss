@@ -1,13 +1,16 @@
 use anyhow::{anyhow, Result};
 use glob::glob;
 use log::{error, info};
-use metaboss_lib::decode::*;
+use metaboss_lib::{
+    decode::*,
+    mint::{mint_asset, MintAssetArgs},
+};
 use mpl_token_metadata::{
     instruction::{
         create_master_edition_v3, create_metadata_accounts_v3,
         mint_new_edition_from_master_edition_via_token, update_metadata_accounts_v2,
     },
-    state::CollectionDetails,
+    state::{AssetData, CollectionDetails, PrintSupply},
     ID as TOKEN_METADATA_PROGRAM_ID,
 };
 use rayon::prelude::*;
@@ -30,7 +33,12 @@ use spl_token::{
     instruction::{initialize_mint, mint_to},
     ID as TOKEN_PROGRAM_ID,
 };
-use std::{fs, fs::File, path::Path, str::FromStr};
+use std::{
+    fs,
+    fs::File,
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 
 use crate::derive::derive_edition_pda;
 use crate::sign::sign_one;
@@ -318,7 +326,7 @@ pub fn mint_one<P: AsRef<Path>>(
     )?;
     info!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account);
     let message = format!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account,);
-    println!("{}", message);
+    println!("{message}");
     if sign {
         //TODO: Error handling
         sign_one(client, keypair_path, mint_account.to_string())?;
@@ -434,7 +442,7 @@ fn mint_edition(
     let new_assoc = get_associated_token_address(&receiver, &new_mint);
 
     let create_assoc_account_ix =
-        create_associated_token_account(&funder.pubkey(), &receiver, &new_mint);
+        create_associated_token_account(&funder.pubkey(), &receiver, &new_mint, &spl_token::ID);
 
     // Mint to instruction
     let mint_to_ix = mint_to(
@@ -556,8 +564,12 @@ pub fn mint(
     let assoc = get_associated_token_address(&receiver, &mint.pubkey());
 
     // Create associated account instruction
-    let create_assoc_account_ix =
-        create_associated_token_account(&funder.pubkey(), &receiver, &mint.pubkey());
+    let create_assoc_account_ix = create_associated_token_account(
+        &funder.pubkey(),
+        &receiver,
+        &mint.pubkey(),
+        &spl_token::ID,
+    );
 
     // Mint to instruction
     let mint_to_ix = mint_to(
@@ -662,4 +674,79 @@ pub fn mint(
     let sig = res?;
 
     Ok((sig, mint.pubkey()))
+}
+
+pub fn process_mint_asset(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    receiver: Option<String>,
+    asset_data: PathBuf,
+    decimals: Option<u8>,
+    amount: u64,
+    max_print_edition_supply: Option<Supply>,
+) -> Result<()> {
+    let solana_opts = parse_solana_config();
+    // Authority is the payer as well.
+    let authority = parse_keypair(keypair_path, solana_opts);
+
+    let receiver = if let Some(receiver) = receiver {
+        Pubkey::from_str(&receiver)?
+    } else {
+        authority.pubkey()
+    };
+
+    let f = File::open(asset_data)?;
+    let asset_data: AssetData = serde_json::from_reader(f)?;
+
+    let print_supply = max_print_edition_supply.map(|s| s.into());
+
+    let args = MintAssetArgs::V1 {
+        payer: None,
+        authority: &authority,
+        receiver,
+        asset_data,
+        amount,
+        mint_decimals: decimals,
+        print_supply,
+        authorization_data: None,
+    };
+
+    let mint_result = mint_asset(client, args)?;
+
+    println!("Minted asset: {:?}", mint_result.mint);
+    println!("Transaction signature: {:?}", mint_result.signature);
+
+    Ok(())
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Supply {
+    Zero,
+    Unlimited,
+    Limited(u64),
+}
+
+impl FromStr for Supply {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "0" => Ok(Supply::Zero),
+            "unlimited" => Ok(Supply::Unlimited),
+            _ => {
+                let supply = s.parse::<u64>().map_err(|_| "Invalid supply")?;
+                Ok(Supply::Limited(supply))
+            }
+        }
+    }
+}
+
+impl From<Supply> for PrintSupply {
+    fn from(supply: Supply) -> Self {
+        match supply {
+            Supply::Zero => PrintSupply::Zero,
+            Supply::Unlimited => PrintSupply::Unlimited,
+            Supply::Limited(supply) => PrintSupply::Limited(supply),
+        }
+    }
 }

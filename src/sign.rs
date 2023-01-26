@@ -43,7 +43,7 @@ pub fn sign_one(client: &RpcClient, keypair_path: Option<String>, account: Strin
 
     let sig = sign(client, &creator, metadata_pubkey)?;
     info!("Tx sig: {}", sig);
-    println!("Tx sig: {}", sig);
+    println!("Tx sig: {sig}");
 
     Ok(())
 }

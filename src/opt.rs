@@ -5,6 +5,7 @@ use structopt::StructOpt;
 
 use crate::{
     collections::GetCollectionItemsMethods, constants::DEFAULT_BATCH_SIZE, data::Indexers,
+    mint::Supply,
 };
 
 #[derive(Debug, StructOpt)]
@@ -110,6 +111,12 @@ pub enum Command {
     Snapshot {
         #[structopt(subcommand)]
         snapshot_subcommands: SnapshotSubcommands,
+    },
+    /// Transfer Metaplex assets
+    #[structopt(name = "transfer")]
+    Transfer {
+        #[structopt(subcommand)]
+        transfer_subcommands: TransferSubcommands,
     },
 }
 
@@ -626,6 +633,33 @@ pub enum FindSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum MintSubcommands {
+    /// Mint an asset from the new Token Metadata Program v1.7 handlers.
+    Asset {
+        /// Path to the update_authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Receiving address, if different from update authority.
+        #[structopt(short = "R", long)]
+        receiver: Option<String>,
+
+        /// Asset data
+        #[structopt(short = "d", long)]
+        asset_data: PathBuf,
+
+        /// Mint decimals for fungible tokens.
+        #[structopt(long)]
+        decimals: Option<u8>,
+
+        /// Amount of tokens to mint, for NonFungible types this must be 1.
+        #[structopt(long, default_value = "1")]
+        amount: u64,
+
+        /// Max supply of print editions. Only applies to NonFungible types.
+        /// 0 for no prints, n for n prints, 'unlimited' for unlimited prints.
+        #[structopt(short = "s", long)]
+        max_print_edition_supply: Option<Supply>,
+    },
     /// Mint a single NFT from a JSON file
     #[structopt(name = "one")]
     One {
@@ -1058,6 +1092,30 @@ pub enum SnapshotSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum UpdateSubcommands {
+    /// Update the rule set of a pNFT.
+    RuleSet {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account of token to transfer
+        #[structopt(short = "a", long)]
+        mint: String,
+
+        /// New rule set pubkey
+        #[structopt(short, long)]
+        new_rule_set: String,
+    },
+    /// Clear the rule set of a pNFT.
+    ClearRuleSet {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account of token to transfer
+        #[structopt(short = "a", long)]
+        mint: String,
+    },
     /// Update the seller fee basis points field inside the data struct on an NFT
     #[structopt(name = "sfbp")]
     SellerFeeBasisPoints {
@@ -1288,16 +1346,23 @@ pub enum UpdateSubcommands {
 }
 
 #[derive(Debug, StructOpt)]
-pub enum WithdrawSubcommands {
-    /// Withdraw funds from a candy machine v2
-    #[structopt(name = "cm-v2")]
-    CMV2 {
-        /// Candy Machine V2 ID
-        candy_machine_id: String,
-
-        /// Path to the creator's keypair file
+pub enum TransferSubcommands {
+    Asset {
+        /// Path to the update_authority keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
+
+        /// Receiving address, if different from update authority.
+        #[structopt(short = "R", long)]
+        receiver: String,
+
+        /// Mint account of token to transfer
+        #[structopt(short, long)]
+        mint: String,
+
+        /// Amount of tokens to transfer, for NonFungible types this must be 1.
+        #[structopt(long, default_value = "1")]
+        amount: u64,
     },
 }
 
