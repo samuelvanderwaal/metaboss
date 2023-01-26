@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Installation - Metaboss</title>
+        <title>Transfer - Metaboss</title>
 
 
         <!-- Custom HTML head -->
@@ -80,7 +80,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html" class="active"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">8.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">9.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">10.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">11.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">12.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">13.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">14.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">15.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">16.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">17.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">18.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">19.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">20.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">8.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">9.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">10.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">11.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">12.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">13.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">14.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">15.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">16.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html" class="active"><strong aria-hidden="true">17.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">18.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">19.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">20.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -141,53 +141,44 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
-<h2 id="recommended-way-to-install"><a class="header" href="#recommended-way-to-install">Recommended Way to Install</a></h2>
-<p>For non-technical users, the recommended way to install is to use the install script to install on <strong>MacOs</strong>, <strong>Ubuntu</strong>, or other <strong>Unix-like OS</strong>, by copying the following into a terminal:</p>
-<pre><code>bash &lt;(curl -sSf https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh)
+                        <h2 id="transfer"><a class="header" href="#transfer">Transfer</a></h2>
+<p>Transfer Metaplex assets such as NFTs and pNFTs.</p>
+<h3 id="transfer-asset"><a class="header" href="#transfer-asset">Transfer Asset</a></h3>
+<pre><code>USAGE:
+    metaboss transfer asset [OPTIONS] --mint &lt;mint&gt; --receiver &lt;receiver&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+        --amount &lt;amount&gt;          Amount of tokens to transfer, for NonFungible types this must be 1 [default: 1]
+    -k, --keypair &lt;keypair&gt;        Path to the update_authority keypair file
+    -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -m, --mint &lt;mint&gt;              Mint account of token to transfer
+    -R, --receiver &lt;receiver&gt;      Receiving address, if different from update authority
+    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<p>This will download the appropriate binary for your system and install it. Feel free to inspect the install script directly at <a href="https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh">the link</a> to see what you are running before you run the command.</p>
-<p>For <strong>Windows</strong>, either use the prebuilt binary in the following section, or install Windows Subsystem Linux (WSL) to use the Ubuntu terminal to run the above installation script.</p>
-<p>To install WSL on Windows, either run <code>wsl --install -d ubuntu</code> in the cmd prompt terminal, or install &quot;Ubuntu&quot; from the Windows app store. Once you have that set up you can simply run the install script in the WSL terminal. You will then run all your Metaboss commands from WSL as well.</p>
-<h2 id="binaries"><a class="header" href="#binaries">Binaries</a></h2>
-<p>Linux, MacOS and Windows binaries available in <a href="https://github.com/samuelvanderwaal/metaboss/releases">releases</a>, thanks to CI work done by <a href="https://github.com/KartikSoneji">Kartik Soneji</a>.</p>
-<h2 id="install-from-source"><a class="header" href="#install-from-source">Install From Source</a></h2>
-<p>Install <a href="https://www.rust-lang.org/tools/install">Rust</a>.</p>
-<pre><code class="language-bash">curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+<h3 id="usage"><a class="header" href="#usage">Usage</a></h3>
+<pre><code class="language-bash">metaboss transfer asset --mint &lt;asset_mint_address&gt; --receiver &lt;receiver_wallet_address&gt;
 </code></pre>
-<p>Clone the source:</p>
-<pre><code class="language-bash">git clone git@github.com:samuelvanderwaal/metaboss.git
+<p>E.g.:</p>
+<pre><code class="language-bash">metaboss transfer asset --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM -R PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8
 </code></pre>
-<p>or</p>
-<pre><code class="language-bash">git clone https://github.com/samuelvanderwaal/metaboss.git
-</code></pre>
-<p>On Ubuntu you may need some additional packages:</p>
-<pre><code>sudo apt install libssl-dev libudev-dev pkg-config
-</code></pre>
-<p>Change directory and check out the <code>main</code> branch:</p>
-<pre><code class="language-bash">cd metaboss
-git checkout main
-</code></pre>
-<p>Install or build with Rust:</p>
-<pre><code class="language-bash">cargo install --path ./
-</code></pre>
-<p>or</p>
-<pre><code class="language-bash">cargo build --release
-</code></pre>
-<h2 id="set-up-your-solana-config"><a class="header" href="#set-up-your-solana-config">Set Up Your Solana Config</a></h2>
-<p>If you have the <a href="https://docs.solana.com/cli/install-solana-cli-tools">Solana CLI</a> installed (recommended) you can setup your RPC and keypair so you don't have to pass them into Metaboss:</p>
-<pre><code>solana config set --url &lt;rpc url&gt; --keypair &lt;path to keypair file&gt;
-</code></pre>
+<p><strong>Amount</strong></p>
+<p>For non-fungible types such as <code>NonFungible</code> and <code>ProgrammableNonFungible</code>, the amount can only be <code>1</code> and that is the default value for the CLI argument in not specified. </p>
+<p>For fungible types, specify the amount to be transferred with <code>--amount &lt;number&gt;</code>.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="quick_start.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="snapshot.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="examples.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="update.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -197,11 +188,11 @@ git checkout main
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="quick_start.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="snapshot.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="examples.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="update.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

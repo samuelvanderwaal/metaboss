@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">8.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">9.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">10.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">11.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">12.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">13.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">14.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">15.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">16.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">17.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">18.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">19.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">8.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">9.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">10.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">11.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">12.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">13.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">14.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">15.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">16.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">17.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">18.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">19.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">20.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -787,13 +787,41 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <h4 id="usage-21"><a class="header" href="#usage-21">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot indexed-holders --creator &lt;FIRST_VERIFIED_CREATOR&gt; --api-key &lt;THEINDEX.IO_API_KEY&gt;
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="transfer"><a class="header" href="#transfer">Transfer</a></h2>
+<p>Transfer Metaplex assets such as NFTs and pNFTs.</p>
+<h3 id="transfer-asset"><a class="header" href="#transfer-asset">Transfer Asset</a></h3>
+<pre><code>USAGE:
+    metaboss transfer asset [OPTIONS] --mint &lt;mint&gt; --receiver &lt;receiver&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+        --amount &lt;amount&gt;          Amount of tokens to transfer, for NonFungible types this must be 1 [default: 1]
+    -k, --keypair &lt;keypair&gt;        Path to the update_authority keypair file
+    -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -m, --mint &lt;mint&gt;              Mint account of token to transfer
+    -R, --receiver &lt;receiver&gt;      Receiving address, if different from update authority
+    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<h3 id="usage-22"><a class="header" href="#usage-22">Usage</a></h3>
+<pre><code class="language-bash">metaboss transfer asset --mint &lt;asset_mint_address&gt; --receiver &lt;receiver_wallet_address&gt;
+</code></pre>
+<p>E.g.:</p>
+<pre><code class="language-bash">metaboss transfer asset --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM -R PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8
+</code></pre>
+<p><strong>Amount</strong></p>
+<p>For non-fungible types such as <code>NonFungible</code> and <code>ProgrammableNonFungible</code>, the amount can only be <code>1</code> and that is the default value for the CLI argument in not specified. </p>
+<p>For fungible types, specify the amount to be transferred with <code>--amount &lt;number&gt;</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="update"><a class="header" href="#update">Update</a></h2>
 <p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution.</strong></p>
 <p>Update various aspects of an NFT.</p>
 <p>See also <strong>Set</strong> commands for updatable values that cannot be reversed (e.g. set immutable).</p>
 <h3 id="update-data"><a class="header" href="#update-data">Update Data</a></h3>
 <p>Update the <code>Data</code> struct on a NFT from a JSON file.</p>
-<h4 id="usage-22"><a class="header" href="#usage-22">Usage</a></h4>
+<h4 id="usage-23"><a class="header" href="#usage-23">Usage</a></h4>
 <pre><code class="language-bash">metaboss update data --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-data-file &lt;PATH_TO_NEW_DATA_FILE&gt;
 </code></pre>
 <p>The JSON file should include all the fields of the metadata <code>Data</code> struct and should match <code>creator</code> <code>verified</code> bools for existing creators. E.g. if your NFT was minted by the Metaplex Candy Machine program, and you wish to keep your candy machine as a verified creator <em>you must add the candy machine to your creators array with <code>verified</code> set to <code>true</code></em>.</p>
@@ -826,7 +854,7 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="update-data-all"><a class="header" href="#update-data-all">Update Data All</a></h3>
 <p>Update the <code>Data</code> struct on a list of NFTs from JSON files.</p>
-<h4 id="usage-23"><a class="header" href="#usage-23">Usage</a></h4>
+<h4 id="usage-24"><a class="header" href="#usage-24">Usage</a></h4>
 <pre><code class="language-bash">metaboss update data-all --keypair &lt;PATH_TO_KEYPAIR&gt; --data-dir &lt;PATH_TO_DATA_DIR&gt;
 </code></pre>
 <p>Each JSON file in the data directory should include the mint account and all the fields of the metadata <code>Data</code> struct and should match <code>creator</code> <code>verified</code> bools for existing creators. E.g. if your NFT was minted by the Metaplex Candy Machine program, and you wish to keep your candy machine as a verified creator <em>you must add the candy machine to your creators array with <code>verified</code> set to <code>true</code></em>.</p>
@@ -862,22 +890,22 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="update-name"><a class="header" href="#update-name">Update Name</a></h3>
 <p>Update the on-chain name of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-24"><a class="header" href="#usage-24">Usage</a></h4>
+<h4 id="usage-25"><a class="header" href="#usage-25">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update name --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-name &lt;NEW_NAME&gt;
 </code></pre>
 <h3 id="update-symbol"><a class="header" href="#update-symbol">Update Symbol</a></h3>
 <p>Update the on-chain symbol of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-25"><a class="header" href="#usage-25">Usage</a></h4>
+<h4 id="usage-26"><a class="header" href="#usage-26">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update symbol --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-symbol &lt;NEW_SYMBOL&gt;
 </code></pre>
 <h3 id="update-symbol-all"><a class="header" href="#update-symbol-all">Update Symbol All</a></h3>
 <p>Update the on-chain symbol of a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-26"><a class="header" href="#usage-26">Usage</a></h4>
+<h4 id="usage-27"><a class="header" href="#usage-27">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update symbol-all --keypair &lt;PATH_TO_KEYPAIR&gt; -L &lt;PATH_TO_LIST_MINT_ADDRESSES&gt; --new-symbol &lt;NEW_SYMBOL&gt;
 </code></pre>
 <h3 id="update-creators"><a class="header" href="#update-creators">Update Creators</a></h3>
 <p>Update the creators of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-27"><a class="header" href="#usage-27">Usage</a></h4>
+<h4 id="usage-28"><a class="header" href="#usage-28">Usage</a></h4>
 <pre><code class="language-bash">metaboss update creators -k &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -c &lt;CREATOR1:SHARE:VERIFIED,CREATOR2:SHARE:VERIFIED&gt;
 </code></pre>
 <p>Creators should be a comma-delimited list of creator:share:verified. E.g. </p>
@@ -891,12 +919,12 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 </code></pre>
 <h3 id="update-uri"><a class="header" href="#update-uri">Update URI</a></h3>
 <p>Update the metadata URI, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-28"><a class="header" href="#usage-28">Usage</a></h4>
+<h4 id="usage-29"><a class="header" href="#usage-29">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-uri &lt;NEW_URI&gt;
 </code></pre>
 <h3 id="update-uri-all"><a class="header" href="#update-uri-all">Update URI All</a></h3>
 <p>Update the metadata URI for a list of mint accounts, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-29"><a class="header" href="#usage-29">Usage</a></h4>
+<h4 id="usage-30"><a class="header" href="#usage-30">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri-all --keypair &lt;PATH_TO_KEYPAIR&gt; --json-file &lt;PATH_TO_JSON_FILE&gt;
 </code></pre>
 <pre><code class="language-json">[
@@ -912,12 +940,12 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 </code></pre>
 <h3 id="update-seller-fee-basis-points"><a class="header" href="#update-seller-fee-basis-points">Update Seller Fee Basis Points</a></h3>
 <p>Update the seller fee basis points field on an NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-30"><a class="header" href="#usage-30">Usage</a></h4>
+<h4 id="usage-31"><a class="header" href="#usage-31">Usage</a></h4>
 <pre><code class="language-bash">metaboss update sfbp --keypair &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
 <h3 id="update-seller-fee-basis-points-all"><a class="header" href="#update-seller-fee-basis-points-all">Update Seller Fee Basis Points All</a></h3>
 <p>Update the seller fee basis points field on a a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-31"><a class="header" href="#usage-31">Usage</a></h4>
+<h4 id="usage-32"><a class="header" href="#usage-32">Usage</a></h4>
 <pre><code class="language-bash">metaboss update sfbp-all --keypair &lt;PATH_TO_KEYPAIR&gt; -L &lt;PATH_TO_MINT_LIST.json&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
 <h3 id="update-rule-set"><a class="header" href="#update-rule-set">Update Rule Set</a></h3>
@@ -937,7 +965,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                      RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;              Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-32"><a class="header" href="#usage-32">Usage</a></h4>
+<h4 id="usage-33"><a class="header" href="#usage-33">Usage</a></h4>
 <pre><code class="language-bash">metaboss update rule-set --mint &lt;MINT_ADDRESS&gt; --new-rule-set &lt;NEW_RULE_SET_PUBKEY&gt;
 </code></pre>
 <p>E.g.:</p>
@@ -959,7 +987,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-33"><a class="header" href="#usage-33">Usage</a></h4>
+<h4 id="usage-34"><a class="header" href="#usage-34">Usage</a></h4>
 <pre><code class="language-bash">metaboss update clear-rule-set --mint &lt;MINT_ADDRESS&gt;
 </code></pre>
 <p>E.g.:</p>

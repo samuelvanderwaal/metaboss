@@ -16,6 +16,7 @@
 - [Set](./set.md)
 - [Sign](./sign.md)
 - [Snapshot](./snapshot.md)
+- [Transfer](./transfer.md)
 - [Update](./update.md)
 - [Withdraw](./withdraw.md)
 - [Contact](./contact.md)
