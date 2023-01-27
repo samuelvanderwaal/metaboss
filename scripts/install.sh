@@ -129,7 +129,7 @@ if [ ! "$(command -v $BIN)" = "" ]; then
         REPLACE="n"
     fi
 
-    if [ "$REPLACE" = Y ]; then
+    if [ "$REPLACE" != "${REPLACE#[Yy]}" ]; then
         echo ""
         echo "'$BIN' binary will be moved to '$(dirname "$EXISTING")'."
 
@@ -176,7 +176,7 @@ else
                 CREATE="n"
             fi
 
-            if [ "$CREATE" = Y ]; then
+            if [ "$CREATE" != "${CREATE#[Yy]}" ]; then
                 echo "  => adding '$TARGET' to 'PATH' variable in '$ENV_FILE'"
                 echo "export PATH=\"$HOME/bin:\$PATH\"" >> "$ENV_FILE"
             else
