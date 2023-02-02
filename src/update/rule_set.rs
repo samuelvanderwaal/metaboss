@@ -11,8 +11,8 @@ pub fn update_rule_set_one(
 
     let md = decode_metadata_from_mint(client, mint)?;
 
-    // Use this once we have delegates supported in Update on Token Metadata.
-    // let token = get_nft_token_account(client, mint)?;
+    // We need the token account passed in for pNFT updates.
+    let token = Some(get_nft_token_account(client, mint)?);
 
     let mint = Pubkey::from_str(mint)?;
     let new_rule_set = Pubkey::from_str(new_rule_set)?;
@@ -41,7 +41,7 @@ pub fn update_rule_set_one(
         payer: None,
         authority: &keypair,
         mint,
-        token: None,           // Not supported yet in update.
+        token,
         delegate_record: None, // Not supported yet in update.
         current_rule_set,
         update_args,
@@ -64,6 +64,9 @@ pub fn clear_rule_set_one(
     let keypair = parse_keypair(keypair_path, solana_opts);
 
     let md = decode_metadata_from_mint(client, mint)?;
+
+    // We need the token account passed in for pNFT updates.
+    let token = Some(get_nft_token_account(client, mint)?);
 
     let mint = Pubkey::from_str(mint)?;
 
@@ -91,7 +94,7 @@ pub fn clear_rule_set_one(
         payer: None,
         authority: &keypair,
         mint,
-        token: None,           // Not supported yet in update.
+        token,
         delegate_record: None, // Not supported yet in update.
         current_rule_set,
         update_args,
