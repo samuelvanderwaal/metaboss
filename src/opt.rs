@@ -1106,7 +1106,7 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         new_rule_set: String,
     },
-    /// Update the rule set of all a batch of pNFTs.
+    /// Update the rule set of a batch of pNFTs.
     RuleSetAll {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
@@ -1142,7 +1142,7 @@ pub enum UpdateSubcommands {
         #[structopt(short = "a", long)]
         mint: String,
     },
-    /// Update the rule set of all a batch of pNFTs.
+    /// Update the rule set of a batch of pNFTs.
     ClearRuleSetAll {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
