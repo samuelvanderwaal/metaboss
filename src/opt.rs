@@ -1106,6 +1106,32 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         new_rule_set: String,
     },
+    /// Update the rule set of a batch of pNFTs.
+    RuleSetAll {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Path to the mint list file
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// New rule set pubkey
+        #[structopt(short, long)]
+        new_rule_set: String,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
+    },
     /// Clear the rule set of a pNFT.
     ClearRuleSet {
         /// Path to the creator's keypair file
@@ -1115,6 +1141,28 @@ pub enum UpdateSubcommands {
         /// Mint account of token to transfer
         #[structopt(short = "a", long)]
         mint: String,
+    },
+    /// Update the rule set of a batch of pNFTs.
+    ClearRuleSetAll {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Path to the mint list file
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
     },
     /// Update the seller fee basis points field inside the data struct on an NFT
     #[structopt(name = "sfbp")]
