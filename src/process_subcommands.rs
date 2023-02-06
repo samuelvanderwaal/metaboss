@@ -637,10 +637,45 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             mint,
             new_rule_set,
         } => update_rule_set_one(&client, keypair, &mint, &new_rule_set),
+        UpdateSubcommands::RuleSetAll {
+            keypair,
+            mint_list,
+            cache_file,
+            new_rule_set,
+            batch_size,
+            retries,
+        } => {
+            update_rule_set_all(UpdateRuleSetAllArgs {
+                client,
+                keypair,
+                mint_list,
+                cache_file,
+                new_rule_set,
+                batch_size,
+                retries,
+            })
+            .await
+        }
         UpdateSubcommands::ClearRuleSet { keypair, mint } => {
             clear_rule_set_one(&client, keypair, &mint)
         }
-
+        UpdateSubcommands::ClearRuleSetAll {
+            keypair,
+            mint_list,
+            cache_file,
+            batch_size,
+            retries,
+        } => {
+            clear_rule_set_all(ClearRuleSetAllArgs {
+                client,
+                keypair,
+                mint_list,
+                cache_file,
+                batch_size,
+                retries,
+            })
+            .await
+        }
         UpdateSubcommands::SellerFeeBasisPoints {
             keypair,
             account,
