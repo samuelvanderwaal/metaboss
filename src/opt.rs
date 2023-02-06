@@ -1132,7 +1132,7 @@ pub enum UpdateSubcommands {
         #[structopt(long, default_value = "1")]
         retries: u8,
     },
-    /// Clear the rule set of a pNFT.
+    /// Remove the rule set of a pNFT.
     ClearRuleSet {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
@@ -1142,7 +1142,7 @@ pub enum UpdateSubcommands {
         #[structopt(short = "a", long)]
         mint: String,
     },
-    /// Update the rule set of a batch of pNFTs.
+    /// REmove the rule set from a batch of pNFTs.
     ClearRuleSetAll {
         /// Path to the creator's keypair file
         #[structopt(short, long)]

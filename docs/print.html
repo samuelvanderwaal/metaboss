@@ -971,6 +971,29 @@ OPTIONS:
 <p>E.g.:</p>
 <pre><code class="language-bash">metaboss update rule-set --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM -n D4YHFZPWASGpvBDJSUrPtqZqxTgTm7eL5rikBY9Y5dwf
 </code></pre>
+<h3 id="update-rule-set-all"><a class="header" href="#update-rule-set-all">Update Rule Set All</a></h3>
+<p>Update the rule set of a batch of pNFTs.</p>
+<p>USAGE:
+metaboss update rule-set-all [OPTIONS] --new-rule-set <new-rule-set></p>
+<p>FLAGS:
+-h, --help       Prints help information
+-V, --version    Prints version information</p>
+<p>OPTIONS:
+-b, --batch-size <batch-size>        Maximum number of concurrent requests [default: 10]
+-c, --cache-file <cache-file>        Cache file
+-k, --keypair <keypair>              Path to the creator's keypair file
+-l, --log-level <log-level>          Log level [default: off]
+-L, --mint-list <mint-list>          Path to the mint list file
+-n, --new-rule-set <new-rule-set>    New rule set pubkey
+--retries <retries>              Maximum retries: retry failed items up to this many times [default: 1]
+-r, --rpc <rpc>                      RPC endpoint url to override using the Solana config or the hard-coded default
+-T, --timeout <timeout>              Timeout to override default value of 90 seconds [default: 90]</p>
+<h4 id="usage-34"><a class="header" href="#usage-34">Usage</a></h4>
+<pre><code class="language-bash">metaboss update rule-set-all -L &lt;MINT_LIST&gt; -n &lt;NEW_RULE_SET_ADDRESS&gt;
+</code></pre>
+<p>E.g.:</p>
+<pre><code class="language-bash">metaboss update rule-set-all -L rule_set_mints.json -n 1CfDY5sYBnspaXvjnN3y9WRdaoD5v3HXrZDrWhjZZTN
+</code></pre>
 <h3 id="update-clear-rule-set"><a class="header" href="#update-clear-rule-set">Update Clear Rule Set</a></h3>
 <p>Remove the rule set on a pNFT.</p>
 <pre><code>USAGE:
@@ -987,12 +1010,33 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-34"><a class="header" href="#usage-34">Usage</a></h4>
+<h4 id="usage-35"><a class="header" href="#usage-35">Usage</a></h4>
 <pre><code class="language-bash">metaboss update clear-rule-set --mint &lt;MINT_ADDRESS&gt;
 </code></pre>
 <p>E.g.:</p>
 <pre><code class="language-bash">metaboss update clear-rule-set --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM
 </code></pre>
+<h3 id="update-clear-rule-set-all"><a class="header" href="#update-clear-rule-set-all">Update Clear Rule Set All</a></h3>
+<p>Remove the rule set of a batch of pNFTs</p>
+<p>USAGE:
+metaboss update clear-rule-set-all [OPTIONS]</p>
+<p>FLAGS:
+-h, --help       Prints help information
+-V, --version    Prints version information</p>
+<p>OPTIONS:
+-b, --batch-size <batch-size>    Maximum number of concurrent requests [default: 10]
+-c, --cache-file <cache-file>    Cache file
+-k, --keypair <keypair>          Path to the creator's keypair file
+-l, --log-level <log-level>      Log level [default: off]
+-L, --mint-list <mint-list>      Path to the mint list file
+--retries <retries>          Maximum retries: retry failed items up to this many times [default: 1]
+-r, --rpc <rpc>                  RPC endpoint url to override using the Solana config or the hard-coded default
+-T, --timeout <timeout>          Timeout to override default value of 90 seconds [default: 90]</p>
+<h4 id="usage-36"><a class="header" href="#usage-36">Usage</a></h4>
+<pre><code class="language-bash">metaboss update clear-rule-set-all -L &lt;MINT_LIST&gt;
+</code></pre>
+<p>E.g.:</p>
+<pre><code class="language-bash">metaboss update rule-set-all -L rule_set_mints.json</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="withdraw-deprecated"><a class="header" href="#withdraw-deprecated">Withdraw (Deprecated)</a></h2>
 <p>Use Metaplex's <a href="https://docs.metaplex.com/sugar/introduction">Sugar</a> tool for withdrawing from candy machines instead.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="contact"><a class="header" href="#contact">Contact</a></h2>

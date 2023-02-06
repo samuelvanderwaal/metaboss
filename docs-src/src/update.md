@@ -242,6 +242,40 @@ E.g.:
 metaboss update rule-set --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM -n D4YHFZPWASGpvBDJSUrPtqZqxTgTm7eL5rikBY9Y5dwf
 ```
 
+### Update Rule Set All
+
+Update the rule set of a batch of pNFTs.
+
+USAGE:
+    metaboss update rule-set-all [OPTIONS] --new-rule-set <new-rule-set>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -b, --batch-size <batch-size>        Maximum number of concurrent requests [default: 10]
+    -c, --cache-file <cache-file>        Cache file
+    -k, --keypair <keypair>              Path to the creator's keypair file
+    -l, --log-level <log-level>          Log level [default: off]
+    -L, --mint-list <mint-list>          Path to the mint list file
+    -n, --new-rule-set <new-rule-set>    New rule set pubkey
+        --retries <retries>              Maximum retries: retry failed items up to this many times [default: 1]
+    -r, --rpc <rpc>                      RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout <timeout>              Timeout to override default value of 90 seconds [default: 90]
+
+#### Usage
+
+```bash
+metaboss update rule-set-all -L <MINT_LIST> -n <NEW_RULE_SET_ADDRESS>
+```
+
+E.g.:
+
+```bash
+metaboss update rule-set-all -L rule_set_mints.json -n 1CfDY5sYBnspaXvjnN3y9WRdaoD5v3HXrZDrWhjZZTN
+```
+
 
 ### Update Clear Rule Set
 
@@ -274,3 +308,35 @@ E.g.:
 ```bash
 metaboss update clear-rule-set --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM
 ```
+
+### Update Clear Rule Set All
+
+Remove the rule set of a batch of pNFTs
+
+USAGE:
+    metaboss update clear-rule-set-all [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -b, --batch-size <batch-size>    Maximum number of concurrent requests [default: 10]
+    -c, --cache-file <cache-file>    Cache file
+    -k, --keypair <keypair>          Path to the creator's keypair file
+    -l, --log-level <log-level>      Log level [default: off]
+    -L, --mint-list <mint-list>      Path to the mint list file
+        --retries <retries>          Maximum retries: retry failed items up to this many times [default: 1]
+    -r, --rpc <rpc>                  RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout <timeout>          Timeout to override default value of 90 seconds [default: 90]
+
+#### Usage
+
+```bash
+metaboss update clear-rule-set-all -L <MINT_LIST>
+```
+
+E.g.:
+
+```bash
+metaboss update rule-set-all -L rule_set_mints.json
