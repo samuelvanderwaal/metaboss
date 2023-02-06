@@ -246,6 +246,7 @@ metaboss update rule-set --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM -n 
 
 Update the rule set of a batch of pNFTs.
 
+```
 USAGE:
     metaboss update rule-set-all [OPTIONS] --new-rule-set <new-rule-set>
 
@@ -263,6 +264,7 @@ OPTIONS:
         --retries <retries>              Maximum retries: retry failed items up to this many times [default: 1]
     -r, --rpc <rpc>                      RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout <timeout>              Timeout to override default value of 90 seconds [default: 90]
+```
 
 #### Usage
 
@@ -313,6 +315,7 @@ metaboss update clear-rule-set --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BW
 
 Remove the rule set of a batch of pNFTs
 
+```
 USAGE:
     metaboss update clear-rule-set-all [OPTIONS]
 
@@ -329,6 +332,7 @@ OPTIONS:
         --retries <retries>          Maximum retries: retry failed items up to this many times [default: 1]
     -r, --rpc <rpc>                  RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout <timeout>          Timeout to override default value of 90 seconds [default: 90]
+```
 
 #### Usage
 
