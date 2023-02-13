@@ -1,12 +1,13 @@
 ## Set
 
-**Warning: These commands modify your NFT and are for advanced users. Use with caution.**
+**Warning: These commands modify your NFT and are for advanced users. Use with caution. 
+Set commands are either irreversible or require a new update authority to reverse.**
 
 Set non-Data struct values for a NFT.
 
-### Set Secondary Sale
+### Set Secondary Sale 
 
-Set `primary_sale_happened` to be `true`, enabling secondary sale royalties.
+Set `primary_sale_happened` to be `true`, enabling secondary sale royalties. **This is not reversible.**
 
 ```bash
 metaboss set secondary-sale --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT>
@@ -16,11 +17,11 @@ Outputs a TxId to the command line so you can check the result.
 
 ### Set Secondary Sale All
 
-Same as `set secondary-sale` but takes a mint list instead of a single account file.
+Same as `set secondary-sale` but takes a mint list instead of a single account file. **This is not reversible.**
 
 ### Set Update-Authority
 
-Set `update_authority` to a different public key.
+Set `update_authority` to a different public key. **This is not reversible by the original update authority.**
 
 ```bash
 metaboss set update-authority --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT> --new-update-authority <NEW_UPDATE_AUTHORITY>
@@ -28,7 +29,7 @@ metaboss set update-authority --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUN
 
 ### Set Update-Authority-All
 
-Set `update_authority` to a different public key for a list of NFTs.
+Set `update_authority` to a different public key for a list of NFTs. **This is not reversible by the original update authority.**
 
 ```bash
 metaboss set update-authority-all --keypair <PATH_TO_KEYPAIR> --mint-accounts-file <PATH_TO_MINT_ACCOUNTS> --new-update-authority <NEW_UPDATE_AUTHORITY>

@@ -33,6 +33,7 @@
 
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -629,21 +630,22 @@ OPTIONS:
 <p>All non-fungible type assets: currently <code>NonFungible</code> and <code>ProgrammableNonFungible</code>, require the <code>print-supply</code> option to be specified to set the maximum number of print editions that can be minted from the asset. For most PFP, 1/1, style NFTs, this should be set to <code>0</code> to prevent any editions being minted. Other options are: <code>n</code> for a limited number of <code>n</code> editions (e.g. <code>10</code>), or <code>unlimited</code> to allow unlimited editions to be minted.</p>
 <p>Fungible types such as <code>Fungible</code> and <code>FungibleAsset</code> should leave this value off as it has no meaning for them and the <code>mint asset</code> command will fail if that is specified for a fungible type.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="set"><a class="header" href="#set">Set</a></h2>
-<p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution.</strong></p>
+<p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution. 
+Set commands are either irreversible or require a new update authority to reverse.</strong></p>
 <p>Set non-Data struct values for a NFT.</p>
 <h3 id="set-secondary-sale"><a class="header" href="#set-secondary-sale">Set Secondary Sale</a></h3>
-<p>Set <code>primary_sale_happened</code> to be <code>true</code>, enabling secondary sale royalties.</p>
+<p>Set <code>primary_sale_happened</code> to be <code>true</code>, enabling secondary sale royalties. <strong>This is not reversible.</strong></p>
 <pre><code class="language-bash">metaboss set secondary-sale --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="set-secondary-sale-all"><a class="header" href="#set-secondary-sale-all">Set Secondary Sale All</a></h3>
-<p>Same as <code>set secondary-sale</code> but takes a mint list instead of a single account file.</p>
+<p>Same as <code>set secondary-sale</code> but takes a mint list instead of a single account file. <strong>This is not reversible.</strong></p>
 <h3 id="set-update-authority"><a class="header" href="#set-update-authority">Set Update-Authority</a></h3>
-<p>Set <code>update_authority</code> to a different public key.</p>
+<p>Set <code>update_authority</code> to a different public key. <strong>This is not reversible by the original update authority.</strong></p>
 <pre><code class="language-bash">metaboss set update-authority --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-update-authority &lt;NEW_UPDATE_AUTHORITY&gt;
 </code></pre>
 <h3 id="set-update-authority-all"><a class="header" href="#set-update-authority-all">Set Update-Authority-All</a></h3>
-<p>Set <code>update_authority</code> to a different public key for a list of NFTs.</p>
+<p>Set <code>update_authority</code> to a different public key for a list of NFTs. <strong>This is not reversible by the original update authority.</strong></p>
 <pre><code class="language-bash">metaboss set update-authority-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-accounts-file &lt;PATH_TO_MINT_ACCOUNTS&gt; --new-update-authority &lt;NEW_UPDATE_AUTHORITY&gt;
 </code></pre>
 <p>The mint accounts file should be a JSON file with an array of NFT mint accounts to be updated:</p>
@@ -1093,5 +1095,6 @@ OPTIONS:
         });
         </script>
 
+    </div>
     </body>
 </html>
