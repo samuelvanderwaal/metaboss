@@ -889,7 +889,7 @@ pub enum SetSubcommands {
         #[structopt(long, default_value = "1")]
         retries: u8,
     },
-    /// Update an asset's token standard
+    /// Set an asset to the correct Token Standard.
     TokenStandard {
         /// Path to the update authority's keypair file
         #[structopt(short, long)]
@@ -899,7 +899,7 @@ pub enum SetSubcommands {
         #[structopt(short, long)]
         account: String,
     },
-    /// Update a list of assets' token standard
+    /// Set all assets in a list to be the correct Token Standard.
     TokenStandardAll {
         /// Path to the update authority's keypair file
         #[structopt(short, long)]

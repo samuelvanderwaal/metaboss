@@ -33,7 +33,6 @@
 
     </head>
     <body>
-    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -663,18 +662,56 @@ Set commands are either irreversible or require a new update authority to revers
 <p>Set all NFTs in a list to be immutable. <strong>This is not reversible.</strong></p>
 <pre><code class="language-bash">metaboss set immutable-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-accounts-file &lt;PATH_TO_MINT_ACCOUNTS&gt;
 </code></pre>
+<h3 id="set-token-standard"><a class="header" href="#set-token-standard">Set Token Standard</a></h3>
+<p>Set an asset's Token Standard to automatically be the correct type. <strong>This is not reversible.</strong></p>
+<pre><code>USAGE:
+    metaboss set token-standard [OPTIONS] --account &lt;account&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -a, --account &lt;account&gt;        Mint account of corresponding metadata to update
+    -k, --keypair &lt;keypair&gt;        Path to the update authority's keypair file
+    -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<h4 id="usage-15"><a class="header" href="#usage-15">Usage</a></h4>
+<pre><code class="language-bash">metaboss set token-standard --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
+</code></pre>
+<h3 id="set-token-standard-all"><a class="header" href="#set-token-standard-all">Set Token Standard-All</a></h3>
+<p>Set all assets in a list to be the correct Token Standard. <strong>This is not reversible.</strong></p>
+<p>USAGE:
+metaboss set token-standard-all [OPTIONS]</p>
+<p>FLAGS:
+-h, --help       Prints help information
+-V, --version    Prints version information</p>
+<p>OPTIONS:
+-b, --batch-size <batch-size>    Maximum number of concurrent requests [default: 10]
+-c, --cache-file <cache-file>    Cache file
+-k, --keypair <keypair>          Path to the update authority's keypair file
+-l, --log-level <log-level>      Log level [default: off]
+-L, --mint-list <mint-list>      Mint list
+--retries <retries>          Maximum retries: retry failed items up to this many times [default: 1]
+-r, --rpc <rpc>                  RPC endpoint url to override using the Solana config or the hard-coded default
+-T, --timeout <timeout>          Timeout to override default value of 90 seconds [default: 90]</p>
+<h4 id="usage-16"><a class="header" href="#usage-16">Usage</a></h4>
+<pre><code class="language-bash">metaboss set token-standard-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-list &lt;PATH_TO_MINT_ACCOUNTS&gt;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="sign"><a class="header" href="#sign">Sign</a></h2>
 <p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution.</strong></p>
 <p>Sign metadata for an unverified creator.</p>
 <h3 id="sign-one"><a class="header" href="#sign-one">Sign One</a></h3>
 <p>Sign the metadata for a single mint account.</p>
-<h4 id="usage-15"><a class="header" href="#usage-15">Usage</a></h4>
+<h4 id="usage-17"><a class="header" href="#usage-17">Usage</a></h4>
 <pre><code class="language-bash">metaboss sign one --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="sign-all"><a class="header" href="#sign-all">Sign All</a></h3>
 <p>Sign all metadata from a JSON list or for a given first verified creator. First verified creator can be the candy machine creator id or whatever the first verified creator in the creators array is for your NFTs.</p>
-<h4 id="usage-16"><a class="header" href="#usage-16">Usage</a></h4>
+<h4 id="usage-18"><a class="header" href="#usage-18">Usage</a></h4>
 <pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --creator &lt;FIRST_CREATOR&gt;
 </code></pre>
 <p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with the candy machine id.</strong>
@@ -699,7 +736,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <p>Get snapshots of various blockchain states.</p>
 <h3 id="snapshot-cm-accounts"><a class="header" href="#snapshot-cm-accounts">Snapshot CM-Accounts</a></h3>
 <p>Snapshot all candy machine config and state accounts for a given update_authority.</p>
-<h4 id="usage-17"><a class="header" href="#usage-17">Usage</a></h4>
+<h4 id="usage-19"><a class="header" href="#usage-19">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot cm-accounts --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>Creates a JSON file in the output directory with the name format of <code>&lt;UPDATE_AUTHORITY&gt;_accounts.json</code>, consisting of an object with the fields <code>config_accounts</code> and <code>candy_machine_accounts</code>:</p>
@@ -729,7 +766,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <h3 id="snapshot-holders"><a class="header" href="#snapshot-holders">Snapshot Holders</a></h3>
 <p>Snapshot all current holders of NFTs filtered by verified candy_machine_id/first creator or update_authority.
 <strong>Note:</strong> Update authority can be faked so use that option with caution.</p>
-<h4 id="usage-18"><a class="header" href="#usage-18">Usage</a></h4>
+<h4 id="usage-20"><a class="header" href="#usage-20">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot holders --creator &lt;CREATOR_ADDRESS&gt; -p &lt;POSITION&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
@@ -760,7 +797,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 </code></pre>
 <h3 id="snapshot-mints"><a class="header" href="#snapshot-mints">Snapshot Mints</a></h3>
 <p>Snapshot all mint accounts for a given verified candy machine id/first creator or update authority</p>
-<h4 id="usage-19"><a class="header" href="#usage-19">Usage</a></h4>
+<h4 id="usage-21"><a class="header" href="#usage-21">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot mints --creator &lt;FIRST_CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
@@ -782,11 +819,11 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <h3 id="indexed-data"><a class="header" href="#indexed-data">Indexed Data</a></h3>
 <p>Metaboss now has experimental support for running snapshot commands using off-chain, indexed data from https://theindex.io/. Other indexers or methods may be supported later. To use this feature, you need to sign up for a free account with TheIndex to get an API key.</p>
 <h3 id="snapshot-indexed-mints"><a class="header" href="#snapshot-indexed-mints">Snapshot Indexed Mints</a></h3>
-<h4 id="usage-20"><a class="header" href="#usage-20">Usage</a></h4>
+<h4 id="usage-22"><a class="header" href="#usage-22">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot indexed-mints --creator &lt;FIRST_VERIFIED_CREATOR&gt; --api-key &lt;THEINDEX.IO_API_KEY&gt;
 </code></pre>
 <h3 id="snapshot-indexed-holders"><a class="header" href="#snapshot-indexed-holders">Snapshot Indexed Holders</a></h3>
-<h4 id="usage-21"><a class="header" href="#usage-21">Usage</a></h4>
+<h4 id="usage-23"><a class="header" href="#usage-23">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot indexed-holders --creator &lt;FIRST_VERIFIED_CREATOR&gt; --api-key &lt;THEINDEX.IO_API_KEY&gt;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="transfer"><a class="header" href="#transfer">Transfer</a></h2>
@@ -808,7 +845,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h3 id="usage-22"><a class="header" href="#usage-22">Usage</a></h3>
+<h3 id="usage-24"><a class="header" href="#usage-24">Usage</a></h3>
 <pre><code class="language-bash">metaboss transfer asset --mint &lt;asset_mint_address&gt; --receiver &lt;receiver_wallet_address&gt;
 </code></pre>
 <p>E.g.:</p>
@@ -823,7 +860,7 @@ OPTIONS:
 <p>See also <strong>Set</strong> commands for updatable values that cannot be reversed (e.g. set immutable).</p>
 <h3 id="update-data"><a class="header" href="#update-data">Update Data</a></h3>
 <p>Update the <code>Data</code> struct on a NFT from a JSON file.</p>
-<h4 id="usage-23"><a class="header" href="#usage-23">Usage</a></h4>
+<h4 id="usage-25"><a class="header" href="#usage-25">Usage</a></h4>
 <pre><code class="language-bash">metaboss update data --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-data-file &lt;PATH_TO_NEW_DATA_FILE&gt;
 </code></pre>
 <p>The JSON file should include all the fields of the metadata <code>Data</code> struct and should match <code>creator</code> <code>verified</code> bools for existing creators. E.g. if your NFT was minted by the Metaplex Candy Machine program, and you wish to keep your candy machine as a verified creator <em>you must add the candy machine to your creators array with <code>verified</code> set to <code>true</code></em>.</p>
@@ -856,7 +893,7 @@ OPTIONS:
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="update-data-all"><a class="header" href="#update-data-all">Update Data All</a></h3>
 <p>Update the <code>Data</code> struct on a list of NFTs from JSON files.</p>
-<h4 id="usage-24"><a class="header" href="#usage-24">Usage</a></h4>
+<h4 id="usage-26"><a class="header" href="#usage-26">Usage</a></h4>
 <pre><code class="language-bash">metaboss update data-all --keypair &lt;PATH_TO_KEYPAIR&gt; --data-dir &lt;PATH_TO_DATA_DIR&gt;
 </code></pre>
 <p>Each JSON file in the data directory should include the mint account and all the fields of the metadata <code>Data</code> struct and should match <code>creator</code> <code>verified</code> bools for existing creators. E.g. if your NFT was minted by the Metaplex Candy Machine program, and you wish to keep your candy machine as a verified creator <em>you must add the candy machine to your creators array with <code>verified</code> set to <code>true</code></em>.</p>
@@ -892,22 +929,22 @@ OPTIONS:
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="update-name"><a class="header" href="#update-name">Update Name</a></h3>
 <p>Update the on-chain name of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-25"><a class="header" href="#usage-25">Usage</a></h4>
+<h4 id="usage-27"><a class="header" href="#usage-27">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update name --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-name &lt;NEW_NAME&gt;
 </code></pre>
 <h3 id="update-symbol"><a class="header" href="#update-symbol">Update Symbol</a></h3>
 <p>Update the on-chain symbol of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-26"><a class="header" href="#usage-26">Usage</a></h4>
+<h4 id="usage-28"><a class="header" href="#usage-28">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update symbol --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-symbol &lt;NEW_SYMBOL&gt;
 </code></pre>
 <h3 id="update-symbol-all"><a class="header" href="#update-symbol-all">Update Symbol All</a></h3>
 <p>Update the on-chain symbol of a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-27"><a class="header" href="#usage-27">Usage</a></h4>
+<h4 id="usage-29"><a class="header" href="#usage-29">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update symbol-all --keypair &lt;PATH_TO_KEYPAIR&gt; -L &lt;PATH_TO_LIST_MINT_ADDRESSES&gt; --new-symbol &lt;NEW_SYMBOL&gt;
 </code></pre>
 <h3 id="update-creators"><a class="header" href="#update-creators">Update Creators</a></h3>
 <p>Update the creators of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-28"><a class="header" href="#usage-28">Usage</a></h4>
+<h4 id="usage-30"><a class="header" href="#usage-30">Usage</a></h4>
 <pre><code class="language-bash">metaboss update creators -k &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -c &lt;CREATOR1:SHARE:VERIFIED,CREATOR2:SHARE:VERIFIED&gt;
 </code></pre>
 <p>Creators should be a comma-delimited list of creator:share:verified. E.g. </p>
@@ -921,12 +958,12 @@ OPTIONS:
 </code></pre>
 <h3 id="update-uri"><a class="header" href="#update-uri">Update URI</a></h3>
 <p>Update the metadata URI, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-29"><a class="header" href="#usage-29">Usage</a></h4>
+<h4 id="usage-31"><a class="header" href="#usage-31">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-uri &lt;NEW_URI&gt;
 </code></pre>
 <h3 id="update-uri-all"><a class="header" href="#update-uri-all">Update URI All</a></h3>
 <p>Update the metadata URI for a list of mint accounts, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-30"><a class="header" href="#usage-30">Usage</a></h4>
+<h4 id="usage-32"><a class="header" href="#usage-32">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri-all --keypair &lt;PATH_TO_KEYPAIR&gt; --json-file &lt;PATH_TO_JSON_FILE&gt;
 </code></pre>
 <pre><code class="language-json">[
@@ -942,12 +979,12 @@ OPTIONS:
 </code></pre>
 <h3 id="update-seller-fee-basis-points"><a class="header" href="#update-seller-fee-basis-points">Update Seller Fee Basis Points</a></h3>
 <p>Update the seller fee basis points field on an NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-31"><a class="header" href="#usage-31">Usage</a></h4>
+<h4 id="usage-33"><a class="header" href="#usage-33">Usage</a></h4>
 <pre><code class="language-bash">metaboss update sfbp --keypair &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
 <h3 id="update-seller-fee-basis-points-all"><a class="header" href="#update-seller-fee-basis-points-all">Update Seller Fee Basis Points All</a></h3>
 <p>Update the seller fee basis points field on a a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-32"><a class="header" href="#usage-32">Usage</a></h4>
+<h4 id="usage-34"><a class="header" href="#usage-34">Usage</a></h4>
 <pre><code class="language-bash">metaboss update sfbp-all --keypair &lt;PATH_TO_KEYPAIR&gt; -L &lt;PATH_TO_MINT_LIST.json&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
 <h3 id="update-rule-set"><a class="header" href="#update-rule-set">Update Rule Set</a></h3>
@@ -967,7 +1004,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                      RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;              Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-33"><a class="header" href="#usage-33">Usage</a></h4>
+<h4 id="usage-35"><a class="header" href="#usage-35">Usage</a></h4>
 <pre><code class="language-bash">metaboss update rule-set --mint &lt;MINT_ADDRESS&gt; --new-rule-set &lt;NEW_RULE_SET_PUBKEY&gt;
 </code></pre>
 <p>E.g.:</p>
@@ -993,7 +1030,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                      RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;              Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-34"><a class="header" href="#usage-34">Usage</a></h4>
+<h4 id="usage-36"><a class="header" href="#usage-36">Usage</a></h4>
 <pre><code class="language-bash">metaboss update rule-set-all -L &lt;MINT_LIST&gt; -n &lt;NEW_RULE_SET_ADDRESS&gt;
 </code></pre>
 <p>E.g.:</p>
@@ -1015,7 +1052,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-35"><a class="header" href="#usage-35">Usage</a></h4>
+<h4 id="usage-37"><a class="header" href="#usage-37">Usage</a></h4>
 <pre><code class="language-bash">metaboss update clear-rule-set --mint &lt;MINT_ADDRESS&gt;
 </code></pre>
 <p>E.g.:</p>
@@ -1040,7 +1077,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                  RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;          Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-36"><a class="header" href="#usage-36">Usage</a></h4>
+<h4 id="usage-38"><a class="header" href="#usage-38">Usage</a></h4>
 <pre><code class="language-bash">metaboss update clear-rule-set-all -L &lt;MINT_LIST&gt;
 </code></pre>
 <p>E.g.:</p>
@@ -1095,6 +1132,5 @@ OPTIONS:
         });
         </script>
 
-    </div>
     </body>
 </html>

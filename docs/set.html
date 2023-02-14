@@ -32,7 +32,6 @@
 
     </head>
     <body>
-    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -176,6 +175,44 @@ Set commands are either irreversible or require a new update authority to revers
 <p>Set all NFTs in a list to be immutable. <strong>This is not reversible.</strong></p>
 <pre><code class="language-bash">metaboss set immutable-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-accounts-file &lt;PATH_TO_MINT_ACCOUNTS&gt;
 </code></pre>
+<h3 id="set-token-standard"><a class="header" href="#set-token-standard">Set Token Standard</a></h3>
+<p>Set an asset's Token Standard to automatically be the correct type. <strong>This is not reversible.</strong></p>
+<pre><code>USAGE:
+    metaboss set token-standard [OPTIONS] --account &lt;account&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -a, --account &lt;account&gt;        Mint account of corresponding metadata to update
+    -k, --keypair &lt;keypair&gt;        Path to the update authority's keypair file
+    -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
+<pre><code class="language-bash">metaboss set token-standard --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
+</code></pre>
+<h3 id="set-token-standard-all"><a class="header" href="#set-token-standard-all">Set Token Standard-All</a></h3>
+<p>Set all assets in a list to be the correct Token Standard. <strong>This is not reversible.</strong></p>
+<p>USAGE:
+metaboss set token-standard-all [OPTIONS]</p>
+<p>FLAGS:
+-h, --help       Prints help information
+-V, --version    Prints version information</p>
+<p>OPTIONS:
+-b, --batch-size <batch-size>    Maximum number of concurrent requests [default: 10]
+-c, --cache-file <cache-file>    Cache file
+-k, --keypair <keypair>          Path to the update authority's keypair file
+-l, --log-level <log-level>      Log level [default: off]
+-L, --mint-list <mint-list>      Mint list
+--retries <retries>          Maximum retries: retry failed items up to this many times [default: 1]
+-r, --rpc <rpc>                  RPC endpoint url to override using the Solana config or the hard-coded default
+-T, --timeout <timeout>          Timeout to override default value of 90 seconds [default: 90]</p>
+<h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
+<pre><code class="language-bash">metaboss set token-standard-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-list &lt;PATH_TO_MINT_ACCOUNTS&gt;
+</code></pre>
 
                     </main>
 
@@ -225,6 +262,5 @@ Set commands are either irreversible or require a new update authority to revers
         <!-- Custom JS scripts -->
 
 
-    </div>
     </body>
 </html>
