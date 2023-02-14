@@ -91,6 +91,7 @@ metaboss set token-standard --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT>
 
 Set all assets in a list to be the correct Token Standard. **This is not reversible.**
 
+```
 USAGE:
     metaboss set token-standard-all [OPTIONS]
 
@@ -107,6 +108,7 @@ OPTIONS:
         --retries <retries>          Maximum retries: retry failed items up to this many times [default: 1]
     -r, --rpc <rpc>                  RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout <timeout>          Timeout to override default value of 90 seconds [default: 90]
+```
 
 #### Usage
 

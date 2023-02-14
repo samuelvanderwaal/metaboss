@@ -196,20 +196,23 @@ OPTIONS:
 </code></pre>
 <h3 id="set-token-standard-all"><a class="header" href="#set-token-standard-all">Set Token Standard-All</a></h3>
 <p>Set all assets in a list to be the correct Token Standard. <strong>This is not reversible.</strong></p>
-<p>USAGE:
-metaboss set token-standard-all [OPTIONS]</p>
-<p>FLAGS:
--h, --help       Prints help information
--V, --version    Prints version information</p>
-<p>OPTIONS:
--b, --batch-size <batch-size>    Maximum number of concurrent requests [default: 10]
--c, --cache-file <cache-file>    Cache file
--k, --keypair <keypair>          Path to the update authority's keypair file
--l, --log-level <log-level>      Log level [default: off]
--L, --mint-list <mint-list>      Mint list
---retries <retries>          Maximum retries: retry failed items up to this many times [default: 1]
--r, --rpc <rpc>                  RPC endpoint url to override using the Solana config or the hard-coded default
--T, --timeout <timeout>          Timeout to override default value of 90 seconds [default: 90]</p>
+<pre><code>USAGE:
+    metaboss set token-standard-all [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -b, --batch-size &lt;batch-size&gt;    Maximum number of concurrent requests [default: 10]
+    -c, --cache-file &lt;cache-file&gt;    Cache file
+    -k, --keypair &lt;keypair&gt;          Path to the update authority's keypair file
+    -l, --log-level &lt;log-level&gt;      Log level [default: off]
+    -L, --mint-list &lt;mint-list&gt;      Mint list
+        --retries &lt;retries&gt;          Maximum retries: retry failed items up to this many times [default: 1]
+    -r, --rpc &lt;rpc&gt;                  RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;          Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
 <h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
 <pre><code class="language-bash">metaboss set token-standard-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-list &lt;PATH_TO_MINT_ACCOUNTS&gt;
 </code></pre>
