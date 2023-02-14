@@ -889,6 +889,17 @@ pub enum SetSubcommands {
         #[structopt(long, default_value = "1")]
         retries: u8,
     },
+    /// Update an asset's token standard
+    TokenStandard {
+        /// Path to the update authority's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+    },
+    /// Update a list of assets' token standard
     TokenStandardAll {
         /// Path to the update authority's keypair file
         #[structopt(short, long)]

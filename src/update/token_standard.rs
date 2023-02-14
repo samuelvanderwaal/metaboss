@@ -2,10 +2,10 @@ use solana_sdk::commitment_config::CommitmentConfig;
 
 use super::*;
 
-struct SetTokenStandardArgs {
-    client: Arc<RpcClient>,
-    keypair: Arc<Keypair>,
-    mint_account: String,
+pub struct SetTokenStandardArgs {
+    pub client: Arc<RpcClient>,
+    pub keypair: Arc<Keypair>,
+    pub mint_account: String,
 }
 
 pub struct SetTokenStandardAllArgs {
@@ -17,7 +17,7 @@ pub struct SetTokenStandardAllArgs {
     pub retries: u8,
 }
 
-async fn set_token_standard_one(args: SetTokenStandardArgs) -> Result<(), ActionError> {
+pub async fn set_token_standard_one(args: SetTokenStandardArgs) -> Result<(), ActionError> {
     let mint_pubkey = Pubkey::from_str(&args.mint_account)
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
