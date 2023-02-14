@@ -485,6 +485,23 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             })
             .await
         }
+        SetSubcommands::TokenStandardAll {
+            keypair,
+            mint_list,
+            cache_file,
+            batch_size,
+            retries,
+        } => {
+            set_token_standard_all(SetTokenStandardAllArgs {
+                client,
+                keypair,
+                mint_list,
+                cache_file,
+                batch_size,
+                retries,
+            })
+            .await
+        }
     }
 }
 
