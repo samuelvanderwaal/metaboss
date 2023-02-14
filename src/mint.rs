@@ -324,8 +324,8 @@ pub fn mint_one<P: AsRef<Path>>(
         max_editions,
         sized,
     )?;
-    info!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account);
-    let message = format!("Tx id: {:?}\nMint account: {:?}", &tx_id, &mint_account,);
+    info!("Tx sig: {:?}\nMint account: {:?}", &tx_id, &mint_account);
+    let message = format!("Tx sig: {:?}\nMint account: {:?}", &tx_id, &mint_account,);
     println!("{message}");
     if sign {
         //TODO: Error handling

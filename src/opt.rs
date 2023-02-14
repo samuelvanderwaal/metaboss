@@ -1174,7 +1174,7 @@ pub enum UpdateSubcommands {
         #[structopt(short = "a", long)]
         mint: String,
     },
-    /// REmove the rule set from a batch of pNFTs.
+    /// Remove the rule set from a batch of pNFTs.
     ClearRuleSetAll {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
