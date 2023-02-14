@@ -889,6 +889,38 @@ pub enum SetSubcommands {
         #[structopt(long, default_value = "1")]
         retries: u8,
     },
+    /// Update an asset's token standard
+    TokenStandard {
+        /// Path to the update authority's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+    },
+    /// Update a list of assets' token standard
+    TokenStandardAll {
+        /// Path to the update authority's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint list
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
+    },
 }
 
 #[derive(Debug, StructOpt)]

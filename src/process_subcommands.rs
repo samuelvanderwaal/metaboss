@@ -485,6 +485,34 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             })
             .await
         }
+        SetSubcommands::TokenStandard { keypair, account } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = SetTokenStandardArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+            };
+            set_token_standard_one(args).await.map_err(|e| e.into())
+        }
+        SetSubcommands::TokenStandardAll {
+            keypair,
+            mint_list,
+            cache_file,
+            batch_size,
+            retries,
+        } => {
+            set_token_standard_all(SetTokenStandardAllArgs {
+                client,
+                keypair,
+                mint_list,
+                cache_file,
+                batch_size,
+                retries,
+            })
+            .await
+        }
     }
 }
 
