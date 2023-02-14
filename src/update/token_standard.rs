@@ -67,7 +67,7 @@ pub struct SetTokenStandardAll {}
 #[async_trait]
 impl Action for SetTokenStandardAll {
     fn name() -> &'static str {
-        "set-immutable-all"
+        "set-token-standard-all"
     }
 
     async fn action(args: RunActionArgs) -> Result<(), ActionError> {
