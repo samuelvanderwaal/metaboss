@@ -11,22 +11,9 @@ pub struct UpdateCreatorArgs {
 }
 
 pub async fn update_creator(args: UpdateCreatorArgs) -> Result<Signature, ActionError> {
-    let mut current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-
-    let mint = Pubkey::from_str(&args.mint_account)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-
-    // We need the token account passed in for pNFT updates.
-    let token = if let Some(TokenStandard::ProgrammableNonFungible) = current_md.token_standard {
-        Some(
-            get_nft_token_account(&args.client, &args.mint_account).map_err(|e| {
-                ActionError::ActionFailed(args.mint_account.to_string(), e.to_string())
-            })?,
-        )
-    } else {
-        None
-    };
+    let (mut current_md, token, current_rule_set) =
+        update_asset_preface(&args.client, &args.mint_account)
+            .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
     let parsed_creators = match parse_cli_creators(args.new_creators, args.should_append) {
         Ok(creators) => creators,
@@ -58,13 +45,6 @@ pub async fn update_creator(args: UpdateCreatorArgs) -> Result<Signature, Action
         ));
     }
 
-    let current_rule_set =
-        if let Some(ProgrammableConfig::V1 { rule_set }) = current_md.programmable_config {
-            rule_set
-        } else {
-            None
-        };
-
     // Token Metadata UpdateArgs enum.
     let mut update_args = UpdateArgs::default();
 
@@ -77,7 +57,7 @@ pub async fn update_creator(args: UpdateCreatorArgs) -> Result<Signature, Action
     let update_args = UpdateAssetArgs::V1 {
         payer: None,
         authority: &args.keypair,
-        mint,
+        mint: args.mint_account.clone(),
         token,
         delegate_record: None::<String>, // Not supported yet in update.
         current_rule_set,

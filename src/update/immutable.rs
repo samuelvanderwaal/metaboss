@@ -16,28 +16,11 @@ pub struct SetImmutableAllArgs {
 }
 
 pub async fn set_immutable(args: SetImmutableArgs) -> Result<Signature, ActionError> {
-    let current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-
-    // We need the token account passed in for pNFT updates.
-    let token = if let Some(TokenStandard::ProgrammableNonFungible) = current_md.token_standard {
-        Some(
-            get_nft_token_account(&args.client, &args.mint_account).map_err(|e| {
-                ActionError::ActionFailed(args.mint_account.to_string(), e.to_string())
-            })?,
-        )
-    } else {
-        None
-    };
+    let (_current_md, token, current_rule_set) =
+        update_asset_preface(&args.client, &args.mint_account)
+            .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
     // Add metadata delegate record here later.
-
-    let current_rule_set =
-        if let Some(ProgrammableConfig::V1 { rule_set }) = current_md.programmable_config {
-            rule_set
-        } else {
-            None
-        };
 
     // Token Metadata UpdateArgs enum.
     let mut update_args = UpdateArgs::default();
