@@ -201,7 +201,7 @@ metaboss update sfbp --keypair <PATH_TO_KEYPAIR> -a <MINT_ACCOUNT> -n <NEW_SELLE
 
 ### Update Seller Fee Basis Points All
 
-Update the seller fee basis points field on a a list of NFTs, keeping the rest of the `Data` struct the same.
+Update the seller fee basis points field on a list of NFTs, keeping the rest of the `Data` struct the same.
 
 #### Usage
 
