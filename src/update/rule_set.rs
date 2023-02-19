@@ -74,7 +74,7 @@ pub fn update_rule_set_one(
         authority: &keypair,
         mint,
         token,
-        delegate_record: None, // Not supported yet in update.
+        delegate_record: None::<String>, // Not supported yet in update.
         current_rule_set,
         update_args,
     };
@@ -127,7 +127,7 @@ pub fn clear_rule_set_one(
         authority: &keypair,
         mint,
         token,
-        delegate_record: None, // Not supported yet in update.
+        delegate_record: None::<String>, // Not supported yet in update.
         current_rule_set,
         update_args,
     };
@@ -149,9 +149,6 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<(), ActionError>
         get_nft_token_account(&args.client, &args.mint_account)
             .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?,
     );
-
-    let mint = Pubkey::from_str(&args.mint_account)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
     let new_rule_set = Pubkey::from_str(&args.new_rule_set)
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
@@ -179,9 +176,9 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<(), ActionError>
     let update_args = UpdateAssetArgs::V1 {
         payer: None,
         authority: &args.keypair,
-        mint,
+        mint: args.mint_account.clone(),
         token,
-        delegate_record: None, // Not supported yet in update.
+        delegate_record: None::<String>, // Not supported yet in update.
         current_rule_set,
         update_args,
     };
@@ -230,7 +227,7 @@ pub async fn clear_rule_set(args: ClearRuleSetArgs) -> Result<(), ActionError> {
         authority: &args.keypair,
         mint,
         token,
-        delegate_record: None, // Not supported yet in update.
+        delegate_record: None::<String>, // Not supported yet in update.
         current_rule_set,
         update_args,
     };

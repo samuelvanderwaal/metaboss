@@ -1,5 +1,3 @@
-use mpl_token_metadata::state::TokenStandard;
-
 use super::*;
 
 pub struct UpdateSellerFeeBasisPointsArgs {
@@ -18,7 +16,7 @@ pub struct UpdateSellerFeeBasisPointsAllArgs {
     pub retries: u8,
 }
 
-pub async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<(), ActionError> {
+pub async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<Signature, ActionError> {
     let mut current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
@@ -32,9 +30,6 @@ pub async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<(), Act
     } else {
         None
     };
-
-    let mint = Pubkey::from_str(&args.mint_account)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
     // Add metadata delegate record here later.
 
@@ -57,17 +52,15 @@ pub async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<(), Act
     let update_args = UpdateAssetArgs::V1 {
         payer: None,
         authority: &args.keypair,
-        mint,
+        mint: args.mint_account.clone(),
         token,
-        delegate_record: None, // Not supported yet in update.
+        delegate_record: None::<String>, // Not supported yet in update.
         current_rule_set,
         update_args,
     };
 
-    let _sig = update_asset(&args.client, update_args)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-
-    Ok(())
+    update_asset(&args.client, update_args)
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))
 }
 
 pub struct UpdateSellerFeeBasisPointsAll {}
@@ -96,6 +89,7 @@ impl Action for UpdateSellerFeeBasisPointsAll {
             new_sfbp: sfbp,
         })
         .await
+        .map(|_| ())
     }
 }
 

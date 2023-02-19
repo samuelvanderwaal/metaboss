@@ -413,7 +413,22 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
 pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<()> {
     match commands {
         SetSubcommands::PrimarySaleHappened { keypair, account } => {
-            set_primary_sale_happened_one(client, keypair, &account)
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = SetPrimarySaleHappenedArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+            };
+
+            let sig = set_primary_sale_happened(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
         }
         SetSubcommands::PrimarySaleHappenedAll {
             keypair,
@@ -466,7 +481,22 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             .await
         }
         SetSubcommands::Immutable { keypair, account } => {
-            set_immutable_one(&client, keypair, &account)
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = SetImmutableArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+            };
+
+            let sig = set_immutable(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
         }
         SetSubcommands::ImmutableAll {
             keypair,
@@ -494,7 +524,14 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 keypair: Arc::new(keypair),
                 mint_account: account,
             };
-            set_token_standard_one(args).await.map_err(|e| e.into())
+
+            let sig = set_token_standard_one(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
         }
         SetSubcommands::TokenStandardAll {
             keypair,
@@ -719,7 +756,11 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 new_sfbp,
             };
 
-            update_sfbp(args).await.map_err(|e| e.into())
+            let sig = update_sfbp(args).await.map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
         }
         UpdateSubcommands::SellerFeeBasisPointsAll {
             keypair,
@@ -774,7 +815,26 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             account,
             new_creators,
             append,
-        } => update_creator_by_position(&client, keypair, &account, &new_creators, append).await,
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = UpdateCreatorArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+                new_creators,
+                should_append: append,
+            };
+
+            let sig = update_creator(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
         UpdateSubcommands::CreatorsAll {
             keypair,
             mint_list,
