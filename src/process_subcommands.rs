@@ -707,13 +707,20 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
         UpdateSubcommands::SellerFeeBasisPoints {
             keypair,
             account,
-            new_seller_fee_basis_points,
-        } => update_seller_fee_basis_points_one(
-            &client,
-            keypair,
-            &account,
-            &new_seller_fee_basis_points,
-        ),
+            new_sfbp,
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = UpdateSellerFeeBasisPointsArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+                new_sfbp,
+            };
+
+            update_sfbp(args).await.map_err(|e| e.into())
+        }
         UpdateSubcommands::SellerFeeBasisPointsAll {
             keypair,
             mint_list,
@@ -722,7 +729,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             batch_size,
             retries,
         } => {
-            update_seller_fee_basis_points_all(UpdateSellerFeeBasisPointsAllArgs {
+            update_sfbp_all(UpdateSellerFeeBasisPointsAllArgs {
                 client,
                 keypair,
                 mint_list,

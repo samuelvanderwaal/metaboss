@@ -1209,7 +1209,7 @@ pub enum UpdateSubcommands {
 
         /// New seller fee basis points for the metadata
         #[structopt(short, long)]
-        new_seller_fee_basis_points: u16,
+        new_sfbp: u16,
     },
     /// Update the seller fee basis points field inside the data struct on an NFT
     #[structopt(name = "sfbp-all")]

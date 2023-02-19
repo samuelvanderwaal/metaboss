@@ -1,9 +1,10 @@
+use mpl_token_metadata::state::TokenStandard;
+
 use super::*;
 
 pub struct UpdateSellerFeeBasisPointsArgs {
     pub client: Arc<RpcClient>,
     pub keypair: Arc<Keypair>,
-    pub payer: Arc<Keypair>,
     pub mint_account: String,
     pub new_sfbp: u16,
 }
@@ -17,48 +18,53 @@ pub struct UpdateSellerFeeBasisPointsAllArgs {
     pub retries: u8,
 }
 
-pub fn update_seller_fee_basis_points_one(
-    client: &RpcClient,
-    keypair: Option<String>,
-    mint_account: &str,
-    new_seller_fee_basis_points: &u16,
-) -> AnyResult<()> {
-    let solana_opts = parse_solana_config();
-    let parsed_keypair = parse_keypair(keypair, solana_opts);
-
-    let old_md = decode(client, mint_account)?;
-    let data_with_old_seller_fee_basis_points = old_md.data;
-
-    let new_data = DataV2 {
-        creators: data_with_old_seller_fee_basis_points.creators,
-        seller_fee_basis_points: new_seller_fee_basis_points.to_owned(),
-        name: data_with_old_seller_fee_basis_points.name,
-        symbol: data_with_old_seller_fee_basis_points.symbol,
-        uri: data_with_old_seller_fee_basis_points.uri,
-        collection: old_md.collection,
-        uses: old_md.uses,
-    };
-
-    update_data(client, &parsed_keypair, mint_account, new_data)?;
-    Ok(())
-}
-
-async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<(), ActionError> {
-    let old_md = decode(&args.client, &args.mint_account)
+pub async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<(), ActionError> {
+    let mut current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-    let old_data = old_md.data;
 
-    let new_data = DataV2 {
-        creators: old_data.creators,
-        seller_fee_basis_points: args.new_sfbp,
-        name: old_data.name,
-        symbol: old_data.symbol,
-        uri: old_data.uri,
-        collection: old_md.collection,
-        uses: old_md.uses,
+    // We need the token account passed in for pNFT updates.
+    let token = if let Some(TokenStandard::ProgrammableNonFungible) = current_md.token_standard {
+        Some(
+            get_nft_token_account(&args.client, &args.mint_account).map_err(|e| {
+                ActionError::ActionFailed(args.mint_account.to_string(), e.to_string())
+            })?,
+        )
+    } else {
+        None
     };
 
-    update_data(&args.client, &args.keypair, &args.mint_account, new_data)
+    let mint = Pubkey::from_str(&args.mint_account)
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
+
+    // Add metadata delegate record here later.
+
+    current_md.data.seller_fee_basis_points = args.new_sfbp;
+    let current_rule_set =
+        if let Some(ProgrammableConfig::V1 { rule_set }) = current_md.programmable_config {
+            rule_set
+        } else {
+            None
+        };
+
+    // Token Metadata UpdateArgs enum.
+    let mut update_args = UpdateArgs::default();
+
+    // Update the sfbp on the data struct.
+    let UpdateArgs::V1 { ref mut data, .. } = update_args;
+    *data = Some(current_md.data);
+
+    // Metaboss UpdateAssetArgs enum.
+    let update_args = UpdateAssetArgs::V1 {
+        payer: None,
+        authority: &args.keypair,
+        mint,
+        token,
+        delegate_record: None, // Not supported yet in update.
+        current_rule_set,
+        update_args,
+    };
+
+    let _sig = update_asset(&args.client, update_args)
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
     Ok(())
@@ -86,7 +92,6 @@ impl Action for UpdateSellerFeeBasisPointsAll {
         update_sfbp(UpdateSellerFeeBasisPointsArgs {
             client: args.client.clone(),
             keypair: args.keypair.clone(),
-            payer: args.payer.clone(),
             mint_account: args.mint_account,
             new_sfbp: sfbp,
         })
@@ -94,9 +99,7 @@ impl Action for UpdateSellerFeeBasisPointsAll {
     }
 }
 
-pub async fn update_seller_fee_basis_points_all(
-    args: UpdateSellerFeeBasisPointsAllArgs,
-) -> AnyResult<()> {
+pub async fn update_sfbp_all(args: UpdateSellerFeeBasisPointsAllArgs) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
