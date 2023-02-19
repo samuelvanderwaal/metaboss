@@ -4,7 +4,7 @@
 
 Migrate a collection of NFTs to be part of a single on-chain Metaplex Certified Collection (MCC).
 
-1. Create your Collection Parent NFT using a minting tool such as [justmint](https://justmint.xyz/) or [NFT Armory](https://www.nftarmory.me/). Alternately, use `metaboss mint one`. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for you collection and all items in your collection will point to this mint account.
+1. Create your Collection Parent NFT using a minting tool such as [justmint](https://justmint.xyz/) or [NFT Armory](https://www.nftarmory.me/). Alternately, use `metaboss mint one`. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for your collection and all items in your collection will point to this mint account.
 
 2. Get your mint list. If your collection is a single candy machine you can use the `--candy-machine-id` option, otherwise provide the path to your mint list formatted as a JSON file with the `--mint-list` option.
 
