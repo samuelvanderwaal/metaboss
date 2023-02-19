@@ -790,7 +790,25 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             account,
             new_symbol,
-        } => update_symbol_one(client, keypair, account, new_symbol).await,
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = UpdateSymbolArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+                new_symbol,
+            };
+
+            let sig = update_symbol(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
         UpdateSubcommands::SymbolAll {
             keypair,
             mint_list,

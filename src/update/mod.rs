@@ -60,13 +60,13 @@ pub fn update_asset_preface(
     client: &RpcClient,
     mint_account: &str,
 ) -> AnyResult<(Metadata, Option<Pubkey>, Option<Pubkey>)> {
-    let current_md = decode_metadata_from_mint(&client, mint_account.clone())
+    let current_md = decode_metadata_from_mint(client, mint_account)
         .map_err(|e| ActionError::ActionFailed(mint_account.to_string(), e.to_string()))?;
 
     // We need the token account passed in for pNFT updates.
     let token = if let Some(TokenStandard::ProgrammableNonFungible) = current_md.token_standard {
         Some(
-            get_nft_token_account(&client, &mint_account)
+            get_nft_token_account(client, mint_account)
                 .map_err(|e| ActionError::ActionFailed(mint_account.to_string(), e.to_string()))?,
         )
     } else {
