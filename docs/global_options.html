@@ -32,6 +32,7 @@
 
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -154,7 +155,7 @@
 <p>Metaboss will try to read your Solana config settings for both the RPC endpoint and also the Commitment setting by reading from <code>$HOME/.config/solana/cli/config.yml</code>. If it can't find a config file it defaults to using <code>https://dev.genesysgo.net</code> and <code>confirmed</code>.</p>
 <p>Running Metaboss with the <code>--rpc</code> option will override the above with whatever RPC endpoint the user provides.</p>
 <p>-T, --timeout <timeout> The timeout in seconds to use for RPC calls.</p>
-<p>This defaults to 90 seconds which should be fine for most cases but can be overriden if needed.</p>
+<p>This defaults to 90 seconds which should be fine for most cases but can be overridden if needed.</p>
 <p>Example:</p>
 <pre><code class="language-bash">metaboss snapshot holders -r https://ssc-dao.genesysgo.net/ -T 120 -u DC2mkgwhy56w3viNtHDjJQmc7SGu2QX785bS4aexojwX
 </code></pre>
@@ -207,5 +208,6 @@
         <!-- Custom JS scripts -->
 
 
+    </div>
     </body>
 </html>

@@ -33,6 +33,7 @@
 
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -294,7 +295,7 @@ git checkout main
 <p>Metaboss will try to read your Solana config settings for both the RPC endpoint and also the Commitment setting by reading from <code>$HOME/.config/solana/cli/config.yml</code>. If it can't find a config file it defaults to using <code>https://dev.genesysgo.net</code> and <code>confirmed</code>.</p>
 <p>Running Metaboss with the <code>--rpc</code> option will override the above with whatever RPC endpoint the user provides.</p>
 <p>-T, --timeout <timeout> The timeout in seconds to use for RPC calls.</p>
-<p>This defaults to 90 seconds which should be fine for most cases but can be overriden if needed.</p>
+<p>This defaults to 90 seconds which should be fine for most cases but can be overridden if needed.</p>
 <p>Example:</p>
 <pre><code class="language-bash">metaboss snapshot holders -r https://ssc-dao.genesysgo.net/ -T 120 -u DC2mkgwhy56w3viNtHDjJQmc7SGu2QX785bS4aexojwX
 </code></pre>
@@ -346,7 +347,7 @@ git checkout main
 <p>Migrate a collection of NFTs to be part of a single on-chain Metaplex Certified Collection (MCC).</p>
 <ol>
 <li>
-<p>Create your Collection Parent NFT using a minting tool such as <a href="https://justmint.xyz/">justmint</a> or <a href="https://www.nftarmory.me/">NFT Armory</a>. Alternately, use <code>metaboss mint one</code>. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for you collection and all items in your collection will point to this mint account.</p>
+<p>Create your Collection Parent NFT using a minting tool such as <a href="https://justmint.xyz/">justmint</a> or <a href="https://www.nftarmory.me/">NFT Armory</a>. Alternately, use <code>metaboss mint one</code>. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for your collection and all items in your collection will point to this mint account.</p>
 </li>
 <li>
 <p>Get your mint list. If your collection is a single candy machine you can use the <code>--candy-machine-id</code> option, otherwise provide the path to your mint list formatted as a JSON file with the <code>--mint-list</code> option.</p>
@@ -724,7 +725,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <p>or you can use the candy machine creator id which will be the first creator in the creators array.</p>
 <pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --creator &lt;CANDY_MACHINE_CREATOR_ID&gt;
 </code></pre>
-<p>With a mint acconts JSON list:</p>
+<p>With a mint accounts JSON list:</p>
 <pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-accounts-file &lt;PATH_TO_MINT_ACCOUNTS_FILE&gt;
 </code></pre>
 <p>For the latter usage, the mint accounts file should be a JSON file with a list of mint accounts to be signed:</p>
@@ -772,7 +773,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <h4 id="usage-20"><a class="header" href="#usage-20">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot holders --creator &lt;CREATOR_ADDRESS&gt; -p &lt;POSITION&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
-<p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
+<p>Use the position to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot holders --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
@@ -803,7 +804,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <h4 id="usage-21"><a class="header" href="#usage-21">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot mints --creator &lt;FIRST_CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
-<p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
+<p>Use the position to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot mints --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
@@ -986,7 +987,7 @@ OPTIONS:
 <pre><code class="language-bash">metaboss update sfbp --keypair &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
 <h3 id="update-seller-fee-basis-points-all"><a class="header" href="#update-seller-fee-basis-points-all">Update Seller Fee Basis Points All</a></h3>
-<p>Update the seller fee basis points field on a a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
+<p>Update the seller fee basis points field on a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
 <h4 id="usage-34"><a class="header" href="#usage-34">Usage</a></h4>
 <pre><code class="language-bash">metaboss update sfbp-all --keypair &lt;PATH_TO_KEYPAIR&gt; -L &lt;PATH_TO_MINT_LIST.json&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
@@ -1084,7 +1085,8 @@ OPTIONS:
 <pre><code class="language-bash">metaboss update clear-rule-set-all -L &lt;MINT_LIST&gt;
 </code></pre>
 <p>E.g.:</p>
-<pre><code class="language-bash">metaboss update rule-set-all -L rule_set_mints.json</code></pre>
+<pre><code class="language-bash">metaboss update rule-set-all -L rule_set_mints.json
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="withdraw-deprecated"><a class="header" href="#withdraw-deprecated">Withdraw (Deprecated)</a></h2>
 <p>Use Metaplex's <a href="https://docs.metaplex.com/sugar/introduction">Sugar</a> tool for withdrawing from candy machines instead.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="contact"><a class="header" href="#contact">Contact</a></h2>
@@ -1135,5 +1137,6 @@ OPTIONS:
         });
         </script>
 
+    </div>
     </body>
 </html>

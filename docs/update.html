@@ -32,6 +32,7 @@
 
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -270,7 +271,7 @@
 <pre><code class="language-bash">metaboss update sfbp --keypair &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
 <h3 id="update-seller-fee-basis-points-all"><a class="header" href="#update-seller-fee-basis-points-all">Update Seller Fee Basis Points All</a></h3>
-<p>Update the seller fee basis points field on a a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
+<p>Update the seller fee basis points field on a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
 <h4 id="usage-9"><a class="header" href="#usage-9">Usage</a></h4>
 <pre><code class="language-bash">metaboss update sfbp-all --keypair &lt;PATH_TO_KEYPAIR&gt; -L &lt;PATH_TO_MINT_LIST.json&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
@@ -368,7 +369,8 @@ OPTIONS:
 <pre><code class="language-bash">metaboss update clear-rule-set-all -L &lt;MINT_LIST&gt;
 </code></pre>
 <p>E.g.:</p>
-<pre><code class="language-bash">metaboss update rule-set-all -L rule_set_mints.json</code></pre>
+<pre><code class="language-bash">metaboss update rule-set-all -L rule_set_mints.json
+</code></pre>
 
                     </main>
 
@@ -418,5 +420,6 @@ OPTIONS:
         <!-- Custom JS scripts -->
 
 
+    </div>
     </body>
 </html>

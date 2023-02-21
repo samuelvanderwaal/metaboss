@@ -32,6 +32,7 @@
 
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -178,7 +179,7 @@
 <h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot holders --creator &lt;CREATOR_ADDRESS&gt; -p &lt;POSITION&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
-<p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
+<p>Use the position to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot holders --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
@@ -209,7 +210,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot mints --creator &lt;FIRST_CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
-<p>Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
+<p>Use the position to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
 <p>or</p>
 <pre><code class="language-bash">metaboss snapshot mints --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
@@ -284,5 +285,6 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
         <!-- Custom JS scripts -->
 
 
+    </div>
     </body>
 </html>
