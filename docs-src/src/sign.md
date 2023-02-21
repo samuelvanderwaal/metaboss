@@ -39,7 +39,7 @@ or you can use the candy machine creator id which will be the first creator in t
 metaboss sign all --keypair <PATH_TO_KEYPAIR> --creator <CANDY_MACHINE_CREATOR_ID>
 ```
 
-With a mint acconts JSON list:
+With a mint accounts JSON list:
 
 ```bash
 metaboss sign all --keypair <PATH_TO_KEYPAIR> --mint-accounts-file <PATH_TO_MINT_ACCOUNTS_FILE>
