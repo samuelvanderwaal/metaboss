@@ -81,7 +81,5 @@ pub async fn set_primary_sale_happened_all(args: SetPrimarySaleHappenedAllArgs) 
         batch_size: args.batch_size,
         retries: args.retries,
     };
-    SetPrimarySaleHappenedAll::run(args).await?;
-
-    Ok(())
+    SetPrimarySaleHappenedAll::run(args).await
 }

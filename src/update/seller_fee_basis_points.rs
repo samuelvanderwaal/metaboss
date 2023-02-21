@@ -65,7 +65,6 @@ impl Action for UpdateSellerFeeBasisPointsAll {
             )
         })?;
 
-        // Set Update Authority can have an optional payer.
         update_sfbp(UpdateSellerFeeBasisPointsArgs {
             client: args.client.clone(),
             keypair: args.keypair.clone(),
@@ -94,7 +93,5 @@ pub async fn update_sfbp_all(args: UpdateSellerFeeBasisPointsAllArgs) -> AnyResu
         batch_size: args.batch_size,
         retries: args.retries,
     };
-    UpdateSellerFeeBasisPointsAll::run(args).await?;
-
-    Ok(())
+    UpdateSellerFeeBasisPointsAll::run(args).await
 }

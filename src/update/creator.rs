@@ -96,9 +96,7 @@ pub async fn update_creator_all(args: UpdateCreatorAllArgs) -> AnyResult<()> {
         batch_size: args.batch_size,
         retries: args.retries,
     };
-    UpdateCreatorAll::run(args).await?;
-
-    Ok(())
+    UpdateCreatorAll::run(args).await
 }
 
 pub struct UpdateCreatorAll {}

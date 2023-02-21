@@ -81,7 +81,5 @@ pub async fn set_immutable_all(args: SetImmutableAllArgs) -> AnyResult<()> {
         batch_size: args.batch_size,
         retries: args.retries,
     };
-    SetImmutableAll::run(args).await?;
-
-    Ok(())
+    SetImmutableAll::run(args).await
 }

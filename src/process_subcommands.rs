@@ -452,13 +452,28 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             account,
             new_update_authority,
             keypair_payer,
-        } => set_update_authority_one(
-            &client,
-            keypair,
-            &account,
-            &new_update_authority,
-            keypair_payer,
-        ),
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+            let solana_opts = parse_solana_config();
+            let payer = keypair_payer.map(|path| parse_keypair(Some(path), solana_opts));
+
+            let args = SetUpdateAuthorityArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                payer: Arc::new(payer),
+                mint_account: account,
+                new_authority: new_update_authority,
+            };
+
+            let sig = set_update_authority(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
         SetSubcommands::UpdateAuthorityAll {
             keypair,
             payer,
@@ -886,9 +901,43 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             account,
             new_uri,
-        } => update_uri_one(&client, keypair, &account, &new_uri),
-        UpdateSubcommands::UriAll { keypair, json_file } => {
-            update_uri_all(&client, keypair, &json_file)
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = UpdateUriArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                payer: Arc::new(None),
+                mint_account: account,
+                new_uri,
+            };
+
+            let sig = update_uri(args).await.map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
+        UpdateSubcommands::UriAll {
+            keypair,
+            mint_list,
+            cache_file,
+            new_uri,
+            batch_size,
+            retries,
+        } => {
+            update_uri_all(UpdateUriAllArgs {
+                client,
+                keypair,
+                payer: None,
+                mint_list,
+                cache_file,
+                new_uri,
+                batch_size,
+                retries,
+            })
+            .await
         }
         UpdateSubcommands::Uses {
             keypair,

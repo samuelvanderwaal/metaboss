@@ -1875,6 +1875,7 @@ dependencies = [
 [[package]]
 name = "metaboss_lib"
 version = "0.1.0"
+source = "git+https://github.com/samuelvanderwaal/metaboss_lib#214d07a7bd63183ffef213af7ea9e5f7b9cf0dc2"
 dependencies = [
  "anyhow",
  "mpl-token-metadata",

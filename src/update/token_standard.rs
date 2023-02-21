@@ -93,7 +93,5 @@ pub async fn set_token_standard_all(args: SetTokenStandardAllArgs) -> AnyResult<
         batch_size: args.batch_size,
         retries: args.retries,
     };
-    SetTokenStandardAll::run(args).await?;
-
-    Ok(())
+    SetTokenStandardAll::run(args).await
 }
