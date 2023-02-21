@@ -143,7 +143,7 @@ pub trait Action {
         let client = Arc::new(args.client);
         let keypair = Arc::new(args.keypair);
         let payer = Arc::new(args.payer);
-        
+
         let semaphore = Arc::new(Semaphore::new(args.batch_size));
 
         loop {
