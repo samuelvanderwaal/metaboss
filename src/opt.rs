@@ -47,11 +47,17 @@ pub enum Command {
         #[structopt(subcommand)]
         uses_subcommands: UsesSubcommands,
     },
-    /// Full Burn a NFT
+    /// Full Burn an asset
     #[structopt(name = "burn")]
     Burn {
         #[structopt(subcommand)]
         burn_subcommands: BurnSubcommands,
+    },
+    /// Full Burn a NFT
+    #[structopt(name = "burn-nft")]
+    BurnNft {
+        #[structopt(subcommand)]
+        burn_nft_subcommands: BurnNftSubcommands,
     },
     /// Full Burn a print edition NFT
     #[structopt(name = "burn-print")]
@@ -122,6 +128,29 @@ pub enum Command {
 
 #[derive(Debug, StructOpt)]
 pub enum BurnSubcommands {
+    /// Burn an asset.
+    #[structopt(name = "asset")]
+    Asset {
+        /// Path to the owner keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Token mint account of the asset
+        #[structopt(short = "a", long)]
+        mint_account: String,
+
+        /// Token account of the asset if not an ATA
+        #[structopt(short = "t", long)]
+        token_account: Option<String>,
+
+        /// Amount, defaults to 1.
+        #[structopt(short, long, default_value = "1")]
+        amount: u64,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum BurnNftSubcommands {
     /// Burn one NFT.
     #[structopt(name = "one")]
     One {
@@ -129,9 +158,9 @@ pub enum BurnSubcommands {
         #[structopt(short, long)]
         keypair: Option<String>,
 
-        /// Token mint account of the NFT
-        #[structopt(short, long)]
-        account: String,
+        /// Token mint account of the asset
+        #[structopt(short = "a", long)]
+        mint_account: String,
     },
     /// Burn a batch of NFTs.
     #[structopt(name = "all")]
@@ -648,8 +677,8 @@ pub enum MintSubcommands {
         asset_data: PathBuf,
 
         /// Mint decimals for fungible tokens.
-        #[structopt(long)]
-        decimals: Option<u8>,
+        #[structopt(long, default_value = "0")]
+        decimals: u8,
 
         /// Amount of tokens to mint, for NonFungible types this must be 1.
         #[structopt(long, default_value = "1")]

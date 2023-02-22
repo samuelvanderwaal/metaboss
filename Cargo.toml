@@ -21,8 +21,10 @@ indexmap = { version = "1.9.1", features = ["serde"] }
 indicatif = { version = "0.16.2", features = ["rayon"] }
 lazy_static = "1.4.0"
 log = "0.4.17"
-metaboss_lib = "0.1.0"
-mpl-token-metadata = { version = "1.7.0", features = [ "no-entrypoint", "serde-feature"] }
+# metaboss_lib = "0.1.0"
+metaboss_lib = { path = "../metaboss_lib" }
+# mpl-token-metadata = { version = "1.8.4", features = [ "no-entrypoint", "serde-feature"] }
+mpl-token-metadata = { git = "https://github.com/metaplex-foundation/metaplex-program-library", branch = "feat/burn", features = ["no-entrypoint", "serde-feature"] }
 num_cpus = "1.13.1"
 phf = { version = "0.10", features = ["macros"] }
 ratelimit = "0.4.4"

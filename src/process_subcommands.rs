@@ -1,9 +1,7 @@
 use anyhow::Result;
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 
-use crate::burn::{
-    burn_all, burn_one, burn_print_all, burn_print_one, BurnAllArgs, BurnPrintAllArgs,
-};
+use crate::burn::*;
 use crate::collections::{
     approve_delegate, check_collection_items, get_collection_items, migrate_collection,
     revoke_delegate, set_and_verify_nft_collection, set_size, unverify_nft_collection,
@@ -176,10 +174,43 @@ pub async fn process_collections(
     }
 }
 
-pub async fn process_burn(client: RpcClient, commands: BurnSubcommands) -> Result<()> {
+pub async fn process_burn_asset(client: RpcClient, commands: BurnSubcommands) -> Result<()> {
     match commands {
-        BurnSubcommands::One { keypair, account } => burn_one(client, keypair, account).await,
-        BurnSubcommands::All {
+        BurnSubcommands::Asset {
+            keypair,
+            mint_account,
+            token_account,
+            amount,
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = BurnAssetArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account,
+                token_account,
+                amount,
+            };
+
+            let sig = burn_asset(args).await.map_err(Into::<ActionError>::into)?;
+
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
+    }
+}
+
+pub async fn process_burn_nft(client: RpcClient, commands: BurnNftSubcommands) -> Result<()> {
+    match commands {
+        BurnNftSubcommands::One {
+            keypair,
+            mint_account,
+        } => burn_one(client, keypair, mint_account).await,
+
+        BurnNftSubcommands::All {
             keypair,
             mint_list,
             cache_file,

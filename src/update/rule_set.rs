@@ -74,7 +74,7 @@ pub fn update_rule_set_one(
         authority: &keypair,
         mint,
         token,
-        delegate_record: None, // Not supported yet in update.
+        delegate_record: None::<String>, // Not supported yet in update.
         current_rule_set,
         update_args,
     };
@@ -127,7 +127,7 @@ pub fn clear_rule_set_one(
         authority: &keypair,
         mint,
         token,
-        delegate_record: None, // Not supported yet in update.
+        delegate_record: None::<String>, // Not supported yet in update.
         current_rule_set,
         update_args,
     };
@@ -181,7 +181,7 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<(), ActionError>
         authority: &args.keypair,
         mint,
         token,
-        delegate_record: None, // Not supported yet in update.
+        delegate_record: None::<String>, // Not supported yet in update.
         current_rule_set,
         update_args,
     };
@@ -230,7 +230,7 @@ pub async fn clear_rule_set(args: ClearRuleSetArgs) -> Result<(), ActionError> {
         authority: &args.keypair,
         mint,
         token,
-        delegate_record: None, // Not supported yet in update.
+        delegate_record: None::<String>, // Not supported yet in update.
         current_rule_set,
         update_args,
     };

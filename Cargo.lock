@@ -1875,8 +1875,6 @@ dependencies = [
 [[package]]
 name = "metaboss_lib"
 version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75cf1ee9c878b5cb85ec119e71f020c24ab06ac0ff143adf73489423075547b0"
 dependencies = [
  "anyhow",
  "mpl-token-metadata",
@@ -1927,12 +1925,12 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-auth-rules"
-version = "1.0.0"
+version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a14e1ac5350734fd07f17d7eab733d27b7b45ca963642c565ec34ab015d9ceda"
+checksum = "a69803fbfbc4bb0327de86f49d2639692c7c60276cb87d6cced84bb8189f2000"
 dependencies = [
  "borsh",
- "mpl-token-metadata-context-derive",
+ "mpl-token-metadata-context-derive 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-derive",
  "num-traits",
  "rmp-serde",
@@ -1945,14 +1943,13 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-metadata"
-version = "1.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5accdfde5c18465c65bd664169845a185f8a00d973d5c15396fef858dd2e52d9"
+version = "1.8.3"
+source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/burn#5a3889cfddbf9ee3b117baf479f9392dc8250277"
 dependencies = [
  "arrayref",
  "borsh",
  "mpl-token-auth-rules",
- "mpl-token-metadata-context-derive",
+ "mpl-token-metadata-context-derive 0.2.1 (git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/burn)",
  "mpl-utils",
  "num-derive",
  "num-traits",
@@ -1976,10 +1973,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "mpl-token-metadata-context-derive"
+version = "0.2.1"
+source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/burn#5a3889cfddbf9ee3b117baf479f9392dc8250277"
+dependencies = [
+ "quote 1.0.23",
+ "syn 1.0.107",
+]
+
+[[package]]
 name = "mpl-utils"
-version = "0.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6195ce98b92f1d0ea06d0cc9b2392d81673e02b8fb063589926fa73ee6b071a"
+version = "0.1.0"
+source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/burn#5a3889cfddbf9ee3b117baf479f9392dc8250277"
 dependencies = [
  "arrayref",
  "borsh",
