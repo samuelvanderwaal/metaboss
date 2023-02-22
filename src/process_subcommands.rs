@@ -767,7 +767,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             let sig = clear_rule_set(args)
                 .await
                 .map_err(Into::<ActionError>::into)?;
-            
+
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
