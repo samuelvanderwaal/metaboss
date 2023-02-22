@@ -716,7 +716,25 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             mint,
             new_rule_set,
-        } => update_rule_set_one(&client, keypair, &mint, &new_rule_set),
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = UpdateRuleSetArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: mint,
+                new_rule_set,
+            };
+
+            let sig = update_rule_set(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
         UpdateSubcommands::RuleSetAll {
             keypair,
             mint_list,
@@ -737,7 +755,23 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             .await
         }
         UpdateSubcommands::ClearRuleSet { keypair, mint } => {
-            clear_rule_set_one(&client, keypair, &mint)
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = ClearRuleSetArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: mint,
+            };
+
+            let sig = clear_rule_set(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
         }
         UpdateSubcommands::ClearRuleSetAll {
             keypair,
