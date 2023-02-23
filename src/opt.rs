@@ -539,6 +539,26 @@ pub enum DecodeSubcommands {
         #[structopt(short = "a", long)]
         token_address: String,
     },
+    MetadataDelegate {
+        /// MetadataDelegate address
+        #[structopt(short = "a", long)]
+        metadata_delegate_record: String,
+    },
+    TokenRecord {
+        /// TokenRecord address
+        #[structopt(short = "a", long)]
+        token_record: String,
+    },
+    CollectionDelegate {
+        /// CollectionAuthorityRecord address
+        #[structopt(short = "a", long)]
+        authority_record: String,
+    },
+    UseDelegate {
+        /// UseDelegate address
+        #[structopt(short = "a", long)]
+        use_record: String,
+    },
     /// Decode a mint account's metadata
     #[structopt(name = "mint")]
     Mint {
