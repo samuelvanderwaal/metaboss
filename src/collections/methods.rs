@@ -10,6 +10,8 @@ use mpl_token_metadata::instruction::{
     verify_sized_collection_item,
 };
 use mpl_token_metadata::state::TokenMetadataAccount;
+use solana_sdk::account::ReadableAccount;
+use solana_sdk::commitment_config::CommitmentConfig;
 
 pub const OPEN_FILES_LIMIT: usize = 1024;
 
@@ -88,22 +90,13 @@ pub fn unverify_nft_collection(
         false => None,
     };
 
-    // Is it a sized collection?
-    let collection_md_account = client.get_account_data(&collection_md_pubkey)?;
+    // We need to check if the parent collection NFT exists because people sometimes burn them.
+    let collection_md_account_opt = client
+        .get_account_with_commitment(&collection_md_pubkey, CommitmentConfig::confirmed())?
+        .value;
 
-    // If the collection account is empty, it was burned and we can use either handler.
-    let unverify_collection_ix = if collection_md_account.is_empty() {
-        unverify_collection(
-            metadata_program_id(),
-            nft_metadata,
-            keypair.pubkey(),
-            collection_pubkey,
-            collection_md_pubkey,
-            collection_edition_pubkey,
-            collection_authority_record,
-        )
-    } else {
-        let collection_metadata = Metadata::safe_deserialize(collection_md_account.as_slice())?;
+    let unverify_collection_ix = if let Some(collection_md_account) = collection_md_account_opt {
+        let collection_metadata = Metadata::safe_deserialize(collection_md_account.data())?;
 
         // Choose which handler to use based on if collection is sized or not.
         if collection_metadata.collection_details.is_some() {
@@ -128,6 +121,17 @@ pub fn unverify_nft_collection(
                 collection_authority_record,
             )
         }
+    } else {
+        // Account is not found so presumed burned so we can use either handler.
+        unverify_collection(
+            metadata_program_id(),
+            nft_metadata,
+            keypair.pubkey(),
+            collection_pubkey,
+            collection_md_pubkey,
+            collection_edition_pubkey,
+            collection_authority_record,
+        )
     };
 
     send_and_confirm_transaction(&client, keypair, &[unverify_collection_ix])?;
