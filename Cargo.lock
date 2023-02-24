@@ -1830,7 +1830,7 @@ dependencies = [
 
 [[package]]
 name = "metaboss"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -1874,9 +1874,9 @@ dependencies = [
 
 [[package]]
 name = "metaboss_lib"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9fae6d1ab3879600511ffbb1e035a4d71446e1b6a5fbd29bcc3ac0a71fa47078"
+checksum = "f388be81e818aabbb4d99318357656a9671497f237d6dc929fa803c966416506"
 dependencies = [
  "anyhow",
  "mpl-token-metadata",
@@ -1945,9 +1945,9 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-metadata"
-version = "1.8.4"
+version = "1.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "301235b920e1b3a4bf9c3ffd6a16b1db1f3ac5bdcb6b6f201d4bb7a9fd1d94a0"
+checksum = "fe2044a25ef9f2df98a0b6ac22efe86dc4a5b73ef0b2e86d60c1e4931eaab2e8"
 dependencies = [
  "arrayref",
  "borsh",

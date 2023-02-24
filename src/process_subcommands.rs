@@ -1,4 +1,8 @@
 use anyhow::Result;
+use metaboss_lib::decode::{
+    decode_collection_authority_record, decode_metadata_delegate, decode_token_record,
+    decode_use_authority_record,
+};
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 
 use crate::burn::{
@@ -281,6 +285,28 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
         }
         DecodeSubcommands::TokenAccount { token_address } => {
             decode_token_account(client, &token_address)?
+        }
+        DecodeSubcommands::CollectionDelegate { authority_record } => {
+            let record = decode_collection_authority_record(client, authority_record)?;
+
+            println!("{record:?}");
+        }
+        DecodeSubcommands::UseDelegate { use_record } => {
+            let record = decode_use_authority_record(client, use_record)?;
+
+            println!("{record:?}");
+        }
+        DecodeSubcommands::MetadataDelegate {
+            metadata_delegate_record,
+        } => {
+            let record = decode_metadata_delegate(client, metadata_delegate_record)?;
+
+            println!("{record:?}");
+        }
+        DecodeSubcommands::TokenRecord { token_record } => {
+            let record = decode_token_record(client, token_record)?;
+
+            println!("{record:?}");
         }
         DecodeSubcommands::Mint {
             account,

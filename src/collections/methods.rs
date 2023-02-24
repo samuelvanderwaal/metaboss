@@ -5,11 +5,13 @@ use crate::{
     parse::parse_solana_config,
     utils::send_and_confirm_transaction,
 };
-use borsh::BorshDeserialize;
 use mpl_token_metadata::instruction::{
     set_and_verify_sized_collection_item, set_collection_size, unverify_sized_collection_item,
     verify_sized_collection_item,
 };
+use mpl_token_metadata::state::TokenMetadataAccount;
+use solana_sdk::account::ReadableAccount;
+use solana_sdk::commitment_config::CommitmentConfig;
 
 pub const OPEN_FILES_LIMIT: usize = 1024;
 
@@ -36,8 +38,7 @@ pub fn set_and_verify_nft_collection(
 
     // Is it a sized collection?
     let collection_md_account = client.get_account_data(&collection_md_pubkey)?;
-    let collection_metadata =
-        <Metadata as BorshDeserialize>::deserialize(&mut collection_md_account.as_slice())?;
+    let collection_metadata = Metadata::safe_deserialize(collection_md_account.as_slice())?;
 
     let set_and_verify_ix = if collection_metadata.collection_details.is_some() {
         set_and_verify_sized_collection_item(
@@ -89,24 +90,39 @@ pub fn unverify_nft_collection(
         false => None,
     };
 
-    // Is it a sized collection?
-    let collection_md_account = client.get_account_data(&collection_md_pubkey)?;
-    let collection_metadata =
-        <Metadata as BorshDeserialize>::deserialize(&mut collection_md_account.as_slice())?;
+    // We need to check if the parent collection NFT exists because people sometimes burn them.
+    let collection_md_account_opt = client
+        .get_account_with_commitment(&collection_md_pubkey, CommitmentConfig::confirmed())?
+        .value;
 
-    // Choose which handler to use based on if collection is sized or not.
-    let unverify_collection_ix = if collection_metadata.collection_details.is_some() {
-        unverify_sized_collection_item(
-            metadata_program_id(),
-            nft_metadata,
-            keypair.pubkey(),
-            keypair.pubkey(),
-            collection_pubkey,
-            collection_md_pubkey,
-            collection_edition_pubkey,
-            collection_authority_record,
-        )
+    let unverify_collection_ix = if let Some(collection_md_account) = collection_md_account_opt {
+        let collection_metadata = Metadata::safe_deserialize(collection_md_account.data())?;
+
+        // Choose which handler to use based on if collection is sized or not.
+        if collection_metadata.collection_details.is_some() {
+            unverify_sized_collection_item(
+                metadata_program_id(),
+                nft_metadata,
+                keypair.pubkey(),
+                keypair.pubkey(),
+                collection_pubkey,
+                collection_md_pubkey,
+                collection_edition_pubkey,
+                collection_authority_record,
+            )
+        } else {
+            unverify_collection(
+                metadata_program_id(),
+                nft_metadata,
+                keypair.pubkey(),
+                collection_pubkey,
+                collection_md_pubkey,
+                collection_edition_pubkey,
+                collection_authority_record,
+            )
+        }
     } else {
+        // Account is not found so presumed burned so we can use either handler.
         unverify_collection(
             metadata_program_id(),
             nft_metadata,
@@ -144,8 +160,7 @@ pub fn verify_nft_collection(
 
     // Is it a sized collection?
     let collection_md_account = client.get_account_data(&collection_md_pubkey)?;
-    let collection_metadata =
-        <Metadata as BorshDeserialize>::deserialize(&mut collection_md_account.as_slice())?;
+    let collection_metadata = Metadata::safe_deserialize(collection_md_account.as_slice())?;
 
     // Choose which handler to use based on if collection is sized or not.
     let verify_collection_ix = if collection_metadata.collection_details.is_some() {
