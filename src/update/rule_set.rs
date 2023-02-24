@@ -32,115 +32,7 @@ pub struct ClearRuleSetArgs {
     pub mint_account: String,
 }
 
-pub fn update_rule_set_one(
-    client: &RpcClient,
-    keypair_path: Option<String>,
-    mint: &str,
-    new_rule_set: &str,
-) -> AnyResult<()> {
-    let solana_opts = parse_solana_config();
-    let keypair = parse_keypair(keypair_path, solana_opts);
-
-    let md = decode_metadata_from_mint(client, mint)?;
-
-    // We need the token account passed in for pNFT updates.
-    let token = Some(get_nft_token_account(client, mint)?);
-
-    let mint = Pubkey::from_str(mint)?;
-    let new_rule_set = Pubkey::from_str(new_rule_set)?;
-
-    // Add metadata delegate record here later.
-
-    // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default();
-
-    // Update the rule set.
-    let UpdateArgs::V1 {
-        ref mut rule_set, ..
-    } = update_args;
-
-    *rule_set = RuleSetToggle::Set(new_rule_set);
-
-    let current_rule_set = if let Some(ProgrammableConfig::V1 { rule_set }) = md.programmable_config
-    {
-        rule_set
-    } else {
-        None
-    };
-
-    // Metaboss UpdateAssetArgs enum.
-    let args = UpdateAssetArgs::V1 {
-        payer: None,
-        authority: &keypair,
-        mint,
-        token,
-        delegate_record: None::<String>, // Not supported yet in update.
-        current_rule_set,
-        update_args,
-    };
-
-    let update_result = update_asset(client, args)?;
-
-    println!("Updated asset: {mint:?}");
-    println!("Update signature: {update_result:?}");
-
-    Ok(())
-}
-
-pub fn clear_rule_set_one(
-    client: &RpcClient,
-    keypair_path: Option<String>,
-    mint: &str,
-) -> AnyResult<()> {
-    let solana_opts = parse_solana_config();
-    let keypair = parse_keypair(keypair_path, solana_opts);
-
-    let md = decode_metadata_from_mint(client, mint)?;
-
-    // We need the token account passed in for pNFT updates.
-    let token = Some(get_nft_token_account(client, mint)?);
-
-    let mint = Pubkey::from_str(mint)?;
-
-    // Add metadata delegate record here later.
-
-    // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default();
-
-    // Update the rule set.
-    let UpdateArgs::V1 {
-        ref mut rule_set, ..
-    } = update_args;
-
-    *rule_set = RuleSetToggle::Clear;
-
-    let current_rule_set = if let Some(ProgrammableConfig::V1 { rule_set }) = md.programmable_config
-    {
-        rule_set
-    } else {
-        None
-    };
-
-    // Metaboss UpdateAssetArgs enum.
-    let args = UpdateAssetArgs::V1 {
-        payer: None,
-        authority: &keypair,
-        mint,
-        token,
-        delegate_record: None::<String>, // Not supported yet in update.
-        current_rule_set,
-        update_args,
-    };
-
-    let update_result = update_asset(client, args)?;
-
-    println!("Updated asset: {mint:?}");
-    println!("Update signature: {update_result:?}");
-
-    Ok(())
-}
-
-pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<(), ActionError> {
+pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<Signature, ActionError> {
     let md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
@@ -149,9 +41,6 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<(), ActionError>
         get_nft_token_account(&args.client, &args.mint_account)
             .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?,
     );
-
-    let mint = Pubkey::from_str(&args.mint_account)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
     let new_rule_set = Pubkey::from_str(&args.new_rule_set)
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
@@ -179,20 +68,18 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<(), ActionError>
     let update_args = UpdateAssetArgs::V1 {
         payer: None,
         authority: &args.keypair,
-        mint,
+        mint: args.mint_account.clone(),
         token,
         delegate_record: None::<String>, // Not supported yet in update.
         current_rule_set,
         update_args,
     };
 
-    let _sig = update_asset(&args.client, update_args)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-
-    Ok(())
+    update_asset(&args.client, update_args)
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))
 }
 
-pub async fn clear_rule_set(args: ClearRuleSetArgs) -> Result<(), ActionError> {
+pub async fn clear_rule_set(args: ClearRuleSetArgs) -> Result<Signature, ActionError> {
     let md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
@@ -235,10 +122,8 @@ pub async fn clear_rule_set(args: ClearRuleSetArgs) -> Result<(), ActionError> {
         update_args,
     };
 
-    let _sig = update_asset(&args.client, update_args)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-
-    Ok(())
+    update_asset(&args.client, update_args)
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))
 }
 
 pub struct UpdateRuleSetAll {}
@@ -257,6 +142,7 @@ impl Action for UpdateRuleSetAll {
             new_rule_set: args.new_value,
         })
         .await
+        .map(|_| ())
     }
 }
 
@@ -295,6 +181,7 @@ impl Action for ClearRuleSetAll {
             mint_account: args.mint_account,
         })
         .await
+        .map(|_| ())
     }
 }
 

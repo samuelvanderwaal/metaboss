@@ -439,7 +439,22 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
 pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<()> {
     match commands {
         SetSubcommands::PrimarySaleHappened { keypair, account } => {
-            set_primary_sale_happened_one(client, keypair, &account)
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = SetPrimarySaleHappenedArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+            };
+
+            let sig = set_primary_sale_happened(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
         }
         SetSubcommands::PrimarySaleHappenedAll {
             keypair,
@@ -463,13 +478,28 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             account,
             new_update_authority,
             keypair_payer,
-        } => set_update_authority_one(
-            &client,
-            keypair,
-            &account,
-            &new_update_authority,
-            keypair_payer,
-        ),
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+            let solana_opts = parse_solana_config();
+            let payer = keypair_payer.map(|path| parse_keypair(Some(path), solana_opts));
+
+            let args = SetUpdateAuthorityArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                payer: Arc::new(payer),
+                mint_account: account,
+                new_authority: new_update_authority,
+            };
+
+            let sig = set_update_authority(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
         SetSubcommands::UpdateAuthorityAll {
             keypair,
             payer,
@@ -492,7 +522,22 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             .await
         }
         SetSubcommands::Immutable { keypair, account } => {
-            set_immutable_one(&client, keypair, &account)
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = SetImmutableArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+            };
+
+            let sig = set_immutable(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
         }
         SetSubcommands::ImmutableAll {
             keypair,
@@ -520,7 +565,14 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 keypair: Arc::new(keypair),
                 mint_account: account,
             };
-            set_token_standard_one(args).await.map_err(|e| e.into())
+
+            let sig = set_token_standard_one(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
         }
         SetSubcommands::TokenStandardAll {
             keypair,
@@ -690,7 +742,25 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             mint,
             new_rule_set,
-        } => update_rule_set_one(&client, keypair, &mint, &new_rule_set),
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = UpdateRuleSetArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: mint,
+                new_rule_set,
+            };
+
+            let sig = update_rule_set(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
         UpdateSubcommands::RuleSetAll {
             keypair,
             mint_list,
@@ -711,7 +781,23 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             .await
         }
         UpdateSubcommands::ClearRuleSet { keypair, mint } => {
-            clear_rule_set_one(&client, keypair, &mint)
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = ClearRuleSetArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: mint,
+            };
+
+            let sig = clear_rule_set(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
         }
         UpdateSubcommands::ClearRuleSetAll {
             keypair,
@@ -733,13 +819,24 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
         UpdateSubcommands::SellerFeeBasisPoints {
             keypair,
             account,
-            new_seller_fee_basis_points,
-        } => update_seller_fee_basis_points_one(
-            &client,
-            keypair,
-            &account,
-            &new_seller_fee_basis_points,
-        ),
+            new_sfbp,
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = UpdateSellerFeeBasisPointsArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+                new_sfbp,
+            };
+
+            let sig = update_sfbp(args).await.map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
         UpdateSubcommands::SellerFeeBasisPointsAll {
             keypair,
             mint_list,
@@ -748,7 +845,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             batch_size,
             retries,
         } => {
-            update_seller_fee_basis_points_all(UpdateSellerFeeBasisPointsAllArgs {
+            update_sfbp_all(UpdateSellerFeeBasisPointsAllArgs {
                 client,
                 keypair,
                 mint_list,
@@ -763,12 +860,46 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             account,
             new_name,
-        } => update_name_one(&client, keypair, &account, &new_name),
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = UpdateNameArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+                new_name,
+            };
+
+            let sig = update_name(args).await.map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
         UpdateSubcommands::Symbol {
             keypair,
             account,
             new_symbol,
-        } => update_symbol_one(client, keypair, account, new_symbol).await,
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = UpdateSymbolArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+                new_symbol,
+            };
+
+            let sig = update_symbol(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
         UpdateSubcommands::SymbolAll {
             keypair,
             mint_list,
@@ -793,7 +924,26 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             account,
             new_creators,
             append,
-        } => update_creator_by_position(&client, keypair, &account, &new_creators, append).await,
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = UpdateCreatorArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+                new_creators,
+                should_append: append,
+            };
+
+            let sig = update_creator(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
         UpdateSubcommands::CreatorsAll {
             keypair,
             mint_list,
@@ -827,9 +977,43 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             account,
             new_uri,
-        } => update_uri_one(&client, keypair, &account, &new_uri),
-        UpdateSubcommands::UriAll { keypair, json_file } => {
-            update_uri_all(&client, keypair, &json_file)
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = UpdateUriArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                payer: Arc::new(None),
+                mint_account: account,
+                new_uri,
+            };
+
+            let sig = update_uri(args).await.map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
+        UpdateSubcommands::UriAll {
+            keypair,
+            mint_list,
+            cache_file,
+            new_uri,
+            batch_size,
+            retries,
+        } => {
+            update_uri_all(UpdateUriAllArgs {
+                client,
+                keypair,
+                payer: None,
+                mint_list,
+                cache_file,
+                new_uri,
+                batch_size,
+                retries,
+            })
+            .await
         }
         UpdateSubcommands::Uses {
             keypair,

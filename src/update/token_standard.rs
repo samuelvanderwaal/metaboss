@@ -17,7 +17,7 @@ pub struct SetTokenStandardAllArgs {
     pub retries: u8,
 }
 
-pub async fn set_token_standard_one(args: SetTokenStandardArgs) -> Result<(), ActionError> {
+pub async fn set_token_standard_one(args: SetTokenStandardArgs) -> Result<Signature, ActionError> {
     let mint_pubkey = Pubkey::from_str(&args.mint_account)
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
@@ -52,14 +52,9 @@ pub async fn set_token_standard_one(args: SetTokenStandardArgs) -> Result<(), Ac
         recent_blockhash,
     );
 
-    let sig = args
-        .client
+    args.client
         .send_and_confirm_transaction(&tx)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-
-    info!("Tx sig: {:?}", sig);
-
-    Ok(())
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))
 }
 
 pub struct SetTokenStandardAll {}
@@ -77,6 +72,7 @@ impl Action for SetTokenStandardAll {
             mint_account: args.mint_account.clone(),
         })
         .await
+        .map(|_| ())
     }
 }
 
@@ -97,7 +93,5 @@ pub async fn set_token_standard_all(args: SetTokenStandardAllArgs) -> AnyResult<
         batch_size: args.batch_size,
         retries: args.retries,
     };
-    SetTokenStandardAll::run(args).await?;
-
-    Ok(())
+    SetTokenStandardAll::run(args).await
 }

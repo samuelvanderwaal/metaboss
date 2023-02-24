@@ -1,116 +1,94 @@
-use crate::data::UpdateUriData;
-use crate::decode::{decode, get_metadata_pda};
-use crate::limiter::create_default_rate_limiter;
-use crate::parse::parse_keypair;
-use crate::{constants::*, parse::parse_solana_config};
-use anyhow::Result;
-use log::{error, info};
-use mpl_token_metadata::{instruction::update_metadata_accounts_v2, state::DataV2};
-use rayon::prelude::*;
-use solana_client::rpc_client::RpcClient;
-use solana_sdk::{
-    pubkey::Pubkey,
-    signer::{keypair::Keypair, Signer},
-    transaction::Transaction,
-};
-use std::{fs::File, str::FromStr};
+use super::*;
 
-pub fn update_uri_one(
-    client: &RpcClient,
-    keypair_path: Option<String>,
-    mint_account: &str,
-    new_uri: &str,
-) -> Result<()> {
-    let solana_opts = parse_solana_config();
-    let keypair = parse_keypair(keypair_path, solana_opts);
-
-    update_uri(client, &keypair, mint_account, new_uri)?;
-
-    Ok(())
+pub struct UpdateUriAllArgs {
+    pub client: RpcClient,
+    pub keypair: Option<String>,
+    pub payer: Option<String>,
+    pub mint_list: Option<String>,
+    pub cache_file: Option<String>,
+    pub new_uri: String,
+    pub batch_size: usize,
+    pub retries: u8,
 }
 
-pub fn update_uri_all(
-    client: &RpcClient,
-    keypair_path: Option<String>,
-    json_file: &str,
-) -> Result<()> {
-    let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
-    let handle = create_default_rate_limiter();
-
-    let solana_opts = parse_solana_config();
-    let keypair = parse_keypair(keypair_path, solana_opts);
-
-    let f = File::open(json_file)?;
-    let update_uris: Vec<UpdateUriData> = serde_json::from_reader(f)?;
-
-    update_uris.par_iter().for_each(|data| {
-        let mut handle = handle.clone();
-        if use_rate_limit {
-            handle.wait();
-        }
-
-        match update_uri(client, &keypair, &data.mint_account, &data.new_uri) {
-            Ok(_) => (),
-            Err(e) => {
-                error!("Failed to update uri: {:?} error: {}", data, e);
-            }
-        }
-    });
-
-    Ok(())
+pub struct UpdateUriArgs {
+    pub client: Arc<RpcClient>,
+    pub keypair: Arc<Keypair>,
+    pub payer: Arc<Option<Keypair>>,
+    pub mint_account: String,
+    pub new_uri: String,
 }
 
-pub fn update_uri(
-    client: &RpcClient,
-    keypair: &Keypair,
-    mint_account: &str,
-    new_uri: &str,
-) -> Result<()> {
-    let mint_pubkey = Pubkey::from_str(mint_account)?;
-    let program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
-    let update_authority = keypair.pubkey();
+pub async fn update_uri(args: UpdateUriArgs) -> Result<Signature, ActionError> {
+    let (mut current_md, token, current_rule_set) =
+        update_asset_preface(&args.client, &args.mint_account)
+            .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
-    let metadata_account = get_metadata_pda(mint_pubkey);
-    let metadata = decode(client, mint_account)?;
+    // Add metadata delegate record here later.
 
-    let mut data = metadata.data;
-    if data.uri.trim_matches(char::from(0)) != new_uri.trim_matches(char::from(0)) {
-        data.uri = new_uri.to_string();
-
-        let data_v2 = DataV2 {
-            name: data.name,
-            symbol: data.symbol,
-            uri: data.uri,
-            seller_fee_basis_points: data.seller_fee_basis_points,
-            creators: data.creators,
-            collection: metadata.collection,
-            uses: metadata.uses,
-        };
-
-        let ix = update_metadata_accounts_v2(
-            program_id,
-            metadata_account,
-            update_authority,
-            None,
-            Some(data_v2),
-            None,
-            None,
-        );
-
-        let recent_blockhash = client.get_latest_blockhash()?;
-        let tx = Transaction::new_signed_with_payer(
-            &[ix],
-            Some(&update_authority),
-            &[keypair],
-            recent_blockhash,
-        );
-
-        let sig = client.send_and_confirm_transaction(&tx)?;
-        info!("Tx sig: {:?}", sig);
-        println!("Tx sig: {sig:?}");
-    } else {
-        println!("URI is the same.");
+    // Save a transaction by not updating if the uri is the same.
+    if current_md.data.uri.trim_matches(char::from(0)) == args.new_uri.trim_matches(char::from(0)) {
+        return Ok(Signature::default());
     }
 
-    Ok(())
+    // Token Metadata UpdateArgs enum.
+    let mut update_args = UpdateArgs::default();
+
+    current_md.data.uri = args.new_uri;
+    let UpdateArgs::V1 { ref mut data, .. } = update_args;
+    *data = Some(current_md.data);
+
+    // Metaboss UpdateAssetArgs enum.
+    let update_args = UpdateAssetArgs::V1 {
+        payer: None,
+        authority: &args.keypair,
+        mint: args.mint_account.clone(),
+        token,
+        delegate_record: None::<String>, // Not supported yet in update.
+        current_rule_set,
+        update_args,
+    };
+
+    update_asset(&args.client, update_args)
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))
+}
+
+pub struct UpdateUriAll {}
+
+#[async_trait]
+impl Action for UpdateUriAll {
+    fn name() -> &'static str {
+        "update-uri-all"
+    }
+
+    async fn action(args: RunActionArgs) -> Result<(), ActionError> {
+        update_uri(UpdateUriArgs {
+            client: args.client.clone(),
+            keypair: args.keypair.clone(),
+            payer: args.payer.clone(),
+            mint_account: args.mint_account.clone(),
+            new_uri: args.new_value.clone(),
+        })
+        .await
+        .map(|_| ())
+    }
+}
+
+pub async fn update_uri_all(args: UpdateUriAllArgs) -> AnyResult<()> {
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(args.keypair, solana_opts);
+
+    let payer = None;
+
+    let args = BatchActionArgs {
+        client: args.client,
+        keypair,
+        payer,
+        mint_list: args.mint_list,
+        cache_file: args.cache_file,
+        new_value: args.new_uri,
+        batch_size: args.batch_size,
+        retries: args.retries,
+    };
+    UpdateUriAll::run(args).await
 }
