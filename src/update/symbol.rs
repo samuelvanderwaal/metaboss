@@ -22,12 +22,11 @@ pub async fn update_symbol(args: UpdateSymbolArgs) -> Result<Signature, ActionEr
         update_asset_preface(&args.client, &args.mint_account)
             .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
-    current_md.data.symbol = args.new_symbol.clone();
-
     // Token Metadata UpdateArgs enum.
     let mut update_args = UpdateArgs::default();
 
-    // Update the sfbp on the data struct.
+    // Update the symbol on the data struct.
+    current_md.data.symbol = args.new_symbol.clone();
     let UpdateArgs::V1 { ref mut data, .. } = update_args;
     *data = Some(current_md.data);
 

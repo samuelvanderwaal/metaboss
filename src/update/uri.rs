@@ -31,11 +31,10 @@ pub async fn update_uri(args: UpdateUriArgs) -> Result<Signature, ActionError> {
         return Ok(Signature::default());
     }
 
-    current_md.data.uri = args.new_uri;
-
     // Token Metadata UpdateArgs enum.
     let mut update_args = UpdateArgs::default();
 
+    current_md.data.uri = args.new_uri;
     let UpdateArgs::V1 { ref mut data, .. } = update_args;
     *data = Some(current_md.data);
 
