@@ -982,38 +982,21 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             let keypair = parse_keypair(keypair, solana_opts);
 
             let args = UpdateUriArgs {
-                client: Arc::new(client),
-                keypair: Arc::new(keypair),
-                payer: Arc::new(None),
+                client: &client,
+                keypair: &keypair,
+                payer: None,
                 mint_account: account,
                 new_uri,
             };
 
-            let sig = update_uri(args).await.map_err(Into::<ActionError>::into)?;
+            let sig = update_uri(args).map_err(Into::<ActionError>::into)?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
             Ok(())
         }
-        UpdateSubcommands::UriAll {
-            keypair,
-            mint_list,
-            cache_file,
-            new_uri,
-            batch_size,
-            retries,
-        } => {
-            update_uri_all(UpdateUriAllArgs {
-                client,
-                keypair,
-                payer: None,
-                mint_list,
-                cache_file,
-                new_uri,
-                batch_size,
-                retries,
-            })
-            .await
+        UpdateSubcommands::UriAll { keypair, json_file } => {
+            update_uri_all(&client, keypair, &json_file)
         }
         UpdateSubcommands::Uses {
             keypair,
