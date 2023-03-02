@@ -3,7 +3,6 @@ use super::*;
 pub struct UpdateSellerFeeBasisPointsArgs {
     pub client: Arc<RpcClient>,
     pub keypair: Arc<Keypair>,
-    pub payer: Arc<Keypair>,
     pub mint_account: String,
     pub new_sfbp: u16,
 }
@@ -17,51 +16,35 @@ pub struct UpdateSellerFeeBasisPointsAllArgs {
     pub retries: u8,
 }
 
-pub fn update_seller_fee_basis_points_one(
-    client: &RpcClient,
-    keypair: Option<String>,
-    mint_account: &str,
-    new_seller_fee_basis_points: &u16,
-) -> AnyResult<()> {
-    let solana_opts = parse_solana_config();
-    let parsed_keypair = parse_keypair(keypair, solana_opts);
+pub async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<Signature, ActionError> {
+    let (mut current_md, token, current_rule_set) =
+        update_asset_preface(&args.client, &args.mint_account)
+            .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
-    let old_md = decode(client, mint_account)?;
-    let data_with_old_seller_fee_basis_points = old_md.data;
+    // Add metadata delegate record here later.
 
-    let new_data = DataV2 {
-        creators: data_with_old_seller_fee_basis_points.creators,
-        seller_fee_basis_points: new_seller_fee_basis_points.to_owned(),
-        name: data_with_old_seller_fee_basis_points.name,
-        symbol: data_with_old_seller_fee_basis_points.symbol,
-        uri: data_with_old_seller_fee_basis_points.uri,
-        collection: old_md.collection,
-        uses: old_md.uses,
+    current_md.data.seller_fee_basis_points = args.new_sfbp;
+
+    // Token Metadata UpdateArgs enum.
+    let mut update_args = UpdateArgs::default();
+
+    // Update the sfbp on the data struct.
+    let UpdateArgs::V1 { ref mut data, .. } = update_args;
+    *data = Some(current_md.data);
+
+    // Metaboss UpdateAssetArgs enum.
+    let update_args = UpdateAssetArgs::V1 {
+        payer: None,
+        authority: &args.keypair,
+        mint: args.mint_account.clone(),
+        token,
+        delegate_record: None::<String>, // Not supported yet in update.
+        current_rule_set,
+        update_args,
     };
 
-    update_data(client, &parsed_keypair, mint_account, new_data)?;
-    Ok(())
-}
-
-async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<(), ActionError> {
-    let old_md = decode(&args.client, &args.mint_account)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-    let old_data = old_md.data;
-
-    let new_data = DataV2 {
-        creators: old_data.creators,
-        seller_fee_basis_points: args.new_sfbp,
-        name: old_data.name,
-        symbol: old_data.symbol,
-        uri: old_data.uri,
-        collection: old_md.collection,
-        uses: old_md.uses,
-    };
-
-    update_data(&args.client, &args.keypair, &args.mint_account, new_data)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-
-    Ok(())
+    update_asset(&args.client, update_args)
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))
 }
 
 pub struct UpdateSellerFeeBasisPointsAll {}
@@ -82,21 +65,18 @@ impl Action for UpdateSellerFeeBasisPointsAll {
             )
         })?;
 
-        // Set Update Authority can have an optional payer.
         update_sfbp(UpdateSellerFeeBasisPointsArgs {
             client: args.client.clone(),
             keypair: args.keypair.clone(),
-            payer: args.payer.clone(),
             mint_account: args.mint_account,
             new_sfbp: sfbp,
         })
         .await
+        .map(|_| ())
     }
 }
 
-pub async fn update_seller_fee_basis_points_all(
-    args: UpdateSellerFeeBasisPointsAllArgs,
-) -> AnyResult<()> {
+pub async fn update_sfbp_all(args: UpdateSellerFeeBasisPointsAllArgs) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
@@ -113,7 +93,5 @@ pub async fn update_seller_fee_basis_points_all(
         batch_size: args.batch_size,
         retries: args.retries,
     };
-    UpdateSellerFeeBasisPointsAll::run(args).await?;
-
-    Ok(())
+    UpdateSellerFeeBasisPointsAll::run(args).await
 }

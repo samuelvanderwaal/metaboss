@@ -91,7 +91,7 @@ pub struct BatchActionArgs {
 pub struct RunActionArgs {
     pub client: Arc<RpcClient>,
     pub keypair: Arc<Keypair>,
-    pub payer: Arc<Keypair>,
+    pub payer: Arc<Option<Keypair>>,
     pub mint_account: String,
     pub new_value: String,
 }
@@ -142,11 +142,8 @@ pub trait Action {
         let mut counter = 0u8;
         let client = Arc::new(args.client);
         let keypair = Arc::new(args.keypair);
-        let payer = if let Some(payer) = args.payer {
-            Arc::new(payer)
-        } else {
-            keypair.clone()
-        };
+        let payer = Arc::new(args.payer);
+
         let semaphore = Arc::new(Semaphore::new(args.batch_size));
 
         loop {

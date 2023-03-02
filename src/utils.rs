@@ -41,7 +41,7 @@ pub fn send_and_confirm_transaction(
 
     let sig = res?;
 
-    println!("TxId: {sig}");
+    println!("Tx sig: {sig}");
     Ok(sig.to_string())
 }
 

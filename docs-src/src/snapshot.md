@@ -50,7 +50,7 @@ Snapshot all current holders of NFTs filtered by verified candy_machine_id/first
 metaboss snapshot holders --creator <CREATOR_ADDRESS> -p <POSITION> --output <OUTPUT_DIR>
 ```
 
-Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).
+Use the position to indicate which creator in the creators array to filter by; defaults to the first one (position 0).
 
 or
 
@@ -96,7 +96,7 @@ Snapshot all mint accounts for a given verified candy machine id/first creator o
 metaboss snapshot mints --creator <FIRST_CREATOR> --output <OUTPUT_DIR>
 ```
 
-Use the positon to indicate which creator in the creators array to filter by; defaults to the first one (position 0).
+Use the position to indicate which creator in the creators array to filter by; defaults to the first one (position 0).
 
 or
 

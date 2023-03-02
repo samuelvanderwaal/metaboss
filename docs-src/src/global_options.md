@@ -24,7 +24,7 @@ Running Metaboss with the `--rpc` option will override the above with whatever R
 
 -T, --timeout <timeout> The timeout in seconds to use for RPC calls.
 
-This defaults to 90 seconds which should be fine for most cases but can be overriden if needed.
+This defaults to 90 seconds which should be fine for most cases but can be overridden if needed.
 
 Example:
 

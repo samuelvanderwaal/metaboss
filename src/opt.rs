@@ -539,6 +539,26 @@ pub enum DecodeSubcommands {
         #[structopt(short = "a", long)]
         token_address: String,
     },
+    MetadataDelegate {
+        /// MetadataDelegate address
+        #[structopt(short = "a", long)]
+        metadata_delegate_record: String,
+    },
+    TokenRecord {
+        /// TokenRecord address
+        #[structopt(short = "a", long)]
+        token_record: String,
+    },
+    CollectionDelegate {
+        /// CollectionAuthorityRecord address
+        #[structopt(short = "a", long)]
+        authority_record: String,
+    },
+    UseDelegate {
+        /// UseDelegate address
+        #[structopt(short = "a", long)]
+        use_record: String,
+    },
     /// Decode a mint account's metadata
     #[structopt(name = "mint")]
     Mint {
@@ -889,6 +909,38 @@ pub enum SetSubcommands {
         #[structopt(long, default_value = "1")]
         retries: u8,
     },
+    /// Set an asset to the correct Token Standard.
+    TokenStandard {
+        /// Path to the update authority's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account of corresponding metadata to update
+        #[structopt(short, long)]
+        account: String,
+    },
+    /// Set all assets in a list to be the correct Token Standard.
+    TokenStandardAll {
+        /// Path to the update authority's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint list
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -1106,7 +1158,33 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         new_rule_set: String,
     },
-    /// Clear the rule set of a pNFT.
+    /// Update the rule set of a batch of pNFTs.
+    RuleSetAll {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Path to the mint list file
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// New rule set pubkey
+        #[structopt(short, long)]
+        new_rule_set: String,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
+    },
+    /// Remove the rule set of a pNFT.
     ClearRuleSet {
         /// Path to the creator's keypair file
         #[structopt(short, long)]
@@ -1115,6 +1193,28 @@ pub enum UpdateSubcommands {
         /// Mint account of token to transfer
         #[structopt(short = "a", long)]
         mint: String,
+    },
+    /// Remove the rule set from a batch of pNFTs.
+    ClearRuleSetAll {
+        /// Path to the creator's keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Path to the mint list file
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
     },
     /// Update the seller fee basis points field inside the data struct on an NFT
     #[structopt(name = "sfbp")]
@@ -1129,7 +1229,7 @@ pub enum UpdateSubcommands {
 
         /// New seller fee basis points for the metadata
         #[structopt(short, long)]
-        new_seller_fee_basis_points: u16,
+        new_sfbp: u16,
     },
     /// Update the seller fee basis points field inside the data struct on an NFT
     #[structopt(name = "sfbp-all")]
@@ -1312,9 +1412,25 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         keypair: Option<String>,
 
-        /// JSON file with list of mint accounts and new URIs
-        #[structopt(short = "u", long)]
-        json_file: String,
+        /// Mint list
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// New uri
+        #[structopt(short, long)]
+        new_uri: String,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
     },
     /// Update the Uses data on a NFT
     #[structopt(name = "uses")]

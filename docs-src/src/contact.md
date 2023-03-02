@@ -8,4 +8,4 @@ Discord:
 
 @archaeopteryx#7615
 
-[Metaboss Discord Server](https://discord.gg/e5bcEvQDtQ)
+[Metaboss Discord Server](https://discord.gg/n3H9rQ8s4R)
