@@ -18,8 +18,9 @@ use crate::create::{
     CreateMasterEditionArgs, CreateMetadataArgs,
 };
 use crate::decode::{
-    decode_edition_marker, decode_master_edition, decode_metadata, decode_mint_account,
-    decode_print_edition, decode_token_account, process_decode_bpf_loader_upgradable_state,
+    decode_edition_marker, decode_master_edition, decode_metadata, decode_metadata_from_mint,
+    decode_mint_account, decode_print_edition, decode_token_account,
+    process_decode_bpf_loader_upgradable_state,
 };
 use crate::derive::{
     get_cmv2_pda, get_edition_marker_pda, get_edition_pda, get_generic_pda, get_metadata_pda,
@@ -280,6 +281,12 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
         DecodeSubcommands::BpfUpgradeableState {
             bpf_upgradeable_state_address,
         } => process_decode_bpf_loader_upgradable_state(client, &bpf_upgradeable_state_address)?,
+        DecodeSubcommands::Metadata {
+            metadata_address,
+            output,
+        } => {
+            decode_metadata(client, metadata_address, &output)?;
+        }
         DecodeSubcommands::MintAccount { mint_address } => {
             decode_mint_account(client, &mint_address)?
         }
@@ -314,7 +321,7 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
             list_file,
             raw,
             ref output,
-        } => decode_metadata(
+        } => decode_metadata_from_mint(
             client,
             account.as_ref(),
             full,
