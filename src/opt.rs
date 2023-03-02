@@ -527,6 +527,16 @@ pub enum DecodeSubcommands {
         #[structopt(short = "a", long)]
         bpf_upgradeable_state_address: String,
     },
+    /// Decode Metadata from metadata account directly.
+    Metadata {
+        /// Metadata address
+        #[structopt(short = "a", long)]
+        metadata_address: String,
+
+        /// Path to directory to save output file.
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
     /// Decode Mint account data.
     MintAccount {
         /// Mint address
