@@ -4,7 +4,7 @@
 
 Migrate a collection of NFTs to be part of a single on-chain Metaplex Certified Collection (MCC).
 
-1. Create your Collection Parent NFT using a minting tool such as [justmint](https://justmint.xyz/) or [NFT Armory](https://www.nftarmory.me/). Alternately, use `metaboss mint one`. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for your collection and all items in your collection will point to this mint account.
+1. Create your Collection Parent NFT using a minting tool such as [Sol Tools](https://sol-tools.tonyboyle.io/nft-tools/create-nft). Alternately, use `metaboss mint one`. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for you collection and all items in your collection will point to this mint account.
 
 2. Get your mint list. If your collection is a single candy machine you can use the `--candy-machine-id` option, otherwise provide the path to your mint list formatted as a JSON file with the `--mint-list` option.
 
@@ -19,7 +19,7 @@ Example contents of the mint list file:
 ]
 ```
 
-Your Collection Parent NFT must have the *same update authority* as the items you will put in the collection. If you don't want to connect your update authority keypair to a website, you can mint with a different keypair and then change the update authority with Metaboss, or mint with Metaboss's `mint one` command. 
+Your Collection Parent NFT must have the *same update authority* as the items you will put in the collection. If you don't want to connect your update authority keypair to a website, you can mint with a different keypair and then change the update authority with Metaboss, or mint with Metaboss's `mint one` command.
 
 ### Running the Commands
 
@@ -54,7 +54,7 @@ The `migrate` command rapidly fires off a lot of network requests to try to migr
 
 
 
-If it hits the maximum number of retries with errors remaining, it will write them to the cache file (`metaboss-cache-migrate-collections.json`). 
+If it hits the maximum number of retries with errors remaining, it will write them to the cache file (`metaboss-cache-migrate-collections.json`).
 
 To retry from a cache file, you can use the `--cache-file` option.
 
@@ -64,7 +64,7 @@ metaboss collections migrate -k my_keypair.json --cache-file metaboss-cache-migr
 
 This will read the items from the cache file and retry them.
 
-When retrying, if you consistently end up with the same number being retried each time it probably indicates those items cannot be migrated for some reason. Check the errors on the items that failed to migrate. 
+When retrying, if you consistently end up with the same number being retried each time it probably indicates those items cannot be migrated for some reason. Check the errors on the items that failed to migrate.
 
 Example cache file:
 
@@ -82,7 +82,7 @@ Example cache file:
 In this case [our error is](https://github.com/samuelvanderwaal/wtf-is):
 
 ```
-0x39: 
+0x39:
         Token Metadata            |     IncorrectOwner: Incorrect account owner
 ```
 
@@ -90,7 +90,7 @@ which means these items cannot be migrated over as all items in the collection m
 
 ### Output File
 
-Use `--output-file` or `-o` to specify the path and name of the JSON file to write the cache results to. 
+Use `--output-file` or `-o` to specify the path and name of the JSON file to write the cache results to.
 
 e.g.:
 
@@ -111,11 +111,11 @@ metaboss collections get-items --collection-mint <COLLECTION_NFT_MINT_ADDRESS> -
 ```
 where `--collection_mint` is the mint account of the parent collection NFT and `--api-key` is your API Key from theindex.io. There's an additional command `--method` which can be used to support other indexers in the future but defaults to theindex.io for now so can be elided.
 
-This command creates a JSON file named `<COLLECTION_MINT>_collection_items.json` in the directory it is run in. 
+This command creates a JSON file named `<COLLECTION_MINT>_collection_items.json` in the directory it is run in.
 
 ### Check-Items
 
-Given a list of mint addresses and a collection mint address, this command checks all the items in the list to see if they belong to the specified collection. 
+Given a list of mint addresses and a collection mint address, this command checks all the items in the list to see if they belong to the specified collection.
 
 ```bash
 metaboss collections check-items --collection-mint <COLLECTION_NFT_MINT_ADDRESS> -L <PATH_TO_MINT_LIST>
@@ -125,4 +125,3 @@ This command has a `--debug` flag, which creates a JSON file when set with a map
 
 
 Report bugs and questions to the [Metaboss Discord](https://discord.gg/2f7N25NJkg).
-

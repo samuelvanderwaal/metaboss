@@ -8,7 +8,7 @@
 
 
         <!-- Custom HTML head -->
-        
+
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -352,7 +352,7 @@ git checkout main
 <p>Migrate a collection of NFTs to be part of a single on-chain Metaplex Certified Collection (MCC).</p>
 <ol>
 <li>
-<p>Create your Collection Parent NFT using a minting tool such as <a href="https://justmint.xyz/">justmint</a> or <a href="https://www.nftarmory.me/">NFT Armory</a>. Alternately, use <code>metaboss mint one</code>. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for your collection and all items in your collection will point to this mint account.</p>
+<p>Create your Collection Parent NFT using a minting tool such as <a href="https://sol-tools.tonyboyle.io/nft-tools/create-nft">Sol Tools</a> or <a href="https://www.nftarmory.me/">NFT Armory</a>. Alternately, use <code>metaboss mint one</code>. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for your collection and all items in your collection will point to this mint account.</p>
 </li>
 <li>
 <p>Get your mint list. If your collection is a single candy machine you can use the <code>--candy-machine-id</code> option, otherwise provide the path to your mint list formatted as a JSON file with the <code>--mint-list</code> option.</p>
@@ -399,7 +399,7 @@ git checkout main
 }
 </code></pre>
 <p>In this case <a href="https://github.com/samuelvanderwaal/wtf-is">our error is</a>:</p>
-<pre><code>0x39: 
+<pre><code>0x39:
         Token Metadata            |     IncorrectOwner: Incorrect account owner
 </code></pre>
 <p>which means these items cannot be migrated over as all items in the collection must have the same update authority as the Parent NFT.</p>
@@ -468,7 +468,7 @@ metaboss create fungible -d 3 -m crab.json --initial-supply 10.1
 <h3 id="decode-edition"><a class="header" href="#decode-edition">Decode Edition</a></h3>
 <p>Decodes a single Print Edition account from a mint account into a JSON file. This is a Print Edition PDA.</p>
 <h4 id="usage-7"><a class="header" href="#usage-7">Usage</a></h4>
-<pre><code class="language-bash">metaboss decode edition --account &lt;MINT_ACCOUNT&gt; 
+<pre><code class="language-bash">metaboss decode edition --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
 <h3 id="decode-edition-marker"><a class="header" href="#decode-edition-marker">Decode Edition Marker</a></h3>
 <p>Decodes a single Edition Marker PDA account from a mint account into a JSON file. This takes the Master Edition NFT mint account and either the edition number or the desired edition marker number, zero-indexed.</p>
@@ -479,7 +479,7 @@ metaboss create fungible -d 3 -m crab.json --initial-supply 10.1
 <h3 id="decode-master"><a class="header" href="#decode-master">Decode Master</a></h3>
 <p>Decodes a single Master Edition account from a mint account into a JSON file. This is a Master Edition PDA.</p>
 <h4 id="usage-9"><a class="header" href="#usage-9">Usage</a></h4>
-<pre><code class="language-bash">metaboss decode master --account &lt;MINT_ACCOUNT&gt; 
+<pre><code class="language-bash">metaboss decode master --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="derive"><a class="header" href="#derive">Derive</a></h2>
 <h3 id="derive-candy-machine-v2-creator"><a class="header" href="#derive-candy-machine-v2-creator">Derive Candy Machine V2 Creator</a></h3>
