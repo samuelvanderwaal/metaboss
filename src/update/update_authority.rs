@@ -1,3 +1,5 @@
+use crate::cache::NewValue;
+
 use super::*;
 
 pub struct SetUpdateAuthorityAllArgs {
@@ -78,6 +80,8 @@ pub async fn set_update_authority_all(args: SetUpdateAuthorityAllArgs) -> AnyRes
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
+    let mint_list = parse_mint_list(args.mint_list, &args.cache_file)?;
+
     let solana_opts = parse_solana_config();
     let payer = args
         .payer
@@ -87,9 +91,9 @@ pub async fn set_update_authority_all(args: SetUpdateAuthorityAllArgs) -> AnyRes
         client: args.client,
         keypair,
         payer,
-        mint_list: args.mint_list,
+        mint_list,
         cache_file: args.cache_file,
-        new_value: args.new_authority,
+        new_value: NewValue::Single(args.new_authority),
         batch_size: args.batch_size,
         retries: args.retries,
     };

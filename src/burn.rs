@@ -21,10 +21,11 @@ use spl_token;
 use std::{str::FromStr, sync::Arc};
 
 use crate::{
-    cache::{Action, BatchActionArgs, RunActionArgs},
+    cache::{Action, BatchActionArgs, NewValue, RunActionArgs},
     derive::{derive_edition_marker_pda, derive_edition_pda, derive_metadata_pda},
     errors::ActionError,
     parse::{parse_keypair, parse_solana_config},
+    update::parse_mint_list,
     utils::get_largest_token_account_owner,
 };
 
@@ -143,6 +144,8 @@ pub async fn burn_all(args: BurnAllArgs) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
+    let mint_list = parse_mint_list(args.mint_list, &args.cache_file)?;
+
     // We don't support an optional payer for this action currently.
     let payer = None;
 
@@ -150,9 +153,9 @@ pub async fn burn_all(args: BurnAllArgs) -> AnyResult<()> {
         client: args.client,
         keypair,
         payer,
-        mint_list: args.mint_list,
+        mint_list,
         cache_file: args.cache_file,
-        new_value: String::new(),
+        new_value: NewValue::None,
         batch_size: args.batch_size,
         retries: args.retries,
     };
@@ -242,6 +245,8 @@ pub async fn burn_print_all(args: BurnPrintAllArgs) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
+    let mint_list = parse_mint_list(args.mint_list, &args.cache_file)?;
+
     // We don't support an optional payer for this action currently.
     let payer = None;
 
@@ -249,9 +254,9 @@ pub async fn burn_print_all(args: BurnPrintAllArgs) -> AnyResult<()> {
         client: args.client,
         keypair,
         payer,
-        mint_list: args.mint_list,
+        mint_list,
         cache_file: args.cache_file,
-        new_value: args.master_mint,
+        new_value: NewValue::None,
         batch_size: args.batch_size,
         retries: args.retries,
     };

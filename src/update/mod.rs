@@ -48,6 +48,7 @@ pub use solana_sdk::{
     transaction::Transaction,
 };
 pub use spl_token::state::Account as TokenAccount;
+use std::fs::File;
 pub use std::{cmp, fmt::Display, str::FromStr, sync::Arc};
 
 pub use crate::cache::{Action, BatchActionArgs, RunActionArgs};
@@ -80,4 +81,19 @@ pub fn update_asset_preface(
         };
 
     Ok((current_md, token, current_rule_set))
+}
+
+pub fn parse_mint_list(
+    mint_list_file: Option<String>,
+    cache_file: &Option<String>,
+) -> AnyResult<Option<Vec<String>>> {
+    if cache_file.is_none() {
+        let mint_file = mint_list_file
+            .ok_or_else(|| anyhow!("Must provide either a mint list or a cache file!"))?;
+        let f = File::open(mint_file)?;
+        let mint_list = serde_json::from_reader(f)?;
+        Ok(Some(mint_list))
+    } else {
+        Ok(None)
+    }
 }

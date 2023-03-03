@@ -1,3 +1,5 @@
+use crate::cache::NewValue;
+
 use super::*;
 
 pub struct UpdateSellerFeeBasisPointsArgs {
@@ -80,6 +82,8 @@ pub async fn update_sfbp_all(args: UpdateSellerFeeBasisPointsAllArgs) -> AnyResu
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
+    let mint_list = parse_mint_list(args.mint_list, &args.cache_file)?;
+
     // We don't support an optional payer for this action currently.
     let payer = None;
 
@@ -87,9 +91,9 @@ pub async fn update_sfbp_all(args: UpdateSellerFeeBasisPointsAllArgs) -> AnyResu
         client: args.client,
         keypair,
         payer,
-        mint_list: args.mint_list,
+        mint_list,
         cache_file: args.cache_file,
-        new_value: args.new_sfbp.to_string(),
+        new_value: NewValue::Single(args.new_sfbp.to_string()),
         batch_size: args.batch_size,
         retries: args.retries,
     };

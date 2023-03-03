@@ -1,5 +1,7 @@
 use solana_sdk::commitment_config::CommitmentConfig;
 
+use crate::cache::NewValue;
+
 use super::*;
 
 pub struct SetTokenStandardArgs {
@@ -80,6 +82,8 @@ pub async fn set_token_standard_all(args: SetTokenStandardAllArgs) -> AnyResult<
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
+    let mint_list = parse_mint_list(args.mint_list, &args.cache_file)?;
+
     // We don't support an optional payer for this action currently.
     let payer = None;
 
@@ -87,9 +91,9 @@ pub async fn set_token_standard_all(args: SetTokenStandardAllArgs) -> AnyResult<
         client: args.client,
         keypair,
         payer,
-        mint_list: args.mint_list,
+        mint_list,
         cache_file: args.cache_file,
-        new_value: "".to_string(),
+        new_value: NewValue::None,
         batch_size: args.batch_size,
         retries: args.retries,
     };

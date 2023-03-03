@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::signature::Keypair;
 use std::{
+    collections::HashMap,
     fs::{File, OpenOptions},
     io::Write,
     ops::{Deref, DerefMut},
@@ -77,13 +78,21 @@ pub struct CacheItem {
     pub error: Option<String>,
 }
 
+pub type MintValues = HashMap<String, String>;
+
+pub enum NewValue {
+    None,
+    Single(String),
+    List(MintValues),
+}
+
 pub struct BatchActionArgs {
     pub client: RpcClient,
     pub keypair: Keypair,
     pub payer: Option<Keypair>,
-    pub mint_list: Option<String>,
+    pub mint_list: Option<Vec<String>>,
     pub cache_file: Option<String>,
-    pub new_value: String,
+    pub new_value: NewValue,
     pub batch_size: usize,
     pub retries: u8,
 }
@@ -114,8 +123,7 @@ pub trait Action {
         let mut cache = Cache::new();
 
         let mut mint_list: Vec<String> = if let Some(mint_list) = args.mint_list {
-            let f = File::open(mint_list)?;
-            serde_json::from_reader(f)?
+            mint_list
         } else if let Some(cache_path) = args.cache_file {
             println!("Retrying items from cache file. . .");
             cache_file_name = cache_path;
@@ -159,6 +167,14 @@ pub trait Action {
                 // Limit total number of concurrent requests to args.batch_size.
                 let permit = semaphore.clone().acquire_owned().await.unwrap();
 
+                let empty_string = String::new();
+
+                let new_value = match &args.new_value {
+                    NewValue::None => &empty_string,
+                    NewValue::Single(value) => value,
+                    NewValue::List(values) => values.get(&mint_address).unwrap(),
+                };
+
                 // Create task to run the action in a separate thread.
                 let task = tokio::spawn({
                     let fut = Self::action(RunActionArgs {
@@ -166,7 +182,7 @@ pub trait Action {
                         keypair: keypair.clone(),
                         payer: payer.clone(),
                         mint_account: mint_address,
-                        new_value: args.new_value.clone(),
+                        new_value: new_value.to_string(),
                     });
 
                     // Move the permit into the thread to take ownership of it and then drop it

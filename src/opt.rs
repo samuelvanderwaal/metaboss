@@ -1418,13 +1418,25 @@ pub enum UpdateSubcommands {
     /// Update the metadata URI on a list of mint accounts
     #[structopt(name = "uri-all")]
     UriAll {
-        /// Path to the creator's keypair file
+        /// Path to the update_authority keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
 
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
         /// JSON file with list of mint accounts and new URIs
         #[structopt(short = "u", long)]
-        json_file: String,
+        new_uris_file: String,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
     },
     /// Update the Uses data on a NFT
     #[structopt(name = "uses")]
