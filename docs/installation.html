@@ -144,14 +144,18 @@
                     <main>
                         <h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
 <h2 id="recommended-way-to-install"><a class="header" href="#recommended-way-to-install">Recommended Way to Install</a></h2>
-<p>For non-technical users, the recommended way to install is to use the install script to install on <strong>MacOs</strong>, <strong>Ubuntu</strong>, or other <strong>Unix-like OS</strong>, by copying the following into a terminal:</p>
+<p>The recommended way to install is to use the install script to install on <strong>MacOs</strong>, <strong>Ubuntu</strong>, or other <strong>Unix-like OS</strong>, by copying the following into a terminal:</p>
 <pre><code>bash &lt;(curl -sSf https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh)
 </code></pre>
 <p>This will download the appropriate binary for your system and install it. Feel free to inspect the install script directly at <a href="https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh">the link</a> to see what you are running before you run the command.</p>
 <p>For <strong>Windows</strong>, either use the prebuilt binary in the following section, or install Windows Subsystem Linux (WSL) to use the Ubuntu terminal to run the above installation script.</p>
 <p>To install WSL on Windows, either run <code>wsl --install -d ubuntu</code> in the cmd prompt terminal, or install &quot;Ubuntu&quot; from the Windows app store. Once you have that set up you can simply run the install script in the WSL terminal. You will then run all your Metaboss commands from WSL as well.</p>
+<p><a href="https://discord.gg/n3H9rQ8s4R">The Metaboss Discord</a> has a step-by-step guide for installing on Windows in the #windows-install channel.</p>
 <h2 id="binaries"><a class="header" href="#binaries">Binaries</a></h2>
 <p>Linux, MacOS and Windows binaries available in <a href="https://github.com/samuelvanderwaal/metaboss/releases">releases</a>, thanks to CI work done by <a href="https://github.com/KartikSoneji">Kartik Soneji</a>.</p>
+<h2 id="cratesio"><a class="header" href="#cratesio">Crates.io</a></h2>
+<pre><code class="language-bash">cargo install metaboss
+</code></pre>
 <h2 id="install-from-source"><a class="header" href="#install-from-source">Install From Source</a></h2>
 <p>Install <a href="https://www.rust-lang.org/tools/install">Rust</a>.</p>
 <pre><code class="language-bash">curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh

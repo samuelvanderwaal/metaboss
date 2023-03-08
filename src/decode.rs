@@ -162,7 +162,7 @@ pub fn decode_edition_marker(
     Ok(())
 }
 
-pub fn decode_metadata(
+pub fn decode_metadata_from_mint(
     client: &RpcClient,
     account: Option<&String>,
     full: bool,
@@ -193,6 +193,15 @@ pub fn decode_metadata(
             "Please specify either a mint account or a list of mint accounts, but not both."
         ));
     };
+
+    Ok(())
+}
+
+pub fn decode_metadata(client: &RpcClient, account: String, output: &str) -> AnyResult<()> {
+    let pubkey = Pubkey::from_str(&account)?;
+    let metadata = metaboss_lib::decode::decode_metadata(client, &pubkey)?;
+    let mut file = File::create(format!("{output}/{account}.json"))?;
+    serde_json::to_writer_pretty(&mut file, &metadata)?;
 
     Ok(())
 }

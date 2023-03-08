@@ -17,52 +17,32 @@ pub struct UpdateSymbolArgs {
     pub new_symbol: String,
 }
 
-pub async fn update_symbol_one(
-    client: RpcClient,
-    keypair_path: Option<String>,
-    mint_account: String,
-    new_symbol: String,
-) -> AnyResult<()> {
-    let solana_opts = parse_solana_config();
-    let keypair = parse_keypair(keypair_path, solana_opts);
+pub async fn update_symbol(args: UpdateSymbolArgs) -> Result<Signature, ActionError> {
+    let (mut current_md, token, current_rule_set) =
+        update_asset_preface(&args.client, &args.mint_account)
+            .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
-    let old_md = decode(&client, &mint_account)?;
-    let data_with_old_symbol = old_md.data;
+    // Token Metadata UpdateArgs enum.
+    let mut update_args = UpdateArgs::default();
 
-    let new_data = DataV2 {
-        creators: data_with_old_symbol.creators,
-        seller_fee_basis_points: data_with_old_symbol.seller_fee_basis_points,
-        name: data_with_old_symbol.name,
-        symbol: new_symbol,
-        uri: data_with_old_symbol.uri,
-        collection: old_md.collection,
-        uses: old_md.uses,
+    // Update the symbol on the data struct.
+    current_md.data.symbol = args.new_symbol.clone();
+    let UpdateArgs::V1 { ref mut data, .. } = update_args;
+    *data = Some(current_md.data);
+
+    // Metaboss UpdateAssetArgs enum.
+    let update_args = UpdateAssetArgs::V1 {
+        payer: None,
+        authority: &args.keypair,
+        mint: args.mint_account.clone(),
+        token,
+        delegate_record: None::<String>, // Not supported yet in update.
+        current_rule_set,
+        update_args,
     };
 
-    update_data(&client, &keypair, &mint_account, new_data)
-        .map_err(|e| ActionError::ActionFailed(mint_account.to_string(), e.to_string()))?;
-
-    Ok(())
-}
-
-pub async fn update_symbol(args: UpdateSymbolArgs) -> Result<(), ActionError> {
-    let old_md = decode(&args.client, &args.mint_account)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-    let data_with_old_symbol = old_md.data;
-
-    let new_data = DataV2 {
-        creators: data_with_old_symbol.creators,
-        seller_fee_basis_points: data_with_old_symbol.seller_fee_basis_points,
-        name: data_with_old_symbol.name,
-        symbol: args.new_symbol.to_owned(),
-        uri: data_with_old_symbol.uri,
-        collection: old_md.collection,
-        uses: old_md.uses,
-    };
-
-    update_data(&args.client, &args.keypair, &args.mint_account, new_data)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-    Ok(())
+    update_asset(&args.client, update_args)
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))
 }
 
 pub struct UpdateSymbolAll {}
@@ -81,6 +61,7 @@ impl Action for UpdateSymbolAll {
             new_symbol: args.new_value,
         })
         .await
+        .map(|_| ())
     }
 }
 

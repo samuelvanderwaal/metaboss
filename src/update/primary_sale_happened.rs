@@ -9,80 +9,40 @@ pub struct SetPrimarySaleHappenedAllArgs {
     pub retries: u8,
 }
 
-struct SetPrimarySaleHappenedArgs {
-    client: Arc<RpcClient>,
-    keypair: Arc<Keypair>,
-    mint_account: String,
+pub struct SetPrimarySaleHappenedArgs {
+    pub client: Arc<RpcClient>,
+    pub keypair: Arc<Keypair>,
+    pub mint_account: String,
 }
 
-pub fn set_primary_sale_happened_one(
-    client: RpcClient,
-    keypair_path: Option<String>,
-    mint_account: &str,
-) -> AnyResult<()> {
-    let solana_opts = parse_solana_config();
-    let keypair = parse_keypair(keypair_path, solana_opts);
-
-    let mint_pubkey = Pubkey::from_str(mint_account)?;
-    let update_authority = keypair.pubkey();
-    let metadata_account = get_metadata_pda(mint_pubkey);
-
-    let ix = update_metadata_accounts_v2(
-        TOKEN_METADATA_PROGRAM_ID,
-        metadata_account,
-        update_authority,
-        None,
-        None,
-        Some(true),
-        None,
-    );
-    let recent_blockhash = client.get_latest_blockhash()?;
-    let tx = Transaction::new_signed_with_payer(
-        &[ix],
-        Some(&update_authority),
-        &[&keypair],
-        recent_blockhash,
-    );
-
-    let sig = client.send_and_confirm_transaction(&tx)?;
-    info!("Tx sig: {:?}", sig);
-    println!("Tx sig: {sig:?}");
-
-    Ok(())
-}
-
-async fn set_primary_sale_happened(args: SetPrimarySaleHappenedArgs) -> Result<(), ActionError> {
-    let mint_pubkey = Pubkey::from_str(&args.mint_account).expect("Invalid mint pubkey");
-    let update_authority = args.keypair.pubkey();
-    let metadata_account = get_metadata_pda(mint_pubkey);
-
-    let ix = update_metadata_accounts_v2(
-        TOKEN_METADATA_PROGRAM_ID,
-        metadata_account,
-        update_authority,
-        None,
-        None,
-        Some(true),
-        None,
-    );
-    let recent_blockhash = args
-        .client
-        .get_latest_blockhash()
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-    let tx = Transaction::new_signed_with_payer(
-        &[ix],
-        Some(&update_authority),
-        &[&*args.keypair],
-        recent_blockhash,
-    );
-
-    let sig = args
-        .client
-        .send_and_confirm_transaction(&tx)
+pub async fn set_primary_sale_happened(
+    args: SetPrimarySaleHappenedArgs,
+) -> Result<Signature, ActionError> {
+    let (_, token, current_rule_set) = update_asset_preface(&args.client, &args.mint_account)
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
-    info!("Tx sig: {:?}", sig);
-    Ok(())
+    // Token Metadata UpdateArgs enum.
+    let mut update_args = UpdateArgs::default();
+
+    let UpdateArgs::V1 {
+        ref mut primary_sale_happened,
+        ..
+    } = update_args;
+    *primary_sale_happened = Some(true);
+
+    // Metaboss UpdateAssetArgs enum.
+    let update_args = UpdateAssetArgs::V1 {
+        payer: None,
+        authority: &args.keypair,
+        mint: args.mint_account.clone(),
+        token,
+        delegate_record: None::<String>, // Not supported yet in update.
+        current_rule_set,
+        update_args,
+    };
+
+    update_asset(&args.client, update_args)
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))
 }
 
 pub struct SetPrimarySaleHappenedAll {}
@@ -100,6 +60,7 @@ impl Action for SetPrimarySaleHappenedAll {
             mint_account: args.mint_account,
         })
         .await
+        .map(|_| ())
     }
 }
 
@@ -120,7 +81,5 @@ pub async fn set_primary_sale_happened_all(args: SetPrimarySaleHappenedAllArgs) 
         batch_size: args.batch_size,
         retries: args.retries,
     };
-    SetPrimarySaleHappenedAll::run(args).await?;
-
-    Ok(())
+    SetPrimarySaleHappenedAll::run(args).await
 }

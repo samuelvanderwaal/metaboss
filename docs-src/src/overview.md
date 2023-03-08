@@ -24,6 +24,7 @@ SUBCOMMANDS:
     set             Set non-Data struct values for a NFT
     sign            Sign metadata for an unverified creator
     snapshot        Get snapshots of various blockchain states
+    transfer        Transfer Metaplex assets
     update          Update various aspects of NFTs
     uses            NFT uses commands
 ```

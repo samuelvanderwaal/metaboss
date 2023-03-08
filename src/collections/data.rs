@@ -30,6 +30,7 @@ pub enum TokenStandard {
     Fungible,
     FungibleAsset,
     NonFungibleEdition,
+    ProgrammableNonFungible,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

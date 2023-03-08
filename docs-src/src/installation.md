@@ -2,7 +2,7 @@
 
 ## Recommended Way to Install
 
-For non-technical users, the recommended way to install is to use the install script to install on **MacOs**, **Ubuntu**, or other **Unix-like OS**, by copying the following into a terminal:
+The recommended way to install is to use the install script to install on **MacOs**, **Ubuntu**, or other **Unix-like OS**, by copying the following into a terminal:
 
 ```
 bash <(curl -sSf https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh)
@@ -14,9 +14,17 @@ For **Windows**, either use the prebuilt binary in the following section, or ins
 
 To install WSL on Windows, either run `wsl --install -d ubuntu` in the cmd prompt terminal, or install "Ubuntu" from the Windows app store. Once you have that set up you can simply run the install script in the WSL terminal. You will then run all your Metaboss commands from WSL as well.
 
+[The Metaboss Discord](https://discord.gg/n3H9rQ8s4R) has a step-by-step guide for installing on Windows in the #windows-install channel.
+
 ## Binaries
 
 Linux, MacOS and Windows binaries available in [releases](https://github.com/samuelvanderwaal/metaboss/releases), thanks to CI work done by [Kartik Soneji](https://github.com/KartikSoneji).
+
+## Crates.io
+
+```bash
+cargo install metaboss
+```
 
 ## Install From Source
 

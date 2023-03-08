@@ -1830,7 +1830,7 @@ dependencies = [
 
 [[package]]
 name = "metaboss"
-version = "0.16.1"
+version = "0.19.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -1874,7 +1874,9 @@ dependencies = [
 
 [[package]]
 name = "metaboss_lib"
-version = "0.1.0"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f388be81e818aabbb4d99318357656a9671497f237d6dc929fa803c966416506"
 dependencies = [
  "anyhow",
  "mpl-token-metadata",
@@ -1930,7 +1932,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a69803fbfbc4bb0327de86f49d2639692c7c60276cb87d6cced84bb8189f2000"
 dependencies = [
  "borsh",
- "mpl-token-metadata-context-derive 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mpl-token-metadata-context-derive",
  "num-derive",
  "num-traits",
  "rmp-serde",
@@ -1943,13 +1945,14 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-metadata"
-version = "1.8.3"
-source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/burn#5a3889cfddbf9ee3b117baf479f9392dc8250277"
+version = "1.8.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe2044a25ef9f2df98a0b6ac22efe86dc4a5b73ef0b2e86d60c1e4931eaab2e8"
 dependencies = [
  "arrayref",
  "borsh",
  "mpl-token-auth-rules",
- "mpl-token-metadata-context-derive 0.2.1 (git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/burn)",
+ "mpl-token-metadata-context-derive",
  "mpl-utils",
  "num-derive",
  "num-traits",
@@ -1973,18 +1976,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "mpl-token-metadata-context-derive"
-version = "0.2.1"
-source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/burn#5a3889cfddbf9ee3b117baf479f9392dc8250277"
-dependencies = [
- "quote 1.0.23",
- "syn 1.0.107",
-]
-
-[[package]]
 name = "mpl-utils"
 version = "0.1.0"
-source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/burn#5a3889cfddbf9ee3b117baf479f9392dc8250277"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7fc48e64c50dba956acb46eec86d6968ef0401ef37031426da479f1f2b592066"
 dependencies = [
  "arrayref",
  "borsh",

@@ -11,6 +11,7 @@ use mpl_token_metadata::{
     instruction::{set_and_verify_sized_collection_item, unverify_sized_collection_item},
     state::TokenMetadataAccount,
 };
+use solana_sdk::{account::ReadableAccount, commitment_config::CommitmentConfig};
 use std::ops::{Deref, DerefMut};
 use tokio::sync::Semaphore;
 
@@ -128,27 +129,43 @@ async fn set_and_verify(
             let current_collection_md_pubkey = derive_metadata_pda(&current_collection_mint);
             let current_collection_edition_pubkey = derive_edition_pda(&current_collection_mint);
 
-            // Is it a sized collection?
-            let current_collection_md_account = async_client
-                .get_account_data(&current_collection_md_pubkey)
+            // We need to check if the parent collection NFT exists because people sometimes burn them.
+            let collection_md_account_opt = async_client
+                .get_account_with_commitment(&collection_md_pubkey, CommitmentConfig::confirmed())
                 .await
-                .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
-            let current_collection_metadata =
-                Metadata::safe_deserialize(current_collection_md_account.as_slice())
-                    .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
+                .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?
+                .value;
 
-            if current_collection_metadata.collection_details.is_some() {
-                instructions.push(unverify_sized_collection_item(
-                    metadata_program_id(),
-                    nft_metadata_pubkey,
-                    authority_keypair.pubkey(),
-                    authority_keypair.pubkey(),
-                    current_collection_mint,
-                    current_collection_md_pubkey,
-                    current_collection_edition_pubkey,
-                    None,
-                ));
+            if let Some(collection_md_account) = collection_md_account_opt {
+                let current_collection_metadata =
+                    Metadata::safe_deserialize(collection_md_account.data()).map_err(|e| {
+                        MigrateError::MigrationFailed(nft_mint.clone(), e.to_string())
+                    })?;
+
+                if current_collection_metadata.collection_details.is_some() {
+                    instructions.push(unverify_sized_collection_item(
+                        metadata_program_id(),
+                        nft_metadata_pubkey,
+                        authority_keypair.pubkey(),
+                        authority_keypair.pubkey(),
+                        current_collection_mint,
+                        current_collection_md_pubkey,
+                        current_collection_edition_pubkey,
+                        None,
+                    ));
+                } else {
+                    instructions.push(unverify_collection(
+                        metadata_program_id(),
+                        nft_metadata_pubkey,
+                        authority_keypair.pubkey(),
+                        current_collection_mint,
+                        current_collection_md_pubkey,
+                        current_collection_edition_pubkey,
+                        None,
+                    ));
+                }
             } else {
+                // Account is not found so presumed burned so we can use either handler.
                 instructions.push(unverify_collection(
                     metadata_program_id(),
                     nft_metadata_pubkey,

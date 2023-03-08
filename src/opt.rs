@@ -556,6 +556,16 @@ pub enum DecodeSubcommands {
         #[structopt(short = "a", long)]
         bpf_upgradeable_state_address: String,
     },
+    /// Decode Metadata from metadata account directly.
+    Metadata {
+        /// Metadata address
+        #[structopt(short = "a", long)]
+        metadata_address: String,
+
+        /// Path to directory to save output file.
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
     /// Decode Mint account data.
     MintAccount {
         /// Mint address
@@ -567,6 +577,26 @@ pub enum DecodeSubcommands {
         /// Token account address
         #[structopt(short = "a", long)]
         token_address: String,
+    },
+    MetadataDelegate {
+        /// MetadataDelegate address
+        #[structopt(short = "a", long)]
+        metadata_delegate_record: String,
+    },
+    TokenRecord {
+        /// TokenRecord address
+        #[structopt(short = "a", long)]
+        token_record: String,
+    },
+    CollectionDelegate {
+        /// CollectionAuthorityRecord address
+        #[structopt(short = "a", long)]
+        authority_record: String,
+    },
+    UseDelegate {
+        /// UseDelegate address
+        #[structopt(short = "a", long)]
+        use_record: String,
     },
     /// Decode a mint account's metadata
     #[structopt(name = "mint")]
@@ -1238,7 +1268,7 @@ pub enum UpdateSubcommands {
 
         /// New seller fee basis points for the metadata
         #[structopt(short, long)]
-        new_seller_fee_basis_points: u16,
+        new_sfbp: u16,
     },
     /// Update the seller fee basis points field inside the data struct on an NFT
     #[structopt(name = "sfbp-all")]

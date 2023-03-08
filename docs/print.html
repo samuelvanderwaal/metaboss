@@ -8,7 +8,7 @@
 
 
         <!-- Custom HTML head -->
-        
+
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -164,6 +164,7 @@
     set             Set non-Data struct values for a NFT
     sign            Sign metadata for an unverified creator
     snapshot        Get snapshots of various blockchain states
+    transfer        Transfer Metaplex assets
     update          Update various aspects of NFTs
     uses            NFT uses commands
 </code></pre>
@@ -199,14 +200,18 @@
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
 <h2 id="recommended-way-to-install"><a class="header" href="#recommended-way-to-install">Recommended Way to Install</a></h2>
-<p>For non-technical users, the recommended way to install is to use the install script to install on <strong>MacOs</strong>, <strong>Ubuntu</strong>, or other <strong>Unix-like OS</strong>, by copying the following into a terminal:</p>
+<p>The recommended way to install is to use the install script to install on <strong>MacOs</strong>, <strong>Ubuntu</strong>, or other <strong>Unix-like OS</strong>, by copying the following into a terminal:</p>
 <pre><code>bash &lt;(curl -sSf https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh)
 </code></pre>
 <p>This will download the appropriate binary for your system and install it. Feel free to inspect the install script directly at <a href="https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh">the link</a> to see what you are running before you run the command.</p>
 <p>For <strong>Windows</strong>, either use the prebuilt binary in the following section, or install Windows Subsystem Linux (WSL) to use the Ubuntu terminal to run the above installation script.</p>
 <p>To install WSL on Windows, either run <code>wsl --install -d ubuntu</code> in the cmd prompt terminal, or install &quot;Ubuntu&quot; from the Windows app store. Once you have that set up you can simply run the install script in the WSL terminal. You will then run all your Metaboss commands from WSL as well.</p>
+<p><a href="https://discord.gg/n3H9rQ8s4R">The Metaboss Discord</a> has a step-by-step guide for installing on Windows in the #windows-install channel.</p>
 <h2 id="binaries"><a class="header" href="#binaries">Binaries</a></h2>
 <p>Linux, MacOS and Windows binaries available in <a href="https://github.com/samuelvanderwaal/metaboss/releases">releases</a>, thanks to CI work done by <a href="https://github.com/KartikSoneji">Kartik Soneji</a>.</p>
+<h2 id="cratesio"><a class="header" href="#cratesio">Crates.io</a></h2>
+<pre><code class="language-bash">cargo install metaboss
+</code></pre>
 <h2 id="install-from-source"><a class="header" href="#install-from-source">Install From Source</a></h2>
 <p>Install <a href="https://www.rust-lang.org/tools/install">Rust</a>.</p>
 <pre><code class="language-bash">curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -347,7 +352,7 @@ git checkout main
 <p>Migrate a collection of NFTs to be part of a single on-chain Metaplex Certified Collection (MCC).</p>
 <ol>
 <li>
-<p>Create your Collection Parent NFT using a minting tool such as <a href="https://justmint.xyz/">justmint</a> or <a href="https://www.nftarmory.me/">NFT Armory</a>. Alternately, use <code>metaboss mint one</code>. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for your collection and all items in your collection will point to this mint account.</p>
+<p>Create your Collection Parent NFT using a minting tool such as <a href="https://sol-tools.tonyboyle.io/nft-tools/create-nft">Sol Tools</a> or <a href="https://www.nftarmory.me/">NFT Armory</a>. Alternately, use <code>metaboss mint one</code>. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for your collection and all items in your collection will point to this mint account.</p>
 </li>
 <li>
 <p>Get your mint list. If your collection is a single candy machine you can use the <code>--candy-machine-id</code> option, otherwise provide the path to your mint list formatted as a JSON file with the <code>--mint-list</code> option.</p>
@@ -394,7 +399,7 @@ git checkout main
 }
 </code></pre>
 <p>In this case <a href="https://github.com/samuelvanderwaal/wtf-is">our error is</a>:</p>
-<pre><code>0x39: 
+<pre><code>0x39:
         Token Metadata            |     IncorrectOwner: Incorrect account owner
 </code></pre>
 <p>which means these items cannot be migrated over as all items in the collection must have the same update authority as the Parent NFT.</p>
@@ -463,7 +468,7 @@ metaboss create fungible -d 3 -m crab.json --initial-supply 10.1
 <h3 id="decode-edition"><a class="header" href="#decode-edition">Decode Edition</a></h3>
 <p>Decodes a single Print Edition account from a mint account into a JSON file. This is a Print Edition PDA.</p>
 <h4 id="usage-7"><a class="header" href="#usage-7">Usage</a></h4>
-<pre><code class="language-bash">metaboss decode edition --account &lt;MINT_ACCOUNT&gt; 
+<pre><code class="language-bash">metaboss decode edition --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
 <h3 id="decode-edition-marker"><a class="header" href="#decode-edition-marker">Decode Edition Marker</a></h3>
 <p>Decodes a single Edition Marker PDA account from a mint account into a JSON file. This takes the Master Edition NFT mint account and either the edition number or the desired edition marker number, zero-indexed.</p>
@@ -474,7 +479,7 @@ metaboss create fungible -d 3 -m crab.json --initial-supply 10.1
 <h3 id="decode-master"><a class="header" href="#decode-master">Decode Master</a></h3>
 <p>Decodes a single Master Edition account from a mint account into a JSON file. This is a Master Edition PDA.</p>
 <h4 id="usage-9"><a class="header" href="#usage-9">Usage</a></h4>
-<pre><code class="language-bash">metaboss decode master --account &lt;MINT_ACCOUNT&gt; 
+<pre><code class="language-bash">metaboss decode master --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="derive"><a class="header" href="#derive">Derive</a></h2>
 <h3 id="derive-candy-machine-v2-creator"><a class="header" href="#derive-candy-machine-v2-creator">Derive Candy Machine V2 Creator</a></h3>
@@ -1094,7 +1099,7 @@ OPTIONS:
 <p>Twitter: <a href="https://twitter.com/samvwaal">@samvwaal</a></p>
 <p>Discord:</p>
 <p>@archaeopteryx#7615</p>
-<p><a href="https://discord.gg/e5bcEvQDtQ">Metaboss Discord Server</a></p>
+<p><a href="https://discord.gg/n3H9rQ8s4R">Metaboss Discord Server</a></p>
 
                     </main>
 
