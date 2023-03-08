@@ -1874,9 +1874,9 @@ dependencies = [
 
 [[package]]
 name = "metaboss_lib"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ed94930c1cdd5fda8a3a3689ad651721ae766e2f4cd372a670c6d3017b7592c"
+checksum = "da4581c987a0e45f864c520fec65f767d94dada475acc45173f789eb4e32fc83"
 dependencies = [
  "anyhow",
  "mpl-token-metadata",

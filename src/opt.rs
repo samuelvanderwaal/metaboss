@@ -147,6 +147,29 @@ pub enum BurnSubcommands {
         #[structopt(short, long, default_value = "1")]
         amount: u64,
     },
+    /// Burn a batch of assets.
+    #[structopt(name = "asset-all")]
+    AssetAll {
+        /// Path to the owner keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Path to the mint list file
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -692,7 +715,7 @@ pub enum FindSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum MintSubcommands {
-    /// Mint an asset from the new Token Metadata Program v1.7 handlers.
+    /// Mint an asset from the new Token Metadata Program unified handlers.
     Asset {
         /// Path to the update_authority keypair file
         #[structopt(short, long)]

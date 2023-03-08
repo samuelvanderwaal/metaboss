@@ -1,5 +1,3 @@
-use mpl_token_metadata::pda::find_token_record_account;
-
 use super::*;
 
 pub struct BurnAssetArgs {
@@ -20,12 +18,10 @@ pub struct BurnAssetAllArgs {
 }
 
 pub async fn burn_asset(args: BurnAssetArgs) -> Result<Signature, ActionError> {
-    let current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.clone(), e.to_string()))?;
-
     let mint = Pubkey::from_str(&args.mint_account)
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
+    // We support the user passing in a non-ATA token account, but otherwise we derive the ATA.
     let token = if let Some(token) = args.token_account {
         Pubkey::from_str(&token)
             .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?
@@ -33,23 +29,54 @@ pub async fn burn_asset(args: BurnAssetArgs) -> Result<Signature, ActionError> {
         get_associated_token_address(&args.keypair.pubkey(), &mint)
     };
 
-    let token_record =
-        if let Some(TokenStandard::ProgrammableNonFungible) = current_md.token_standard {
-            let (token_record, _) = find_token_record_account(&mint, &token);
-
-            Some(token_record)
-        } else {
-            None
-        };
-
     let burn_args = metaboss_lib::burn::BurnAssetArgs::V1 {
         authority: &args.keypair,
         mint,
         token,
-        token_record,
         amount: args.amount,
     };
 
     metaboss_lib::burn::burn_asset(&args.client, burn_args)
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))
+}
+
+pub struct BurnAssetAll {}
+
+#[async_trait]
+impl Action for BurnAssetAll {
+    fn name() -> &'static str {
+        "burn-asset-all"
+    }
+
+    async fn action(args: RunActionArgs) -> Result<(), ActionError> {
+        burn_asset(BurnAssetArgs {
+            client: args.client.clone(),
+            keypair: args.keypair.clone(),
+            mint_account: args.mint_account.clone(),
+            token_account: None, // Must be ATA for this action, currently.
+            amount: 1,
+        })
+        .await
+        .map(|_| ())
+    }
+}
+
+pub async fn burn_asset_all(args: BurnAssetAllArgs) -> AnyResult<()> {
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(args.keypair, solana_opts);
+
+    // We don't support an optional payer for this action currently.
+    let payer = None;
+
+    let args = BatchActionArgs {
+        client: args.client,
+        keypair,
+        payer,
+        mint_list: args.mint_list,
+        cache_file: args.cache_file,
+        new_value: "".to_string(),
+        batch_size: args.batch_size,
+        retries: args.retries,
+    };
+    BurnAssetAll::run(args).await
 }

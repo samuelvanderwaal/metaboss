@@ -205,6 +205,23 @@ pub async fn process_burn_asset(client: RpcClient, commands: BurnSubcommands) ->
 
             Ok(())
         }
+        BurnSubcommands::AssetAll {
+            keypair,
+            mint_list,
+            cache_file,
+            batch_size,
+            retries,
+        } => {
+            burn_asset_all(BurnAssetAllArgs {
+                client,
+                keypair,
+                mint_list,
+                cache_file,
+                batch_size,
+                retries,
+            })
+            .await
+        }
     }
 }
 
