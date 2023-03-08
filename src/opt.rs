@@ -47,11 +47,17 @@ pub enum Command {
         #[structopt(subcommand)]
         uses_subcommands: UsesSubcommands,
     },
-    /// Full Burn a NFT
+    /// Full Burn an asset
     #[structopt(name = "burn")]
     Burn {
         #[structopt(subcommand)]
         burn_subcommands: BurnSubcommands,
+    },
+    /// Full Burn a NFT
+    #[structopt(name = "burn-nft")]
+    BurnNft {
+        #[structopt(subcommand)]
+        burn_nft_subcommands: BurnNftSubcommands,
     },
     /// Full Burn a print edition NFT
     #[structopt(name = "burn-print")]
@@ -122,6 +128,52 @@ pub enum Command {
 
 #[derive(Debug, StructOpt)]
 pub enum BurnSubcommands {
+    /// Burn an asset.
+    #[structopt(name = "asset")]
+    Asset {
+        /// Path to the owner keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Token mint account of the asset
+        #[structopt(short = "a", long)]
+        mint_account: String,
+
+        /// Token account of the asset if not an ATA
+        #[structopt(short = "t", long)]
+        token_account: Option<String>,
+
+        /// Amount, defaults to 1.
+        #[structopt(short, long, default_value = "1")]
+        amount: u64,
+    },
+    /// Burn a batch of assets.
+    #[structopt(name = "asset-all")]
+    AssetAll {
+        /// Path to the owner keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Path to the mint list file
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum BurnNftSubcommands {
     /// Burn one NFT.
     #[structopt(name = "one")]
     One {
@@ -129,9 +181,9 @@ pub enum BurnSubcommands {
         #[structopt(short, long)]
         keypair: Option<String>,
 
-        /// Token mint account of the NFT
-        #[structopt(short, long)]
-        account: String,
+        /// Token mint account of the asset
+        #[structopt(short = "a", long)]
+        mint_account: String,
     },
     /// Burn a batch of NFTs.
     #[structopt(name = "all")]
@@ -663,7 +715,7 @@ pub enum FindSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum MintSubcommands {
-    /// Mint an asset from the new Token Metadata Program v1.7 handlers.
+    /// Mint an asset from the new Token Metadata Program unified handlers.
     Asset {
         /// Path to the update_authority keypair file
         #[structopt(short, long)]
@@ -678,8 +730,8 @@ pub enum MintSubcommands {
         asset_data: PathBuf,
 
         /// Mint decimals for fungible tokens.
-        #[structopt(long)]
-        decimals: Option<u8>,
+        #[structopt(long, default_value = "0")]
+        decimals: u8,
 
         /// Amount of tokens to mint, for NonFungible types this must be 1.
         #[structopt(long, default_value = "1")]

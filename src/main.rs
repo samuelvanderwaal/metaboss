@@ -60,7 +60,10 @@ async fn main() -> Result<()> {
         Command::Collections {
             collections_subcommands,
         } => process_collections(client, async_client, collections_subcommands).await?,
-        Command::Burn { burn_subcommands } => process_burn(client, burn_subcommands).await?,
+        Command::Burn { burn_subcommands } => process_burn_asset(client, burn_subcommands).await?,
+        Command::BurnNft {
+            burn_nft_subcommands,
+        } => process_burn_nft(client, burn_nft_subcommands).await?,
         Command::BurnPrint {
             burn_print_subcommands,
         } => process_burn_print(client, burn_print_subcommands).await?,
