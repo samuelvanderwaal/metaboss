@@ -1396,9 +1396,21 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         keypair: Option<String>,
 
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
         /// Path to directory containing JSON files with new data
         #[structopt(short, long)]
         data_dir: String,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
     },
     /// Update the metadata URI, keeping the rest of the data the same
     #[structopt(name = "uri")]

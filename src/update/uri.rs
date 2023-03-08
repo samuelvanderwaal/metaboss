@@ -116,6 +116,5 @@ pub async fn update_uri_all(args: UpdateUriAllArgs) -> AnyResult<()> {
         retries: args.retries,
     };
     UpdateUriAll::run(args).await?;
-
     Ok(())
 }

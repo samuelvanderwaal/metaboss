@@ -36,7 +36,7 @@ pub use metaboss_lib::{
 pub use mpl_token_metadata::{
     instruction::{set_token_standard, update_metadata_accounts_v2, RuleSetToggle, UpdateArgs},
     pda::find_token_record_account,
-    state::{DataV2, Metadata, ProgrammableConfig, TokenStandard},
+    state::{Data, DataV2, Metadata, ProgrammableConfig, TokenStandard},
     ID as TOKEN_METADATA_PROGRAM_ID,
 };
 

@@ -1,3 +1,5 @@
+use std::fs::File;
+
 use anyhow::Result;
 use metaboss_lib::decode::{
     decode_collection_authority_record, decode_metadata_delegate, decode_token_record,
@@ -17,6 +19,7 @@ use crate::create::{
     create_fungible, create_master_edition, create_metadata, CreateFungibleArgs,
     CreateMasterEditionArgs, CreateMetadataArgs,
 };
+use crate::data::UpdateNftData;
 use crate::decode::{
     decode_edition_marker, decode_master_edition, decode_metadata, decode_metadata_from_mint,
     decode_mint_account, decode_print_edition, decode_token_account,
@@ -976,9 +979,41 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             account,
             new_data_file,
-        } => update_data_one(&client, keypair, &account, &new_data_file),
-        UpdateSubcommands::DataAll { keypair, data_dir } => {
-            update_data_all(&client, keypair, &data_dir)
+        } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let new_data: UpdateNftData = serde_json::from_reader(File::open(new_data_file)?)?;
+
+            let args = UpdateDataArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint_account: account,
+                new_data: new_data.data,
+            };
+
+            let sig = update_data(args).await.map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
+        UpdateSubcommands::DataAll {
+            keypair,
+            cache_file,
+            data_dir,
+            batch_size,
+            retries,
+        } => {
+            update_data_all(UpdateDataAllArgs {
+                client,
+                keypair,
+                cache_file,
+                new_data_dir: data_dir,
+                batch_size,
+                retries,
+            })
+            .await
         }
         UpdateSubcommands::Uri {
             keypair,
@@ -1025,15 +1060,22 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             remaining,
             total,
             overwrite,
-        } => update_uses_one(UsesArgs {
-            client,
-            keypair,
-            account,
-            method,
-            remaining,
-            total,
-            overwrite,
-        }),
+        } => {
+            let args = UsesArgs {
+                client,
+                keypair,
+                account,
+                method,
+                remaining,
+                total,
+                overwrite,
+            };
+            let sig = update_uses_one(args).map_err(Into::<ActionError>::into)?;
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
     }
 }
 
