@@ -3,6 +3,7 @@ use std::{
     str::FromStr,
 };
 
+use mpl_token_metadata::state::Data;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -21,9 +22,9 @@ pub struct NFTData {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UpdateNFTData {
-    pub mint_account: String,
-    pub nft_data: NFTData,
+pub struct UpdateNftData {
+    pub mint: String,
+    pub data: Data,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

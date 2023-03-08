@@ -1,3 +1,5 @@
+use crate::{cache::NewValue, update::parse_mint_list};
+
 use super::*;
 
 pub struct BurnAll {}
@@ -118,13 +120,15 @@ pub async fn burn_all(args: BurnAllArgs) -> AnyResult<()> {
     // We don't support an optional payer for this action currently.
     let payer = None;
 
+    let mint_list = parse_mint_list(args.mint_list, &args.cache_file)?;
+
     let args = BatchActionArgs {
         client: args.client,
         keypair,
         payer,
-        mint_list: args.mint_list,
+        mint_list,
         cache_file: args.cache_file,
-        new_value: String::new(),
+        new_value: NewValue::None,
         batch_size: args.batch_size,
         retries: args.retries,
     };
@@ -217,13 +221,15 @@ pub async fn burn_print_all(args: BurnPrintAllArgs) -> AnyResult<()> {
     // We don't support an optional payer for this action currently.
     let payer = None;
 
+    let mint_list = parse_mint_list(args.mint_list, &args.cache_file)?;
+
     let args = BatchActionArgs {
         client: args.client,
         keypair,
         payer,
-        mint_list: args.mint_list,
+        mint_list,
         cache_file: args.cache_file,
-        new_value: args.master_mint,
+        new_value: NewValue::Single(args.master_mint),
         batch_size: args.batch_size,
         retries: args.retries,
     };

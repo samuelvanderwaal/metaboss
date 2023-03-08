@@ -1,5 +1,8 @@
 use anyhow::Result;
-use mpl_token_metadata::state::{DataV2, UseMethod, Uses};
+use mpl_token_metadata::{
+    instruction::UsesToggle,
+    state::{UseMethod, Uses},
+};
 use solana_client::rpc_client::RpcClient;
 
 use super::*;
@@ -14,20 +17,23 @@ pub struct UsesArgs {
     pub overwrite: bool,
 }
 
-pub fn update_uses_one(args: UsesArgs) -> Result<()> {
+pub fn update_uses_one(args: UsesArgs) -> Result<Signature, ActionError> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
-    let old_md = decode(&args.client, &args.account)?;
-    let old_data = old_md.data;
+    let (current_md, token, current_rule_set) =
+        update_asset_preface(&args.client, &args.account)
+            .map_err(|e| ActionError::ActionFailed(args.account.to_string(), e.to_string()))?;
 
     let use_method = match args.method.to_lowercase().as_str() {
         "burn" => UseMethod::Burn,
         "multiple" => UseMethod::Multiple,
         "single" => UseMethod::Single,
         _ => {
-            println!("Invalid Uses method! Must be one of: burn, multiple, single");
-            return Ok(());
+            return Err(ActionError::ActionFailed(
+                args.account.to_string(),
+                "Invalid Uses method. Must be one of: burn, multiple, single".to_string(),
+            ));
         }
     };
 
@@ -38,23 +44,30 @@ pub fn update_uses_one(args: UsesArgs) -> Result<()> {
     };
 
     // Only overwrite existing uses if the override flag is set
-    if old_md.uses.is_some() && !args.overwrite {
-        println!("Uses already exist for this token. Use the --overwrite flag to overwrite.");
-        return Ok(());
+    if current_md.uses.is_some() && !args.overwrite {
+        return Err(ActionError::ActionFailed(
+            args.account,
+            "Uses already exist for this token. Use the --overwrite flag to overwrite.".to_string(),
+        ));
     }
 
-    let new_data = DataV2 {
-        creators: old_data.creators,
-        seller_fee_basis_points: old_data.seller_fee_basis_points,
-        name: old_data.name,
-        symbol: old_data.symbol,
-        uri: old_data.uri,
-        collection: old_md.collection,
-        uses: Some(new_uses),
+    // Token Metadata UpdateArgs enum.
+    let mut update_args = UpdateArgs::default();
+
+    let UpdateArgs::V1 { ref mut uses, .. } = update_args;
+    *uses = UsesToggle::Set(new_uses);
+
+    // Metaboss UpdateAssetArgs enum.
+    let update_args = UpdateAssetArgs::V1 {
+        payer: None,
+        authority: &keypair,
+        mint: args.account.clone(),
+        token,
+        delegate_record: None::<String>, // Not supported yet in update.
+        current_rule_set,
+        update_args,
     };
 
-    update_data(&args.client, &keypair, &args.account, new_data)
-        .map_err(|e| ActionError::ActionFailed(args.account.to_string(), e.to_string()))?;
-
-    Ok(())
+    update_asset(&args.client, update_args)
+        .map_err(|e| ActionError::ActionFailed(args.account.to_string(), e.to_string()))
 }

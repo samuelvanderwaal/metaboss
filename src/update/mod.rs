@@ -36,7 +36,7 @@ pub use metaboss_lib::{
 pub use mpl_token_metadata::{
     instruction::{set_token_standard, update_metadata_accounts_v2, RuleSetToggle, UpdateArgs},
     pda::find_token_record_account,
-    state::{DataV2, Metadata, ProgrammableConfig, TokenStandard},
+    state::{Data, DataV2, Metadata, ProgrammableConfig, TokenStandard},
     ID as TOKEN_METADATA_PROGRAM_ID,
 };
 
@@ -48,6 +48,7 @@ pub use solana_sdk::{
     transaction::Transaction,
 };
 pub use spl_token::state::Account as TokenAccount;
+use std::fs::File;
 pub use std::{cmp, fmt::Display, str::FromStr, sync::Arc};
 
 pub use crate::cache::{Action, BatchActionArgs, RunActionArgs};
@@ -80,4 +81,19 @@ pub fn update_asset_preface(
         };
 
     Ok((current_md, token, current_rule_set))
+}
+
+pub fn parse_mint_list(
+    mint_list_file: Option<String>,
+    cache_file: &Option<String>,
+) -> AnyResult<Option<Vec<String>>> {
+    if cache_file.is_none() {
+        let mint_file = mint_list_file
+            .ok_or_else(|| anyhow!("Must provide either a mint list or a cache file!"))?;
+        let f = File::open(mint_file)?;
+        let mint_list = serde_json::from_reader(f)?;
+        Ok(Some(mint_list))
+    } else {
+        Ok(None)
+    }
 }

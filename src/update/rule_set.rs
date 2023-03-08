@@ -1,3 +1,5 @@
+use crate::cache::NewValue;
+
 use super::*;
 
 pub struct UpdateRuleSetAllArgs {
@@ -150,6 +152,8 @@ pub async fn update_rule_set_all(args: UpdateRuleSetAllArgs) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
+    let mint_list = parse_mint_list(args.mint_list, &args.cache_file)?;
+
     // We don't support an optional payer for this action currently.
     let payer = None;
 
@@ -157,9 +161,9 @@ pub async fn update_rule_set_all(args: UpdateRuleSetAllArgs) -> AnyResult<()> {
         client: args.client,
         keypair,
         payer,
-        mint_list: args.mint_list,
+        mint_list,
         cache_file: args.cache_file,
-        new_value: args.new_rule_set,
+        new_value: NewValue::Single(args.new_rule_set),
         batch_size: args.batch_size,
         retries: args.retries,
     };
@@ -189,6 +193,8 @@ pub async fn clear_rule_set_all(args: ClearRuleSetAllArgs) -> AnyResult<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
+    let mint_list = parse_mint_list(args.mint_list, &args.cache_file)?;
+
     // We don't support an optional payer for this action currently.
     let payer = None;
 
@@ -196,9 +202,9 @@ pub async fn clear_rule_set_all(args: ClearRuleSetAllArgs) -> AnyResult<()> {
         client: args.client,
         keypair,
         payer,
-        mint_list: args.mint_list,
+        mint_list,
         cache_file: args.cache_file,
-        new_value: "".to_string(),
+        new_value: NewValue::None,
         batch_size: args.batch_size,
         retries: args.retries,
     };

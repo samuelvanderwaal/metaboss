@@ -1,3 +1,5 @@
+use crate::cache::NewValue;
+
 use super::*;
 
 pub type UpdateResults = Vec<Result<(), ActionError>>;
@@ -86,13 +88,15 @@ pub async fn update_creator_all(args: UpdateCreatorAllArgs) -> AnyResult<()> {
     // We don't support an optional payer for this action currently.
     let payer = None;
 
+    let mint_list = parse_mint_list(args.mint_list, &args.cache_file)?;
+
     let args = BatchActionArgs {
         client: args.client,
         keypair,
         payer,
-        mint_list: args.mint_list,
+        mint_list,
         cache_file: args.cache_file,
-        new_value: args.new_creators,
+        new_value: NewValue::Single(args.new_creators),
         batch_size: args.batch_size,
         retries: args.retries,
     };

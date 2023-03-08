@@ -1,3 +1,5 @@
+use crate::{cache::NewValue, update::parse_mint_list};
+
 use super::*;
 
 pub struct BurnAssetArgs {
@@ -68,13 +70,15 @@ pub async fn burn_asset_all(args: BurnAssetAllArgs) -> AnyResult<()> {
     // We don't support an optional payer for this action currently.
     let payer = None;
 
+    let mint_list = parse_mint_list(args.mint_list, &args.cache_file)?;
+
     let args = BatchActionArgs {
         client: args.client,
         keypair,
         payer,
-        mint_list: args.mint_list,
+        mint_list,
         cache_file: args.cache_file,
-        new_value: "".to_string(),
+        new_value: NewValue::None,
         batch_size: args.batch_size,
         retries: args.retries,
     };
