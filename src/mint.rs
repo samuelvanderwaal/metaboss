@@ -681,7 +681,7 @@ pub fn process_mint_asset(
     keypair_path: Option<String>,
     receiver: Option<String>,
     asset_data: PathBuf,
-    decimals: Option<u8>,
+    decimals: u8,
     amount: u64,
     max_print_edition_supply: Option<Supply>,
 ) -> Result<()> {
@@ -706,7 +706,7 @@ pub fn process_mint_asset(
         receiver,
         asset_data,
         amount,
-        mint_decimals: decimals,
+        mint_decimals: Some(decimals),
         print_supply,
         authorization_data: None,
     };

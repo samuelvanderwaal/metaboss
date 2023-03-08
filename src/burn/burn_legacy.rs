@@ -1,32 +1,40 @@
-use anyhow::Result as AnyResult;
-use async_trait::async_trait;
-use borsh::BorshDeserialize;
-use mpl_token_metadata::{
-    id,
-    instruction::{burn_edition_nft, burn_nft},
-    state::{Edition, Metadata, TokenMetadataAccount},
-};
-use retry::{delay::Exponential, retry};
-pub use solana_client::{
-    nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient,
-};
-use solana_sdk::{
-    pubkey::Pubkey,
-    signature::Signature,
-    signer::{keypair::Keypair, Signer},
-    transaction::Transaction,
-};
-use spl_associated_token_account::get_associated_token_address;
-use spl_token;
-use std::{str::FromStr, sync::Arc};
+use super::*;
 
-use crate::{
-    cache::{Action, BatchActionArgs, RunActionArgs},
-    derive::{derive_edition_marker_pda, derive_edition_pda, derive_metadata_pda},
-    errors::ActionError,
-    parse::{parse_keypair, parse_solana_config},
-    utils::get_largest_token_account_owner,
-};
+pub struct BurnAll {}
+
+pub struct BurnPrintAll {}
+
+pub struct BurnAllArgs {
+    pub client: RpcClient,
+    pub keypair: Option<String>,
+    pub mint_list: Option<String>,
+    pub cache_file: Option<String>,
+    pub batch_size: usize,
+    pub retries: u8,
+}
+
+pub struct BurnPrintAllArgs {
+    pub client: RpcClient,
+    pub keypair: Option<String>,
+    pub mint_list: Option<String>,
+    pub master_mint: String,
+    pub cache_file: Option<String>,
+    pub batch_size: usize,
+    pub retries: u8,
+}
+
+pub struct BurnArgs {
+    pub client: Arc<RpcClient>,
+    pub keypair: Arc<Keypair>,
+    pub mint_pubkey: Pubkey,
+}
+
+pub struct BurnPrintArgs {
+    pub client: Arc<RpcClient>,
+    pub keypair: Arc<Keypair>,
+    pub mint_pubkey: Pubkey,
+    pub master_mint_pubkey: Pubkey,
+}
 
 pub async fn burn_one(
     client: RpcClient,
@@ -79,42 +87,6 @@ pub async fn burn_print_one(
     println!("Tx sig: {sig}");
 
     Ok(())
-}
-
-pub struct BurnAll {}
-
-pub struct BurnPrintAll {}
-
-pub struct BurnAllArgs {
-    pub client: RpcClient,
-    pub keypair: Option<String>,
-    pub mint_list: Option<String>,
-    pub cache_file: Option<String>,
-    pub batch_size: usize,
-    pub retries: u8,
-}
-
-pub struct BurnPrintAllArgs {
-    pub client: RpcClient,
-    pub keypair: Option<String>,
-    pub mint_list: Option<String>,
-    pub master_mint: String,
-    pub cache_file: Option<String>,
-    pub batch_size: usize,
-    pub retries: u8,
-}
-
-pub struct BurnArgs {
-    pub client: Arc<RpcClient>,
-    pub keypair: Arc<Keypair>,
-    pub mint_pubkey: Pubkey,
-}
-
-pub struct BurnPrintArgs {
-    pub client: Arc<RpcClient>,
-    pub keypair: Arc<Keypair>,
-    pub mint_pubkey: Pubkey,
-    pub master_mint_pubkey: Pubkey,
 }
 
 #[async_trait]
