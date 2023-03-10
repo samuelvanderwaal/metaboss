@@ -121,7 +121,7 @@ pub fn mint_from_files(
         .to_str()
         .ok_or_else(|| anyhow!("Invalid directory path"))?;
 
-    let (paths, errors): (Vec<_>, Vec<_>) = glob(pattern)?.into_iter().partition(Result::is_ok);
+    let (paths, errors): (Vec<_>, Vec<_>) = glob(pattern)?.partition(Result::is_ok);
 
     let paths: Vec<_> = paths.into_iter().map(Result::unwrap).collect();
     let errors: Vec<_> = errors.into_iter().map(Result::unwrap_err).collect();

@@ -75,7 +75,6 @@ pub fn convert_to_wtf_error(file_name: &str, file_contents: &str) -> Result<Stri
 
     let file_name_capitalized = file_names_split
         .clone()
-        .into_iter()
         .map(|s| s.to_ascii_uppercase())
         .collect::<Vec<String>>()
         .join("_");

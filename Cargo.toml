@@ -21,7 +21,7 @@ indexmap = { version = "1.9.1", features = ["serde"] }
 indicatif = { version = "0.16.2", features = ["rayon"] }
 lazy_static = "1.4.0"
 log = "0.4.17"
-metaboss_lib = "0.5.0"
+metaboss_lib = "0.5.1"
 mpl-token-metadata = { version = "1.9.0", features = [ "no-entrypoint", "serde-feature"] }
 num_cpus = "1.13.1"
 phf = { version = "0.10", features = ["macros"] }
