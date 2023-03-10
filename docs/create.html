@@ -32,7 +32,6 @@
 
     </head>
     <body>
-    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -167,7 +166,17 @@ metaboss create fungible -d 3 -m crab.json --initial-supply 10.1
 <h3 id="metadata"><a class="header" href="#metadata">Metadata</a></h3>
 <p>Decorate an existing SPL token mint with metadata.</p>
 <h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
-<p>Specify the existing mint address and path to a metadata file that contains the <code>name</code>, <code>symbol</code> and <code>uri</code> fields in a JSON format.</p>
+<p>Specify the existing mint address and path to a metadata file that contains the <code>Data</code> sub-struct of the metadata struct in a JSON format.</p>
+<p>E.g.:</p>
+<p>// crab.json</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Crabbie&quot;,
+  &quot;symbol&quot;: &quot;CRAB&quot;,
+  &quot;uri&quot;: &quot;https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k&quot;,
+  &quot;sellerFeeBasisPoints&quot;: 0,
+  &quot;creators&quot;: null
+}
+</code></pre>
 <pre><code class="language-bash">metaboss create metadata -a &lt;mint_address&gt; -m &lt;metadata_file&gt;
 </code></pre>
 
@@ -219,6 +228,5 @@ metaboss create fungible -d 3 -m crab.json --initial-supply 10.1
         <!-- Custom JS scripts -->
 
 
-    </div>
     </body>
 </html>

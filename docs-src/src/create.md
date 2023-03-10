@@ -42,7 +42,20 @@ Decorate an existing SPL token mint with metadata.
 
 #### Usage
 
-Specify the existing mint address and path to a metadata file that contains the `name`, `symbol` and `uri` fields in a JSON format.
+Specify the existing mint address and path to a metadata file that contains the `Data` sub-struct of the metadata struct in a JSON format.
+
+E.g.:
+
+// crab.json
+```json
+{
+  "name": "Crabbie",
+  "symbol": "CRAB",
+  "uri": "https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k",
+  "sellerFeeBasisPoints": 0,
+  "creators": null
+}
+```
 
 ```bash
 metaboss create metadata -a <mint_address> -m <metadata_file>
