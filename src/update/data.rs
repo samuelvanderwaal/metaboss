@@ -87,7 +87,7 @@ pub async fn update_data_all(args: UpdateDataAllArgs) -> AnyResult<()> {
         .to_str()
         .ok_or_else(|| anyhow!("Invalid directory path"))?;
 
-    let (paths, errors): (Vec<_>, Vec<_>) = glob(pattern)?.into_iter().partition(Result::is_ok);
+    let (paths, errors): (Vec<_>, Vec<_>) = glob(pattern)?.partition(Result::is_ok);
 
     if !errors.is_empty() {
         for error in errors {
