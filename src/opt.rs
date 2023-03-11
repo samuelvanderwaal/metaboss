@@ -144,7 +144,7 @@ pub enum BurnSubcommands {
         token_account: Option<String>,
 
         /// Amount, defaults to 1.
-        #[structopt(short, long, default_value = "1")]
+        #[structopt(long, default_value = "1")]
         amount: u64,
     },
     /// Burn a batch of assets.
