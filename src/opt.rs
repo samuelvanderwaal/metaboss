@@ -606,10 +606,15 @@ pub enum DecodeSubcommands {
         #[structopt(short = "a", long)]
         metadata_delegate_record: String,
     },
+    /// Decode a TokenRecord from a TokenRecord account or a mint account
     TokenRecord {
         /// TokenRecord address
         #[structopt(short = "a", long)]
-        token_record: String,
+        token_record: Option<String>,
+
+        /// Mint address
+        #[structopt(short = "m", long)]
+        mint: Option<String>,
     },
     CollectionDelegate {
         /// CollectionAuthorityRecord address
@@ -696,6 +701,12 @@ pub enum DeriveSubcommands {
     /// Derive CMV2 PDA
     #[structopt(name = "cmv2-creator")]
     CMV2Creator { candy_machine_id: String },
+
+    #[structopt(name = "token-record")]
+    TokenRecord {
+        mint_account: String,
+        token_account: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]

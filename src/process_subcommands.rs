@@ -1,9 +1,9 @@
 use std::fs::File;
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use metaboss_lib::decode::{
     decode_collection_authority_record, decode_metadata_delegate, decode_token_record,
-    decode_use_authority_record,
+    decode_token_record_from_mint, decode_use_authority_record,
 };
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 
@@ -25,11 +25,12 @@ use crate::decode::{
 };
 use crate::derive::{
     get_cmv2_pda, get_edition_marker_pda, get_edition_pda, get_generic_pda, get_metadata_pda,
+    get_token_record_pda,
 };
 use crate::find::find_missing_editions_process;
 use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one, process_mint_asset};
 use crate::opt::*;
-use crate::parse::{parse_errors_code, parse_errors_file};
+use crate::parse::{is_only_one_option, parse_errors_code, parse_errors_file};
 use crate::sign::{sign_all, sign_one};
 use crate::snapshot::{
     snapshot_cm_accounts, snapshot_holders, snapshot_indexed_holders, snapshot_indexed_mints,
@@ -361,10 +362,20 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
 
             println!("{record:?}");
         }
-        DecodeSubcommands::TokenRecord { token_record } => {
-            let record = decode_token_record(client, token_record)?;
+        DecodeSubcommands::TokenRecord { token_record, mint } => {
+            if !is_only_one_option(&token_record, &mint) {
+                bail!("Please specify either a token record or a mint, but not both.");
+            }
 
-            println!("{record:?}");
+            if let Some(token_record) = token_record {
+                let record = decode_token_record(client, token_record)?;
+
+                println!("{record:?}");
+            } else if let Some(mint) = mint {
+                let records = decode_token_record_from_mint(client, mint)?;
+
+                println!("{records:?}");
+            }
         }
         DecodeSubcommands::Mint {
             account,
@@ -401,6 +412,10 @@ pub fn process_derive(commands: DeriveSubcommands) {
             edition_num,
         } => get_edition_marker_pda(mint_account, edition_num),
         DeriveSubcommands::CMV2Creator { candy_machine_id } => get_cmv2_pda(candy_machine_id),
+        DeriveSubcommands::TokenRecord {
+            mint_account,
+            token_account,
+        } => get_token_record_pda(mint_account, token_account),
     }
 }
 

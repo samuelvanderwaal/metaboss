@@ -220,6 +220,14 @@ pub fn decode_token_account(client: &RpcClient, token_account: &str) -> AnyResul
     Ok(())
 }
 
+pub fn decode_token_record_from_mint(client: &RpcClient, mint: &str) -> AnyResult<()> {
+    let pubkey = Pubkey::from_str(mint)?;
+    let token_record = metaboss_lib::decode::decode_token_record_from_mint(client, pubkey)?;
+    println!("{token_record:?}");
+
+    Ok(())
+}
+
 pub fn decode_raw(client: &RpcClient, mint_account: &str) -> Result<Vec<u8>, DecodeError> {
     let pubkey = match Pubkey::from_str(mint_account) {
         Ok(pubkey) => pubkey,
