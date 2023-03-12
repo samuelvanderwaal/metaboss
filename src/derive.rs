@@ -1,4 +1,5 @@
 use crate::constants::{MASTER_EDITION_PREFIX, METADATA_PREFIX, USER_PREFIX};
+use metaboss_lib::derive::derive_token_record_pda;
 use mpl_token_metadata::id as metadata_program_id;
 use solana_sdk::pubkey::Pubkey;
 use std::{convert::AsRef, str::FromStr};
@@ -55,6 +56,15 @@ pub fn get_cmv3_pda(candy_machine_id: String) {
     let pubkey =
         Pubkey::from_str(&candy_machine_id).expect("Failed to parse pubkey from candy_machine_id!");
     println!("{}", derive_cmv3_pda(&pubkey));
+}
+
+pub fn get_token_record_pda(mint_account: String, token_account: String) {
+    let mint_pubkey =
+        Pubkey::from_str(&mint_account).expect("Failed to parse pubkey from mint account!");
+    let token_pubkey =
+        Pubkey::from_str(&token_account).expect("Failed to parse pubkey from token account!");
+
+    println!("{}", derive_token_record_pda(&mint_pubkey, &token_pubkey));
 }
 
 fn derive_generic_pda(seeds: Vec<&[u8]>, program_id: Pubkey) -> Pubkey {
