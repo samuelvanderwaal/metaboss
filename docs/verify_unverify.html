@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Set - Metaboss</title>
+        <title>Verify/Unverify - Metaboss</title>
 
 
         <!-- Custom HTML head -->
@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">8.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">9.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">10.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">11.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">12.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">13.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html" class="active"><strong aria-hidden="true">14.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">15.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">16.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">17.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">18.</strong> Update</a></li><li class="chapter-item expanded "><a href="verify_unverify.html"><strong aria-hidden="true">19.</strong> Verify/Unverify</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">20.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">21.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">8.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">9.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">10.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">11.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">12.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">13.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">14.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">15.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">16.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">17.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">18.</strong> Update</a></li><li class="chapter-item expanded "><a href="verify_unverify.html" class="active"><strong aria-hidden="true">19.</strong> Verify/Unverify</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">20.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">21.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -144,63 +144,49 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="set"><a class="header" href="#set">Set</a></h2>
-<p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution. 
-Set commands are either irreversible or require a new update authority to reverse.</strong></p>
-<p>Set non-Data struct values for a NFT.</p>
-<h3 id="set-secondary-sale"><a class="header" href="#set-secondary-sale">Set Secondary Sale</a></h3>
-<p>Set <code>primary_sale_happened</code> to be <code>true</code>, enabling secondary sale royalties. <strong>This is not reversible.</strong></p>
-<pre><code class="language-bash">metaboss set secondary-sale --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
-</code></pre>
-<p>Outputs a TxId to the command line so you can check the result.</p>
-<h3 id="set-secondary-sale-all"><a class="header" href="#set-secondary-sale-all">Set Secondary Sale All</a></h3>
-<p>Same as <code>set secondary-sale</code> but takes a mint list instead of a single account file. <strong>This is not reversible.</strong></p>
-<h3 id="set-update-authority"><a class="header" href="#set-update-authority">Set Update-Authority</a></h3>
-<p>Set <code>update_authority</code> to a different public key. <strong>This is not reversible by the original update authority.</strong></p>
-<pre><code class="language-bash">metaboss set update-authority --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-update-authority &lt;NEW_UPDATE_AUTHORITY&gt;
-</code></pre>
-<h3 id="set-update-authority-all"><a class="header" href="#set-update-authority-all">Set Update-Authority-All</a></h3>
-<p>Set <code>update_authority</code> to a different public key for a list of NFTs. <strong>This is not reversible by the original update authority.</strong></p>
-<pre><code class="language-bash">metaboss set update-authority-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-accounts-file &lt;PATH_TO_MINT_ACCOUNTS&gt; --new-update-authority &lt;NEW_UPDATE_AUTHORITY&gt;
-</code></pre>
-<p>The mint accounts file should be a JSON file with an array of NFT mint accounts to be updated:</p>
-<pre><code class="language-json">[
-    &quot;C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG&quot;,
-    &quot;8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o&quot;,
-    &quot;CK2npuck3WTRNFXSdZv8YjudJJEa69EVGd6GFfeSzfGP&quot;
-]
-</code></pre>
-<h3 id="set-immutable"><a class="header" href="#set-immutable">Set Immutable</a></h3>
-<p>Set an NFT's <code>Data</code> struct to be immutable. <strong>This is not reversible.</strong></p>
-<pre><code class="language-bash">metaboss set immutable --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
-</code></pre>
-<h3 id="set-immutable-all"><a class="header" href="#set-immutable-all">Set Immutable-All</a></h3>
-<p>Set all NFTs in a list to be immutable. <strong>This is not reversible.</strong></p>
-<pre><code class="language-bash">metaboss set immutable-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-accounts-file &lt;PATH_TO_MINT_ACCOUNTS&gt;
-</code></pre>
-<h3 id="set-token-standard"><a class="header" href="#set-token-standard">Set Token Standard</a></h3>
-<p>Set an asset's Token Standard to automatically be the correct type. <strong>This is not reversible.</strong></p>
-<pre><code>USAGE:
-    metaboss set token-standard [OPTIONS] --account &lt;account&gt;
+                        <h2 id="verify"><a class="header" href="#verify">Verify</a></h2>
+<pre><code>Verify Creators
+
+USAGE:
+    metaboss verify [OPTIONS] &lt;SUBCOMMAND&gt;
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
 
 OPTIONS:
-    -a, --account &lt;account&gt;        Mint account of corresponding metadata to update
-    -k, --keypair &lt;keypair&gt;        Path to the update authority's keypair file
     -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
+
+SUBCOMMANDS:
+    creator        
+    creator-all    
+    help           Prints this message or the help of the given subcommand(s)
+</code></pre>
+<h3 id="creator"><a class="header" href="#creator">Creator</a></h3>
+<p>Verify a creator in the metadata creators array by signing for it with its keypair. Creators can only verify themselves.</p>
+<pre><code>USAGE:
+    metaboss verify creator [OPTIONS] --mint &lt;mint&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -k, --keypair &lt;keypair&gt;        Path to the update_authority keypair file
+    -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -a, --mint &lt;mint&gt;              Mint account of token to transfer
     -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
 <h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
-<pre><code class="language-bash">metaboss set token-standard --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
+<pre><code class="language-bash">metaboss verify creator --account &lt;MINT_ACCOUNT&gt; --keypair &lt;CREATOR_KEYPAIR_FILE&gt;
 </code></pre>
-<h3 id="set-token-standard-all"><a class="header" href="#set-token-standard-all">Set Token Standard-All</a></h3>
-<p>Set all assets in a list to be the correct Token Standard. <strong>This is not reversible.</strong></p>
+<h3 id="creator-all"><a class="header" href="#creator-all">Creator All</a></h3>
+<p>Verify a creator in the metadata creators array of a list of metadata accounts, by signing for it with its keypair. Creators can only verify themselves.</p>
 <pre><code>USAGE:
-    metaboss set token-standard-all [OPTIONS]
+    metaboss verify creator-all [OPTIONS]
 
 FLAGS:
     -h, --help       Prints help information
@@ -209,7 +195,7 @@ FLAGS:
 OPTIONS:
     -b, --batch-size &lt;batch-size&gt;    Maximum number of concurrent requests [default: 10]
     -c, --cache-file &lt;cache-file&gt;    Cache file
-    -k, --keypair &lt;keypair&gt;          Path to the update authority's keypair file
+    -k, --keypair &lt;keypair&gt;          Path to the update_authority keypair file
     -l, --log-level &lt;log-level&gt;      Log level [default: off]
     -L, --mint-list &lt;mint-list&gt;      Mint list
         --retries &lt;retries&gt;          Maximum retries: retry failed items up to this many times [default: 1]
@@ -217,18 +203,79 @@ OPTIONS:
     -T, --timeout &lt;timeout&gt;          Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
 <h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
-<pre><code class="language-bash">metaboss set token-standard-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-list &lt;PATH_TO_MINT_ACCOUNTS&gt;
+<pre><code class="language-bash">metaboss verify creator-all --mint-list &lt;MINT_LIST_FILE&gt; --keypair &lt;CREATOR_KEYPAIR_FILE&gt;
+</code></pre>
+<h2 id="unverify"><a class="header" href="#unverify">Unverify</a></h2>
+<pre><code>Unverify Creators
+
+USAGE:
+    metaboss unverify [OPTIONS] &lt;SUBCOMMAND&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
+
+SUBCOMMANDS:
+    creator        
+    creator-all    
+    help           Prints this message or the help of the given subcommand(s)
+</code></pre>
+<h3 id="creator-1"><a class="header" href="#creator-1">Creator</a></h3>
+<p>Unverify a creator in the metadata creators array by signing for it with its keypair. Creators can only unverify themselves.</p>
+<pre><code>USAGE:
+    metaboss unverify creator [OPTIONS] --mint &lt;mint&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -k, --keypair &lt;keypair&gt;        Path to the update_authority keypair file
+    -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -a, --mint &lt;mint&gt;              Mint account of token to transfer
+    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
+<pre><code class="language-bash">metaboss unverify creator --account &lt;MINT_ACCOUNT&gt; --keypair &lt;CREATOR_KEYPAIR_FILE&gt;
+</code></pre>
+<h3 id="creator-all-1"><a class="header" href="#creator-all-1">Creator All</a></h3>
+<p>Unverify a creator in the metadata creators array of a list of metadata accounts, by signing for it with its keypair. Creators can only unverify themselves.</p>
+<pre><code>USAGE:
+    metaboss unverify creator-all [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -b, --batch-size &lt;batch-size&gt;    Maximum number of concurrent requests [default: 10]
+    -c, --cache-file &lt;cache-file&gt;    Cache file
+    -k, --keypair &lt;keypair&gt;          Path to the update_authority keypair file
+    -l, --log-level &lt;log-level&gt;      Log level [default: off]
+    -L, --mint-list &lt;mint-list&gt;      Mint list
+        --retries &lt;retries&gt;          Maximum retries: retry failed items up to this many times [default: 1]
+    -r, --rpc &lt;rpc&gt;                  RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;          Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<h4 id="usage-3"><a class="header" href="#usage-3">Usage</a></h4>
+<pre><code class="language-bash">metaboss unverify creator-all --mint-list &lt;MINT_LIST_FILE&gt; --keypair &lt;CREATOR_KEYPAIR_FILE&gt;
 </code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="mint.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="update.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="sign.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="withdraw.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -238,11 +285,11 @@ OPTIONS:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="mint.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="update.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="sign.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="withdraw.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

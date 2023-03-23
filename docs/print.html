@@ -33,6 +33,7 @@
 
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -70,10 +71,12 @@
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
             var html = document.querySelector('html');
-            var sidebar = 'hidden';
+            var sidebar = null;
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
             }
             html.classList.remove('sidebar-visible');
             html.classList.add("sidebar-" + sidebar);
@@ -81,7 +84,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">8.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">9.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">10.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">11.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">12.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">13.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">14.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">15.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">16.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">17.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">18.</strong> Update</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">19.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">20.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">8.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">9.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">10.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">11.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">12.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">13.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">14.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">15.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">16.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">17.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">18.</strong> Update</a></li><li class="chapter-item expanded "><a href="verify_unverify.html"><strong aria-hidden="true">19.</strong> Verify/Unverify</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">20.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">21.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -348,10 +351,10 @@ git checkout main
 <p>As in all other commands, keypair can be elided if set in the Solana config file.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="collections"><a class="header" href="#collections">Collections</a></h1>
 <h2 id="migrate"><a class="header" href="#migrate">Migrate</a></h2>
-<p>Migrate a collection of NFTs to be part of a single on-chain Metaplex Certified Collection (MCC).</p>
+<p>Migrate a collection of NFTs or pNFTs to be part of a single on-chain Metaplex Certified Collection (MCC).</p>
 <ol>
 <li>
-<p>Create your Collection Parent NFT using a minting tool such as <a href="https://sol-tools.tonyboyle.io/nft-tools/create-nft">Sol Tools</a>. Alternately, use <code>metaboss mint one</code>. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for you collection and all items in your collection will point to this mint account.</p>
+<p>Create your Collection Parent NFT using a minting tool such as <a href="https://sol-tools.tonyboyle.io/nft-tools/create-nft">Sol Tools</a>. Alternately, use <code>metaboss mint one</code> or <code>metaboss mint asset</code>. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for you collection and all items in your collection will point to this mint account.</p>
 </li>
 <li>
 <p>Get your mint list. If your collection is a single candy machine you can use the <code>--candy-machine-id</code> option, otherwise provide the path to your mint list formatted as a JSON file with the <code>--mint-list</code> option.</p>
@@ -1101,6 +1104,128 @@ OPTIONS:
 <p>E.g.:</p>
 <pre><code class="language-bash">metaboss update rule-set-all -L rule_set_mints.json
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="verify"><a class="header" href="#verify">Verify</a></h2>
+<pre><code>Verify Creators
+
+USAGE:
+    metaboss verify [OPTIONS] &lt;SUBCOMMAND&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
+
+SUBCOMMANDS:
+    creator        
+    creator-all    
+    help           Prints this message or the help of the given subcommand(s)
+</code></pre>
+<h3 id="creator"><a class="header" href="#creator">Creator</a></h3>
+<p>Verify a creator in the metadata creators array by signing for it with its keypair. Creators can only verify themselves.</p>
+<pre><code>USAGE:
+    metaboss verify creator [OPTIONS] --mint &lt;mint&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -k, --keypair &lt;keypair&gt;        Path to the update_authority keypair file
+    -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -a, --mint &lt;mint&gt;              Mint account of token to transfer
+    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<h4 id="usage-39"><a class="header" href="#usage-39">Usage</a></h4>
+<pre><code class="language-bash">metaboss verify creator --account &lt;MINT_ACCOUNT&gt; --keypair &lt;CREATOR_KEYPAIR_FILE&gt;
+</code></pre>
+<h3 id="creator-all"><a class="header" href="#creator-all">Creator All</a></h3>
+<p>Verify a creator in the metadata creators array of a list of metadata accounts, by signing for it with its keypair. Creators can only verify themselves.</p>
+<pre><code>USAGE:
+    metaboss verify creator-all [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -b, --batch-size &lt;batch-size&gt;    Maximum number of concurrent requests [default: 10]
+    -c, --cache-file &lt;cache-file&gt;    Cache file
+    -k, --keypair &lt;keypair&gt;          Path to the update_authority keypair file
+    -l, --log-level &lt;log-level&gt;      Log level [default: off]
+    -L, --mint-list &lt;mint-list&gt;      Mint list
+        --retries &lt;retries&gt;          Maximum retries: retry failed items up to this many times [default: 1]
+    -r, --rpc &lt;rpc&gt;                  RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;          Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<h4 id="usage-40"><a class="header" href="#usage-40">Usage</a></h4>
+<pre><code class="language-bash">metaboss verify creator-all --mint-list &lt;MINT_LIST_FILE&gt; --keypair &lt;CREATOR_KEYPAIR_FILE&gt;
+</code></pre>
+<h2 id="unverify"><a class="header" href="#unverify">Unverify</a></h2>
+<pre><code>Unverify Creators
+
+USAGE:
+    metaboss unverify [OPTIONS] &lt;SUBCOMMAND&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
+
+SUBCOMMANDS:
+    creator        
+    creator-all    
+    help           Prints this message or the help of the given subcommand(s)
+</code></pre>
+<h3 id="creator-1"><a class="header" href="#creator-1">Creator</a></h3>
+<p>Unverify a creator in the metadata creators array by signing for it with its keypair. Creators can only unverify themselves.</p>
+<pre><code>USAGE:
+    metaboss unverify creator [OPTIONS] --mint &lt;mint&gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -k, --keypair &lt;keypair&gt;        Path to the update_authority keypair file
+    -l, --log-level &lt;log-level&gt;    Log level [default: off]
+    -a, --mint &lt;mint&gt;              Mint account of token to transfer
+    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<h4 id="usage-41"><a class="header" href="#usage-41">Usage</a></h4>
+<pre><code class="language-bash">metaboss unverify creator --account &lt;MINT_ACCOUNT&gt; --keypair &lt;CREATOR_KEYPAIR_FILE&gt;
+</code></pre>
+<h3 id="creator-all-1"><a class="header" href="#creator-all-1">Creator All</a></h3>
+<p>Unverify a creator in the metadata creators array of a list of metadata accounts, by signing for it with its keypair. Creators can only unverify themselves.</p>
+<pre><code>USAGE:
+    metaboss unverify creator-all [OPTIONS]
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -b, --batch-size &lt;batch-size&gt;    Maximum number of concurrent requests [default: 10]
+    -c, --cache-file &lt;cache-file&gt;    Cache file
+    -k, --keypair &lt;keypair&gt;          Path to the update_authority keypair file
+    -l, --log-level &lt;log-level&gt;      Log level [default: off]
+    -L, --mint-list &lt;mint-list&gt;      Mint list
+        --retries &lt;retries&gt;          Maximum retries: retry failed items up to this many times [default: 1]
+    -r, --rpc &lt;rpc&gt;                  RPC endpoint url to override using the Solana config or the hard-coded default
+    -T, --timeout &lt;timeout&gt;          Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<h4 id="usage-42"><a class="header" href="#usage-42">Usage</a></h4>
+<pre><code class="language-bash">metaboss unverify creator-all --mint-list &lt;MINT_LIST_FILE&gt; --keypair &lt;CREATOR_KEYPAIR_FILE&gt;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="withdraw-deprecated"><a class="header" href="#withdraw-deprecated">Withdraw (Deprecated)</a></h2>
 <p>Use Metaplex's <a href="https://docs.metaplex.com/sugar/introduction">Sugar</a> tool for withdrawing from candy machines instead.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="contact"><a class="header" href="#contact">Contact</a></h2>
@@ -1151,5 +1276,6 @@ OPTIONS:
         });
         </script>
 
+    </div>
     </body>
 </html>

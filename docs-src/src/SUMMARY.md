@@ -18,5 +18,6 @@
 - [Snapshot](./snapshot.md)
 - [Transfer](./transfer.md)
 - [Update](./update.md)
+- [Verify/Unverify](./verify_unverify.md)
 - [Withdraw](./withdraw.md)
 - [Contact](./contact.md)
