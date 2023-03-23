@@ -351,10 +351,10 @@ git checkout main
 <p>As in all other commands, keypair can be elided if set in the Solana config file.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="collections"><a class="header" href="#collections">Collections</a></h1>
 <h2 id="migrate"><a class="header" href="#migrate">Migrate</a></h2>
-<p>Migrate a collection of NFTs to be part of a single on-chain Metaplex Certified Collection (MCC).</p>
+<p>Migrate a collection of NFTs or pNFTs to be part of a single on-chain Metaplex Certified Collection (MCC).</p>
 <ol>
 <li>
-<p>Create your Collection Parent NFT using a minting tool such as <a href="https://sol-tools.tonyboyle.io/nft-tools/create-nft">Sol Tools</a>. Alternately, use <code>metaboss mint one</code>. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for you collection and all items in your collection will point to this mint account.</p>
+<p>Create your Collection Parent NFT using a minting tool such as <a href="https://sol-tools.tonyboyle.io/nft-tools/create-nft">Sol Tools</a>. Alternately, use <code>metaboss mint one</code> or <code>metaboss mint asset</code>. This NFT will have your collection name, cover art, description, traits etc. It's the parent NFT for you collection and all items in your collection will point to this mint account.</p>
 </li>
 <li>
 <p>Get your mint list. If your collection is a single candy machine you can use the <code>--candy-machine-id</code> option, otherwise provide the path to your mint list formatted as a JSON file with the <code>--mint-list</code> option.</p>
