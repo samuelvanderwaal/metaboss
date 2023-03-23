@@ -90,6 +90,9 @@ async fn main() -> Result<()> {
         Command::Verify { verify_subcommands } => {
             process_verify(client, verify_subcommands).await?
         }
+        Command::Unverify {
+            unverify_subcommands,
+        } => process_unverify(client, unverify_subcommands).await?,
     }
 
     println!("Done!");

@@ -124,11 +124,17 @@ pub enum Command {
         #[structopt(subcommand)]
         transfer_subcommands: TransferSubcommands,
     },
-    /// Verify Creators and Collections
+    /// Verify Creators
     #[structopt(name = "verify")]
     Verify {
         #[structopt(subcommand)]
         verify_subcommands: VerifySubcommands,
+    },
+    /// Unverify Creators
+    #[structopt(name = "unverify")]
+    Unverify {
+        #[structopt(subcommand)]
+        unverify_subcommands: UnverifySubcommands,
     },
 }
 
@@ -1571,6 +1577,40 @@ pub enum TransferSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum VerifySubcommands {
+    Creator {
+        /// Path to the update_authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint account of token to transfer
+        #[structopt(short, long)]
+        mint: String,
+    },
+    CreatorAll {
+        /// Path to the update_authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Mint list
+        #[structopt(short = "L", long)]
+        mint_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Maximum number of concurrent requests
+        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
+        batch_size: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "1")]
+        retries: u8,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum UnverifySubcommands {
     Creator {
         /// Path to the update_authority keypair file
         #[structopt(short, long)]

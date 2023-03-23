@@ -38,6 +38,9 @@ use crate::snapshot::{
     NftsByCreatorArgs, SnapshotHoldersArgs, SnapshotMintsArgs,
 };
 use crate::transfer::process_transfer_asset;
+use crate::unverify::{
+    unverify_creator, unverify_creator_all, UnverifyCreatorAllArgs, UnverifyCreatorArgs,
+};
 use crate::update::*;
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
 use crate::verify::{verify_creator, verify_creator_all, VerifyCreatorAllArgs, VerifyCreatorArgs};
@@ -1171,6 +1174,46 @@ pub async fn process_verify(client: RpcClient, commands: VerifySubcommands) -> R
             retries,
         } => {
             verify_creator_all(VerifyCreatorAllArgs {
+                client,
+                keypair,
+                mint_list,
+                cache_file,
+                batch_size,
+                retries,
+            })
+            .await
+        }
+    }
+}
+
+pub async fn process_unverify(client: RpcClient, commands: UnverifySubcommands) -> Result<()> {
+    match commands {
+        UnverifySubcommands::Creator { keypair, mint } => {
+            let solana_opts = parse_solana_config();
+            let keypair = parse_keypair(keypair, solana_opts);
+
+            let args = UnverifyCreatorArgs {
+                client: Arc::new(client),
+                keypair: Arc::new(keypair),
+                mint,
+            };
+            let sig = unverify_creator(args)
+                .await
+                .map_err(Into::<ActionError>::into)?;
+
+            info!("Tx sig: {:?}", sig);
+            println!("Tx sig: {sig:?}");
+
+            Ok(())
+        }
+        UnverifySubcommands::CreatorAll {
+            keypair,
+            mint_list,
+            cache_file,
+            batch_size,
+            retries,
+        } => {
+            unverify_creator_all(UnverifyCreatorAllArgs {
                 client,
                 keypair,
                 mint_list,
