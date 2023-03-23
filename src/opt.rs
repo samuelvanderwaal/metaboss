@@ -1583,7 +1583,7 @@ pub enum VerifySubcommands {
         keypair: Option<String>,
 
         /// Mint account of token to transfer
-        #[structopt(short, long)]
+        #[structopt(short = "a", long)]
         mint: String,
     },
     CreatorAll {
@@ -1617,7 +1617,7 @@ pub enum UnverifySubcommands {
         keypair: Option<String>,
 
         /// Mint account of token to transfer
-        #[structopt(short, long)]
+        #[structopt(short = "a", long)]
         mint: String,
     },
     CreatorAll {
