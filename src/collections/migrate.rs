@@ -1,17 +1,24 @@
 use super::common::*;
+
 use crate::{
-    derive::{derive_collection_authority_record, derive_edition_pda, derive_metadata_pda},
-    errors::MigrateError,
-    parse::parse_solana_config,
+    derive::derive_metadata_pda, errors::MigrateError, parse::parse_solana_config,
     spinner::create_spinner,
-    utils::async_send_and_confirm_transaction,
 };
 use crate::{parse::parse_keypair, snapshot::get_mint_accounts};
-use mpl_token_metadata::{
-    instruction::{set_and_verify_sized_collection_item, unverify_sized_collection_item},
-    state::TokenMetadataAccount,
+use metaboss_lib::{
+    unverify::{unverify_collection_ix, UnverifyCollectionArgs},
+    update::{update_asset_ix, UpdateAssetArgs},
+    verify::{verify_collection_ix, VerifyCollectionArgs},
 };
-use solana_sdk::{account::ReadableAccount, commitment_config::CommitmentConfig};
+use mpl_token_metadata::{
+    instruction::{CollectionToggle, UpdateArgs},
+    state::{Collection, TokenMetadataAccount},
+};
+use solana_sdk::{
+    signature::{Keypair, Signature},
+    signer::Signer,
+    transaction::Transaction,
+};
 use std::ops::{Deref, DerefMut};
 use tokio::sync::Semaphore;
 
@@ -88,37 +95,24 @@ pub struct CacheItem {
     pub error: Option<String>,
 }
 
-async fn set_and_verify(
-    async_client: Arc<AsyncRpcClient>,
+fn set_and_verify(
+    client: Arc<RpcClient>,
     authority_keypair: Arc<Keypair>,
     nft_mint: String,
     collection_mint: String,
-    is_delegate_present: bool,
-) -> Result<(), MigrateError> {
+    is_delegate: bool,
+) -> Result<Signature, MigrateError> {
     let nft_metadata_pubkey = derive_metadata_pda(
         &Pubkey::from_str(&nft_mint).unwrap_or_else(|_| panic!("invalid pubkey: {nft_mint:?}")),
     );
     let collection_mint_pubkey = Pubkey::from_str(&collection_mint).unwrap();
-    let collection_md_pubkey = derive_metadata_pda(&collection_mint_pubkey);
-    let collection_edition_pubkey = derive_edition_pda(&collection_mint_pubkey);
-    let collection_authority_record = match is_delegate_present {
-        true => Some(
-            derive_collection_authority_record(
-                &collection_mint_pubkey,
-                &authority_keypair.pubkey(),
-            )
-            .0,
-        ),
-        false => None,
-    };
 
     let mut instructions = Vec::new();
 
     // Whether or not it is a sized collection, if it is a verified collection item,
     // we need to unverify it before we can set it.
-    let nft_md_account = async_client
+    let nft_md_account = client
         .get_account_data(&nft_metadata_pubkey)
-        .await
         .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
     let nft_metadata = Metadata::safe_deserialize(nft_md_account.as_slice())
         .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
@@ -126,98 +120,81 @@ async fn set_and_verify(
     if let Some(current_collection) = nft_metadata.collection {
         if current_collection.verified {
             let current_collection_mint = current_collection.key;
-            let current_collection_md_pubkey = derive_metadata_pda(&current_collection_mint);
-            let current_collection_edition_pubkey = derive_edition_pda(&current_collection_mint);
 
-            // We need to check if the parent collection NFT exists because people sometimes burn them.
-            let collection_md_account_opt = async_client
-                .get_account_with_commitment(&collection_md_pubkey, CommitmentConfig::confirmed())
-                .await
-                .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?
-                .value;
+            let unverify_args = UnverifyCollectionArgs::V1 {
+                authority: &authority_keypair,
+                mint: nft_mint.clone(),
+                collection_mint: current_collection_mint,
+                is_delegate,
+            };
 
-            if let Some(collection_md_account) = collection_md_account_opt {
-                let current_collection_metadata =
-                    Metadata::safe_deserialize(collection_md_account.data()).map_err(|e| {
-                        MigrateError::MigrationFailed(nft_mint.clone(), e.to_string())
-                    })?;
+            println!("adding unverify instruction");
 
-                if current_collection_metadata.collection_details.is_some() {
-                    instructions.push(unverify_sized_collection_item(
-                        metadata_program_id(),
-                        nft_metadata_pubkey,
-                        authority_keypair.pubkey(),
-                        authority_keypair.pubkey(),
-                        current_collection_mint,
-                        current_collection_md_pubkey,
-                        current_collection_edition_pubkey,
-                        None,
-                    ));
-                } else {
-                    instructions.push(unverify_collection(
-                        metadata_program_id(),
-                        nft_metadata_pubkey,
-                        authority_keypair.pubkey(),
-                        current_collection_mint,
-                        current_collection_md_pubkey,
-                        current_collection_edition_pubkey,
-                        None,
-                    ));
-                }
-            } else {
-                // Account is not found so presumed burned so we can use either handler.
-                instructions.push(unverify_collection(
-                    metadata_program_id(),
-                    nft_metadata_pubkey,
-                    authority_keypair.pubkey(),
-                    current_collection_mint,
-                    current_collection_md_pubkey,
-                    current_collection_edition_pubkey,
-                    None,
-                ));
-            }
+            // This instruction handles both the case where the collection NFT exists and the case where it doesn't.
+            let ix = unverify_collection_ix(&client, unverify_args)
+                .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
+            instructions.push(ix);
         }
     }
 
-    // Is it a sized collection?
-    let collection_md_account = async_client
-        .get_account_data(&collection_md_pubkey)
-        .await
-        .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
-    let collection_metadata = Metadata::safe_deserialize(collection_md_account.as_slice())
-        .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
+    // Add update instruction to set the collection.
+    // Token Metadata UpdateArgs enum.
+    let mut update_args = UpdateArgs::default();
 
-    if collection_metadata.collection_details.is_some() {
-        instructions.push(set_and_verify_sized_collection_item(
-            metadata_program_id(),
-            nft_metadata_pubkey,
-            authority_keypair.pubkey(),
-            authority_keypair.pubkey(),
-            authority_keypair.pubkey(),
-            collection_mint_pubkey,
-            collection_md_pubkey,
-            collection_edition_pubkey,
-            collection_authority_record,
-        ));
-    } else {
-        instructions.push(set_and_verify_collection(
-            metadata_program_id(),
-            nft_metadata_pubkey,
-            authority_keypair.pubkey(),
-            authority_keypair.pubkey(),
-            authority_keypair.pubkey(),
-            collection_mint_pubkey,
-            collection_md_pubkey,
-            collection_edition_pubkey,
-            collection_authority_record,
-        ));
+    let UpdateArgs::V1 {
+        ref mut collection, ..
+    } = update_args;
+    *collection = CollectionToggle::Set(Collection {
+        key: collection_mint_pubkey,
+        verified: false,
+    });
+
+    let update_ix = update_asset_ix(
+        &client,
+        UpdateAssetArgs::V1 {
+            authority: &authority_keypair,
+            mint: nft_mint.clone(),
+            payer: None,
+            token: None::<String>,
+            delegate_record: None::<String>, // Not supported yet in update.
+            current_rule_set: None::<String>,
+            update_args,
+        },
+    )
+    .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
+
+    instructions.push(update_ix);
+
+    // Add verify instruction to verify the collection.
+    let verify_args = VerifyCollectionArgs::V1 {
+        authority: &authority_keypair,
+        mint: nft_mint.clone(),
+        collection_mint,
+        is_delegate,
     };
 
-    async_send_and_confirm_transaction(async_client, authority_keypair, &instructions)
-        .await
+    // This instruction handles both the case where the collection NFT exists and the case where it doesn't.
+    let verify_ix = verify_collection_ix(&client, verify_args)
         .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
 
-    Ok(())
+    instructions.push(verify_ix);
+
+    let recent_blockhash = client
+        .get_latest_blockhash()
+        .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
+
+    let tx = Transaction::new_signed_with_payer(
+        &instructions,
+        Some(&authority_keypair.pubkey()),
+        &[&*authority_keypair],
+        recent_blockhash,
+    );
+
+    let sig = client
+        .send_and_confirm_transaction(&tx)
+        .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
+
+    Ok(sig)
 }
 
 pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
@@ -282,7 +259,7 @@ pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
             .open(&cache_file_name)?
     };
 
-    let async_client = Arc::new(args.async_client);
+    let client = Arc::new(args.client);
 
     let mut counter = 0u8;
 
@@ -298,14 +275,14 @@ pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
 
         for mint in remaining_mints {
             let permit = Arc::clone(&semaphore).acquire_owned().await.unwrap();
-            let async_client = async_client.clone();
+            let client = client.clone();
             let keypair = keypair.clone();
             let mint_address = args.mint_address.clone();
 
             migrate_tasks.push(tokio::spawn(async move {
                 let _permit = permit;
 
-                set_and_verify(async_client, keypair, mint, mint_address, false).await
+                set_and_verify(client, keypair, mint, mint_address, false)
             }));
         }
         spinner.finish();

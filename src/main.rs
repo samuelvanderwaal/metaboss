@@ -87,6 +87,9 @@ async fn main() -> Result<()> {
             process_update(client, update_subcommands).await?
         }
         Command::Uses { uses_subcommands } => process_uses(&client, uses_subcommands)?,
+        Command::Verify { verify_subcommands } => {
+            process_verify(client, verify_subcommands).await?
+        }
     }
 
     println!("Done!");

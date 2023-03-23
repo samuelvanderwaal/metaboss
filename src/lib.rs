@@ -22,4 +22,5 @@ pub mod transfer;
 pub mod update;
 pub mod uses;
 pub mod utils;
+pub mod verify;
 pub mod wtf_errors;
