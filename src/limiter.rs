@@ -32,3 +32,17 @@ pub fn create_rate_limiter(delay: u32) -> Handle {
     });
     handle
 }
+
+pub fn create_rate_limiter_with_capacity(capacity: u32, delay: u32) -> Handle {
+    let mut limiter = ratelimit::Builder::new()
+        .capacity(capacity)
+        .quantum(1)
+        .interval(Duration::new(0, delay))
+        .build();
+
+    let handle = limiter.make_handle();
+    thread::spawn(move || {
+        limiter.run();
+    });
+    handle
+}

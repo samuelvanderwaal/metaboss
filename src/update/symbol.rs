@@ -8,7 +8,7 @@ pub struct UpdateSymbolAllArgs {
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
     pub new_symbol: String,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -81,7 +81,7 @@ pub async fn update_symbol_all(args: UpdateSymbolAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::Single(args.new_symbol),
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     UpdateSymbolAll::run(args).await?;

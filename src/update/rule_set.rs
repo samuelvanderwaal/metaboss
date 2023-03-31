@@ -8,7 +8,7 @@ pub struct UpdateRuleSetAllArgs {
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
     pub new_rule_set: String,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -24,7 +24,7 @@ pub struct ClearRuleSetAllArgs {
     pub keypair: Option<String>,
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -130,7 +130,7 @@ pub async fn update_rule_set_all(args: UpdateRuleSetAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::Single(args.new_rule_set),
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     UpdateRuleSetAll::run(args).await
@@ -171,7 +171,7 @@ pub async fn clear_rule_set_all(args: ClearRuleSetAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::None,
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     ClearRuleSetAll::run(args).await

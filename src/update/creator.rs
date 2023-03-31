@@ -75,7 +75,7 @@ pub struct UpdateCreatorAllArgs {
     pub cache_file: Option<String>,
     pub new_creators: String,
     pub should_append: bool,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -95,7 +95,7 @@ pub async fn update_creator_all(args: UpdateCreatorAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::Single(args.new_creators),
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     UpdateCreatorAll::run(args).await

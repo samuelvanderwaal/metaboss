@@ -12,7 +12,7 @@ pub struct UpdateUriAllArgs {
     pub keypair: Option<String>,
     pub cache_file: Option<String>,
     pub new_uris_file: String,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -110,7 +110,7 @@ pub async fn update_uri_all(args: UpdateUriAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::List(mint_values),
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     UpdateUriAll::run(args).await?;

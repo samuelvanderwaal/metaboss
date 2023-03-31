@@ -14,7 +14,7 @@ pub struct UpdateSellerFeeBasisPointsAllArgs {
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
     pub new_sfbp: u16,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -91,7 +91,7 @@ pub async fn update_sfbp_all(args: UpdateSellerFeeBasisPointsAllArgs) -> AnyResu
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::Single(args.new_sfbp.to_string()),
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     UpdateSellerFeeBasisPointsAll::run(args).await

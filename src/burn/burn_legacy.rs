@@ -11,7 +11,7 @@ pub struct BurnAllArgs {
     pub keypair: Option<String>,
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -21,7 +21,7 @@ pub struct BurnPrintAllArgs {
     pub mint_list: Option<String>,
     pub master_mint: String,
     pub cache_file: Option<String>,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -129,7 +129,7 @@ pub async fn burn_all(args: BurnAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::None,
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     BurnAll::run(args).await?;
@@ -230,7 +230,7 @@ pub async fn burn_print_all(args: BurnPrintAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::Single(args.master_mint),
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     BurnPrintAll::run(args).await?;
