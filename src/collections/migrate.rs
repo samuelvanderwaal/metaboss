@@ -157,7 +157,6 @@ fn set_and_verify(
             payer: None,
             token: None::<String>,
             delegate_record: None::<String>, // Not supported yet in update.
-            current_rule_set: None::<String>,
             update_args,
         },
     )

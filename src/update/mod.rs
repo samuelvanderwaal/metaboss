@@ -57,32 +57,6 @@ pub use crate::errors::ActionError;
 pub use crate::parse::parse_solana_config;
 pub use crate::parse::{parse_cli_creators, parse_keypair};
 
-pub fn update_asset_preface(
-    client: &RpcClient,
-    mint_account: &str,
-) -> AnyResult<(Metadata, Option<Pubkey>, Option<Pubkey>)> {
-    let current_md = decode_metadata_from_mint(client, mint_account)
-        .map_err(|e| ActionError::ActionFailed(mint_account.to_string(), e.to_string()))?;
-
-    // We need the token account passed in for pNFT updates.
-    let token = if let Some(TokenStandard::ProgrammableNonFungible) = current_md.token_standard {
-        Some(
-            get_nft_token_account(client, mint_account)
-                .map_err(|e| ActionError::ActionFailed(mint_account.to_string(), e.to_string()))?,
-        )
-    } else {
-        None
-    };
-    let current_rule_set =
-        if let Some(ProgrammableConfig::V1 { rule_set }) = current_md.programmable_config {
-            rule_set
-        } else {
-            None
-        };
-
-    Ok((current_md, token, current_rule_set))
-}
-
 pub fn parse_mint_list(
     mint_list_file: Option<String>,
     cache_file: &Option<String>,
