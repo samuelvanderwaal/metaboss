@@ -13,6 +13,7 @@ pub fn process_transfer_asset(
     client: &RpcClient,
     keypair_path: Option<String>,
     receiver: String,
+    receiver_account: Option<String>,
     mint: String,
     amount: u64,
 ) -> Result<()> {
@@ -23,7 +24,11 @@ pub fn process_transfer_asset(
     let mint = Pubkey::from_str(&mint)?;
 
     let source_ata = get_associated_token_address(&authority.pubkey(), &mint);
-    let destination_ata = get_associated_token_address(&receiver, &mint);
+    let destination_token = if let Some(account) = receiver_account {
+        Pubkey::from_str(&account)?
+    } else {
+        get_associated_token_address(&receiver, &mint)
+    };
 
     let args = TransferAssetArgs::V1 {
         payer: None,
@@ -32,7 +37,7 @@ pub fn process_transfer_asset(
         source_owner: authority.pubkey(),
         source_token: source_ata,
         destination_owner: receiver,
-        destination_token: destination_ata,
+        destination_token,
         amount,
         authorization_data: None,
     };

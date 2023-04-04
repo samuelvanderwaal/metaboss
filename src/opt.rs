@@ -1572,6 +1572,10 @@ pub enum TransferSubcommands {
         /// Amount of tokens to transfer, for NonFungible types this must be 1.
         #[structopt(long, default_value = "1")]
         amount: u64,
+
+        /// Receiver token account, if not provided an ATA will be created.
+        #[structopt(long)]
+        receiver_account: Option<String>,
     },
 }
 
