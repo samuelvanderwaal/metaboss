@@ -13,7 +13,7 @@ pub struct UpdateCreatorArgs {
 }
 
 pub async fn update_creator(args: UpdateCreatorArgs) -> Result<Signature, ActionError> {
-    let (mut current_md, token, current_rule_set) =
+    let (mut current_md, token, _current_rule_set) =
         update_asset_preface(&args.client, &args.mint_account)
             .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
@@ -62,7 +62,6 @@ pub async fn update_creator(args: UpdateCreatorArgs) -> Result<Signature, Action
         mint: args.mint_account.clone(),
         token,
         delegate_record: None::<String>, // Not supported yet in update.
-        current_rule_set,
         update_args,
     };
 

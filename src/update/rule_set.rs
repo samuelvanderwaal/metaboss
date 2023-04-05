@@ -59,12 +59,12 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<Signature, Actio
 
     *rule_set = RuleSetToggle::Set(new_rule_set);
 
-    let current_rule_set = if let Some(ProgrammableConfig::V1 { rule_set }) = md.programmable_config
-    {
-        rule_set
-    } else {
-        None
-    };
+    let _current_rule_set =
+        if let Some(ProgrammableConfig::V1 { rule_set }) = md.programmable_config {
+            rule_set
+        } else {
+            None
+        };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {
@@ -73,7 +73,6 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<Signature, Actio
         mint: args.mint_account.clone(),
         token,
         delegate_record: None::<String>, // Not supported yet in update.
-        current_rule_set,
         update_args,
     };
 
@@ -106,12 +105,12 @@ pub async fn clear_rule_set(args: ClearRuleSetArgs) -> Result<Signature, ActionE
 
     *rule_set = RuleSetToggle::Clear;
 
-    let current_rule_set = if let Some(ProgrammableConfig::V1 { rule_set }) = md.programmable_config
-    {
-        rule_set
-    } else {
-        None
-    };
+    let _current_rule_set =
+        if let Some(ProgrammableConfig::V1 { rule_set }) = md.programmable_config {
+            rule_set
+        } else {
+            None
+        };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {
@@ -120,7 +119,6 @@ pub async fn clear_rule_set(args: ClearRuleSetArgs) -> Result<Signature, ActionE
         mint,
         token,
         delegate_record: None::<String>, // Not supported yet in update.
-        current_rule_set,
         update_args,
     };
 

@@ -20,7 +20,7 @@ pub struct SetPrimarySaleHappenedArgs {
 pub async fn set_primary_sale_happened(
     args: SetPrimarySaleHappenedArgs,
 ) -> Result<Signature, ActionError> {
-    let (_, token, current_rule_set) = update_asset_preface(&args.client, &args.mint_account)
+    let (_, token, _current_rule_set) = update_asset_preface(&args.client, &args.mint_account)
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
     // Token Metadata UpdateArgs enum.
@@ -39,7 +39,6 @@ pub async fn set_primary_sale_happened(
         mint: args.mint_account.clone(),
         token,
         delegate_record: None::<String>, // Not supported yet in update.
-        current_rule_set,
         update_args,
     };
 

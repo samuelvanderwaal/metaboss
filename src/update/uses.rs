@@ -21,9 +21,8 @@ pub fn update_uses_one(args: UsesArgs) -> Result<Signature, ActionError> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
-    let (current_md, token, current_rule_set) =
-        update_asset_preface(&args.client, &args.account)
-            .map_err(|e| ActionError::ActionFailed(args.account.to_string(), e.to_string()))?;
+    let (current_md, token, _current_rule_set) = update_asset_preface(&args.client, &args.account)
+        .map_err(|e| ActionError::ActionFailed(args.account.to_string(), e.to_string()))?;
 
     let use_method = match args.method.to_lowercase().as_str() {
         "burn" => UseMethod::Burn,
@@ -64,7 +63,6 @@ pub fn update_uses_one(args: UsesArgs) -> Result<Signature, ActionError> {
         mint: args.account.clone(),
         token,
         delegate_record: None::<String>, // Not supported yet in update.
-        current_rule_set,
         update_args,
     };
 
