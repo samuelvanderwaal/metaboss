@@ -8,7 +8,7 @@ pub struct UpdateRuleSetAllArgs {
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
     pub new_rule_set: String,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -24,7 +24,7 @@ pub struct ClearRuleSetAllArgs {
     pub keypair: Option<String>,
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -35,15 +35,6 @@ pub struct ClearRuleSetArgs {
 }
 
 pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<Signature, ActionError> {
-    let md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-
-    // We need the token account passed in for pNFT updates.
-    let token = Some(
-        get_nft_token_account(&args.client, &args.mint_account)
-            .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?,
-    );
-
     let new_rule_set = Pubkey::from_str(&args.new_rule_set)
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
@@ -59,19 +50,12 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<Signature, Actio
 
     *rule_set = RuleSetToggle::Set(new_rule_set);
 
-    let _current_rule_set =
-        if let Some(ProgrammableConfig::V1 { rule_set }) = md.programmable_config {
-            rule_set
-        } else {
-            None
-        };
-
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {
         payer: None,
         authority: &args.keypair,
         mint: args.mint_account.clone(),
-        token,
+        token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
     };
@@ -81,15 +65,6 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<Signature, Actio
 }
 
 pub async fn clear_rule_set(args: ClearRuleSetArgs) -> Result<Signature, ActionError> {
-    let md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-
-    // We need the token account passed in for pNFT updates.
-    let token = Some(
-        get_nft_token_account(&args.client, &args.mint_account)
-            .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?,
-    );
-
     let mint = Pubkey::from_str(&args.mint_account)
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
@@ -105,19 +80,12 @@ pub async fn clear_rule_set(args: ClearRuleSetArgs) -> Result<Signature, ActionE
 
     *rule_set = RuleSetToggle::Clear;
 
-    let _current_rule_set =
-        if let Some(ProgrammableConfig::V1 { rule_set }) = md.programmable_config {
-            rule_set
-        } else {
-            None
-        };
-
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {
         payer: None,
         authority: &args.keypair,
         mint,
-        token,
+        token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
     };
@@ -162,7 +130,7 @@ pub async fn update_rule_set_all(args: UpdateRuleSetAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::Single(args.new_rule_set),
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     UpdateRuleSetAll::run(args).await
@@ -203,7 +171,7 @@ pub async fn clear_rule_set_all(args: ClearRuleSetAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::None,
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     ClearRuleSetAll::run(args).await

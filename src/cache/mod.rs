@@ -14,9 +14,11 @@ use std::{
     path::Path,
     sync::Arc,
 };
-use tokio::sync::Semaphore;
 
-use crate::errors::ActionError;
+use crate::{
+    constants::NANO_SECONDS_IN_SECOND, errors::ActionError,
+    limiter::create_rate_limiter_with_capacity,
+};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Cache(pub IndexMap<String, CacheItem>);
@@ -93,7 +95,7 @@ pub struct BatchActionArgs {
     pub mint_list: Option<Vec<String>>,
     pub cache_file: Option<String>,
     pub new_value: NewValue,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -152,20 +154,22 @@ pub trait Action {
         let keypair = Arc::new(args.keypair);
         let payer = Arc::new(args.payer);
 
-        let semaphore = Arc::new(Semaphore::new(args.batch_size));
+        let delay = NANO_SECONDS_IN_SECOND / args.rate_limit;
+        let rate_limiter = create_rate_limiter_with_capacity(args.rate_limit as u32, delay as u32);
 
         loop {
             let remaining_mints = mint_list.clone();
 
+            let mint_length = remaining_mints.len();
+
             info!("Sending network requests...");
             let mut update_tasks = Vec::new();
-            println!("Updating NFTs. . .");
             let pb = ProgressBar::new(remaining_mints.len() as u64);
+            pb.set_message("Sending network requests...");
 
             // Create a vector of futures to execute.
             for mint_address in remaining_mints {
-                // Limit total number of concurrent requests to args.batch_size.
-                let permit = semaphore.clone().acquire_owned().await.unwrap();
+                let mut rate_limiter = rate_limiter.clone();
 
                 let empty_string = String::new();
 
@@ -177,6 +181,7 @@ pub trait Action {
 
                 // Create task to run the action in a separate thread.
                 let task = tokio::spawn({
+                    rate_limiter.wait();
                     let fut = Self::action(RunActionArgs {
                         client: client.clone(),
                         keypair: keypair.clone(),
@@ -185,9 +190,7 @@ pub trait Action {
                         new_value: new_value.to_string(),
                     });
 
-                    // Move the permit into the thread to take ownership of it and then drop it
-                    // when the future is complete.
-                    drop(permit);
+                    pb.inc(1);
 
                     fut
                 });
@@ -196,7 +199,12 @@ pub trait Action {
                 update_tasks.push(task);
             }
 
+            pb.finish_and_clear();
+
             let update_tasks_len = update_tasks.len();
+
+            let pb = ProgressBar::new(mint_length as u64);
+            pb.set_message("Waiting for requests to resolve...");
 
             // Wait for all the tasks to resolve and push the results to our results vector
             let mut update_results = Vec::new();
@@ -211,8 +219,10 @@ pub trait Action {
             let (_update_successful, update_failed): (CacheResults, CacheResults) =
                 update_results.into_iter().partition(Result::is_ok);
 
-            // If some of the migrations failed, ask user if they wish to retry and the loop starts again.
-            // Otherwise, break out of the loop and write the cache to disk.
+            println!("Updates failed: {}", update_failed.len());
+
+            // If some of the migrations failed, check the retry count and re-run if appropriate,
+            // otherwise, break out of the loop and write the cache to disk.
             if !update_failed.is_empty() && counter < args.retries {
                 counter += 1;
                 println!(
@@ -228,6 +238,7 @@ pub trait Action {
                 break;
             } else {
                 println!("Reached max retries. Writing remaining items to cache.");
+                cache.update_errors(update_failed);
                 cache.write(f)?;
                 break;
             }

@@ -1,5 +1,7 @@
 use super::common::*;
 
+use crate::constants::NANO_SECONDS_IN_SECOND;
+use crate::limiter::create_rate_limiter_with_capacity;
 use crate::{
     derive::derive_metadata_pda, errors::MigrateError, parse::parse_solana_config,
     spinner::create_spinner,
@@ -20,7 +22,6 @@ use solana_sdk::{
     transaction::Transaction,
 };
 use std::ops::{Deref, DerefMut};
-use tokio::sync::Semaphore;
 
 pub struct MigrateArgs {
     pub client: RpcClient,
@@ -31,7 +32,7 @@ pub struct MigrateArgs {
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
     pub retries: u8,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub output_file: Option<String>,
 }
 
@@ -261,6 +262,8 @@ pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
     let client = Arc::new(args.client);
 
     let mut counter = 0u8;
+    let delay = NANO_SECONDS_IN_SECOND / args.rate_limit;
+    let rate_limiter = create_rate_limiter_with_capacity(args.rate_limit as u32, delay as u32);
 
     // Loop over migrate process so we can retry repeatedly until the user exits.
     loop {
@@ -270,17 +273,15 @@ pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
         let spinner = create_spinner("Sending network requests....");
         // Create a vector of futures to execute.
         let mut migrate_tasks = Vec::new();
-        let semaphore = Arc::new(Semaphore::new(args.batch_size));
 
         for mint in remaining_mints {
-            let permit = Arc::clone(&semaphore).acquire_owned().await.unwrap();
             let client = client.clone();
             let keypair = keypair.clone();
             let mint_address = args.mint_address.clone();
+            let mut rate_limiter = rate_limiter.clone();
 
             migrate_tasks.push(tokio::spawn(async move {
-                let _permit = permit;
-
+                rate_limiter.wait();
                 set_and_verify(client, keypair, mint, mint_address, false)
             }));
         }

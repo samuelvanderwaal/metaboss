@@ -9,7 +9,7 @@ pub struct SetUpdateAuthorityAllArgs {
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
     pub new_authority: String,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -22,10 +22,6 @@ pub struct SetUpdateAuthorityArgs {
 }
 
 pub async fn set_update_authority(args: SetUpdateAuthorityArgs) -> Result<Signature, ActionError> {
-    let (_current_md, token, _current_rule_set) =
-        update_asset_preface(&args.client, &args.mint_account)
-            .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-
     // Token Metadata UpdateArgs enum.
     let mut update_args = UpdateArgs::default();
 
@@ -44,7 +40,7 @@ pub async fn set_update_authority(args: SetUpdateAuthorityArgs) -> Result<Signat
         payer: args.payer.as_ref().as_ref(),
         authority: &args.keypair,
         mint: args.mint_account.clone(),
-        token,
+        token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
     };
@@ -93,7 +89,7 @@ pub async fn set_update_authority_all(args: SetUpdateAuthorityAllArgs) -> AnyRes
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::Single(args.new_authority),
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     SetUpdateAuthorityAll::run(args).await

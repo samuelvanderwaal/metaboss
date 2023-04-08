@@ -12,7 +12,7 @@ pub struct UpdateUriAllArgs {
     pub keypair: Option<String>,
     pub cache_file: Option<String>,
     pub new_uris_file: String,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -24,9 +24,8 @@ pub struct UpdateUriArgs {
 }
 
 pub async fn update_uri(args: UpdateUriArgs) -> Result<Signature, ActionError> {
-    let (mut current_md, token, _current_rule_set) =
-        update_asset_preface(&args.client, &args.mint_account)
-            .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
+    let mut current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
     // Add metadata delegate record here later.
 
@@ -47,7 +46,7 @@ pub async fn update_uri(args: UpdateUriArgs) -> Result<Signature, ActionError> {
         payer: None,
         authority: &args.keypair,
         mint: args.mint_account.clone(),
-        token,
+        token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
     };
@@ -111,7 +110,7 @@ pub async fn update_uri_all(args: UpdateUriAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::List(mint_values),
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     UpdateUriAll::run(args).await?;

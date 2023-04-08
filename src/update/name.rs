@@ -8,9 +8,8 @@ pub struct UpdateNameArgs {
 }
 
 pub async fn update_name(args: UpdateNameArgs) -> Result<Signature, ActionError> {
-    let (mut current_md, token, _current_rule_set) =
-        update_asset_preface(&args.client, &args.mint_account)
-            .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
+    let mut current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
     // Token Metadata UpdateArgs enum.
     let mut update_args = UpdateArgs::default();
@@ -25,7 +24,7 @@ pub async fn update_name(args: UpdateNameArgs) -> Result<Signature, ActionError>
         payer: None,
         authority: &args.keypair,
         mint: args.mint_account.clone(),
-        token,
+        token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
     };

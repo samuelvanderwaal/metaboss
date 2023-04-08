@@ -8,7 +8,7 @@ pub struct UpdateSymbolAllArgs {
     pub mint_list: Option<String>,
     pub cache_file: Option<String>,
     pub new_symbol: String,
-    pub batch_size: usize,
+    pub rate_limit: usize,
     pub retries: u8,
 }
 
@@ -20,9 +20,8 @@ pub struct UpdateSymbolArgs {
 }
 
 pub async fn update_symbol(args: UpdateSymbolArgs) -> Result<Signature, ActionError> {
-    let (mut current_md, token, _current_rule_set) =
-        update_asset_preface(&args.client, &args.mint_account)
-            .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
+    let mut current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
+        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
     // Token Metadata UpdateArgs enum.
     let mut update_args = UpdateArgs::default();
@@ -37,7 +36,7 @@ pub async fn update_symbol(args: UpdateSymbolArgs) -> Result<Signature, ActionEr
         payer: None,
         authority: &args.keypair,
         mint: args.mint_account.clone(),
-        token,
+        token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
     };
@@ -82,7 +81,7 @@ pub async fn update_symbol_all(args: UpdateSymbolAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::Single(args.new_symbol),
-        batch_size: args.batch_size,
+        rate_limit: args.rate_limit,
         retries: args.retries,
     };
     UpdateSymbolAll::run(args).await?;

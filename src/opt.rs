@@ -4,7 +4,7 @@ use solana_program::pubkey::Pubkey;
 use structopt::StructOpt;
 
 use crate::{
-    collections::GetCollectionItemsMethods, constants::DEFAULT_BATCH_SIZE, data::Indexers,
+    collections::GetCollectionItemsMethods, constants::DEFAULT_RATE_LIMIT, data::Indexers,
     mint::Supply,
 };
 
@@ -174,12 +174,12 @@ pub enum BurnSubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
 }
@@ -212,12 +212,12 @@ pub enum BurnNftSubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
 }
@@ -258,12 +258,12 @@ pub enum BurnPrintSubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
 }
@@ -541,12 +541,12 @@ pub enum CollectionsSubcommands {
         cache_file: Option<String>,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Output file path for the cache file. Defaults to mb-cache-migrate.json.
         #[structopt(short, long)]
@@ -904,12 +904,12 @@ pub enum SetSubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
     /// Set update authority to a new account
@@ -954,12 +954,12 @@ pub enum SetSubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
     /// Set is-mutable to false, preventing any future updates to the NFT
@@ -986,12 +986,12 @@ pub enum SetSubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
     /// Set an asset to the correct Token Standard.
@@ -1018,12 +1018,12 @@ pub enum SetSubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
 }
@@ -1261,12 +1261,12 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         new_rule_set: String,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
     /// Remove the rule set of a pNFT.
@@ -1293,12 +1293,12 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
     /// Update the seller fee basis points field inside the data struct on an NFT
@@ -1335,12 +1335,12 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         new_sfbp: u16,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
     /// Update the name field inside the data struct on an NFT
@@ -1391,12 +1391,12 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         new_symbol: String,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
     /// Update the creators field by position inside the data struct on an NFT
@@ -1441,12 +1441,12 @@ pub enum UpdateSubcommands {
         #[structopt(short = "A", long = "append")]
         append: bool,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
     /// Update the data struct on a NFT
@@ -1479,12 +1479,12 @@ pub enum UpdateSubcommands {
         #[structopt(short, long)]
         data_dir: String,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
     /// Update the metadata URI, keeping the rest of the data the same
@@ -1517,12 +1517,12 @@ pub enum UpdateSubcommands {
         #[structopt(short = "u", long)]
         new_uris_file: String,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
     /// Update the Uses data on a NFT
@@ -1603,12 +1603,12 @@ pub enum VerifySubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
 }
@@ -1637,12 +1637,12 @@ pub enum UnverifySubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
 
-        /// Maximum number of concurrent requests
-        #[structopt(short, long, default_value = DEFAULT_BATCH_SIZE)]
-        batch_size: usize,
+        /// Maximum number of requests per second
+        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
-        #[structopt(long, default_value = "1")]
+        #[structopt(long, default_value = "0")]
         retries: u8,
     },
 }
