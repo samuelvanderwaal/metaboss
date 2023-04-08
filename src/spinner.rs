@@ -26,3 +26,13 @@ pub fn create_alt_spinner(msg: &'static str) -> ProgressBar {
     spinner.set_message(msg);
     spinner
 }
+
+pub fn create_progress_bar(msg: &'static str, len: u64) -> ProgressBar {
+    let bar = ProgressBar::new(len);
+    bar.set_style(
+        ProgressStyle::default_bar()
+            .template("{spinner:.blue} {msg} {wide_bar:.cyan/blue} {pos:>7}/{len:7} {eta_precise}"),
+    );
+    bar.set_message(msg);
+    bar
+}
