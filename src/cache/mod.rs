@@ -1,7 +1,6 @@
 use anyhow::{anyhow, Result as AnyResult};
 use async_trait::async_trait;
 use indexmap::IndexMap;
-use indicatif::ProgressBar;
 use log::info;
 use serde::{Deserialize, Serialize};
 use solana_client::rpc_client::RpcClient;
@@ -17,7 +16,7 @@ use std::{
 
 use crate::{
     constants::NANO_SECONDS_IN_SECOND, errors::ActionError,
-    limiter::create_rate_limiter_with_capacity,
+    limiter::create_rate_limiter_with_capacity, spinner::create_progress_bar,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -164,8 +163,8 @@ pub trait Action {
 
             info!("Sending network requests...");
             let mut update_tasks = Vec::new();
-            let pb = ProgressBar::new(remaining_mints.len() as u64);
-            pb.set_message("Sending network requests...");
+            let pb =
+                create_progress_bar("Sending network requests...", remaining_mints.len() as u64);
 
             // Create a vector of futures to execute.
             for mint_address in remaining_mints {
@@ -203,8 +202,7 @@ pub trait Action {
 
             let update_tasks_len = update_tasks.len();
 
-            let pb = ProgressBar::new(mint_length as u64);
-            pb.set_message("Waiting for requests to resolve...");
+            let pb = create_progress_bar("Waiting for requests to resolve...", mint_length as u64);
 
             // Wait for all the tasks to resolve and push the results to our results vector
             let mut update_results = Vec::new();
