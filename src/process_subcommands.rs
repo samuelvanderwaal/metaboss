@@ -809,7 +809,8 @@ pub fn process_transfer(client: RpcClient, commands: TransferSubcommands) -> Res
             receiver,
             mint,
             amount,
-        } => process_transfer_asset(&client, keypair, receiver, mint, amount),
+            receiver_account,
+        } => process_transfer_asset(&client, keypair, receiver, receiver_account, mint, amount),
     }
 }
 
