@@ -175,7 +175,7 @@ pub enum BurnSubcommands {
         cache_file: Option<String>,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -213,7 +213,7 @@ pub enum BurnNftSubcommands {
         cache_file: Option<String>,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -259,7 +259,7 @@ pub enum BurnPrintSubcommands {
         cache_file: Option<String>,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -545,7 +545,7 @@ pub enum CollectionsSubcommands {
         retries: u8,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Output file path for the cache file. Defaults to mb-cache-migrate.json.
@@ -905,7 +905,7 @@ pub enum SetSubcommands {
         cache_file: Option<String>,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -955,7 +955,7 @@ pub enum SetSubcommands {
         cache_file: Option<String>,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -987,7 +987,7 @@ pub enum SetSubcommands {
         cache_file: Option<String>,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -1019,7 +1019,7 @@ pub enum SetSubcommands {
         cache_file: Option<String>,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -1262,7 +1262,7 @@ pub enum UpdateSubcommands {
         new_rule_set: String,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -1294,7 +1294,7 @@ pub enum UpdateSubcommands {
         cache_file: Option<String>,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -1336,7 +1336,7 @@ pub enum UpdateSubcommands {
         new_sfbp: u16,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -1392,7 +1392,7 @@ pub enum UpdateSubcommands {
         new_symbol: String,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -1442,7 +1442,7 @@ pub enum UpdateSubcommands {
         append: bool,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -1480,7 +1480,7 @@ pub enum UpdateSubcommands {
         data_dir: String,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -1518,7 +1518,7 @@ pub enum UpdateSubcommands {
         new_uris_file: String,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -1604,7 +1604,7 @@ pub enum VerifySubcommands {
         cache_file: Option<String>,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
@@ -1638,7 +1638,7 @@ pub enum UnverifySubcommands {
         cache_file: Option<String>,
 
         /// Maximum number of requests per second
-        #[structopt(short, long, default_value = DEFAULT_RATE_LIMIT)]
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
         rate_limit: usize,
 
         /// Maximum retries: retry failed items up to this many times.
