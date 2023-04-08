@@ -255,13 +255,13 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -b, --batch-size <batch-size>        Maximum number of concurrent requests [default: 10]
     -c, --cache-file <cache-file>        Cache file
     -k, --keypair <keypair>              Path to the creator's keypair file
     -l, --log-level <log-level>          Log level [default: off]
     -L, --mint-list <mint-list>          Path to the mint list file
     -n, --new-rule-set <new-rule-set>    New rule set pubkey
-        --retries <retries>              Maximum retries: retry failed items up to this many times [default: 1]
+    -R, --rate-limit <rate-limit>        Maximum number of requests per second [default: 10]
+        --retries <retries>              Maximum retries: retry failed items up to this many times [default: 0]
     -r, --rpc <rpc>                      RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout <timeout>              Timeout to override default value of 90 seconds [default: 90]
 ```
@@ -324,12 +324,12 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -b, --batch-size <batch-size>    Maximum number of concurrent requests [default: 10]
     -c, --cache-file <cache-file>    Cache file
     -k, --keypair <keypair>          Path to the creator's keypair file
     -l, --log-level <log-level>      Log level [default: off]
     -L, --mint-list <mint-list>      Path to the mint list file
-        --retries <retries>          Maximum retries: retry failed items up to this many times [default: 1]
+    -R, --rate-limit <rate-limit>    Maximum number of requests per second [default: 10]
+        --retries <retries>          Maximum retries: retry failed items up to this many times [default: 0]
     -r, --rpc <rpc>                  RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout <timeout>          Timeout to override default value of 90 seconds [default: 90]
 ```
