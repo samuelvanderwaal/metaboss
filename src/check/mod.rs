@@ -41,7 +41,8 @@ pub struct CheckValueAllArgs {
 fn check_value_all(metadata_file_dir: PathBuf, value: MetadataValue) -> Result<()> {
     let metadata_files = std::fs::read_dir(metadata_file_dir)?;
 
-    let mut failed_mints = Vec::new();
+    let mut paths = Vec::new();
+    let mut mints = Vec::new();
 
     for file in metadata_files {
         let file = file?;
@@ -51,16 +52,24 @@ fn check_value_all(metadata_file_dir: PathBuf, value: MetadataValue) -> Result<(
 
         let metadata: Metadata = serde_json::from_str(&metadata)?;
 
-        if !check_metadata_value(metadata, &value) {
-            failed_mints.push(path);
+        if !check_metadata_value(&metadata, &value) {
+            paths.push(path);
+            mints.push(metadata.mint.to_string());
         }
     }
 
-    if !failed_mints.is_empty() {
+    if !paths.is_empty() {
         println!("Files with metadata that don't match the specified value:");
-        for mint in failed_mints {
-            println!("{}", mint.display());
+        for path in paths {
+            println!("{}", path.display());
         }
+        let file_name = format!(
+            "mb_check_mints_{}.json",
+            value.to_string().split('=').next().unwrap()
+        );
+        let f = std::fs::File::create(&file_name)?;
+        serde_json::to_writer_pretty(f, &mints)?;
+        println!("Mints written to {:?}.", file_name);
     } else {
         println!("All metadata files have the specified value!");
     }
