@@ -5,13 +5,10 @@ use crate::{
     parse::parse_solana_config,
     utils::send_and_confirm_transaction,
 };
-use mpl_token_metadata::instruction::{
-    set_and_verify_sized_collection_item, set_collection_size, unverify_sized_collection_item,
-    verify_sized_collection_item,
-};
+use metaboss_lib::unverify::{unverify_collection_ix, UnverifyCollectionArgs};
+use metaboss_lib::verify::{verify_collection_ix, VerifyCollectionArgs};
+use mpl_token_metadata::instruction::{set_and_verify_sized_collection_item, set_collection_size};
 use mpl_token_metadata::state::TokenMetadataAccount;
-use solana_sdk::account::ReadableAccount;
-use solana_sdk::commitment_config::CommitmentConfig;
 
 pub const OPEN_FILES_LIMIT: usize = 1024;
 
@@ -81,60 +78,16 @@ pub fn unverify_nft_collection(
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
-    let nft_metadata = derive_metadata_pda(&Pubkey::from_str(&nft_mint)?);
-    let collection_pubkey = Pubkey::from_str(&collection_mint)?;
-    let collection_md_pubkey = derive_metadata_pda(&collection_pubkey);
-    let collection_edition_pubkey = derive_edition_pda(&collection_pubkey);
-    let collection_authority_record = match is_delegate_present {
-        true => Some(derive_collection_authority_record(&collection_pubkey, &keypair.pubkey()).0),
-        false => None,
+    let unverify_args = UnverifyCollectionArgs::V1 {
+        authority: &keypair,
+        mint: nft_mint,
+        collection_mint,
+        is_delegate: is_delegate_present,
     };
 
-    // We need to check if the parent collection NFT exists because people sometimes burn them.
-    let collection_md_account_opt = client
-        .get_account_with_commitment(&collection_md_pubkey, CommitmentConfig::confirmed())?
-        .value;
-
-    let unverify_collection_ix = if let Some(collection_md_account) = collection_md_account_opt {
-        let collection_metadata = Metadata::safe_deserialize(collection_md_account.data())?;
-
-        // Choose which handler to use based on if collection is sized or not.
-        if collection_metadata.collection_details.is_some() {
-            unverify_sized_collection_item(
-                metadata_program_id(),
-                nft_metadata,
-                keypair.pubkey(),
-                keypair.pubkey(),
-                collection_pubkey,
-                collection_md_pubkey,
-                collection_edition_pubkey,
-                collection_authority_record,
-            )
-        } else {
-            unverify_collection(
-                metadata_program_id(),
-                nft_metadata,
-                keypair.pubkey(),
-                collection_pubkey,
-                collection_md_pubkey,
-                collection_edition_pubkey,
-                collection_authority_record,
-            )
-        }
-    } else {
-        // Account is not found so presumed burned so we can use either handler.
-        unverify_collection(
-            metadata_program_id(),
-            nft_metadata,
-            keypair.pubkey(),
-            collection_pubkey,
-            collection_md_pubkey,
-            collection_edition_pubkey,
-            collection_authority_record,
-        )
-    };
-
-    send_and_confirm_transaction(&client, keypair, &[unverify_collection_ix])?;
+    // This instruction handles both the case where the collection NFT exists and the case where it doesn't.
+    let ix = unverify_collection_ix(&client, unverify_args)?;
+    send_and_confirm_transaction(&client, keypair, &[ix])?;
 
     Ok(())
 }
@@ -149,45 +102,16 @@ pub fn verify_nft_collection(
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
-    let nft_metadata = derive_metadata_pda(&Pubkey::from_str(&nft_mint)?);
-    let collection_pubkey = Pubkey::from_str(&collection_mint)?;
-    let collection_md_pubkey = derive_metadata_pda(&collection_pubkey);
-    let collection_edition_pubkey = derive_edition_pda(&collection_pubkey);
-    let collection_authority_record = match is_delegate_present {
-        true => Some(derive_collection_authority_record(&collection_pubkey, &keypair.pubkey()).0),
-        false => None,
+    let verify_args = VerifyCollectionArgs::V1 {
+        authority: &keypair,
+        mint: nft_mint,
+        collection_mint,
+        is_delegate: is_delegate_present,
     };
 
-    // Is it a sized collection?
-    let collection_md_account = client.get_account_data(&collection_md_pubkey)?;
-    let collection_metadata = Metadata::safe_deserialize(collection_md_account.as_slice())?;
-
-    // Choose which handler to use based on if collection is sized or not.
-    let verify_collection_ix = if collection_metadata.collection_details.is_some() {
-        verify_sized_collection_item(
-            metadata_program_id(),
-            nft_metadata,
-            keypair.pubkey(),
-            keypair.pubkey(),
-            collection_pubkey,
-            collection_md_pubkey,
-            collection_edition_pubkey,
-            collection_authority_record,
-        )
-    } else {
-        verify_collection(
-            metadata_program_id(),
-            nft_metadata,
-            keypair.pubkey(),
-            keypair.pubkey(),
-            collection_pubkey,
-            collection_md_pubkey,
-            collection_edition_pubkey,
-            collection_authority_record,
-        )
-    };
-
-    send_and_confirm_transaction(&client, keypair, &[verify_collection_ix])?;
+    // This instruction handles both the case where the collection NFT exists and the case where it doesn't.
+    let ix = verify_collection_ix(&client, verify_args)?;
+    send_and_confirm_transaction(&client, keypair, &[ix])?;
 
     Ok(())
 }
