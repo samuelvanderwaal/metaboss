@@ -4,8 +4,8 @@ use solana_program::pubkey::Pubkey;
 use structopt::StructOpt;
 
 use crate::{
-    collections::GetCollectionItemsMethods, constants::DEFAULT_RATE_LIMIT, data::Indexers,
-    mint::Supply,
+    check::CheckSubcommands, collections::GetCollectionItemsMethods, constants::DEFAULT_RATE_LIMIT,
+    data::Indexers, mint::Supply,
 };
 
 #[derive(Debug, StructOpt)]
@@ -64,6 +64,12 @@ pub enum Command {
     BurnPrint {
         #[structopt(subcommand)]
         burn_print_subcommands: BurnPrintSubcommands,
+    },
+    /// Check specific metadata values for a list of NFTs
+    #[structopt(name = "check")]
+    Check {
+        #[structopt(subcommand)]
+        check_subcommands: CheckSubcommands,
     },
     /// Create accounts
     #[structopt(name = "create")]
