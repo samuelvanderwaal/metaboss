@@ -2,6 +2,7 @@
 extern crate log;
 
 use anyhow::Result;
+use metaboss::check::process_check;
 use metaboss::constants::PUBLIC_RPC_URLS;
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 use solana_sdk::commitment_config::CommitmentConfig;
@@ -67,6 +68,7 @@ async fn main() -> Result<()> {
         Command::BurnPrint {
             burn_print_subcommands,
         } => process_burn_print(client, burn_print_subcommands).await?,
+        Command::Check { check_subcommands } => process_check(check_subcommands).await?,
         Command::Create { create_subcommands } => process_create(client, create_subcommands)?,
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
         Command::Derive { derive_subcommands } => process_derive(derive_subcommands),
@@ -95,6 +97,5 @@ async fn main() -> Result<()> {
         } => process_unverify(client, unverify_subcommands).await?,
     }
 
-    println!("Done!");
     Ok(())
 }

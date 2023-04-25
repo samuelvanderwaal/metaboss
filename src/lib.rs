@@ -1,5 +1,6 @@
 pub mod burn;
 pub mod cache;
+pub mod check;
 pub mod collections;
 pub mod constants;
 pub mod create;
