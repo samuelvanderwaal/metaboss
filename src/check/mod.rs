@@ -8,7 +8,7 @@ use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 pub enum CheckSubcommands {
-    /// Burn a batch of assets.
+    /// Check downloaded metadata files for a specific value
     #[structopt(name = "metadata-value")]
     MetadataValue {
         /// Path to the directory of metadata files

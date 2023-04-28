@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Derive - Metaboss</title>
+        <title>Check - Metaboss</title>
 
 
         <!-- Custom HTML head -->
@@ -80,7 +80,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="check.html"><strong aria-hidden="true">8.</strong> Check</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">9.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">10.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">11.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html" class="active"><strong aria-hidden="true">12.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">13.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">14.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">15.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">16.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">17.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">18.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">19.</strong> Update</a></li><li class="chapter-item expanded "><a href="verify_unverify.html"><strong aria-hidden="true">20.</strong> Verify/Unverify</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">21.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">22.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">7.</strong> Burn</a></li><li class="chapter-item expanded "><a href="check.html" class="active"><strong aria-hidden="true">8.</strong> Check</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">9.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">10.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">11.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">12.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">13.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">14.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">15.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">16.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">17.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">18.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">19.</strong> Update</a></li><li class="chapter-item expanded "><a href="verify_unverify.html"><strong aria-hidden="true">20.</strong> Verify/Unverify</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">21.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">22.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -141,35 +141,54 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="derive"><a class="header" href="#derive">Derive</a></h2>
-<h3 id="derive-candy-machine-v2-creator"><a class="header" href="#derive-candy-machine-v2-creator">Derive Candy Machine V2 Creator</a></h3>
-<p>Derive the candy machine creator PDA from the candy machine id.</p>
-<h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
-<pre><code class="language-bash">metaboss derive cmv2-creator &lt;candy_machine_id&gt;
+                        <h2 id="check"><a class="header" href="#check">Check</a></h2>
+<h3 id="metadata-values"><a class="header" href="#metadata-values">Metadata Values</a></h3>
+<p>Check for a specific metadata value in downloaded metadata files.</p>
+<h3 id="usage"><a class="header" href="#usage">Usage</a></h3>
+<p>Run </p>
+<pre><code class="language-bash">metaboss decode mint -L &lt;mint_list_json&gt; -o &lt;output_dir&gt; --full
 </code></pre>
-<h3 id="derive-edition"><a class="header" href="#derive-edition">Derive Edition</a></h3>
-<p>Derive the edition PDA from the mint account.</p>
-<pre><code class="language-bash">metaboss derive edition &lt;mint_account&gt;
+<p>to decode all the metadata files in the <code>mint_list_json</code> file and save them to the <code>output_dir</code> directory.</p>
+<p>Then run</p>
+<pre><code class="language-bash">metaboss check metadata-value -d &lt;files_dir&gt; METADATA_VALUE=VALUE
 </code></pre>
-<h3 id="derive-metadata"><a class="header" href="#derive-metadata">Derive Metadata</a></h3>
-<p>Derive the metadata PDA from the mint account.</p>
-<pre><code class="language-bash">metaboss derive metadata &lt;mint_account&gt;
+<p>where the <code>files_dir</code> is the location of the metadata files downloaded in the previous command and <code>METADATA_VALUE</code> is one of the following
+values:</p>
+<ul>
+<li><code>name</code></li>
+<li><code>symbol</code></li>
+<li><code>uri</code></li>
+<li><code>sellerFeeBasisPoints</code></li>
+<li><code>creators</code></li>
+<li><code>update_authority</code></li>
+<li><code>primary_sale_happened</code></li>
+<li><code>is_mutable</code></li>
+<li><code>token_standard</code></li>
+<li><code>collection_parent</code></li>
+<li><code>collection_verified</code></li>
+<li><code>rule_set</code></li>
+</ul>
+<p>and <code>VALUE</code> is the specific value of the field you wish to check for in the metadata files.</p>
+<p>E.g., to see if all the metadata files in the <code>output_dir</code> directory have a specific <code>update_authority</code> value:</p>
+<pre><code class="language-bash">metaboss check metadata-value -d my_collection_files/ update_authority=&quot;PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8&quot;
 </code></pre>
-<h3 id="derive-pda"><a class="header" href="#derive-pda">Derive PDA</a></h3>
-<p>Derive a generic PDA from a list of seeds and a program id.</p>
-<h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
-<pre><code class="language-bash">metaboss derive pda &lt;seed1&gt;,&lt;seed2&gt;,&lt;seed3&gt; &lt;program_id&gt;
-</code></pre>
+<p>The command will print a list of files that do not have the specified value as well as create a files with the list of mints.
+The mint file will have the name format: &quot;mb_check_mints_&lt;METADATA_VALUE&gt;.json&quot; and will be created in the directory where the command is run.
+In the above example the mint file will be &quot;mb_check_mints_update_authority.json&quot; and will contain all the mints that do not have the specified
+update authority. This will allow you to easily rerun an update or set command to fix metadata values that weren't set properly.</p>
+<p>The &quot;name&quot; field will check that the name on the metadata <em>contains</em> the name you specify so you can check for partial matches.
+E.g. if your collection's name format is &quot;MyCollection #xx&quot; you can set the name to be &quot;MyCollection&quot; and it will match all the metadata files
+that have the name &quot;MyCollection&quot; in their name.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="decode.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="burn.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="find.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="collections.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -179,11 +198,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="decode.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="burn.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="find.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="collections.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

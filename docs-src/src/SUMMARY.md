@@ -7,6 +7,7 @@
 - [Recipes](./recipes.md)
 - [Global Options](./global_options.md)
 - [Burn](./burn.md)
+- [Check](./check.md)
 - [Collections](./collections.md)
 - [Create](./create.md)
 - [Decode](./decode.md)
