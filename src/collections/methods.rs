@@ -2,14 +2,16 @@ use super::common::*;
 
 use crate::parse::parse_keypair;
 use crate::{
-    derive::{derive_collection_authority_record, derive_metadata_pda},
-    parse::parse_solana_config,
-    utils::send_and_confirm_transaction,
+    derive::derive_metadata_pda, parse::parse_solana_config, utils::send_and_confirm_transaction,
 };
+use metaboss_lib::delegate::{delegate_asset, DelegateAssetArgs};
+use metaboss_lib::revoke::{revoke_asset, RevokeAssetArgs};
 use metaboss_lib::unverify::{unverify_collection_ix, UnverifyCollectionArgs};
 use metaboss_lib::update::{update_asset_ix, UpdateAssetArgs};
 use metaboss_lib::verify::{verify_collection_ix, VerifyCollectionArgs};
-use mpl_token_metadata::instruction::{set_collection_size, CollectionToggle, UpdateArgs};
+use mpl_token_metadata::instruction::{
+    set_collection_size, CollectionToggle, DelegateArgs, RevokeArgs, UpdateArgs,
+};
 
 pub const OPEN_FILES_LIMIT: usize = 1024;
 
@@ -122,28 +124,25 @@ pub fn approve_delegate(
     collection_mint: String,
     delegate_authority: String,
 ) -> AnyResult<()> {
-    let collection_pubkey = Pubkey::from_str(&collection_mint)?;
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
     let delegate_pubkey = Pubkey::from_str(&delegate_authority)?;
 
-    let (collection_authority_record, _bump) =
-        derive_collection_authority_record(&collection_pubkey, &delegate_pubkey);
+    let delegate_args = DelegateAssetArgs::V1 {
+        payer: None,
+        authority: &keypair,
+        mint: collection_mint,
+        delegate: delegate_pubkey,
+        token: None::<String>,
+        delegate_args: DelegateArgs::CollectionV1 {
+            authorization_data: None,
+        },
+    };
 
-    let metadata = derive_metadata_pda(&collection_pubkey);
+    let sig = delegate_asset(&client, delegate_args)?;
 
-    let approve_collection_auth_ix = approve_collection_authority(
-        metadata_program_id(),
-        collection_authority_record,
-        delegate_pubkey,
-        keypair.pubkey(),
-        keypair.pubkey(),
-        metadata,
-        collection_pubkey,
-    );
-
-    send_and_confirm_transaction(&client, keypair, &[approve_collection_auth_ix])?;
+    println!("Signature: {}", sig);
 
     Ok(())
 }
@@ -157,24 +156,20 @@ pub fn revoke_delegate(
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(keypair_path, solana_opts);
 
-    let collection_pubkey = Pubkey::from_str(&collection_mint)?;
     let delegate_pubkey = Pubkey::from_str(&delegate_authority)?;
 
-    let (collection_authority_record, _bump) =
-        derive_collection_authority_record(&collection_pubkey, &delegate_pubkey);
+    let revoke_args = RevokeAssetArgs::V1 {
+        payer: None,
+        authority: &keypair,
+        mint: collection_mint,
+        delegate: delegate_pubkey,
+        token: None::<String>,
+        revoke_args: RevokeArgs::CollectionV1,
+    };
 
-    let metadata = derive_metadata_pda(&collection_pubkey);
+    let sig = revoke_asset(&client, revoke_args)?;
 
-    let revoke_collection_auth_ix = revoke_collection_authority(
-        metadata_program_id(),
-        collection_authority_record,
-        delegate_pubkey,
-        keypair.pubkey(),
-        metadata,
-        collection_pubkey,
-    );
-
-    send_and_confirm_transaction(&client, keypair, &[revoke_collection_auth_ix])?;
+    println!("Signature: {}", sig);
 
     Ok(())
 }
