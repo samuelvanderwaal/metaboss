@@ -26,7 +26,7 @@ values:
 - `name`
 - `symbol`
 - `uri`
-- `sellerFeeBasisPoints`
+- `sfbp`
 - `creators`
 - `update_authority`
 - `primary_sale_happened`
