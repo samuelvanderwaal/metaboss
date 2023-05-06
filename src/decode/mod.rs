@@ -20,6 +20,9 @@ use crate::errors::*;
 use crate::limiter::create_default_rate_limiter;
 use crate::parse::is_only_one_option;
 
+mod rule_set;
+pub use rule_set::*;
+
 #[derive(Debug, Serialize)]
 pub struct JSONCreator {
     pub address: String,

@@ -51,10 +51,16 @@ pub fn update_uses_one(args: UsesArgs) -> Result<Signature, ActionError> {
     }
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default();
+    let mut update_args = UpdateArgs::default_v1();
 
-    let UpdateArgs::V1 { ref mut uses, .. } = update_args;
-    *uses = UsesToggle::Set(new_uses);
+    if let UpdateArgs::V1 { ref mut uses, .. } = update_args {
+        *uses = UsesToggle::Set(new_uses);
+    } else {
+        return Err(ActionError::ActionFailed(
+            args.account,
+            "UpdateArgs enum is not V1!".to_string(),
+        ));
+    }
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

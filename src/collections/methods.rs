@@ -31,16 +31,20 @@ pub fn set_and_verify_nft_collection(
     let mut instructions = vec![];
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default();
+    let mut update_args = UpdateArgs::default_v1();
 
     // We set the collection key with update, but can only verify with Verify.
-    let UpdateArgs::V1 {
-        ref mut collection, ..
-    } = update_args;
-    *collection = CollectionToggle::Set(MdCollection {
-        key: collection_pubkey,
-        verified: false,
-    });
+    match &mut update_args {
+        UpdateArgs::V1 {
+            ref mut collection, ..
+        } => {
+            *collection = CollectionToggle::Set(MdCollection {
+                key: collection_pubkey,
+                verified: false,
+            });
+        }
+        _ => panic!("Unreachable!"),
+    }
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

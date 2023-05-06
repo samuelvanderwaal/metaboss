@@ -21,7 +21,7 @@ use crate::data::UpdateNftData;
 use crate::decode::{
     decode_edition_marker, decode_master_edition, decode_metadata, decode_metadata_from_mint,
     decode_mint_account, decode_print_edition, decode_token_account,
-    process_decode_bpf_loader_upgradable_state,
+    process_decode_bpf_loader_upgradable_state, process_decode_rule_set,
 };
 use crate::derive::{
     get_cmv2_pda, get_edition_marker_pda, get_edition_pda, get_generic_pda, get_metadata_pda,
@@ -402,6 +402,23 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
             edition_num,
             marker_num,
         } => decode_edition_marker(client, &account, edition_num, marker_num)?,
+        DecodeSubcommands::RuleSet { rule_set, revision } => {
+            process_decode_rule_set(client, rule_set, revision)?
+        }
+        DecodeSubcommands::Pubkey { pubkey } => {
+            let key: Vec<u8> = pubkey
+                .trim_start_matches('[')
+                .trim_end_matches(']')
+                .split(',')
+                .map(|c| {
+                    c.parse()
+                        .unwrap_or_else(|_| panic!("failed to parse {}", c))
+                })
+                .collect();
+
+            let array: [u8; 32] = key.try_into().map_err(|_| anyhow!("Invalid pubkey"))?;
+            println!("{:?}", Pubkey::new_from_array(array));
+        }
     }
     Ok(())
 }

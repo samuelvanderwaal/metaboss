@@ -688,6 +688,19 @@ pub enum DecodeSubcommands {
         #[structopt(short, long)]
         marker_num: Option<u64>,
     },
+    /// Decode a token-auth-rules rule set
+    RuleSet {
+        /// Rule Set pubkey
+        rule_set: Pubkey,
+
+        /// Rule Set revision, defaults to latest
+        #[structopt(short = "R", long)]
+        revision: Option<usize>,
+    },
+    Pubkey {
+        /// Pubkey
+        pubkey: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]

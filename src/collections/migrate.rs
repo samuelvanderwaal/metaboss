@@ -140,15 +140,19 @@ fn set_and_verify(
 
     // Add update instruction to set the collection.
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default();
+    let mut update_args = UpdateArgs::default_v1();
 
-    let UpdateArgs::V1 {
-        ref mut collection, ..
-    } = update_args;
-    *collection = CollectionToggle::Set(Collection {
-        key: collection_mint_pubkey,
-        verified: false,
-    });
+    match &mut update_args {
+        UpdateArgs::V1 {
+            ref mut collection, ..
+        } => {
+            *collection = CollectionToggle::Set(Collection {
+                key: collection_mint_pubkey,
+                verified: false,
+            });
+        }
+        _ => panic!("Unreachable!"),
+    }
 
     let update_ix = update_asset_ix(
         &client,

@@ -21,13 +21,20 @@ pub async fn set_primary_sale_happened(
     args: SetPrimarySaleHappenedArgs,
 ) -> Result<Signature, ActionError> {
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default();
+    let mut update_args = UpdateArgs::default_v1();
 
-    let UpdateArgs::V1 {
+    if let UpdateArgs::V1 {
         ref mut primary_sale_happened,
         ..
-    } = update_args;
-    *primary_sale_happened = Some(true);
+    } = update_args
+    {
+        *primary_sale_happened = Some(true);
+    } else {
+        return Err(ActionError::ActionFailed(
+            args.mint_account,
+            "UpdateArgs enum is not V1!".to_string(),
+        ));
+    }
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {
