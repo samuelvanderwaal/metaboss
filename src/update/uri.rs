@@ -35,11 +35,17 @@ pub async fn update_uri(args: UpdateUriArgs) -> Result<Signature, ActionError> {
     }
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default();
+    let mut update_args = UpdateArgs::default_v1();
 
     current_md.data.uri = args.new_uri;
-    let UpdateArgs::V1 { ref mut data, .. } = update_args;
-    *data = Some(current_md.data);
+    if let UpdateArgs::V1 { ref mut data, .. } = update_args {
+        *data = Some(current_md.data);
+    } else {
+        return Err(ActionError::ActionFailed(
+            args.mint_account,
+            "UpdateArgs enum is not V1!".to_string(),
+        ));
+    }
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

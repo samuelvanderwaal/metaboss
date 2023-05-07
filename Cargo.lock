@@ -2048,14 +2048,16 @@ dependencies = [
 
 [[package]]
 name = "metaboss_lib"
-version = "0.10.1"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eef852c73e08ee1cabb87733da0ec998cf1fcf324d7e11f1c7dec02e2b480c84"
+checksum = "14de9b1ad40ce1fcc81788c7a0435c8256dee0fce87bd7884be47e0699189210"
 dependencies = [
  "anyhow",
+ "borsh",
  "mpl-token-auth-rules",
  "mpl-token-metadata",
  "retry",
+ "rmp-serde",
  "serde",
  "serde_json",
  "solana-account-decoder",
@@ -2120,9 +2122,9 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-metadata"
-version = "1.10.0"
+version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1e674db8846d4a603454ce9c93233dd8d503d62f2afe1b9e6486ce81e431f89"
+checksum = "aed414104154928aa995a44a0a474c449d04ce5a4ee6c975ad41c5d2912f0dfe"
 dependencies = [
  "arrayref",
  "borsh",
@@ -2152,9 +2154,9 @@ dependencies = [
 
 [[package]]
 name = "mpl-utils"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fc48e64c50dba956acb46eec86d6968ef0401ef37031426da479f1f2b592066"
+checksum = "822133b6cba8f9a43e5e0e189813be63dd795858f54155c729833be472ffdb51"
 dependencies = [
  "arrayref",
  "borsh",

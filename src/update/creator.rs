@@ -47,12 +47,18 @@ pub async fn update_creator(args: UpdateCreatorArgs) -> Result<Signature, Action
     }
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default();
+    let mut update_args = UpdateArgs::default_v1();
 
     // Update the creators on the data struct.
     current_md.data.creators = Some(new_creators);
-    let UpdateArgs::V1 { ref mut data, .. } = update_args;
-    *data = Some(current_md.data);
+    if let UpdateArgs::V1 { ref mut data, .. } = update_args {
+        *data = Some(current_md.data);
+    } else {
+        return Err(ActionError::ActionFailed(
+            args.mint_account,
+            "UpdateArgs enum is not V1!".to_string(),
+        ));
+    }
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

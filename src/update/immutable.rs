@@ -21,12 +21,19 @@ pub async fn set_immutable(args: SetImmutableArgs) -> Result<Signature, ActionEr
     // Add metadata delegate record here later.
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default();
+    let mut update_args = UpdateArgs::default_v1();
 
-    let UpdateArgs::V1 {
+    if let UpdateArgs::V1 {
         ref mut is_mutable, ..
-    } = update_args;
-    *is_mutable = Some(false);
+    } = update_args
+    {
+        *is_mutable = Some(false);
+    } else {
+        return Err(ActionError::ActionFailed(
+            args.mint_account,
+            "UpdateArgs enum is not V1!".to_string(),
+        ));
+    }
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

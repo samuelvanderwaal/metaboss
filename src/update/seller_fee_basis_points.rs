@@ -26,11 +26,17 @@ pub async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<Signatu
     current_md.data.seller_fee_basis_points = args.new_sfbp;
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default();
+    let mut update_args = UpdateArgs::default_v1();
 
     // Update the sfbp on the data struct.
-    let UpdateArgs::V1 { ref mut data, .. } = update_args;
-    *data = Some(current_md.data);
+    if let UpdateArgs::V1 { ref mut data, .. } = update_args {
+        *data = Some(current_md.data);
+    } else {
+        return Err(ActionError::ActionFailed(
+            args.mint_account,
+            "UpdateArgs enum is not V1!".to_string(),
+        ));
+    }
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {
