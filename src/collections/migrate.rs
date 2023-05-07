@@ -142,16 +142,19 @@ fn set_and_verify(
     // Token Metadata UpdateArgs enum.
     let mut update_args = UpdateArgs::default_v1();
 
-    match &mut update_args {
-        UpdateArgs::V1 {
-            ref mut collection, ..
-        } => {
-            *collection = CollectionToggle::Set(Collection {
-                key: collection_mint_pubkey,
-                verified: false,
-            });
-        }
-        _ => panic!("Unreachable!"),
+    if let UpdateArgs::V1 {
+        ref mut collection, ..
+    } = update_args
+    {
+        *collection = CollectionToggle::Set(Collection {
+            key: collection_mint_pubkey,
+            verified: false,
+        });
+    } else {
+        return Err(MigrateError::MigrationFailed(
+            nft_mint,
+            "UpdateArgs enum is not V1!".to_string(),
+        ));
     }
 
     let update_ix = update_asset_ix(
