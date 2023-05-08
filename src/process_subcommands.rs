@@ -411,7 +411,7 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
                 .trim_end_matches(']')
                 .split(',')
                 .map(|c| {
-                    c.parse()
+                    c.parse::<u8>()
                         .unwrap_or_else(|_| panic!("failed to parse {}", c))
                 })
                 .collect();
