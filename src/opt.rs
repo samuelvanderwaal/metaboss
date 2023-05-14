@@ -697,6 +697,7 @@ pub enum DecodeSubcommands {
         #[structopt(short = "R", long)]
         revision: Option<usize>,
     },
+    /// Decode a pubkey from a u8 array
     Pubkey {
         /// Pubkey
         pubkey: String,

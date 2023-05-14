@@ -58,3 +58,23 @@ Decodes a single Master Edition account from a mint account into a JSON file. Th
 ```bash
 metaboss decode master --account <MINT_ACCOUNT> 
 ```
+
+### Decode Rulset
+
+Decode a programmable NFT rule set from a pubkey.
+
+#### Usage
+
+```bash
+metaboss decode rule-set AdH2Utn6Fus15ZhtenW4hZBQnvtLgM1YCW2MfVp7pYS5
+```
+
+### Decode Pubkey
+
+Decode a pubkey from a u8 array.
+
+#### Usage
+
+```bash
+metaboss decode pubkey "[198,63,89,223,232,36,128,201,194,84,163,124,239,91,140,18,189,137,137,47,53,111,44,226,53,45,91,202,241,224,183,205]"
+```
