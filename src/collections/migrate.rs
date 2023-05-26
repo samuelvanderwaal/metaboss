@@ -72,9 +72,6 @@ impl MigrateCache {
     }
 
     pub fn update_errors(&mut self, errors: Vec<MigrateError>) {
-        // let errors = errors.iter().map(|r| r.as_ref()).map(Result::unwrap_err);
-
-        // Clear out old errors.
         self.clear();
 
         for error in errors {
@@ -324,6 +321,7 @@ pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
             break;
         } else {
             println!("Reached max retries. Writing remaining items to cache.");
+            cache.update_errors(migrate_failed);
             cache.write(f)?;
             break;
         }
