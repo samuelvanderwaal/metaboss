@@ -1,6 +1,6 @@
 [package]
 name = "metaboss"
-version = "0.25.0"
+version = "0.25.1"
 edition = "2021"
 description="The Metaplex NFT-standard Swiss Army Knife tool."
 repository="https://github.com/samuelvanderwaal/metaboss"
