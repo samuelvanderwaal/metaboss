@@ -8,6 +8,7 @@ use solana_program::pubkey::Pubkey;
 use solana_sdk::commitment_config::CommitmentConfig;
 
 #[test]
+#[ignore]
 fn mint_first_edition() {
     let client = RpcClient::new_with_commitment(
         "http://localhost:8899".to_string(),
@@ -60,6 +61,7 @@ fn mint_first_edition() {
 }
 
 #[test]
+#[ignore]
 fn mint_next_edition_marker_1() {
     let client = RpcClient::new_with_commitment(
         "http://localhost:8899".to_string(),
