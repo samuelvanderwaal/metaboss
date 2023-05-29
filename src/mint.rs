@@ -375,20 +375,13 @@ fn mint_next_edition(
         || decode_master_edition_from_mint(client, account),
     )?;
 
-    println!("Master edition: {master_edition:?}");
-
     // Get current edition number
     // Loop through edition marker accounts and look for any 0s in the ledger data.
     // Use the first found 0 as the next edition number.
     let mut edition_num: usize = 0;
     let mint_pubkey = Pubkey::from_str(account)?;
 
-    println!("Mint pubkey: {mint_pubkey:?}");
-
-    // If the first edition marker account doesn't exist
-
     loop {
-        println!("Edition num: {edition_num}");
         let edition_marker = derive_edition_marker_pda(&mint_pubkey, edition_num as u64);
 
         // If the edition marker doesn't exist then the next edition is the first edition for that marker.
@@ -400,28 +393,17 @@ fn mint_next_edition(
             break;
         }
 
-        println!("Edition marker: {edition_marker:?}");
-
         let marker = EditionMarker::safe_deserialize(&account.unwrap().data)?;
 
-        println!("Marker: {marker:?}");
-
-        if let Some((index, bit)) = find_first_zero_bit(marker.ledger) {
-            println!("Index: {index}, bit: {bit}");
-            edition_num += index * 8 + (7 - bit) as usize;
+        if let Some((index, bit)) = find_first_zero_bit(marker.ledger, edition_num == 0) {
+            edition_num += index * 8 + bit as usize;
             break;
         } else {
             edition_num += 248;
         }
     }
 
-    println!("Edition num: {edition_num}");
-
-    println!("filler");
-
-    println!("filler");
-
-    let edition_num = edition_num as u64;
+    let mut edition_num = edition_num as u64;
 
     if let Some(max_supply) = master_edition.max_supply {
         if edition_num > max_supply {
@@ -433,18 +415,28 @@ fn mint_next_edition(
         }
     }
 
+    // Cannot mint edition 0.
+    if edition_num == 0 {
+        edition_num += 1;
+    }
+
     mint_edition(client, keypair_path, account, edition_num, receiver)?;
 
     Ok(())
 }
 
-fn find_first_zero_bit(arr: [u8; 31]) -> Option<(usize, u8)> {
+fn find_first_zero_bit(arr: [u8; 31], first_marker: bool) -> Option<(usize, u8)> {
+    // First edition marker starts at 1 so first bit is zero and needs to be skipped.
+
     for (i, &byte) in arr.iter().enumerate() {
         if byte != 0xff {
             // There's at least one zero bit in this byte
-            for bit in 0..8 {
+            for bit in (0..8).rev() {
                 if (byte & (1 << bit)) == 0 {
-                    return Some((i, bit));
+                    if first_marker && i == 0 && bit == 7 {
+                        continue;
+                    }
+                    return Some((i, 7 - bit));
                 }
             }
         }
