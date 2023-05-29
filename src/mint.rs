@@ -3,6 +3,7 @@ use glob::glob;
 use log::{error, info};
 use metaboss_lib::{
     decode::*,
+    derive::derive_edition_marker_pda,
     mint::{mint_asset, MintAssetArgs},
 };
 use mpl_token_metadata::{
@@ -10,7 +11,7 @@ use mpl_token_metadata::{
         create_master_edition_v3, create_metadata_accounts_v3,
         mint_new_edition_from_master_edition_via_token, update_metadata_accounts_v2,
     },
-    state::{AssetData, CollectionDetails, PrintSupply},
+    state::{AssetData, CollectionDetails, EditionMarker, PrintSupply, TokenMetadataAccount},
     ID as TOKEN_METADATA_PROGRAM_ID,
 };
 use rayon::prelude::*;
@@ -20,6 +21,7 @@ use serde::Serialize;
 use serde_json::Value;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
+    commitment_config::CommitmentConfig,
     pubkey::Pubkey,
     signature::Signature,
     signer::{keypair::Keypair, Signer},
@@ -368,28 +370,78 @@ fn mint_next_edition(
     receiver: &Option<String>,
 ) -> Result<()> {
     // Send tx with retries.
-    let master_edition_res = retry(
+    let master_edition = retry(
         Exponential::from_millis_with_factor(250, 2.0).take(3),
         || decode_master_edition_from_mint(client, account),
-    );
+    )?;
+
     // Get current edition number
-    let master_edition = master_edition_res?;
-    let current_edition_num = master_edition.supply;
-    let next_edition_num = current_edition_num + 1;
+    // Loop through edition marker accounts and look for any 0s in the ledger data.
+    // Use the first found 0 as the next edition number.
+    let mut edition_num: usize = 0;
+    let mint_pubkey = Pubkey::from_str(account)?;
+
+    loop {
+        let edition_marker = derive_edition_marker_pda(&mint_pubkey, edition_num as u64);
+
+        // If the edition marker doesn't exist then the next edition is the first edition for that marker.
+        let account = client
+            .get_account_with_commitment(&edition_marker, CommitmentConfig::confirmed())?
+            .value;
+
+        if account.is_none() {
+            break;
+        }
+
+        let marker = EditionMarker::safe_deserialize(&account.unwrap().data)?;
+
+        if let Some((index, bit)) = find_first_zero_bit(marker.ledger, edition_num == 0) {
+            edition_num += index * 8 + bit as usize;
+            break;
+        } else {
+            edition_num += 248;
+        }
+    }
+
+    let mut edition_num = edition_num as u64;
 
     if let Some(max_supply) = master_edition.max_supply {
-        if next_edition_num > max_supply {
+        if edition_num > max_supply {
             return Err(anyhow!(
                 "Next edition number {} is greater than max_supply {}",
-                next_edition_num,
+                edition_num,
                 max_supply
             ));
         }
     }
 
-    mint_edition(client, keypair_path, account, next_edition_num, receiver)?;
+    // Cannot mint edition 0.
+    if edition_num == 0 {
+        edition_num += 1;
+    }
+
+    mint_edition(client, keypair_path, account, edition_num, receiver)?;
 
     Ok(())
+}
+
+fn find_first_zero_bit(arr: [u8; 31], first_marker: bool) -> Option<(usize, u8)> {
+    // First edition marker starts at 1 so first bit is zero and needs to be skipped.
+
+    for (i, &byte) in arr.iter().enumerate() {
+        if byte != 0xff {
+            // There's at least one zero bit in this byte
+            for bit in (0..8).rev() {
+                if (byte & (1 << bit)) == 0 {
+                    if first_marker && i == 0 && bit == 7 {
+                        continue;
+                    }
+                    return Some((i, 7 - bit));
+                }
+            }
+        }
+    }
+    None
 }
 
 fn mint_edition(
