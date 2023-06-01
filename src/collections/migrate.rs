@@ -126,8 +126,6 @@ fn set_and_verify(
                 is_delegate,
             };
 
-            println!("adding unverify instruction");
-
             // This instruction handles both the case where the collection NFT exists and the case where it doesn't.
             let ix = unverify_collection_ix(&client, unverify_args)
                 .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
