@@ -36,7 +36,7 @@ use crate::snapshot::{
     snapshot_cm_accounts, snapshot_holders, snapshot_indexed_holders, snapshot_indexed_mints,
     snapshot_mints, snapshot_mints_by_collection, snapshot_mints_by_creator,
     snapshot_print_editions, GetMintsArgs, Method, NftsByCreatorArgs, SnapshotHoldersArgs,
-    SnapshotMintsArgs,
+    SnapshotMintsArgs, SnapshotPrintEditionsArgs,
 };
 use crate::transfer::process_transfer_asset;
 use crate::unverify::{
@@ -819,8 +819,17 @@ pub async fn process_snapshot(client: RpcClient, commands: SnapshotSubcommands) 
         }
         SnapshotSubcommands::Prints {
             master_mint,
+            creator,
             output,
-        } => snapshot_print_editions(client, &master_mint, &output).await,
+        } => {
+            snapshot_print_editions(SnapshotPrintEditionsArgs {
+                client,
+                master_mint,
+                creator,
+                output,
+            })
+            .await
+        }
     }
 }
 
