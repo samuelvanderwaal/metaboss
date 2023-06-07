@@ -32,6 +32,7 @@
 
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -69,10 +70,12 @@
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
             var html = document.querySelector('html');
-            var sidebar = 'hidden';
+            var sidebar = null;
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
             }
             html.classList.remove('sidebar-visible');
             html.classList.add("sidebar-" + sidebar);
@@ -235,6 +238,45 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <h4 id="usage-4"><a class="header" href="#usage-4">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot indexed-holders --creator &lt;FIRST_VERIFIED_CREATOR&gt; --api-key &lt;THEINDEX.IO_API_KEY&gt;
 </code></pre>
+<h3 id="snapshot-prints"><a class="header" href="#snapshot-prints">Snapshot Prints</a></h3>
+<p>Snapshot the print editions of a given master edition. This returns a JSON object of edition mints where the key is the edition number and the value is the mint address.</p>
+<p>E.g.:</p>
+<pre><code class="language-json">{
+  &quot;1&quot;: &quot;CgCmZJCBeJs9m596NzqxLg3HB8eerHHWXQPiiigB3fpt&quot;,
+  &quot;2&quot;: &quot;C7kfCVwadqrQwjCBewE147r3xg8ZgYgqeUJk2tMsZ5zi&quot;,
+  &quot;3&quot;: &quot;6HQBWdC9BpY6Ky3YvmxoEJGce8PgQ6NqfkLgP3dJRDpb&quot;,
+  &quot;4&quot;: &quot;FiDSNjCM5sLPmMvHvCWtnqEp9yt4NvZ2ThXJ9kpvBT73&quot;,
+  &quot;5&quot;: &quot;4DwpsvxzemsHxDjz8qrVkQFP7nK5QwT6irL1KQkt5NJy&quot;,
+  &quot;6&quot;: &quot;DBLeCRfF8t7q2oe5DYip8J9m4eRTc46EKMazqitth5eL&quot;,
+  &quot;7&quot;: &quot;AUYNrra3XmPg4FBZ5t3w1m9Nou1AQqGEs5RUPqMu9Bz1&quot;,
+  &quot;8&quot;: &quot;Ewj5hZ7Z2HLojk3Du7RXcHnNtqBv8UrMCNxuukHA436J&quot;,
+  &quot;9&quot;: &quot;CJgszcJTg5MKFrRa9pcty42ybaaoq13thh3a71Ep2G8t&quot;,
+  &quot;10&quot;: &quot;7zZKJ9g5Bz4UZnAjY9DoiGzsV56JSTbx3ejgrzuupKQ2&quot;,
+  &quot;11&quot;: &quot;Fq1rT9krzj6zMUJbDUraMEekHKcTdwyfYeYdbcAgN5qE&quot;,
+  &quot;12&quot;: &quot;EqnXBCwU2eTCVTE6G82PnZ5ujKpxeCnGrGvaURYMyjvr&quot;,
+  &quot;13&quot;: &quot;4oWVGXtCMA7QQi8KJaWD2sc89kapQ9yYybTwqD99LVhi&quot;,
+  &quot;14&quot;: &quot;3P7aumi3e4ZALiMY6g9Ec7H6zpN4jfyRC5Hs1G5n4Nt4&quot;,
+  &quot;15&quot;: &quot;5pwz2Fn3YGFFLzNVFAZZESfpjjjnA2k71Hd2mHPCX1ro&quot;
+}
+</code></pre>
+<p>There is no direct way to find all print editions of a given master edition, so this command uses the following heuristic:</p>
+<ol>
+<li>Derive the master edition account from the provided master_edition_mint</li>
+<li>Decode the master edition NFT metadata account</li>
+<li>Find the first verified creator of the master edition's metadata account</li>
+<li>Snapshot all metadata accounts with the same first verified creator</li>
+<li>Decode all the metadata accounts</li>
+<li>Get the mint from each metadata account</li>
+<li>Derive the edition for each mint account</li>
+<li>Decode the edition and check if it's a master or a print</li>
+<li>If it's a print and its parent is the master edition, add it to the list with its edition number as the key</li>
+</ol>
+<p>The user can optionally pass in a first verified creator to use instead of deriving it from the master edition.</p>
+<p>Limitations:</p>
+<p>For master editions that have had prints minted, and then had their first verified creator changed and then more prints minted, it will take multiple runs of this command with each of the first verified creators to find all the prints and the user will need to track them in separate files and merge them manually as it will overwrite the default output file each time.</p>
+<h4 id="usage-5"><a class="header" href="#usage-5">Usage</a></h4>
+<pre><code class="language-bash">metaboss snapshot prints -m &lt;MASTER_EDITION_MINT&gt; -c &lt;OPTIONAL_FIRST_VERIFIED_CREATOR&gt;
+</code></pre>
 
                     </main>
 
@@ -284,5 +326,6 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
         <!-- Custom JS scripts -->
 
 
+    </div>
     </body>
 </html>
