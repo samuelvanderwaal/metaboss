@@ -1856,6 +1856,7 @@ dependencies = [
  "solana-logger",
  "solana-program",
  "solana-sdk",
+ "solana-transaction-crawler",
  "spl-associated-token-account",
  "spl-token",
  "structopt",
@@ -3780,6 +3781,23 @@ dependencies = [
  "thiserror",
  "tokio",
  "x509-parser",
+]
+
+[[package]]
+name = "solana-transaction-crawler"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d47933dac8cbe3531e1a34cba2abb094748b4e02d0954b6f9ea42b9740dc654"
+dependencies = [
+ "rayon",
+ "retry",
+ "serde",
+ "solana-client",
+ "solana-program",
+ "solana-sdk",
+ "solana-transaction-status",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]

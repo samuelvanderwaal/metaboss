@@ -1245,6 +1245,19 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
+    Prints {
+        /// Master edition mint address.
+        #[structopt(short = "m", long)]
+        master_mint: String,
+
+        /// First verified creator of editions, defaults to master edition FVC
+        #[structopt(short, long)]
+        creator: Option<String>,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]
