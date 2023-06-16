@@ -43,6 +43,7 @@ use crate::unverify::{
     unverify_creator, unverify_creator_all, UnverifyCreatorAllArgs, UnverifyCreatorArgs,
 };
 use crate::update::*;
+use crate::upload::{upload_solana, UploadSolanaArgs};
 use crate::uses::{approve_use_delegate, revoke_use_delegate, utilize_nft};
 use crate::verify::{verify_creator, verify_creator_all, VerifyCreatorAllArgs, VerifyCreatorArgs};
 
@@ -1261,5 +1262,25 @@ pub async fn process_unverify(client: RpcClient, commands: UnverifySubcommands) 
 pub fn process_parse_errors_file(commands: ParseErrorsSubCommands) -> Result<()> {
     match commands {
         ParseErrorsSubCommands::File => parse_errors_file(),
+    }
+}
+
+pub async fn process_upload(client: RpcClient, commands: UploadSubcommands) -> Result<()> {
+    match commands {
+        UploadSubcommands::Solana {
+            keypair,
+            json_file,
+            rate_limit,
+            retries,
+        } => {
+            upload_solana(UploadSolanaArgs {
+                client,
+                keypair,
+                json_file,
+                rate_limit,
+                retries,
+            })
+            .await
+        }
     }
 }

@@ -1853,6 +1853,7 @@ dependencies = [
  "shellexpand",
  "solana-account-decoder",
  "solana-client",
+ "solana-json",
  "solana-logger",
  "solana-program",
  "solana-sdk",
@@ -1931,7 +1932,7 @@ dependencies = [
  "num-traits",
  "rmp-serde",
  "serde",
- "shank",
+ "shank 0.0.11",
  "solana-program",
  "solana-zk-token-sdk",
  "thiserror",
@@ -1952,7 +1953,7 @@ dependencies = [
  "num-traits",
  "serde",
  "serde_with 1.14.0",
- "shank",
+ "shank 0.0.11",
  "solana-program",
  "spl-associated-token-account",
  "spl-token",
@@ -3184,7 +3185,16 @@ version = "0.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b63e565b5e95ad88ab38f312e89444c749360641c509ef2de0093b49f55974a5"
 dependencies = [
- "shank_macro",
+ "shank_macro 0.0.11",
+]
+
+[[package]]
+name = "shank"
+version = "0.0.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "439c00542aa8b4c777750b3130ce36fcff86ba215d54006d47d67359513b70be"
+dependencies = [
+ "shank_macro 0.0.12",
 ]
 
 [[package]]
@@ -3195,7 +3205,20 @@ checksum = "63927d22a1e8b74bda98cc6e151fcdf178b7abb0dc6c4f81e0bbf5ffe2fc4ec8"
 dependencies = [
  "proc-macro2 1.0.59",
  "quote 1.0.28",
- "shank_macro_impl",
+ "shank_macro_impl 0.0.11",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "shank_macro"
+version = "0.0.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3498d6ea2ba012f26ad3d79a19773ba8e1c7a69f14dec67e3ed51c723cc9f30a"
+dependencies = [
+ "proc-macro2 1.0.59",
+ "quote 1.0.28",
+ "shank_macro_impl 0.0.12",
+ "shank_render",
  "syn 1.0.109",
 ]
 
@@ -3210,6 +3233,30 @@ dependencies = [
  "quote 1.0.28",
  "serde",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "shank_macro_impl"
+version = "0.0.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "271c0b0b47ef930d7455d11a02164e3f0e71704d639bcaa6581f23e4b2073227"
+dependencies = [
+ "anyhow",
+ "proc-macro2 1.0.59",
+ "quote 1.0.28",
+ "serde",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "shank_render"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "142e11124c70d1702424011209621551adf775988033dedea428ce4a21d3acdf"
+dependencies = [
+ "proc-macro2 1.0.59",
+ "quote 1.0.28",
+ "shank_macro_impl 0.0.12",
 ]
 
 [[package]]
@@ -3499,6 +3546,22 @@ dependencies = [
  "quote 1.0.28",
  "rustc_version",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "solana-json"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2faa6a96cf3d017787e3362d8948447d5eeb8c52c0b6c1a87bb097b374930895"
+dependencies = [
+ "borsh",
+ "mpl-utils",
+ "num-derive",
+ "num-traits",
+ "serde_json",
+ "shank 0.0.12",
+ "solana-program",
+ "thiserror",
 ]
 
 [[package]]

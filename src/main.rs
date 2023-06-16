@@ -95,6 +95,9 @@ async fn main() -> Result<()> {
         Command::Unverify {
             unverify_subcommands,
         } => process_unverify(client, unverify_subcommands).await?,
+        Command::Upload { upload_subcommands } => {
+            process_upload(client, upload_subcommands).await?
+        }
     }
 
     Ok(())

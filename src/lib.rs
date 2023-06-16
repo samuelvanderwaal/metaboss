@@ -22,6 +22,7 @@ pub mod theindexio;
 pub mod transfer;
 pub mod unverify;
 pub mod update;
+pub mod upload;
 pub mod uses;
 pub mod utils;
 pub mod verify;

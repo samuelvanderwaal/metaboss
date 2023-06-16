@@ -45,6 +45,7 @@ structopt = "0.3.26"
 thiserror = "1.0.40"
 tokio = "1.28"
 solana-transaction-crawler = "0.1.0"
+solana-json = { version = "0.1.2", features = ["no-entrypoint"] }
 
 [features]
 

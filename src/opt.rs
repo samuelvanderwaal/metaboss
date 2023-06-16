@@ -142,6 +142,12 @@ pub enum Command {
         #[structopt(subcommand)]
         unverify_subcommands: UnverifySubcommands,
     },
+    /// Upload JSON
+    #[structopt(name = "upload")]
+    Upload {
+        #[structopt(subcommand)]
+        upload_subcommands: UploadSubcommands,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -1684,4 +1690,26 @@ pub enum UnverifySubcommands {
 pub enum ParseErrorsSubCommands {
     #[structopt(name = "file")]
     File,
+}
+
+#[derive(Debug, StructOpt)]
+pub enum UploadSubcommands {
+    #[structopt(name = "solana")]
+    Solana {
+        /// Path to the update_authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// JSON file
+        #[structopt(short, long)]
+        json_file: String,
+
+        /// Maximum number of requests per second
+        #[structopt(short = "R", long, default_value = DEFAULT_RATE_LIMIT)]
+        rate_limit: usize,
+
+        /// Maximum retries: retry failed items up to this many times.
+        #[structopt(long, default_value = "0")]
+        retries: u8,
+    },
 }
