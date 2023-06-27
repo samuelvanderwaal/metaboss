@@ -33,7 +33,6 @@
 
     </head>
     <body>
-    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
@@ -71,12 +70,10 @@
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
             var html = document.querySelector('html');
-            var sidebar = null;
+            var sidebar = 'hidden';
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
-            } else {
-                sidebar = 'hidden';
             }
             html.classList.remove('sidebar-visible');
             html.classList.add("sidebar-" + sidebar);
@@ -1008,8 +1005,8 @@ OPTIONS:
 <p>Note: The on-chain <code>Data</code> struct is <em>different</em> than the external metadata stored at the link in the <code>uri</code> field so make you understand the difference before running this command.</p>
 <p><strong>Make sure you understand how the Metaplex Metadata <code>Data</code> struct works and how this command will affect your NFT. Always test on <code>devnet</code> before running on mainnet.</strong></p>
 <pre><code class="language-json">{
-    &quot;mint_account&quot;: &quot;CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp&quot;,
-    &quot;nft_data&quot;:
+    &quot;mint&quot;: &quot;CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp&quot;,
+    &quot;data&quot;:
     {
     &quot;name&quot;: &quot;FerrisCrab #4&quot;,
     &quot;symbol&quot;: &quot;FERRIS&quot;,
@@ -1034,6 +1031,8 @@ OPTIONS:
     ]}
 }
 </code></pre>
+<p>One approach to using <code>update data-all</code> is you can get all the JSON files using the <code>metaboss decode mint -L &lt;mint_list&gt; --full</code> command, and then write a script to modify the specific fields you want to change.
+The file output from <code>decode mint</code> when using the <code>--full</code> option provides the correct format that metaboss expects because it uses the same field names as what <code>update data-all</code> expects. </p>
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="update-name"><a class="header" href="#update-name">Update Name</a></h3>
 <p>Update the on-chain name of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
@@ -1363,6 +1362,5 @@ OPTIONS:
         });
         </script>
 
-    </div>
     </body>
 </html>
