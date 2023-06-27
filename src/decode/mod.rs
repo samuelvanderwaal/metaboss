@@ -71,7 +71,7 @@ pub fn decode_metadata_all(
             }
 
             debug!("Decoding metadata for mint account: {}", mint_account);
-            let metadata = match decode(client, mint_account) {
+            let mut metadata = match decode(client, mint_account) {
                 Ok(m) => m,
                 Err(err) => match err {
                     DecodeError::ClientError(kind) => {
@@ -91,6 +91,9 @@ pub fn decode_metadata_all(
                     }
                 },
             };
+            metadata.data.name = metadata.data.name.replace('\u{0}', "");
+            metadata.data.uri = metadata.data.uri.replace('\u{0}', "");
+            metadata.data.symbol = metadata.data.symbol.replace('\u{0}', "");
 
             debug!("Creating file for mint account: {}", mint_account);
             let mut file = match File::create(format!("{output}/{mint_account}.json")) {
@@ -186,9 +189,18 @@ pub fn decode_metadata_from_mint(
             println!("{data:?}");
             return Ok(());
         }
-        let metadata = decode(client, mint_account)?;
+        let mut metadata = decode(client, mint_account)?;
+        metadata.data.name = metadata.data.name.replace('\u{0}', "");
+        metadata.data.uri = metadata.data.uri.replace('\u{0}', "");
+        metadata.data.symbol = metadata.data.symbol.replace('\u{0}', "");
+
         let mut file = File::create(format!("{output}/{mint_account}.json"))?;
-        serde_json::to_writer_pretty(&mut file, &metadata)?;
+
+        if full {
+            serde_json::to_writer_pretty(&mut file, &metadata)?;
+        } else {
+            serde_json::to_writer_pretty(&mut file, &metadata.data)?;
+        }
     } else if let Some(list_path) = list_path {
         decode_metadata_all(client, list_path, full, output)?;
     } else {
