@@ -1088,7 +1088,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 client: Arc::new(client),
                 keypair: Arc::new(keypair),
                 mint_account: account,
-                new_data: new_data.data,
+                new_data: new_data.nft_data,
             };
 
             let sig = update_data(args).await.map_err(Into::<ActionError>::into)?;

@@ -23,8 +23,8 @@ pub struct NFTData {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateNftData {
-    pub mint: String,
-    pub data: Data,
+    pub mint_account: String,
+    pub nft_data: Data,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

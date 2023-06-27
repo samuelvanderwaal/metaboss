@@ -102,8 +102,6 @@ pub async fn update_data_all(args: UpdateDataAllArgs) -> AnyResult<()> {
 
     let mint_values = Arc::new(Mutex::new(HashMap::new()));
 
-    // If user hasn't passed in a cache file, then we construct the mint list from the URI file.
-
     info!("Updating...");
     println!("Updating...");
     paths.par_iter().progress().for_each(|path| {
@@ -132,8 +130,8 @@ pub async fn update_data_all(args: UpdateDataAllArgs) -> AnyResult<()> {
         };
 
         mint_values.lock().unwrap().insert(
-            update_nft_data.mint,
-            serde_json::to_string(&update_nft_data.data).unwrap(),
+            update_nft_data.mint_account,
+            serde_json::to_string(&update_nft_data.nft_data).unwrap(),
         );
     });
 
