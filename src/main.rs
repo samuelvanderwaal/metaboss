@@ -61,6 +61,9 @@ async fn main() -> Result<()> {
         Command::Collections {
             collections_subcommands,
         } => process_collections(client, async_client, collections_subcommands).await?,
+        Command::Airdrop {
+            airdrop_subcommands,
+        } => process_airdrop(client, airdrop_subcommands).await?,
         Command::Burn { burn_subcommands } => process_burn_asset(client, burn_subcommands).await?,
         Command::BurnNft {
             burn_nft_subcommands,
