@@ -1649,7 +1649,7 @@ checksum = "453ad9f582a441959e5f0d088b02ce04cfe8d51a8eaf077f12ac6d3e94164ca6"
 [[package]]
 name = "jib"
 version = "0.2.0"
-source = "git+https://github.com/samuelvanderwaal/jib.git?branch=refactor/jib-result#1d245a4b45d0e9576c53c4779dd573b0b7723960"
+source = "git+https://github.com/samuelvanderwaal/jib.git?branch=refactor/jib-result#1025ff0c5d4b0d6c4f5696ca8369d49e00df8881"
 dependencies = [
  "bincode",
  "indicatif 0.17.6",
@@ -1856,7 +1856,6 @@ dependencies = [
  "borsh",
  "bs58",
  "console",
- "dialoguer",
  "env_logger",
  "futures",
  "glob",

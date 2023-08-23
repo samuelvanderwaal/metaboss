@@ -170,10 +170,6 @@ pub enum AirdropSubcommands {
         /// Cache file
         #[structopt(short, long)]
         cache_file: Option<String>,
-
-        /// Amount of lamports to airdrop.
-        #[structopt(short, long)]
-        amount: u64,
     },
 }
 

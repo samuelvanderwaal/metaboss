@@ -1,12 +1,13 @@
-use std::str::FromStr;
+use std::{collections::HashMap, fs::File, str::FromStr};
 
 use anyhow::Result;
-use dialoguer::Input;
-use jib::{Jib, JibResult, Network};
+use jib::{Jib, Network};
+use log::debug;
+use serde::{Deserialize, Serialize};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{pubkey::Pubkey, signer::Signer};
 
-use crate::update::{parse_keypair, parse_mint_list, parse_solana_config};
+use crate::update::{parse_keypair, parse_solana_config};
 
 pub struct AirdropSolArgs {
     pub client: RpcClient,
@@ -14,7 +15,19 @@ pub struct AirdropSolArgs {
     pub network: Network,
     pub recipient_list: Option<String>,
     pub cache_file: Option<String>,
-    pub amount: u64,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+struct FailedTransaction {
+    transaction_accounts: Vec<String>,
+    recipients: HashMap<String, u64>,
+    error: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+struct Recipient {
+    address: String,
+    amount: u64,
 }
 
 pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
@@ -25,47 +38,77 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
 
     let mut instructions = vec![];
 
-    let recipients = parse_mint_list(args.recipient_list, &args.cache_file)?.unwrap();
+    if args.recipient_list.is_some() && args.cache_file.is_some() {
+        eprintln!("Cannot provide both a recipient list and a cache file.");
+        std::process::exit(1);
+    }
 
-    let status_file_name = "statuses.json";
+    let mut airdrop_list: HashMap<String, u64> = if let Some(list_file) = args.recipient_list {
+        serde_json::from_reader(File::open(list_file)?)?
+    } else if let Some(cache_file) = args.cache_file {
+        let failed_txes: Vec<FailedTransaction> = serde_json::from_reader(File::open(cache_file)?)?;
+        failed_txes
+            .iter()
+            .flat_map(|f| f.recipients.clone())
+            .collect()
+    } else {
+        eprintln!("No recipient list or cache file provided.");
+        std::process::exit(1);
+    };
 
-    for recipient in recipients {
-        let recipient = Pubkey::from_str(&recipient).unwrap();
+    let cache_file_name = "mb-cache-airdrop.json";
+    let successful_tx_file_name = "mb-successful-airdrops.json";
+
+    for (address, amount) in &airdrop_list {
+        let pubkey = Pubkey::from_str(address).unwrap();
+
         instructions.push(solana_sdk::system_instruction::transfer(
             &jib.payer().pubkey(),
-            &recipient,
-            args.amount,
+            &pubkey,
+            *amount,
         ));
     }
 
     jib.set_instructions(instructions);
-    let statuses = jib.hoist()?;
+    let results = jib.hoist()?;
 
-    if statuses.iter().any(|r| r.is_failure()) {
-        let input: String = Input::new()
-            .with_prompt("Some transactions failed. Retry the failed ones? (y/n)")
-            .interact_text()
-            .unwrap();
-
-        if input.to_lowercase() == "y" {
-            // Get transactions from statuses
-            let mut transactions = vec![];
-            for status in &statuses {
-                if let JibResult::Failure(tx) = status {
-                    transactions.push(tx.transaction.clone());
-                }
-            }
-            let statuses = jib.submit_packed_transactions(transactions)?;
-
-            if statuses.iter().any(|r| r.is_failure()) {
-                println!("Some transactions failed. Writing to {status_file_name} and exiting.");
-            }
-        }
+    if results.iter().any(|r| r.is_failure()) {
+        println!("Some transactions failed. Check the {cache_file_name} cache file for details.");
     }
 
-    // Write statuses to file
-    let statuses_file = std::fs::File::create(status_file_name)?;
-    serde_json::to_writer_pretty(statuses_file, &statuses)?;
+    let mut successes = vec![];
+    let mut failures = vec![];
+
+    results.iter().for_each(|r| {
+        if r.is_failure() {
+            let tx = r.transaction().unwrap(); // Transactions exist on failures.
+            let account_keys = tx.message().account_keys.clone();
+            let transaction_accounts = account_keys.iter().map(|k| k.to_string()).collect();
+
+            // All accounts except the first and last are recipients.
+            let recipients: HashMap<String, u64> = account_keys[1..account_keys.len() - 1]
+                .iter()
+                .map(|pubkey| pubkey.to_string())
+                .map(|a| airdrop_list.remove_entry(&a).expect("Recipient not found"))
+                .collect();
+
+            failures.push(FailedTransaction {
+                transaction_accounts,
+                recipients,
+                error: r.error().unwrap().to_string(), // Errors exist on failures.
+            })
+        } else {
+            debug!("Transaction successful: {}", r.signature().unwrap()); // Signatures exist on successes.
+            successes.push(r.signature().unwrap()); // Signatures exist on successes.
+        }
+    });
+
+    // Write cache file and successful transactions.
+    let successful_tx_file = std::fs::File::create(successful_tx_file_name)?;
+    serde_json::to_writer_pretty(successful_tx_file, &successes)?;
+
+    let cache_file = std::fs::File::create(cache_file_name)?;
+    serde_json::to_writer_pretty(cache_file, &failures)?;
 
     Ok(())
 }

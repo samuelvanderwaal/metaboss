@@ -197,7 +197,6 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
             recipient_list,
             network,
             cache_file,
-            amount,
         } => {
             airdrop_sol(AirdropSolArgs {
                 client,
@@ -205,7 +204,6 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
                 network: Network::from_str(&network).unwrap(),
                 recipient_list,
                 cache_file,
-                amount,
             })
             .await
         }
