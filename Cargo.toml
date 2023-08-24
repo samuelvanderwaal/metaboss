@@ -2,8 +2,8 @@
 name = "metaboss"
 version = "0.26.0"
 edition = "2021"
-description="The Metaplex NFT-standard Swiss Army Knife tool."
-repository="https://github.com/samuelvanderwaal/metaboss"
+description = "The Metaplex NFT-standard Swiss Army Knife tool."
+repository = "https://github.com/samuelvanderwaal/metaboss"
 license = "Apache-2.0"
 
 [dependencies]
@@ -13,16 +13,19 @@ base64 = "0.13.1"
 borsh = "0.9.3"
 bs58 = "0.4.0"
 console = "0.15.5"
-dialoguer = "0.10.4"
 env_logger = "0.9.3"
 futures = "0.3.28"
 glob = "0.3.1"
 indexmap = { version = "1.9.3", features = ["serde"] }
 indicatif = { version = "0.16.2", features = ["rayon"] }
+jib = "0.3.0"
 lazy_static = "1.4.0"
 log = "0.4.17"
 metaboss_lib = "0.11.2"
-mpl-token-metadata = { version = "1.11.0", features = [ "no-entrypoint", "serde-feature"] }
+mpl-token-metadata = { version = "1.11.0", features = [
+    "no-entrypoint",
+    "serde-feature",
+] }
 num_cpus = "1.15.0"
 phf = { version = "0.10", features = ["macros"] }
 ratelimit = "0.4.4"
@@ -45,6 +48,7 @@ structopt = "0.3.26"
 thiserror = "1.0.40"
 tokio = "1.28"
 solana-transaction-crawler = "0.1.0"
+chrono = "0.4.26"
 
 [features]
 

@@ -47,6 +47,12 @@ pub enum Command {
         #[structopt(subcommand)]
         uses_subcommands: UsesSubcommands,
     },
+    /// Airdrop assets to a list of addresses
+    #[structopt(name = "airdrop")]
+    Airdrop {
+        #[structopt(subcommand)]
+        airdrop_subcommands: AirdropSubcommands,
+    },
     /// Full Burn an asset
     #[structopt(name = "burn")]
     Burn {
@@ -141,6 +147,29 @@ pub enum Command {
     Unverify {
         #[structopt(subcommand)]
         unverify_subcommands: UnverifySubcommands,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+pub enum AirdropSubcommands {
+    /// Airdrop SOL
+    #[structopt(name = "sol")]
+    Sol {
+        /// Path to the owner keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Network cluster to use, defaults to devnet
+        #[structopt(short, long, default_value = "devnet")]
+        network: String,
+
+        /// Path to the mint list file
+        #[structopt(short = "L", long)]
+        recipient_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
     },
 }
 

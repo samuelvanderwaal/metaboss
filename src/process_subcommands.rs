@@ -1,12 +1,14 @@
 use std::fs::File;
 
 use anyhow::{bail, Result};
+use jib::Network;
 use metaboss_lib::decode::{
     decode_collection_authority_record, decode_metadata_delegate, decode_token_record,
     decode_token_record_from_mint, decode_use_authority_record,
 };
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 
+use crate::airdrop::{airdrop_sol, AirdropSolArgs};
 use crate::burn::*;
 use crate::collections::{
     approve_delegate, check_collection_items, get_collection_items, migrate_collection,
@@ -185,6 +187,26 @@ pub async fn process_collections(
             item_list,
             debug,
         } => check_collection_items(async_client, collection_mint, item_list, debug).await,
+    }
+}
+
+pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) -> Result<()> {
+    match commands {
+        AirdropSubcommands::Sol {
+            keypair,
+            recipient_list,
+            network,
+            cache_file,
+        } => {
+            airdrop_sol(AirdropSolArgs {
+                client,
+                keypair,
+                network: Network::from_str(&network).unwrap(),
+                recipient_list,
+                cache_file,
+            })
+            .await
+        }
     }
 }
 
