@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs::File, str::FromStr};
+use std::{collections::HashMap, fs::File, path::PathBuf, str::FromStr};
 
 use anyhow::Result;
 use jib::{Jib, Network};
@@ -34,7 +34,7 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
-    let mut jib = Jib::new(vec![keypair], Network::Devnet)?;
+    let mut jib = Jib::new(vec![keypair], args.network)?;
 
     let mut instructions = vec![];
 
@@ -43,9 +43,23 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
         std::process::exit(1);
     }
 
+    // Get the current time as yyyy-mm-dd-hh-mm-ss
+    let now = chrono::Local::now();
+    let timestamp = now.format("%Y-%m-%d-%H-%M-%S").to_string();
+
+    let mut cache_file_name = format!("mb-cache-airdrop-{timestamp}.json");
+    let successful_tx_file_name = format!("mb-successful-airdrops-{timestamp}.json");
+
     let mut airdrop_list: HashMap<String, u64> = if let Some(list_file) = args.recipient_list {
         serde_json::from_reader(File::open(list_file)?)?
     } else if let Some(cache_file) = args.cache_file {
+        cache_file_name = PathBuf::from(cache_file.clone())
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string();
+
         let failed_txes: Vec<FailedTransaction> = serde_json::from_reader(File::open(cache_file)?)?;
         failed_txes
             .iter()
@@ -56,11 +70,14 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
         std::process::exit(1);
     };
 
-    let cache_file_name = "mb-cache-airdrop.json";
-    let successful_tx_file_name = "mb-successful-airdrops.json";
-
     for (address, amount) in &airdrop_list {
-        let pubkey = Pubkey::from_str(address).unwrap();
+        let pubkey = match Pubkey::from_str(address) {
+            Ok(pubkey) => pubkey,
+            Err(_) => {
+                eprintln!("Invalid address: {}, skipping...", address);
+                continue;
+            }
+        };
 
         instructions.push(solana_sdk::system_instruction::transfer(
             &jib.payer().pubkey(),

@@ -1648,8 +1648,9 @@ checksum = "453ad9f582a441959e5f0d088b02ce04cfe8d51a8eaf077f12ac6d3e94164ca6"
 
 [[package]]
 name = "jib"
-version = "0.2.0"
-source = "git+https://github.com/samuelvanderwaal/jib.git#b86166f375ef6b677daefa2c18da67ed20483e3f"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "70c7c741dff8c8f8a50ce60a6185c250f98ce775dd3fab98559170427d65d79d"
 dependencies = [
  "bincode",
  "indicatif 0.17.6",
@@ -1855,6 +1856,7 @@ dependencies = [
  "base64 0.13.1",
  "borsh",
  "bs58",
+ "chrono",
  "console",
  "env_logger",
  "futures",
