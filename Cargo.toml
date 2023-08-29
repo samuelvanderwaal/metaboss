@@ -47,7 +47,6 @@ spl-token = "3.5.0"
 structopt = "0.3.26"
 thiserror = "1.0.40"
 tokio = "1.28"
-solana-transaction-crawler = "0.1.0"
 chrono = "0.4.26"
 
 [features]
