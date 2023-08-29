@@ -557,13 +557,13 @@ metaboss create fungible -d 3 -m crab.json --initial-supply 10.1
 <p>Decorate an existing SPL token mint with metadata.</p>
 <h4 id="usage-7"><a class="header" href="#usage-7">Usage</a></h4>
 <p>Specify the existing mint address and path to a metadata file that contains the <code>Data</code> sub-struct of the metadata struct in a JSON format.</p>
-<p>E.g.:</p>
+<p>E.g. (Note the snake_case field name):</p>
 <p>// crab.json</p>
 <pre><code class="language-json">{
   &quot;name&quot;: &quot;Crabbie&quot;,
   &quot;symbol&quot;: &quot;CRAB&quot;,
   &quot;uri&quot;: &quot;https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k&quot;,
-  &quot;sellerFeeBasisPoints&quot;: 0,
+  &quot;seller_fee_basis_points&quot;: 0,
   &quot;creators&quot;: null
 }
 </code></pre>

@@ -44,7 +44,7 @@ Decorate an existing SPL token mint with metadata.
 
 Specify the existing mint address and path to a metadata file that contains the `Data` sub-struct of the metadata struct in a JSON format.
 
-E.g.:
+E.g. (Note the snake_case field name):
 
 // crab.json
 ```json
@@ -52,7 +52,7 @@ E.g.:
   "name": "Crabbie",
   "symbol": "CRAB",
   "uri": "https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k",
-  "sellerFeeBasisPoints": 0,
+  "seller_fee_basis_points": 0,
   "creators": null
 }
 ```
