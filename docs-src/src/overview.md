@@ -11,8 +11,11 @@ Current Commands:
 
 ```
 SUBCOMMANDS:
-    burn            Full Burn a NFT
+    airdrop         Airdrop assets to a list of addresses
+    burn            Full Burn an asset
+    burn-nft        Full Burn a NFT
     burn-print      Full Burn a print edition NFT
+    check           Check specific metadata values for a list of NFTs
     collections     NFT collections commands
     create          Create accounts
     decode          Decode on-chain data into JSON format
@@ -25,8 +28,10 @@ SUBCOMMANDS:
     sign            Sign metadata for an unverified creator
     snapshot        Get snapshots of various blockchain states
     transfer        Transfer Metaplex assets
+    unverify        Unverify Creators
     update          Update various aspects of NFTs
     uses            NFT uses commands
+    verify          Verify Creators
 ```
 
 Each subcommand has additional commands. Run `metaboss <subcommand> --help` and `metaboss <subcommand> <command> --help` for more information on particular commands.
