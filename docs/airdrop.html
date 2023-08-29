@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Set - Metaboss</title>
+        <title>Airdrop - Metaboss</title>
 
 
         <!-- Custom HTML head -->
@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="airdrop.html"><strong aria-hidden="true">7.</strong> Airdrop</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">8.</strong> Burn</a></li><li class="chapter-item expanded "><a href="check.html"><strong aria-hidden="true">9.</strong> Check</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">10.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">11.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">12.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">13.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">14.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">15.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html" class="active"><strong aria-hidden="true">16.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">17.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">18.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">19.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">20.</strong> Update</a></li><li class="chapter-item expanded "><a href="verify_unverify.html"><strong aria-hidden="true">21.</strong> Verify/Unverify</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">22.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">23.</strong> Contact</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="airdrop.html" class="active"><strong aria-hidden="true">7.</strong> Airdrop</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">8.</strong> Burn</a></li><li class="chapter-item expanded "><a href="check.html"><strong aria-hidden="true">9.</strong> Check</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">10.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">11.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">12.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">13.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">14.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">15.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">16.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">17.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">18.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">19.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">20.</strong> Update</a></li><li class="chapter-item expanded "><a href="verify_unverify.html"><strong aria-hidden="true">21.</strong> Verify/Unverify</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">22.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">23.</strong> Contact</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -166,91 +166,58 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="set"><a class="header" href="#set">Set</a></h2>
-<p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution. 
-Set commands are either irreversible or require a new update authority to reverse.</strong></p>
-<p>Set non-Data struct values for a NFT.</p>
-<h3 id="set-secondary-sale"><a class="header" href="#set-secondary-sale">Set Secondary Sale</a></h3>
-<p>Set <code>primary_sale_happened</code> to be <code>true</code>, enabling secondary sale royalties. <strong>This is not reversible.</strong></p>
-<pre><code class="language-bash">metaboss set secondary-sale --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
-</code></pre>
-<p>Outputs a TxId to the command line so you can check the result.</p>
-<h3 id="set-secondary-sale-all"><a class="header" href="#set-secondary-sale-all">Set Secondary Sale All</a></h3>
-<p>Same as <code>set secondary-sale</code> but takes a mint list instead of a single account file. <strong>This is not reversible.</strong></p>
-<h3 id="set-update-authority"><a class="header" href="#set-update-authority">Set Update-Authority</a></h3>
-<p>Set <code>update_authority</code> to a different public key. <strong>This is not reversible by the original update authority.</strong></p>
-<pre><code class="language-bash">metaboss set update-authority --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-update-authority &lt;NEW_UPDATE_AUTHORITY&gt;
-</code></pre>
-<h3 id="set-update-authority-all"><a class="header" href="#set-update-authority-all">Set Update-Authority-All</a></h3>
-<p>Set <code>update_authority</code> to a different public key for a list of NFTs. <strong>This is not reversible by the original update authority.</strong></p>
-<pre><code class="language-bash">metaboss set update-authority-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-accounts-file &lt;PATH_TO_MINT_ACCOUNTS&gt; --new-update-authority &lt;NEW_UPDATE_AUTHORITY&gt;
-</code></pre>
-<p>The mint accounts file should be a JSON file with an array of NFT mint accounts to be updated:</p>
-<pre><code class="language-json">[
-    &quot;C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG&quot;,
-    &quot;8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o&quot;,
-    &quot;CK2npuck3WTRNFXSdZv8YjudJJEa69EVGd6GFfeSzfGP&quot;
-]
-</code></pre>
-<h3 id="set-immutable"><a class="header" href="#set-immutable">Set Immutable</a></h3>
-<p>Set an NFT's <code>Data</code> struct to be immutable. <strong>This is not reversible.</strong></p>
-<pre><code class="language-bash">metaboss set immutable --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
-</code></pre>
-<h3 id="set-immutable-all"><a class="header" href="#set-immutable-all">Set Immutable-All</a></h3>
-<p>Set all NFTs in a list to be immutable. <strong>This is not reversible.</strong></p>
-<pre><code class="language-bash">metaboss set immutable-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-accounts-file &lt;PATH_TO_MINT_ACCOUNTS&gt;
-</code></pre>
-<h3 id="set-token-standard"><a class="header" href="#set-token-standard">Set Token Standard</a></h3>
-<p>Set an asset's Token Standard to automatically be the correct type. <strong>This is not reversible.</strong></p>
-<pre><code>USAGE:
-    metaboss set token-standard [OPTIONS] --account &lt;account&gt;
+                        <h2 id="airdrop"><a class="header" href="#airdrop">Airdrop</a></h2>
+<p>This is an experimental feature that uses the TPU client to rapidly and efficiently make transfers. It relies on the <a href="https://github.com/samuelvanderwaal/jib">Jib library</a> for transmitting instructiosn via TPU. You should carefully test it on devnet prior to running it on mainnet.</p>
+<p>The benefit of using the TPU client is that is can rapidly transmit the transactions directly to the consensus leader and the command does not require a high-throughput private RPC node and can use the public ones by default as the RPC node is only used for determining the current leader.</p>
+<h3 id="airdrop-sol"><a class="header" href="#airdrop-sol">Airdrop SOL</a></h3>
+<p>Airdrop SOL to a list of accounts. </p>
+<pre><code>Airdrop SOL
+
+USAGE:
+    metaboss airdrop sol [OPTIONS]
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
 
 OPTIONS:
-    -a, --account &lt;account&gt;        Mint account of corresponding metadata to update
-    -k, --keypair &lt;keypair&gt;        Path to the update authority's keypair file
-    -l, --log-level &lt;log-level&gt;    Log level [default: off]
-    -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
-    -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
+    -c, --cache-file &lt;cache-file&gt;            Cache file
+    -k, --keypair &lt;keypair&gt;                  Path to the owner keypair file
+    -l, --log-level &lt;log-level&gt;              Log level [default: off]
+    -n, --network &lt;network&gt;                  Network cluster to use, defaults to devnet [default: devnet]
+    -L, --recipient-list &lt;recipient-list&gt;    Path to the mint list file
+    -r, --rpc &lt;rpc&gt;                          RPC endpoint url to override using the Solana config or the hard-coded
+                                             default
+    -T, --timeout &lt;timeout&gt;                  Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<p>This command requires a recipient list file that should be a hashmap/dictionary/object of addresses and the amount of lamports to send to them. (1 SOL = 1,000,000,000 lamports) E.g.:</p>
+<pre><code class="language-json">{
+  &quot;HVtodaLcq6zVvqp7h6JwLLrsAGxeJ9BatvgpUfp9b4oM&quot;: 1000,
+  &quot;5VXU4QbhUZbkBqKxT3Mv55krE4MomMgtV68whNRotjk5&quot;: 1000,
+  &quot;GSFKDFeCe93aUscmG84ugtXXNPMGoMcbZwRaamPLXS9o&quot;: 5000,
+  &quot;DCYHBcWGgdUUCBbj7rjbkBJWkuoHAH88BzMKfbbkFUNJ&quot;: 7000,
+  &quot;8MUCm4HxRXQUKMyanyNcvcG4qbAmw5s6y9exiszFZgg&quot;: 5000,
+  &quot;sknqbvGgVFpniWRK9kM1e77Fuq5oEhSZ5He4PtbTeZh&quot;: 3000  
+}
 </code></pre>
 <h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
-<pre><code class="language-bash">metaboss set token-standard --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
+<pre><code class="language-bash">metaboss airdrop sol  -L &lt;PATH_TO_RECIPIENTS_LIST_FILE&gt; -n devnet
 </code></pre>
-<h3 id="set-token-standard-all"><a class="header" href="#set-token-standard-all">Set Token Standard-All</a></h3>
-<p>Set all assets in a list to be the correct Token Standard. <strong>This is not reversible.</strong></p>
-<pre><code>USAGE:
-    metaboss set token-standard-all [OPTIONS]
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
-OPTIONS:
-    -c, --cache-file &lt;cache-file&gt;    Cache file
-    -k, --keypair &lt;keypair&gt;          Path to the update authority's keypair file
-    -l, --log-level &lt;log-level&gt;      Log level [default: off]
-    -L, --mint-list &lt;mint-list&gt;      Mint list
-    -R, --rate-limit &lt;rate-limit&gt;    Maximum number of requests per second [default: 10]
-        --retries &lt;retries&gt;          Maximum retries: retry failed items up to this many times [default: 0]
-    -r, --rpc &lt;rpc&gt;                  RPC endpoint url to override using the Solana config or the hard-coded default
-    -T, --timeout &lt;timeout&gt;          Timeout to override default value of 90 seconds [default: 90]
+<p>This command creates two files: <code>mb-cache-airdrop-&lt;TIMESTAMP&gt;.json</code> and <code>mb-successful-airdrops-&lt;TIMESTAMP&gt;.json</code>. The cache file is used to track the airdrop progress by storing failed transactions and the successful airdrops file is used to track the successful airdrops by storing transaction signatures of the successful airdrops. </p>
+<p>To re-run failed transactions run the command with the cache file instead of the recipient list file:</p>
+<pre><code class="language-bash">metaboss airdrop sol  -c &lt;PATH_TO_CACHE_FILE&gt; -n devnet
 </code></pre>
-<h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
-<pre><code class="language-bash">metaboss set token-standard-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-list &lt;PATH_TO_MINT_ACCOUNTS&gt;
-</code></pre>
+<p>If transactions continuously fail you should look at the errors in the cache file and determine the cause.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="mint.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="global_options.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="sign.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="burn.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -260,11 +227,11 @@ OPTIONS:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="mint.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="global_options.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="sign.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="burn.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

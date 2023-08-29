@@ -6,6 +6,7 @@
 - [Examples](./examples.md)
 - [Recipes](./recipes.md)
 - [Global Options](./global_options.md)
+- [Airdrop](./airdrop.md)
 - [Burn](./burn.md)
 - [Check](./check.md)
 - [Collections](./collections.md)
