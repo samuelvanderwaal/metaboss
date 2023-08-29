@@ -119,20 +119,14 @@ pub async fn process_collections(
             nft_mint,
         } => unverify_nft_collection(client, keypair, nft_mint, collection_mint, is_delegate),
 
+        #[allow(deprecated)]
         CollectionsSubcommands::SetAndVerifyCollection {
             keypair,
             nft_mint,
-            update_authority_nft,
             collection_mint,
+            update_authority_nft: _,
             is_delegate,
-        } => set_and_verify_nft_collection(
-            client,
-            keypair,
-            nft_mint,
-            collection_mint,
-            update_authority_nft,
-            is_delegate,
-        ),
+        } => set_and_verify_nft_collection(client, keypair, nft_mint, collection_mint, is_delegate),
 
         CollectionsSubcommands::ApproveAuthority {
             keypair,
