@@ -1,3 +1,5 @@
+use mpl_token_metadata::state::TokenMetadataAccount;
+
 use super::data::*;
 use super::NftsByCreatorArgs;
 use super::*;
@@ -61,7 +63,7 @@ pub async fn snapshot_indexed_mints(args: NftsByCreatorArgs) -> Result<()> {
     for result in results {
         let bs64_data = &result.account.data.as_array().unwrap()[0];
         let data = base64::decode(bs64_data.as_str().unwrap())?;
-        let metadata: Metadata = match try_from_slice_unchecked(&data) {
+        let metadata: Metadata = match Metadata::safe_deserialize(&data) {
             Ok(metadata) => metadata,
             Err(_) => {
                 error!("Failed to parse metadata for account {}", result.pubkey);
@@ -116,7 +118,7 @@ pub fn get_mint_accounts(
     let mut mint_accounts: Vec<String> = Vec::new();
 
     for (pubkey, account) in accounts {
-        let metadata: Metadata = match try_from_slice_unchecked(&account.data) {
+        let metadata: Metadata = match Metadata::safe_deserialize(&account.data) {
             Ok(metadata) => metadata,
             Err(_) => {
                 error!("Failed to parse metadata for account {}", pubkey);
@@ -178,7 +180,7 @@ pub fn snapshot_holders(client: &RpcClient, args: SnapshotHoldersArgs) -> Result
 
             let nft_holders = nft_holders.clone();
 
-            let metadata: Metadata = match try_from_slice_unchecked(&account.data) {
+            let metadata: Metadata = match Metadata::safe_deserialize(&account.data) {
                 Ok(metadata) => metadata,
                 Err(_) => {
                     error!("Account {} has no metadata", metadata_pubkey);
@@ -345,7 +347,7 @@ pub async fn snapshot_indexed_holders(args: NftsByCreatorArgs) -> Result<()> {
 pub async fn get_holder_from_gpa_result(api_key: String, result: GPAResult) -> Result<Holder> {
     let bs64_data = &result.account.data.as_array().unwrap()[0];
     let data = base64::decode(bs64_data.as_str().unwrap())?;
-    let metadata: Metadata = match try_from_slice_unchecked(&data) {
+    let metadata: Metadata = match Metadata::safe_deserialize(&data) {
         Ok(metadata) => metadata,
         Err(_) => {
             return Err(anyhow!(

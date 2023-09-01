@@ -652,6 +652,7 @@ pub fn mint(
     let (master_edition_account, _pda) =
         Pubkey::find_program_address(master_edition_seeds, &metaplex_program_id);
 
+    #[allow(deprecated)]
     let collection_details = if sized {
         Some(CollectionDetails::V1 { size: 0 })
     } else {

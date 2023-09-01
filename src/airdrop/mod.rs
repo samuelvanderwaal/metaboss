@@ -112,7 +112,7 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
             failures.push(FailedTransaction {
                 transaction_accounts,
                 recipients,
-                error: r.error().unwrap().to_string(), // Errors exist on failures.
+                error: r.error().unwrap(), // Errors exist on failures.
             })
         } else {
             debug!("Transaction successful: {}", r.signature().unwrap()); // Signatures exist on successes.

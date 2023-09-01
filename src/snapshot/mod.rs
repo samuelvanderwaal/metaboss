@@ -15,7 +15,6 @@ pub use solana_client::{
     rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig},
     rpc_filter::{Memcmp, MemcmpEncodedBytes, RpcFilterType},
 };
-pub use solana_program::borsh::try_from_slice_unchecked;
 pub use solana_sdk::{
     account::Account,
     commitment_config::{CommitmentConfig, CommitmentLevel},
