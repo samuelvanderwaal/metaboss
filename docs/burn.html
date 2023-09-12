@@ -1,37 +1,39 @@
 <!DOCTYPE HTML>
 <html lang="en" class="sidebar-visible no-js light">
-    <head>
-        <!-- Book generated using mdBook -->
-        <meta charset="UTF-8">
-        <title>Burn - Metaboss</title>
+
+<head>
+    <!-- Book generated using mdBook -->
+    <meta charset="UTF-8">
+    <title>Burn - Metaboss</title>
 
 
-        <!-- Custom HTML head -->
-        
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff" />
+    <!-- Custom HTML head -->
 
-        <link rel="icon" href="favicon.svg">
-        <link rel="shortcut icon" href="favicon.png">
-        <link rel="stylesheet" href="css/variables.css">
-        <link rel="stylesheet" href="css/general.css">
-        <link rel="stylesheet" href="css/chrome.css">
-        <link rel="stylesheet" href="css/print.css" media="print">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff" />
 
-        <!-- Fonts -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="fonts/fonts.css">
+    <link rel="icon" href="favicon.svg">
+    <link rel="shortcut icon" href="favicon.png">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/general.css">
+    <link rel="stylesheet" href="css/chrome.css">
+    <link rel="stylesheet" href="css/print.css" media="print">
 
-        <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+    <!-- Fonts -->
+    <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+    <link rel="stylesheet" href="fonts/fonts.css">
 
-        <!-- Custom theme stylesheets -->
+    <!-- Highlight.js Stylesheets -->
+    <link rel="stylesheet" href="highlight.css">
+    <link rel="stylesheet" href="tomorrow-night.css">
+    <link rel="stylesheet" href="ayu-highlight.css">
 
-    </head>
-    <body>
+    <!-- Custom theme stylesheets -->
+
+</head>
+
+<body>
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
@@ -58,7 +60,7 @@
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
             var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            try { theme = localStorage.getItem('mdbook-theme'); } catch (e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
             html.classList.remove('no-js')
@@ -72,7 +74,7 @@
             var html = document.querySelector('html');
             var sidebar = null;
             if (document.body.clientWidth >= 1080) {
-                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch (e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
@@ -83,7 +85,54 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="airdrop.html"><strong aria-hidden="true">7.</strong> Airdrop</a></li><li class="chapter-item expanded "><a href="burn.html" class="active"><strong aria-hidden="true">8.</strong> Burn</a></li><li class="chapter-item expanded "><a href="check.html"><strong aria-hidden="true">9.</strong> Check</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">10.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">11.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">12.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">13.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">14.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">15.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">16.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">17.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">18.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">19.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">20.</strong> Update</a></li><li class="chapter-item expanded "><a href="verify_unverify.html"><strong aria-hidden="true">21.</strong> Verify/Unverify</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">22.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">23.</strong> Contact</a></li></ol>
+                <ol class="chapter">
+                    <li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong>
+                            Overview</a></li>
+                    <li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong>
+                            Quick Start</a></li>
+                    <li class="chapter-item expanded "><a href="installation.html"><strong
+                                aria-hidden="true">3.</strong> Installation</a></li>
+                    <li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong>
+                            Examples</a></li>
+                    <li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong>
+                            Recipes</a></li>
+                    <li class="chapter-item expanded "><a href="global_options.html"><strong
+                                aria-hidden="true">6.</strong> Global Options</a></li>
+                    <li class="chapter-item expanded "><a href="airdrop.html"><strong aria-hidden="true">7.</strong>
+                            Airdrop</a></li>
+                    <li class="chapter-item expanded "><a href="burn.html" class="active"><strong
+                                aria-hidden="true">8.</strong> Burn</a></li>
+                    <li class="chapter-item expanded "><a href="check.html"><strong aria-hidden="true">9.</strong>
+                            Check</a></li>
+                    <li class="chapter-item expanded "><a href="collections.html"><strong
+                                aria-hidden="true">10.</strong> Collections</a></li>
+                    <li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">11.</strong>
+                            Create</a></li>
+                    <li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">12.</strong>
+                            Decode</a></li>
+                    <li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">13.</strong>
+                            Derive</a></li>
+                    <li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">14.</strong>
+                            Find</a></li>
+                    <li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">15.</strong>
+                            Mint</a></li>
+                    <li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">16.</strong>
+                            Set</a></li>
+                    <li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">17.</strong>
+                            Sign</a></li>
+                    <li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">18.</strong>
+                            Snapshot</a></li>
+                    <li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">19.</strong>
+                            Transfer</a></li>
+                    <li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">20.</strong>
+                            Update</a></li>
+                    <li class="chapter-item expanded "><a href="verify_unverify.html"><strong
+                                aria-hidden="true">21.</strong> Verify/Unverify</a></li>
+                    <li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">22.</strong>
+                            Withdraw</a></li>
+                    <li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">23.</strong>
+                            Contact</a></li>
+                </ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -91,7 +140,7 @@
         <!-- Track and set sidebar scroll position -->
         <script>
             var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
+            sidebarScrollbox.addEventListener('click', function (e) {
                 if (e.target.tagName === 'A') {
                     sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
                 }
@@ -113,13 +162,16 @@
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
-                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents"
+                            aria-label="Toggle Table of Contents" aria-controls="sidebar">
                             <i class="fa fa-bars"></i>
                         </button>
-                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme"
+                            aria-label="Change theme" aria-haspopup="true" aria-expanded="false"
+                            aria-controls="theme-list">
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
@@ -129,7 +181,9 @@
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)"
+                            aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S"
+                            aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -146,7 +200,8 @@
 
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..."
+                            aria-controls="searchresults-outer" aria-describedby="searchresults-header">
                     </form>
                     <div id="searchresults-outer" class="searchresults-outer hidden">
                         <div id="searchresults-header" class="searchresults-header"></div>
@@ -159,7 +214,7 @@
                 <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
-                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function (link) {
                         link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
                     });
                 </script>
@@ -167,60 +222,68 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="burn"><a class="header" href="#burn">Burn</a></h2>
-<p>Burn Master Editions NFTs, as long as they do not have any editions (supply == 0). Only the owner/token holder of the NFT can burn it.</p>
-<h3 id="burn-one"><a class="header" href="#burn-one">Burn One</a></h3>
-<p>Fully burn a single NFT by calling the Token Metadata program <a href="https://docs.metaplex.com/programs/token-metadata/instructions#burn-a-nft">burn_nft</a> handler.</p>
-<h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
-<pre><code class="language-bash">metaboss burn one -k &lt;OWNER_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
+                        <p>Burn Master Editions NFTs, as long as they do not have any editions (supply == 0). Only the
+                            owner/token holder of the NFT can burn it.</p>
+                        <h3 id="burn-one"><a class="header" href="#burn-one">Burn One</a></h3>
+                        <p>Fully burn a single NFT by calling the Token Metadata program <a
+                                href="https://docs.metaplex.com/programs/token-metadata/instructions#burn-a-nft">burn_nft</a>
+                            handler.</p>
+                        <h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
+                        <pre><code class="language-bash">metaboss burn asset -k &lt;OWNER_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
-<h3 id="burn-all"><a class="header" href="#burn-all">Burn All</a></h3>
-<p>Fully burn multiple NFTs by providing a JSON list file of mint accounts.</p>
-<p>E.g. JSON file:</p>
-<pre><code class="language-json">[
+                        <h3 id="burn-all"><a class="header" href="#burn-all">Burn All</a></h3>
+                        <p>Fully burn multiple NFTs by providing a JSON list file of mint accounts.</p>
+                        <p>E.g. JSON file:</p>
+                        <pre><code class="language-json">[
     &quot;D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28&quot;,
     &quot;4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW&quot;,
     &quot;J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz&quot;,
     &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
 ]
 </code></pre>
-<h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
-<pre><code class="language-bash">metaboss burn all -k &lt;OWNER_KEYPAIR&gt; -L &lt;JSON_LIST_OF_MINTS_ACCOUNTS&gt;
+                        <h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
+                        <pre><code class="language-bash">metaboss burn all -k &lt;OWNER_KEYPAIR&gt; -L &lt;JSON_LIST_OF_MINTS_ACCOUNTS&gt;
 </code></pre>
-<p>As in all other commands, keypair can be elided if set in the Solana config file.</p>
-<h2 id="burn-print"><a class="header" href="#burn-print">Burn-Print</a></h2>
-<p>Burn Print Edition NFTs. Only the owner/token holder of the NFT can burn it.</p>
-<h3 id="burn-print-one"><a class="header" href="#burn-print-one">Burn-Print One</a></h3>
-<p>Fully burn a single Print Edition NFT by called the Token Metadata <a href="https://docs.metaplex.com/programs/token-metadata/instructions#burn-a-print-edition-nft">burn_edition_nft</a> handler.</p>
-<h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
-<pre><code class="language-bash">metaboss burn-print one -k &lt;OWNER_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
+                        <p>As in all other commands, keypair can be elided if set in the Solana config file.</p>
+                        <h2 id="burn-print"><a class="header" href="#burn-print">Burn-Print</a></h2>
+                        <p>Burn Print Edition NFTs. Only the owner/token holder of the NFT can burn it.</p>
+                        <h3 id="burn-print-one"><a class="header" href="#burn-print-one">Burn-Print One</a></h3>
+                        <p>Fully burn a single Print Edition NFT by called the Token Metadata <a
+                                href="https://docs.metaplex.com/programs/token-metadata/instructions#burn-a-print-edition-nft">burn_edition_nft</a>
+                            handler.</p>
+                        <h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
+                        <pre><code class="language-bash">metaboss burn-print one -k &lt;OWNER_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt;
 </code></pre>
-<h3 id="burn-print-all"><a class="header" href="#burn-print-all">Burn-Print All</a></h3>
-<p>Fully burn multiple Print Edition NFTs by providing a JSON list file of mint accounts.</p>
-<p>E.g. JSON file:</p>
-<pre><code class="language-json">[
+                        <h3 id="burn-print-all"><a class="header" href="#burn-print-all">Burn-Print All</a></h3>
+                        <p>Fully burn multiple Print Edition NFTs by providing a JSON list file of mint accounts.</p>
+                        <p>E.g. JSON file:</p>
+                        <pre><code class="language-json">[
     &quot;D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28&quot;,
     &quot;4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW&quot;,
     &quot;J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz&quot;,
     &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
 ]
 </code></pre>
-<p>Due to on-chain limitations, you also have to provide the mint account of the Master Edition NFT.</p>
-<h4 id="usage-3"><a class="header" href="#usage-3">Usage</a></h4>
-<pre><code class="language-bash">metaboss burn-print all -k &lt;OWNER_KEYPAIR&gt; -L &lt;JSON_LIST_OF_MINT_ACCOUNTS&gt; -m &lt;MASTER_EDITION_MINT_ACCOUNT&gt;
+                        <p>Due to on-chain limitations, you also have to provide the mint account of the Master Edition
+                            NFT.</p>
+                        <h4 id="usage-3"><a class="header" href="#usage-3">Usage</a></h4>
+                        <pre><code class="language-bash">metaboss burn-print all -k &lt;OWNER_KEYPAIR&gt; -L &lt;JSON_LIST_OF_MINT_ACCOUNTS&gt; -m &lt;MASTER_EDITION_MINT_ACCOUNT&gt;
 </code></pre>
-<p>As in all other commands, keypair can be elided if set in the Solana config file.</p>
+                        <p>As in all other commands, keypair can be elided if set in the Solana config file.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="airdrop.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
-                                <i class="fa fa-angle-left"></i>
-                            </a>
+                        <a rel="prev" href="airdrop.html" class="mobile-nav-chapters previous" title="Previous chapter"
+                            aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <i class="fa fa-angle-left"></i>
+                        </a>
 
-                            <a rel="next" href="check.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
-                            </a>
+                        <a rel="next" href="check.html" class="mobile-nav-chapters next" title="Next chapter"
+                            aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <i class="fa fa-angle-right"></i>
+                        </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -228,13 +291,15 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="airdrop.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
-                        <i class="fa fa-angle-left"></i>
-                    </a>
+                <a rel="prev" href="airdrop.html" class="nav-chapters previous" title="Previous chapter"
+                    aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <i class="fa fa-angle-left"></i>
+                </a>
 
-                    <a rel="next" href="check.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
+                <a rel="next" href="check.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter"
+                    aria-keyshortcuts="Right">
+                    <i class="fa fa-angle-right"></i>
+                </a>
             </nav>
 
         </div>
@@ -259,5 +324,6 @@
 
 
     </div>
-    </body>
+</body>
+
 </html>
