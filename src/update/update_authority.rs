@@ -24,12 +24,16 @@ pub struct SetUpdateAuthorityArgs {
 }
 
 pub async fn set_update_authority(args: SetUpdateAuthorityArgs) -> Result<Signature, ActionError> {
-    // Token Metadata UpdateArgs enum.
-    let mut update_args = V1UpdateArgs::default();
-    update_args.new_update_authority =
+    let new_update_authority =
         Some(Pubkey::from_str(&args.new_authority).map_err(|e| {
             ActionError::ActionFailed(args.mint_account.to_string(), e.to_string())
         })?);
+
+    // Token Metadata UpdateArgs enum.
+    let update_args = V1UpdateArgs {
+        new_update_authority,
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

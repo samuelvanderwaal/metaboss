@@ -43,9 +43,10 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<Signature, Actio
     // Add metadata delegate record here later.
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = V1UpdateArgs::default();
-    update_args.rule_set = RuleSetToggle::Set(new_rule_set);
-
+    let update_args = V1UpdateArgs {
+        rule_set: RuleSetToggle::Set(new_rule_set),
+        ..Default::default()
+    };
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {
         payer: None,
@@ -67,8 +68,10 @@ pub async fn clear_rule_set(args: ClearRuleSetArgs) -> Result<Signature, ActionE
     // Add metadata delegate record here later.
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = V1UpdateArgs::default();
-    update_args.rule_set = RuleSetToggle::Clear;
+    let update_args = V1UpdateArgs {
+        rule_set: RuleSetToggle::Clear,
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

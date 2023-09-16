@@ -35,13 +35,13 @@ pub fn set_and_verify_nft_collection(
     let mut instructions = vec![];
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = V1UpdateArgs::default();
-
-    // We set the collection key with update, but can only verify with Verify.
-    update_args.collection = CollectionToggle::Set(MdCollection {
-        key: collection_pubkey,
-        verified: false,
-    });
+    let update_args = V1UpdateArgs {
+        collection: CollectionToggle::Set(MdCollection {
+            key: collection_pubkey,
+            verified: false,
+        }),
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

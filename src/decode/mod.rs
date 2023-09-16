@@ -283,7 +283,7 @@ pub fn decode(client: &RpcClient, mint_account: &str) -> Result<Metadata, Decode
         }
     };
 
-    Metadata::try_from_slice(&mut account_data.as_slice())
+    Metadata::try_from_slice(account_data.as_slice())
         .map_err(|e| DecodeError::DecodeMetadataFailed(e.to_string()))
 }
 

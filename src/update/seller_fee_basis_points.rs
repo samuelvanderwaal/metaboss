@@ -26,17 +26,19 @@ pub async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<Signatu
     let current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
-    let data = UpdateArgsV1Data {
+    let data = Some(UpdateArgsV1Data {
         name: current_md.name,
         symbol: current_md.symbol,
         uri: current_md.uri,
         seller_fee_basis_points: args.new_sfbp,
         creators: current_md.creators,
-    };
+    });
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = V1UpdateArgs::default();
-    update_args.data = Some(data);
+    let update_args = V1UpdateArgs {
+        data,
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

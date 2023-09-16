@@ -133,12 +133,13 @@ fn set_and_verify(
 
     // Add update instruction to set the collection.
     // Token Metadata UpdateArgs enum.
-    let mut update_args = V1UpdateArgs::default();
-
-    update_args.collection = CollectionToggle::Set(MdCollection {
-        key: collection_mint_pubkey,
-        verified: false,
-    });
+    let update_args = V1UpdateArgs {
+        collection: CollectionToggle::Set(MdCollection {
+            key: collection_mint_pubkey,
+            verified: false,
+        }),
+        ..Default::default()
+    };
 
     let update_ix = update_asset_ix(
         &client,

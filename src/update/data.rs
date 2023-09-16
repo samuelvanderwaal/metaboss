@@ -29,8 +29,10 @@ pub async fn update_data(args: UpdateDataArgs) -> Result<Signature, ActionError>
     // Add metadata delegate record here later.
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = V1UpdateArgs::default();
-    update_args.data = Some(args.new_data);
+    let update_args = V1UpdateArgs {
+        data: Some(args.new_data),
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

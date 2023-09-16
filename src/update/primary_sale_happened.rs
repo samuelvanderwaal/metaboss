@@ -23,8 +23,10 @@ pub async fn set_primary_sale_happened(
     args: SetPrimarySaleHappenedArgs,
 ) -> Result<Signature, ActionError> {
     // Token Metadata UpdateArgs enum.
-    let mut update_args = V1UpdateArgs::default();
-    update_args.primary_sale_happened = Some(true);
+    let update_args = V1UpdateArgs {
+        primary_sale_happened: Some(true),
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {
