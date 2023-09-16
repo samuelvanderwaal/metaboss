@@ -1,11 +1,8 @@
 use anyhow::{anyhow, Result};
+use borsh::BorshDeserialize;
 use indicatif::ParallelProgressIterator;
 use log::{error, info};
-use mpl_token_metadata::{
-    instruction::sign_metadata,
-    state::{Metadata, TokenMetadataAccount},
-    ID as METAPLEX_PROGRAM_ID,
-};
+use mpl_token_metadata::{accounts::Metadata, instructions::SignMetadata};
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
 use solana_client::rpc_client::RpcClient;
@@ -105,7 +102,12 @@ pub fn sign_all(
 
 pub fn sign(client: &RpcClient, creator: &Keypair, metadata_pubkey: Pubkey) -> Result<Signature> {
     let recent_blockhash = client.get_latest_blockhash()?;
-    let ix = sign_metadata(METAPLEX_PROGRAM_ID, metadata_pubkey, creator.pubkey());
+    let ix = SignMetadata {
+        metadata: metadata_pubkey,
+        creator: creator.pubkey(),
+    }
+    .instruction();
+
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&creator.pubkey()),
@@ -176,7 +178,7 @@ pub fn sign_candy_machine_accounts(
         .progress()
         .for_each(|(metadata_pubkey, account)| {
             let signed_at_least_one_account = signed_at_least_one_account.clone();
-            let metadata: Metadata = match Metadata::safe_deserialize(&account.data.clone()) {
+            let metadata: Metadata = match Metadata::try_from_slice(&account.data.clone()) {
                 Ok(metadata) => metadata,
                 Err(_) => {
                     error!("Account {} has no metadata", metadata_pubkey);
@@ -184,7 +186,7 @@ pub fn sign_candy_machine_accounts(
                 }
             };
 
-            if let Some(creators) = metadata.data.creators {
+            if let Some(creators) = metadata.creators {
                 // Check whether the specific creator has already signed the account
                 for creator in creators {
                     if creator.address == signing_creator.pubkey() && !creator.verified {

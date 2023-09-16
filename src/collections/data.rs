@@ -1,4 +1,4 @@
-use super::common::*;
+use super::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CollectionMetadata {

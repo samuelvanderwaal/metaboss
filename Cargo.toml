@@ -23,8 +23,12 @@ jib = "0.4.0"
 lazy_static = "1.4.0"
 log = "0.4.17"
 # metaboss_lib = "0.11.2"
-mpl-token-metadata = "2.0.0"
-metaboss_lib = { git = "https://github.com/samuelvanderwaal/metaboss_lib.git" }
+# mpl-token-metadata = "2.0.0"
+mpl-token-metadata = { git = "https://github.com/metaplex-foundation/mpl-token-metadata.git", branch = "febo/serde-on-sdk", features = [
+    "serde",
+] }
+# metaboss_lib = { git = "https://github.com/samuelvanderwaal/metaboss_lib.git", branch = "fix/deps" }
+metaboss_lib = { path = "../metaboss_lib" }
 num_cpus = "1.15.0"
 phf = { version = "0.10", features = ["macros"] }
 ratelimit = "0.4.4"

@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Context, Result};
-use mpl_token_metadata::state::{Creator, Data};
+use mpl_token_metadata::types::Creator;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use solana_sdk::pubkey::Pubkey;
@@ -9,7 +9,6 @@ use std::path::PathBuf;
 use std::{env, fs, path::Path, str::FromStr};
 
 use crate::constants::ERROR_FILE_BEGIN;
-use crate::data::{NFTCreator, NFTData};
 use crate::utils::{convert_to_wtf_error, find_errors};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -88,15 +87,7 @@ pub fn read_keypair(path: &String) -> Result<Keypair> {
     Ok(keypair)
 }
 
-fn convert_creator(c: &NFTCreator) -> Result<Creator> {
-    Ok(Creator {
-        address: Pubkey::from_str(&c.address)?,
-        verified: c.verified,
-        share: c.share,
-    })
-}
-
-pub fn parse_creators(creators_json: &Value) -> Result<Vec<NFTCreator>> {
+pub fn parse_creators(creators_json: &Value) -> Result<Vec<Creator>> {
     let mut creators = Vec::new();
 
     for creator in creators_json
@@ -114,8 +105,8 @@ pub fn parse_creators(creators_json: &Value) -> Result<Vec<NFTCreator>> {
             .ok_or_else(|| anyhow!("Invalid share!"))?
             .as_u64()
             .ok_or_else(|| anyhow!("Invalid share!"))? as u8;
-        creators.push(NFTCreator {
-            address,
+        creators.push(Creator {
+            address: Pubkey::from_str(&address)?,
             verified: false,
             share,
         });
@@ -150,27 +141,6 @@ pub fn parse_seller_fee_basis_points(body: &Value) -> Result<u16> {
             .as_u64()
             .ok_or_else(|| anyhow!("Invalid seller_fee_basis_points!"))? as u16;
     Ok(seller_fee_basis_points)
-}
-
-pub fn convert_local_to_remote_data(local: NFTData) -> Result<Data> {
-    let creators = match local.creators {
-        Some(nft_creators) => Some(
-            nft_creators
-                .iter()
-                .map(convert_creator)
-                .collect::<Result<Vec<_>>>()?,
-        ),
-        _ => None,
-    };
-
-    let data = Data {
-        name: local.name,
-        symbol: local.symbol,
-        uri: local.uri,
-        seller_fee_basis_points: local.seller_fee_basis_points,
-        creators,
-    };
-    Ok(data)
 }
 
 pub fn is_only_one_option<T, U>(option1: &Option<T>, option2: &Option<U>) -> bool {

@@ -1,4 +1,4 @@
-use mpl_token_metadata::state::TokenMetadataAccount;
+use borsh::BorshDeserialize;
 
 use super::data::*;
 use super::NftsByCreatorArgs;
@@ -63,7 +63,7 @@ pub async fn snapshot_indexed_mints(args: NftsByCreatorArgs) -> Result<()> {
     for result in results {
         let bs64_data = &result.account.data.as_array().unwrap()[0];
         let data = base64::decode(bs64_data.as_str().unwrap())?;
-        let metadata: Metadata = match Metadata::safe_deserialize(&data) {
+        let metadata: Metadata = match Metadata::try_from_slice(&data) {
             Ok(metadata) => metadata,
             Err(_) => {
                 error!("Failed to parse metadata for account {}", result.pubkey);
@@ -118,7 +118,7 @@ pub fn get_mint_accounts(
     let mut mint_accounts: Vec<String> = Vec::new();
 
     for (pubkey, account) in accounts {
-        let metadata: Metadata = match Metadata::safe_deserialize(&account.data) {
+        let metadata: Metadata = match Metadata::try_from_slice(&account.data) {
             Ok(metadata) => metadata,
             Err(_) => {
                 error!("Failed to parse metadata for account {}", pubkey);
@@ -126,7 +126,7 @@ pub fn get_mint_accounts(
             }
         };
 
-        if creator_is_verified(&metadata.data.creators, position) || allow_unverified {
+        if creator_is_verified(&metadata.creators, position) || allow_unverified {
             mint_accounts.push(metadata.mint.to_string());
         }
     }
@@ -180,7 +180,7 @@ pub fn snapshot_holders(client: &RpcClient, args: SnapshotHoldersArgs) -> Result
 
             let nft_holders = nft_holders.clone();
 
-            let metadata: Metadata = match Metadata::safe_deserialize(&account.data) {
+            let metadata: Metadata = match Metadata::try_from_slice(&account.data) {
                 Ok(metadata) => metadata,
                 Err(_) => {
                     error!("Account {} has no metadata", metadata_pubkey);
@@ -189,9 +189,7 @@ pub fn snapshot_holders(client: &RpcClient, args: SnapshotHoldersArgs) -> Result
             };
 
             // Check that first creator is verified
-            if !creator_is_verified(&metadata.data.creators, args.position)
-                && !args.allow_unverified
-            {
+            if !creator_is_verified(&metadata.creators, args.position) && !args.allow_unverified {
                 return;
             }
 
@@ -347,7 +345,7 @@ pub async fn snapshot_indexed_holders(args: NftsByCreatorArgs) -> Result<()> {
 pub async fn get_holder_from_gpa_result(api_key: String, result: GPAResult) -> Result<Holder> {
     let bs64_data = &result.account.data.as_array().unwrap()[0];
     let data = base64::decode(bs64_data.as_str().unwrap())?;
-    let metadata: Metadata = match Metadata::safe_deserialize(&data) {
+    let metadata: Metadata = match Metadata::try_from_slice(&data) {
         Ok(metadata) => metadata,
         Err(_) => {
             return Err(anyhow!(

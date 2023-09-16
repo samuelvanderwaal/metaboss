@@ -2,6 +2,7 @@ use std::fs::File;
 
 use anyhow::{bail, Result};
 use jib::Network;
+use metaboss_lib::data::UpdateNftData;
 use metaboss_lib::decode::{
     decode_collection_authority_record, decode_metadata_delegate, decode_token_record,
     decode_token_record_from_mint, decode_use_authority_record,
@@ -19,7 +20,6 @@ use crate::create::{
     create_fungible, create_master_edition, create_metadata, CreateFungibleArgs,
     CreateMasterEditionArgs, CreateMetadataArgs,
 };
-use crate::data::UpdateNftData;
 use crate::decode::{
     decode_edition_marker, decode_master_edition, decode_metadata, decode_metadata_from_mint,
     decode_mint_account, decode_print_edition, decode_token_account,

@@ -1,3 +1,5 @@
+use metaboss_lib::update::V1UpdateArgs;
+
 use crate::cache::NewValue;
 
 use super::*;
@@ -21,19 +23,8 @@ pub async fn set_immutable(args: SetImmutableArgs) -> Result<Signature, ActionEr
     // Add metadata delegate record here later.
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default_v1();
-
-    if let UpdateArgs::V1 {
-        ref mut is_mutable, ..
-    } = update_args
-    {
-        *is_mutable = Some(false);
-    } else {
-        return Err(ActionError::ActionFailed(
-            args.mint_account,
-            "UpdateArgs enum is not V1!".to_string(),
-        ));
-    }
+    let mut update_args = V1UpdateArgs::default();
+    update_args.is_mutable = Some(false);
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

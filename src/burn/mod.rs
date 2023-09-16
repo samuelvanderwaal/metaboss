@@ -1,6 +1,5 @@
 use anyhow::Result as AnyResult;
 use async_trait::async_trait;
-use borsh::BorshDeserialize;
 use mpl_token_metadata::{
     accounts::{Edition, Metadata},
     instructions::{BurnEditionNft, BurnNft},

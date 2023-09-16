@@ -1,7 +1,7 @@
 pub use anyhow::{anyhow, Result};
 pub use indicatif::ParallelProgressIterator;
 pub use log::{error, info};
-pub use mpl_token_metadata::state::Metadata;
+pub use mpl_token_metadata::accounts::Metadata;
 pub use mpl_token_metadata::ID as TOKEN_METADATA_PROGRAM_ID;
 pub use rayon::prelude::*;
 pub use retry::{delay::Exponential, retry};
