@@ -22,8 +22,8 @@ indicatif = { version = "0.16.2", features = ["rayon"] }
 jib = "0.4.0"
 lazy_static = "1.4.0"
 log = "0.4.17"
+metaboss_lib = { git = "https://github.com/samuelvanderwaal/metaboss_lib", branch = "fix/deps" }
 mpl-token-metadata = { version = "3.0.0", features = ["serde"] }
-metaboss_lib = { path = "../metaboss_lib" }
 num_cpus = "1.15.0"
 phf = { version = "0.10", features = ["macros"] }
 ratelimit = "0.4.4"
