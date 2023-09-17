@@ -1,5 +1,5 @@
 use metaboss_lib::update::V1UpdateArgs;
-use mpl_token_metadata::types::UpdateArgsV1Data;
+use mpl_token_metadata::types::Data;
 
 use crate::cache::NewValue;
 
@@ -26,7 +26,7 @@ pub async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<Signatu
     let current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
-    let data = Some(UpdateArgsV1Data {
+    let data = Some(Data {
         name: current_md.name,
         symbol: current_md.symbol,
         uri: current_md.uri,

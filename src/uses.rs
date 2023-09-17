@@ -44,7 +44,7 @@ pub fn approve_use_delegate(
         .owner_token_account(owner_nft_token_pubkey)
         .user(delegate_pubkey)
         .number_of_uses(number_of_uses)
-        .build();
+        .instruction();
 
     send_and_confirm_transaction(client, keypair, &[approve_use_auth_ix])?;
 
@@ -76,7 +76,7 @@ pub fn revoke_use_delegate(
         .owner_token_account(owner_nft_token_pubkey)
         .metadata(nft_metadata)
         .mint(nft_pubkey)
-        .build();
+        .instruction();
 
     send_and_confirm_transaction(client, keypair, &[revoke_use_auth_ix])?;
 
@@ -121,12 +121,12 @@ pub fn utilize_nft(
         .number_of_uses(1);
 
     if let Some(use_authority_record) = use_authority_record {
-        builder.use_authority_record(use_authority_record);
+        builder.use_authority_record(Some(use_authority_record));
     }
     if let Some(burner_program_pubkey) = burner_program_pubkey {
-        builder.burner(burner_program_pubkey);
+        builder.burner(Some(burner_program_pubkey));
     }
-    let utilize_nft_ix = builder.build();
+    let utilize_nft_ix = builder.instruction();
 
     send_and_confirm_transaction(client, keypair, &[utilize_nft_ix])?;
 

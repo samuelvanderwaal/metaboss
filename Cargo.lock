@@ -2117,8 +2117,9 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-metadata"
-version = "2.0.0"
-source = "git+https://github.com/metaplex-foundation/mpl-token-metadata.git?branch=febo/serde-on-sdk#bca2242724dea5777b4a2de30064cbe083a21737"
+version = "3.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "651388b8ccae4805f240ebd495172eb44ea10153e018623b628df7034e042a96"
 dependencies = [
  "borsh 0.10.3",
  "num-derive",

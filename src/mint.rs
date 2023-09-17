@@ -14,8 +14,7 @@ use mpl_token_metadata::{
         MintNewEditionFromMasterEditionViaTokenBuilder, UpdateMetadataAccountV2Builder,
     },
     types::{
-        CollectionDetails, DataV2, MintNewEditionFromMasterEditionViaTokenArgs, PrintSupply,
-        UpdateArgsV1Data as Data,
+        CollectionDetails, Data, DataV2, MintNewEditionFromMasterEditionViaTokenArgs, PrintSupply,
     },
 };
 use rayon::prelude::*;
@@ -397,7 +396,7 @@ fn mint_next_edition(
             break;
         }
 
-        let marker = EditionMarker::try_from_slice(&account.unwrap().data)?;
+        let marker = EditionMarker::deserialize(&mut account.unwrap().data.as_slice())?;
 
         if let Some((index, bit)) = find_first_zero_bit(marker.ledger, edition_num == 0) {
             edition_num += index * 8 + bit as usize;
@@ -526,7 +525,7 @@ fn mint_edition(
                 edition: edition_num,
             },
         )
-        .build();
+        .instruction();
 
     let instructions = vec![
         create_mint_account_ix,
@@ -679,7 +678,7 @@ pub fn mint(
         builder.collection_details(CollectionDetails::V1 { size: 0 });
     }
 
-    let create_metadata_account_ix = builder.build();
+    let create_metadata_account_ix = builder.instruction();
 
     let mut builder = CreateMasterEditionV3Builder::new();
     builder
@@ -694,7 +693,7 @@ pub fn mint(
         builder.max_supply(max_supply);
     }
 
-    let create_master_edition_account_ix = builder.build();
+    let create_master_edition_account_ix = builder.instruction();
 
     let mut instructions = vec![
         create_mint_account_ix,
@@ -710,7 +709,7 @@ pub fn mint(
             .metadata(metadata_account)
             .update_authority(funder.pubkey())
             .primary_sale_happened(true)
-            .build();
+            .instruction();
         instructions.push(ix);
     }
 

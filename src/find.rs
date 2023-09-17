@@ -22,7 +22,7 @@ pub fn find_missing_editions(client: &RpcClient, mint: &str) -> Result<Vec<u64>>
     let spinner = create_spinner("Getting accounts...");
     let editions = get_edition_accounts_by_master(client, &master_edition_pubkey.to_string())?;
     for (_, edition_account) in editions {
-        let edition: Edition = match Edition::try_from_slice(&edition_account.data) {
+        let edition: Edition = match Edition::deserialize(&mut edition_account.data.as_slice()) {
             Ok(e) => e,
             Err(err) => return Err(DecodeError::DecodeMetadataFailed(err.to_string()).into()),
         };

@@ -54,7 +54,7 @@ pub async fn snapshot_print_editions<'a>(args: SnapshotPrintEditionsArgs) -> Res
     let mints = accounts
         .into_iter()
         .map(|(_, mint)| mint)
-        .map(|a| Metadata::try_from_slice(a.data.as_slice()).unwrap())
+        .map(|a| Metadata::deserialize(&mut a.data.as_slice()).unwrap())
         .map(|m| m.mint)
         .collect::<Vec<_>>();
     spinner.finish();
@@ -65,7 +65,7 @@ pub async fn snapshot_print_editions<'a>(args: SnapshotPrintEditionsArgs) -> Res
     for m in mints {
         let edition = derive_edition_pda(&m);
         let edition_account = &args.client.get_account(&edition)?;
-        let edition = match Edition::try_from_slice(edition_account.data.as_slice()) {
+        let edition = match Edition::deserialize(&mut edition_account.data.as_slice()) {
             Ok(e) => e,
             Err(_) => continue,
         };

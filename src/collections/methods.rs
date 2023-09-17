@@ -4,11 +4,12 @@ use crate::parse::parse_keypair;
 use crate::{
     derive::derive_metadata_pda, parse::parse_solana_config, utils::send_and_confirm_transaction,
 };
+use metaboss_lib::update::V1UpdateArgs;
 use metaboss_lib::{
     delegate::{delegate_asset, DelegateAssetArgs},
     revoke::{revoke_asset, RevokeAssetArgs},
     unverify::{unverify_collection_ix, UnverifyCollectionArgs},
-    update::{update_asset_ix, UpdateAssetArgs, V1UpdateArgs},
+    update::{update_asset_ix, UpdateAssetArgs},
     verify::{verify_collection_ix, VerifyCollectionArgs},
 };
 use mpl_token_metadata::types::SetCollectionSizeArgs;
@@ -192,7 +193,7 @@ pub fn set_size(
         .collection_authority(keypair.pubkey())
         .collection_mint(collection_mint_pubkey)
         .set_collection_size_args(SetCollectionSizeArgs { size })
-        .build();
+        .instruction();
 
     send_and_confirm_transaction(&client, keypair, &[set_collection_size_ix])?;
 

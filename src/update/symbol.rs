@@ -1,5 +1,5 @@
 use metaboss_lib::update::V1UpdateArgs;
-use mpl_token_metadata::types::UpdateArgsV1Data;
+use mpl_token_metadata::types::Data;
 
 use crate::cache::NewValue;
 
@@ -29,7 +29,7 @@ pub async fn update_symbol(args: UpdateSymbolArgs) -> Result<Signature, ActionEr
     // Token Metadata UpdateArgs enum.
     let mut update_args = V1UpdateArgs::default();
 
-    let data = UpdateArgsV1Data {
+    let data = Data {
         name: current_md.name,
         symbol: args.new_symbol,
         uri: current_md.uri,

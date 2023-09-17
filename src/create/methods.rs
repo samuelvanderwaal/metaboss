@@ -36,7 +36,7 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
         .update_authority(keypair.pubkey())
         .data(data)
         .is_mutable(!args.immutable)
-        .build();
+        .instruction();
 
     let instructions = vec![ix];
 
@@ -136,7 +136,7 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         .update_authority(keypair.pubkey())
         .data(data)
         .is_mutable(!args.immutable)
-        .build();
+        .instruction();
 
     instructions.push(metadata_ix);
 
@@ -204,7 +204,7 @@ pub fn create_master_edition(args: CreateMasterEditionArgs) -> Result<()> {
     if let Some(max_supply) = max_supply {
         builder.max_supply(max_supply);
     }
-    let ix = builder.build();
+    let ix = builder.instruction();
 
     let recent_blockhash = args.client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(

@@ -1,5 +1,5 @@
 use metaboss_lib::update::V1UpdateArgs;
-use mpl_token_metadata::types::UpdateArgsV1Data;
+use mpl_token_metadata::types::Data;
 
 use super::*;
 
@@ -17,7 +17,7 @@ pub async fn update_name(args: UpdateNameArgs) -> Result<Signature, ActionError>
     // Token Metadata UpdateArgs enum.
     let mut update_args = V1UpdateArgs::default();
 
-    let data = UpdateArgsV1Data {
+    let data = Data {
         name: args.new_name,
         symbol: current_md.symbol,
         uri: current_md.uri,

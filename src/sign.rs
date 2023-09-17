@@ -178,13 +178,14 @@ pub fn sign_candy_machine_accounts(
         .progress()
         .for_each(|(metadata_pubkey, account)| {
             let signed_at_least_one_account = signed_at_least_one_account.clone();
-            let metadata: Metadata = match Metadata::try_from_slice(&account.data.clone()) {
-                Ok(metadata) => metadata,
-                Err(_) => {
-                    error!("Account {} has no metadata", metadata_pubkey);
-                    return;
-                }
-            };
+            let metadata: Metadata =
+                match Metadata::deserialize(&mut account.data.clone().as_slice()) {
+                    Ok(metadata) => metadata,
+                    Err(_) => {
+                        error!("Account {} has no metadata", metadata_pubkey);
+                        return;
+                    }
+                };
 
             if let Some(creators) = metadata.creators {
                 // Check whether the specific creator has already signed the account

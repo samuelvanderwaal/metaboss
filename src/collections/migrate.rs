@@ -110,7 +110,7 @@ fn set_and_verify(
     let nft_md_account = client
         .get_account_data(&nft_metadata_pubkey)
         .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
-    let nft_metadata = Metadata::try_from_slice(nft_md_account.as_slice())
+    let nft_metadata = <Metadata as BorshDeserialize>::deserialize(&mut nft_md_account.as_slice())
         .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
 
     if let Some(current_collection) = nft_metadata.collection {

@@ -146,7 +146,7 @@ pub async fn burn(args: BurnArgs) -> AnyResult<Signature> {
     let master_edition = derive_edition_pda(&args.mint_pubkey);
 
     let md_account = args.client.get_account_data(&metadata_pubkey)?;
-    let metadata = Metadata::try_from_slice(md_account.as_slice())?;
+    let metadata = Metadata::deserialize(&mut md_account.as_slice())?;
 
     // Is it a verified collection item?
     let collection_md = if let Some(collection) = metadata.collection {
@@ -257,7 +257,7 @@ pub async fn burn_print(args: BurnPrintArgs) -> AnyResult<Signature> {
     let print_edition_pda = derive_edition_pda(&args.mint_pubkey);
 
     let data = args.client.get_account_data(&print_edition_pda)?;
-    let print_edition = Edition::try_from_slice(data.as_slice())?;
+    let print_edition = Edition::deserialize(&mut data.as_slice())?;
 
     let edition_marker_pda =
         derive_edition_marker_pda(&args.master_mint_pubkey, print_edition.edition);

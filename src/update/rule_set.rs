@@ -47,6 +47,7 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<Signature, Actio
         rule_set: RuleSetToggle::Set(new_rule_set),
         ..Default::default()
     };
+
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {
         payer: None,

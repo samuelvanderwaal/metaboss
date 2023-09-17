@@ -1,7 +1,7 @@
 use glob::glob;
 use indicatif::ParallelProgressIterator;
 use metaboss_lib::{data::UpdateNftData, update::V1UpdateArgs};
-use mpl_token_metadata::types::UpdateArgsV1Data as Data;
+use mpl_token_metadata::types::Data;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use std::{collections::HashMap, path::Path, sync::Mutex};
 

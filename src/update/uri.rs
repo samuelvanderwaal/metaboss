@@ -1,7 +1,7 @@
 use std::{collections::HashMap, fs::File};
 
 use metaboss_lib::{data::UpdateUriData, update::V1UpdateArgs};
-use mpl_token_metadata::types::UpdateArgsV1Data;
+use mpl_token_metadata::types::Data;
 
 use crate::cache::{MintValues, NewValue};
 
@@ -37,7 +37,7 @@ pub async fn update_uri(args: UpdateUriArgs) -> Result<Signature, ActionError> {
     // Token Metadata UpdateArgs enum.
     let mut update_args = V1UpdateArgs::default();
 
-    let data = UpdateArgsV1Data {
+    let data = Data {
         name: current_md.name,
         symbol: current_md.symbol,
         uri: args.new_uri,
