@@ -25,7 +25,6 @@ pub fn set_and_verify_nft_collection(
     keypair_path: Option<String>,
     nft_mint: String,
     collection_mint: String,
-    _nft_auth: Option<String>,
     is_delegate_present: bool,
 ) -> AnyResult<()> {
     let solana_opts = parse_solana_config();

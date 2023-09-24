@@ -83,19 +83,18 @@ pub async fn check_collection_items(
             (Ok(res), _index, remaining) => {
                 handles = remaining;
 
-                if res.is_ok() {
-                    let (mint, collection_opt) = res.unwrap();
+                if let Ok((mint, collection_opt)) = res {
                     match collection_opt {
                         Some(collection) => {
                             collections
                                 .entry(collection.key.to_string())
-                                .or_insert_with(Vec::new)
+                                .or_default()
                                 .push(mint.to_string());
                         }
                         None => {
                             collections
                                 .entry("none".to_string())
-                                .or_insert_with(Vec::new)
+                                .or_default()
                                 .push(mint.to_string());
                         }
                     }
