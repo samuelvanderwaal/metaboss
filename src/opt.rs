@@ -501,7 +501,7 @@ pub enum CollectionsSubcommands {
 
         /// NFT update authority
         #[structopt(short, long)]
-        update_authority_nft: String,
+        update_authority_nft: Option<String>,
 
         /// Option if the signing keypair is a collection authority delegate.
         #[structopt(short = "d", long)]
