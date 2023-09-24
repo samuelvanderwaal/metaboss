@@ -2046,7 +2046,7 @@ dependencies = [
 [[package]]
 name = "metaboss_lib"
 version = "0.11.3"
-source = "git+https://github.com/samuelvanderwaal/metaboss_lib?branch=fix/deps#4bbcfdc008211cf683e2fe7b8258357a3519ea70"
+source = "git+https://github.com/samuelvanderwaal/metaboss_lib?branch=fix/deps#0afb92c55b039f5d7a27379ea8c87d0d32c86748"
 dependencies = [
  "anyhow",
  "borsh 0.10.3",

@@ -4,7 +4,7 @@ use anyhow::anyhow;
 use metaboss_lib::derive::derive_edition_pda;
 use mpl_token_metadata::{
     instructions::{CreateMasterEditionV3Builder, CreateMetadataAccountV3Builder},
-    types::DataV2,
+    types::{Data, DataV2},
 };
 use solana_sdk::signature::read_keypair_file;
 
@@ -26,7 +26,17 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
     let keypair = parse_keypair(args.keypair, solana_opts);
 
     let f = File::open(args.metadata)?;
-    let data: DataV2 = serde_json::from_reader(f)?;
+    let data: Data = serde_json::from_reader(f)?;
+
+    let data_v2 = DataV2 {
+        name: data.name,
+        symbol: data.symbol,
+        uri: data.uri,
+        seller_fee_basis_points: data.seller_fee_basis_points,
+        creators: data.creators,
+        collection: None,
+        uses: None,
+    };
 
     let ix = CreateMetadataAccountV3Builder::new()
         .metadata(metadata_pubkey)
@@ -34,7 +44,7 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
         .mint_authority(keypair.pubkey())
         .payer(keypair.pubkey())
         .update_authority(keypair.pubkey())
-        .data(data)
+        .data(data_v2)
         .is_mutable(!args.immutable)
         .instruction();
 
@@ -63,12 +73,26 @@ pub struct FungibleFields {
     pub uri: String,
 }
 
+impl From<FungibleFields> for DataV2 {
+    fn from(value: FungibleFields) -> Self {
+        DataV2 {
+            name: value.name,
+            symbol: value.symbol,
+            uri: value.uri,
+            seller_fee_basis_points: 0,
+            creators: None,
+            collection: None,
+            uses: None,
+        }
+    }
+}
+
 pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
     let f = File::open(args.metadata)?;
-    let data: DataV2 = serde_json::from_reader(f)?;
+    let data: FungibleFields = serde_json::from_reader(f)?;
 
     let mint = Keypair::new();
     let metadata_pubkey = derive_metadata_pda(&mint.pubkey());
@@ -134,7 +158,7 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         .mint_authority(keypair.pubkey())
         .payer(keypair.pubkey())
         .update_authority(keypair.pubkey())
-        .data(data)
+        .data(data.into())
         .is_mutable(!args.immutable)
         .instruction();
 

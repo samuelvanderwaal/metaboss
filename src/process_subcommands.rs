@@ -2,11 +2,11 @@ use std::fs::File;
 
 use anyhow::{bail, Result};
 use jib::Network;
-use metaboss_lib::data::UpdateNftData;
 use metaboss_lib::decode::{
     decode_collection_authority_record, decode_metadata_delegate, decode_token_record,
     decode_token_record_from_mint, decode_use_authority_record,
 };
+use mpl_token_metadata::types::Data;
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 
 use crate::airdrop::{airdrop_sol, AirdropSolArgs};
@@ -1104,13 +1104,13 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
 
-            let new_data: UpdateNftData = serde_json::from_reader(File::open(new_data_file)?)?;
+            let new_data: Data = serde_json::from_reader(File::open(new_data_file)?)?;
 
             let args = UpdateDataArgs {
                 client: Arc::new(client),
                 keypair: Arc::new(keypair),
                 mint_account: account,
-                new_data: new_data.data,
+                new_data,
             };
 
             let sig = update_data(args).await.map_err(Into::<ActionError>::into)?;

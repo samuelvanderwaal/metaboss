@@ -128,7 +128,7 @@ pub async fn update_data_all(args: UpdateDataAllArgs) -> AnyResult<()> {
         };
 
         mint_values.lock().unwrap().insert(
-            update_nft_data.mint_account,
+            update_nft_data.mint,
             serde_json::to_string(&update_nft_data.data).unwrap(),
         );
     });

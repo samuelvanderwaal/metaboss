@@ -138,7 +138,7 @@ Update the creators of a NFT, keeping the rest of the `Data` struct the same.
 #### Usage
 
 ```bash
-metaboss update creators -k <PATH_TO_KEYPAIR> -a <MINT_ACCOUNT> -c <CREATOR1:SHARE:VERIFIED,CREATOR2:SHARE:VERIFIED>
+metaboss update creators -k <PATH_TO_KEYPAIR> -a <MINT_ACCOUNT> -n <CREATOR1:SHARE:VERIFIED,CREATOR2:SHARE:VERIFIED>
 ```
 
 Creators should be a comma-delimited list of creator:share:verified. E.g. 
