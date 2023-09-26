@@ -2,7 +2,10 @@ use std::path::PathBuf;
 
 use anyhow::anyhow;
 use metaboss_lib::derive::derive_edition_pda;
-use mpl_token_metadata::instruction::create_master_edition_v3;
+use mpl_token_metadata::{
+    instructions::{CreateMasterEditionV3Builder, CreateMetadataAccountV3Builder},
+    types::{Data, DataV2},
+};
 use solana_sdk::signature::read_keypair_file;
 
 use super::*;
@@ -25,24 +28,25 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
     let f = File::open(args.metadata)?;
     let data: Data = serde_json::from_reader(f)?;
 
-    let ix = create_metadata_accounts_v3(
-        METADATA_PROGRAM_ID,
-        metadata_pubkey,
-        mint_pubkey,
-        keypair.pubkey(),
-        keypair.pubkey(),
-        keypair.pubkey(),
-        data.name,
-        data.symbol,
-        data.uri,
-        data.creators,
-        data.seller_fee_basis_points,
-        true,
-        !args.immutable,
-        None,
-        None,
-        None,
-    );
+    let data_v2 = DataV2 {
+        name: data.name,
+        symbol: data.symbol,
+        uri: data.uri,
+        seller_fee_basis_points: data.seller_fee_basis_points,
+        creators: data.creators,
+        collection: None,
+        uses: None,
+    };
+
+    let ix = CreateMetadataAccountV3Builder::new()
+        .metadata(metadata_pubkey)
+        .mint(mint_pubkey)
+        .mint_authority(keypair.pubkey())
+        .payer(keypair.pubkey())
+        .update_authority(keypair.pubkey())
+        .data(data_v2)
+        .is_mutable(!args.immutable)
+        .instruction();
 
     let instructions = vec![ix];
 
@@ -67,6 +71,20 @@ pub struct FungibleFields {
     pub name: String,
     pub symbol: String,
     pub uri: String,
+}
+
+impl From<FungibleFields> for DataV2 {
+    fn from(value: FungibleFields) -> Self {
+        DataV2 {
+            name: value.name,
+            symbol: value.symbol,
+            uri: value.uri,
+            seller_fee_basis_points: 0,
+            creators: None,
+            collection: None,
+            uses: None,
+        }
+    }
 }
 
 pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
@@ -134,24 +152,16 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         instructions.push(mint_to_ix);
     }
 
-    let metadata_ix = create_metadata_accounts_v3(
-        METADATA_PROGRAM_ID,
-        metadata_pubkey,
-        mint.pubkey(),
-        keypair.pubkey(),
-        keypair.pubkey(),
-        keypair.pubkey(),
-        data.name,
-        data.symbol,
-        data.uri,
-        None, // Fungible does not have creators
-        0,    // Fungible does not have royalties
-        true,
-        !args.immutable,
-        None,
-        None,
-        None,
-    );
+    let metadata_ix = CreateMetadataAccountV3Builder::new()
+        .metadata(metadata_pubkey)
+        .mint(mint.pubkey())
+        .mint_authority(keypair.pubkey())
+        .payer(keypair.pubkey())
+        .update_authority(keypair.pubkey())
+        .data(data.into())
+        .is_mutable(!args.immutable)
+        .instruction();
+
     instructions.push(metadata_ix);
 
     let recent_blockhash = args.client.get_latest_blockhash()?;
@@ -206,16 +216,19 @@ pub fn create_master_edition(args: CreateMasterEditionArgs) -> Result<()> {
         0.. => Some(args.max_supply as u64),
     };
 
-    let ix = create_master_edition_v3(
-        METADATA_PROGRAM_ID,
-        edition_pubkey,
-        mint_pubkey,
-        keypair.pubkey(),
-        mint_authority.pubkey(),
-        metadata_pubkey,
-        keypair.pubkey(),
-        max_supply,
-    );
+    let mut builder = CreateMasterEditionV3Builder::new();
+    builder
+        .edition(edition_pubkey)
+        .mint(mint_pubkey)
+        .update_authority(keypair.pubkey())
+        .mint_authority(mint_authority.pubkey())
+        .metadata(metadata_pubkey)
+        .payer(keypair.pubkey());
+
+    if let Some(max_supply) = max_supply {
+        builder.max_supply(max_supply);
+    }
+    let ix = builder.instruction();
 
     let recent_blockhash = args.client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(

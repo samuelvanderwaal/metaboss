@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use metaboss_lib::check::{check_metadata_value, MetadataValue};
-use mpl_token_metadata::state::Metadata;
+use mpl_token_metadata::accounts::Metadata;
 use solana_client::rpc_client::RpcClient;
 use structopt::StructOpt;
 
@@ -48,9 +48,9 @@ fn check_value_all(metadata_file_dir: PathBuf, value: MetadataValue) -> Result<(
         let file = file?;
         let path = file.path();
 
-        let metadata = std::fs::read_to_string(&path)?;
+        let metadata_file = std::fs::read_to_string(&path)?;
 
-        let metadata: Metadata = serde_json::from_str(&metadata)?;
+        let metadata: Metadata = serde_json::from_str(&metadata_file)?;
 
         if !check_metadata_value(&metadata, &value) {
             paths.push(path);

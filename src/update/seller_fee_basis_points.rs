@@ -1,3 +1,6 @@
+use metaboss_lib::update::V1UpdateArgs;
+use mpl_token_metadata::types::Data;
+
 use crate::cache::NewValue;
 
 use super::*;
@@ -20,23 +23,22 @@ pub struct UpdateSellerFeeBasisPointsAllArgs {
 
 pub async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<Signature, ActionError> {
     // Add metadata delegate record here later.
-    let mut current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
+    let current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
-    current_md.data.seller_fee_basis_points = args.new_sfbp;
+    let data = Some(Data {
+        name: current_md.name,
+        symbol: current_md.symbol,
+        uri: current_md.uri,
+        seller_fee_basis_points: args.new_sfbp,
+        creators: current_md.creators,
+    });
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default_v1();
-
-    // Update the sfbp on the data struct.
-    if let UpdateArgs::V1 { ref mut data, .. } = update_args {
-        *data = Some(current_md.data);
-    } else {
-        return Err(ActionError::ActionFailed(
-            args.mint_account,
-            "UpdateArgs enum is not V1!".to_string(),
-        ));
-    }
+    let update_args = V1UpdateArgs {
+        data,
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

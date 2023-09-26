@@ -1,4 +1,4 @@
-use super::common::*;
+use super::*;
 
 use crate::constants::NANO_SECONDS_IN_SECOND;
 use crate::limiter::create_rate_limiter_with_capacity;
@@ -7,15 +7,13 @@ use crate::{
     spinner::create_spinner,
 };
 use crate::{parse::parse_keypair, snapshot::get_mint_accounts};
+use metaboss_lib::update::V1UpdateArgs;
 use metaboss_lib::{
     unverify::{unverify_collection_ix, UnverifyCollectionArgs},
     update::{update_asset_ix, UpdateAssetArgs},
     verify::{verify_collection_ix, VerifyCollectionArgs},
 };
-use mpl_token_metadata::{
-    instruction::{CollectionToggle, UpdateArgs},
-    state::{Collection, TokenMetadataAccount},
-};
+use mpl_token_metadata::types::CollectionToggle;
 use solana_sdk::{
     signature::{Keypair, Signature},
     signer::Signer,
@@ -112,7 +110,7 @@ fn set_and_verify(
     let nft_md_account = client
         .get_account_data(&nft_metadata_pubkey)
         .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
-    let nft_metadata = Metadata::safe_deserialize(nft_md_account.as_slice())
+    let nft_metadata = <Metadata as BorshDeserialize>::deserialize(&mut nft_md_account.as_slice())
         .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;
 
     if let Some(current_collection) = nft_metadata.collection {
@@ -135,22 +133,13 @@ fn set_and_verify(
 
     // Add update instruction to set the collection.
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default_v1();
-
-    if let UpdateArgs::V1 {
-        ref mut collection, ..
-    } = update_args
-    {
-        *collection = CollectionToggle::Set(Collection {
+    let update_args = V1UpdateArgs {
+        collection: CollectionToggle::Set(MdCollection {
             key: collection_mint_pubkey,
             verified: false,
-        });
-    } else {
-        return Err(MigrateError::MigrationFailed(
-            nft_mint,
-            "UpdateArgs enum is not V1!".to_string(),
-        ));
-    }
+        }),
+        ..Default::default()
+    };
 
     let update_ix = update_asset_ix(
         &client,

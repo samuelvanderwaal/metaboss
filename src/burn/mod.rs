@@ -1,10 +1,8 @@
 use anyhow::Result as AnyResult;
 use async_trait::async_trait;
-use borsh::BorshDeserialize;
 use mpl_token_metadata::{
-    id,
-    instruction::{burn_edition_nft, burn_nft},
-    state::{Edition, Metadata, TokenMetadataAccount},
+    accounts::{Edition, Metadata},
+    instructions::{BurnEditionNft, BurnNft},
 };
 use retry::{delay::Exponential, retry};
 use solana_client::rpc_client::RpcClient;

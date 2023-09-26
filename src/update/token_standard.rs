@@ -1,3 +1,4 @@
+use mpl_token_metadata::instructions::SetTokenStandard;
 use solana_sdk::commitment_config::CommitmentConfig;
 
 use crate::cache::NewValue;
@@ -34,13 +35,13 @@ pub async fn set_token_standard_one(args: SetTokenStandardArgs) -> Result<Signat
         .value
         .map(|_| edition_pubkey);
 
-    let ix = set_token_standard(
-        TOKEN_METADATA_PROGRAM_ID,
-        metadata_pubkey,
+    let ix = SetTokenStandard {
+        metadata: metadata_pubkey,
         update_authority,
-        mint_pubkey,
-        edition_opt,
-    );
+        mint: mint_pubkey,
+        edition: edition_opt,
+    }
+    .instruction();
 
     let recent_blockhash = args
         .client

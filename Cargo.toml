@@ -10,22 +10,20 @@ license = "Apache-2.0"
 anyhow = "1.0.70"
 async-trait = "0.1.68"
 base64 = "0.13.1"
-borsh = "0.9.3"
+borsh = "0.10.3"
 bs58 = "0.4.0"
+chrono = "0.4.26"
 console = "0.15.5"
 env_logger = "0.9.3"
 futures = "0.3.28"
 glob = "0.3.1"
 indexmap = { version = "1.9.3", features = ["serde"] }
 indicatif = { version = "0.16.2", features = ["rayon"] }
-jib = "0.3.0"
+jib = "0.4.0"
 lazy_static = "1.4.0"
 log = "0.4.17"
-metaboss_lib = "0.11.2"
-mpl-token-metadata = { version = "1.11.0", features = [
-    "no-entrypoint",
-    "serde-feature",
-] }
+metaboss_lib = "0.12.0"
+mpl-token-metadata = { version = "3.0.0", features = ["serde"] }
 num_cpus = "1.15.0"
 phf = { version = "0.10", features = ["macros"] }
 ratelimit = "0.4.4"
@@ -36,17 +34,16 @@ serde = { version = "1.0.160", features = ["derive"] }
 serde_json = "1.0.96"
 serde_yaml = "0.8.26"
 shellexpand = "2.1.2"
-solana-client = "1.14"
-solana-account-decoder = "1.14"
-solana-logger = "1.14"
-solana-program = "1.14"
-solana-sdk = "1.14"
+solana-client = "=1.16.11"
+solana-account-decoder = "=1.16.11"
+solana-logger = "=1.16.11"
+solana-program = "=1.16.11"
+solana-sdk = "=1.16.11"
 spl-associated-token-account = "1.1.1"
 spl-token = "3.5.0"
 structopt = "0.3.26"
 thiserror = "1.0.40"
-tokio = "1.28"
-chrono = "0.4.26"
+tokio = "1.14.1"
 
 [features]
 

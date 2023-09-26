@@ -1,3 +1,5 @@
+use metaboss_lib::update::V1UpdateArgs;
+
 use crate::cache::NewValue;
 
 use super::*;
@@ -41,20 +43,10 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<Signature, Actio
     // Add metadata delegate record here later.
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default_v1();
-
-    // Update the rule set.
-    if let UpdateArgs::V1 {
-        ref mut rule_set, ..
-    } = update_args
-    {
-        *rule_set = RuleSetToggle::Set(new_rule_set);
-    } else {
-        return Err(ActionError::ActionFailed(
-            args.mint_account,
-            "UpdateArgs enum is not V1!".to_string(),
-        ));
-    }
+    let update_args = V1UpdateArgs {
+        rule_set: RuleSetToggle::Set(new_rule_set),
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {
@@ -77,20 +69,10 @@ pub async fn clear_rule_set(args: ClearRuleSetArgs) -> Result<Signature, ActionE
     // Add metadata delegate record here later.
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default_v1();
-
-    // Update the rule set.
-    if let UpdateArgs::V1 {
-        ref mut rule_set, ..
-    } = update_args
-    {
-        *rule_set = RuleSetToggle::Clear;
-    } else {
-        return Err(ActionError::ActionFailed(
-            args.mint_account,
-            "UpdateArgs enum is not V1!".to_string(),
-        ));
-    }
+    let update_args = V1UpdateArgs {
+        rule_set: RuleSetToggle::Clear,
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

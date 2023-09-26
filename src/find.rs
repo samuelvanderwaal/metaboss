@@ -1,8 +1,9 @@
 use anyhow::Result;
+use borsh::BorshDeserialize;
 use metaboss_lib::{derive::derive_edition_pda, snapshot::get_edition_accounts_by_master};
-use mpl_token_metadata::state::Edition;
+use mpl_token_metadata::accounts::Edition;
 use solana_client::rpc_client::RpcClient;
-use solana_sdk::{borsh::try_from_slice_unchecked, pubkey::Pubkey};
+use solana_sdk::pubkey::Pubkey;
 use std::str::FromStr;
 
 use crate::{errors::DecodeError, spinner::create_spinner};
@@ -21,7 +22,7 @@ pub fn find_missing_editions(client: &RpcClient, mint: &str) -> Result<Vec<u64>>
     let spinner = create_spinner("Getting accounts...");
     let editions = get_edition_accounts_by_master(client, &master_edition_pubkey.to_string())?;
     for (_, edition_account) in editions {
-        let edition: Edition = match try_from_slice_unchecked(&edition_account.data) {
+        let edition: Edition = match Edition::deserialize(&mut edition_account.data.as_slice()) {
             Ok(e) => e,
             Err(err) => return Err(DecodeError::DecodeMetadataFailed(err.to_string()).into()),
         };

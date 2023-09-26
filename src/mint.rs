@@ -1,18 +1,21 @@
 use anyhow::{anyhow, Result};
+use borsh::BorshDeserialize;
 use glob::glob;
 use log::{error, info};
 use metaboss_lib::{
     decode::*,
     derive::derive_edition_marker_pda,
-    mint::{mint_asset, MintAssetArgs},
+    mint::{mint_asset, AssetData, MintAssetArgs},
 };
 use mpl_token_metadata::{
-    instruction::{
-        create_master_edition_v3, create_metadata_accounts_v3,
-        mint_new_edition_from_master_edition_via_token, update_metadata_accounts_v2,
+    accounts::EditionMarker,
+    instructions::{
+        CreateMasterEditionV3Builder, CreateMetadataAccountV3Builder,
+        MintNewEditionFromMasterEditionViaTokenBuilder, UpdateMetadataAccountV2Builder,
     },
-    state::{AssetData, CollectionDetails, EditionMarker, PrintSupply, TokenMetadataAccount},
-    ID as TOKEN_METADATA_PROGRAM_ID,
+    types::{
+        CollectionDetails, Data, DataV2, MintNewEditionFromMasterEditionViaTokenArgs, PrintSupply,
+    },
 };
 use rayon::prelude::*;
 use reqwest;
@@ -42,10 +45,10 @@ use std::{
     str::FromStr,
 };
 
+use crate::constants::*;
 use crate::derive::derive_edition_pda;
+use crate::derive::derive_metadata_pda;
 use crate::sign::sign_one;
-use crate::{constants::*, parse::convert_local_to_remote_data};
-use crate::{data::NFTData, derive::derive_metadata_pda};
 use crate::{find::find_missing_editions, parse::*};
 use crate::{limiter::create_default_rate_limiter, spinner::create_spinner};
 
@@ -289,7 +292,7 @@ pub fn mint_one<P: AsRef<Path>>(
         keypair.pubkey()
     };
 
-    let nft_data: NFTData = if let Some(nft_data_file) = nft_data_file {
+    let nft_data: Data = if let Some(nft_data_file) = nft_data_file {
         let f = File::open(nft_data_file)?;
         serde_json::from_reader(f)?
     } else if let Some(external_metadata_uri) = external_metadata_uri {
@@ -303,7 +306,7 @@ pub fn mint_one<P: AsRef<Path>>(
         let creators = parse_creators(creators_json)?;
         let symbol = parse_symbol(&body)?;
         let seller_fee_basis_points = parse_seller_fee_basis_points(&body)?;
-        NFTData {
+        Data {
             name,
             symbol,
             creators: Some(creators),
@@ -393,7 +396,7 @@ fn mint_next_edition(
             break;
         }
 
-        let marker = EditionMarker::safe_deserialize(&account.unwrap().data)?;
+        let marker = EditionMarker::deserialize(&mut account.unwrap().data.as_slice())?;
 
         if let Some((index, bit)) = find_first_zero_bit(marker.ledger, edition_num == 0) {
             edition_num += index * 8 + bit as usize;
@@ -506,21 +509,23 @@ fn mint_edition(
         1,
     )?;
 
-    let mint_editions_ix = mint_new_edition_from_master_edition_via_token(
-        TOKEN_METADATA_PROGRAM_ID,
-        new_metadata,
-        new_edition,
-        master_edition,
-        new_mint,
-        funder.pubkey(),
-        funder.pubkey(),
-        funder.pubkey(),
-        assoc,
-        funder.pubkey(),
-        metadata,
-        metadata_mint,
-        edition_num,
-    );
+    let mint_editions_ix = MintNewEditionFromMasterEditionViaTokenBuilder::new()
+        .new_metadata(new_metadata)
+        .new_edition(new_edition)
+        .master_edition(master_edition)
+        .new_mint(new_mint)
+        .new_mint_authority(funder.pubkey())
+        .payer(funder.pubkey())
+        .new_metadata_update_authority(funder.pubkey())
+        .token_account(assoc)
+        .token_account_owner(funder.pubkey())
+        .metadata(metadata)
+        .mint_new_edition_from_master_edition_via_token_args(
+            MintNewEditionFromMasterEditionViaTokenArgs {
+                edition: edition_num,
+            },
+        )
+        .instruction();
 
     let instructions = vec![
         create_mint_account_ix,
@@ -571,7 +576,7 @@ pub fn mint(
     client: &RpcClient,
     funder: Keypair,
     receiver: Pubkey,
-    nft_data: NFTData,
+    nft_data: Data,
     immutable: bool,
     primary_sale_happened: bool,
     max_editions: i64,
@@ -587,9 +592,6 @@ pub fn mint(
     } else {
         Some(max_editions as u64)
     };
-
-    // Convert local NFTData type to Metaplex Data type
-    let data = convert_local_to_remote_data(nft_data)?;
 
     // Allocate memory for the account
     let min_rent = client.get_minimum_balance_for_rent_exemption(MINT_LAYOUT as usize)?;
@@ -652,41 +654,46 @@ pub fn mint(
     let (master_edition_account, _pda) =
         Pubkey::find_program_address(master_edition_seeds, &metaplex_program_id);
 
-    let collection_details = if sized {
-        Some(CollectionDetails::V1 { size: 0 })
-    } else {
-        None
+    let data_v2 = DataV2 {
+        name: nft_data.name,
+        symbol: nft_data.symbol,
+        uri: nft_data.uri,
+        seller_fee_basis_points: nft_data.seller_fee_basis_points,
+        creators: nft_data.creators,
+        collection: None,
+        uses: None,
     };
 
-    let create_metadata_account_ix = create_metadata_accounts_v3(
-        metaplex_program_id,
-        metadata_account,
-        mint.pubkey(),
-        funder.pubkey(),
-        funder.pubkey(),
-        funder.pubkey(),
-        data.name,
-        data.symbol,
-        data.uri,
-        data.creators,
-        data.seller_fee_basis_points,
-        true,
-        !immutable,
-        None,
-        None,
-        collection_details,
-    );
+    let mut builder = CreateMetadataAccountV3Builder::new();
+    builder
+        .metadata(metadata_account)
+        .mint(mint.pubkey())
+        .mint_authority(funder.pubkey())
+        .payer(funder.pubkey())
+        .update_authority(funder.pubkey())
+        .is_mutable(!immutable)
+        .data(data_v2);
 
-    let create_master_edition_account_ix = create_master_edition_v3(
-        metaplex_program_id,
-        master_edition_account,
-        mint.pubkey(),
-        funder.pubkey(),
-        funder.pubkey(),
-        metadata_account,
-        funder.pubkey(),
-        max_supply,
-    );
+    if sized {
+        builder.collection_details(CollectionDetails::V1 { size: 0 });
+    }
+
+    let create_metadata_account_ix = builder.instruction();
+
+    let mut builder = CreateMasterEditionV3Builder::new();
+    builder
+        .edition(master_edition_account)
+        .metadata(metadata_account)
+        .mint(mint.pubkey())
+        .update_authority(funder.pubkey())
+        .mint_authority(funder.pubkey())
+        .payer(funder.pubkey());
+
+    if let Some(max_supply) = max_supply {
+        builder.max_supply(max_supply);
+    }
+
+    let create_master_edition_account_ix = builder.instruction();
 
     let mut instructions = vec![
         create_mint_account_ix,
@@ -698,15 +705,11 @@ pub fn mint(
     ];
 
     if primary_sale_happened {
-        let ix = update_metadata_accounts_v2(
-            metaplex_program_id,
-            metadata_account,
-            funder.pubkey(),
-            None,
-            None,
-            Some(true),
-            None,
-        );
+        let ix = UpdateMetadataAccountV2Builder::new()
+            .metadata(metadata_account)
+            .update_authority(funder.pubkey())
+            .primary_sale_happened(true)
+            .instruction();
         instructions.push(ix);
     }
 

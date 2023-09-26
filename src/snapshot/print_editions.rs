@@ -1,9 +1,10 @@
+use borsh::BorshDeserialize;
 use indexmap::IndexMap;
 use metaboss_lib::{
     decode::decode_metadata_from_mint, derive::derive_edition_pda,
     snapshot::get_metadata_accounts_by_creator,
 };
-use mpl_token_metadata::state::{Edition, TokenMetadataAccount};
+use mpl_token_metadata::accounts::Edition;
 
 use crate::spinner::create_spinner;
 
@@ -36,7 +37,6 @@ pub async fn snapshot_print_editions<'a>(args: SnapshotPrintEditionsArgs) -> Res
         let master_nft = decode_metadata_from_mint(&args.client, args.master_mint.clone())?;
 
         master_nft
-            .data
             .creators
             .ok_or(anyhow!("No creators found"))?
             .iter()
@@ -54,7 +54,7 @@ pub async fn snapshot_print_editions<'a>(args: SnapshotPrintEditionsArgs) -> Res
     let mints = accounts
         .into_iter()
         .map(|(_, mint)| mint)
-        .map(|a| Metadata::safe_deserialize(a.data.as_slice()).unwrap())
+        .map(|a| Metadata::deserialize(&mut a.data.as_slice()).unwrap())
         .map(|m| m.mint)
         .collect::<Vec<_>>();
     spinner.finish();
@@ -65,7 +65,7 @@ pub async fn snapshot_print_editions<'a>(args: SnapshotPrintEditionsArgs) -> Res
     for m in mints {
         let edition = derive_edition_pda(&m);
         let edition_account = &args.client.get_account(&edition)?;
-        let edition = match Edition::safe_deserialize(edition_account.data.as_slice()) {
+        let edition = match Edition::deserialize(&mut edition_account.data.as_slice()) {
             Ok(e) => e,
             Err(_) => continue,
         };

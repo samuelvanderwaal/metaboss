@@ -1,3 +1,5 @@
+use metaboss_lib::update::V1UpdateArgs;
+
 use crate::cache::NewValue;
 
 use super::*;
@@ -21,20 +23,10 @@ pub async fn set_primary_sale_happened(
     args: SetPrimarySaleHappenedArgs,
 ) -> Result<Signature, ActionError> {
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default_v1();
-
-    if let UpdateArgs::V1 {
-        ref mut primary_sale_happened,
-        ..
-    } = update_args
-    {
-        *primary_sale_happened = Some(true);
-    } else {
-        return Err(ActionError::ActionFailed(
-            args.mint_account,
-            "UpdateArgs enum is not V1!".to_string(),
-        ));
-    }
+    let update_args = V1UpdateArgs {
+        primary_sale_happened: Some(true),
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

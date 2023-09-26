@@ -4,9 +4,6 @@ pub use methods::*;
 use crate::utils::send_and_confirm_transaction;
 use anyhow::Result;
 use metaboss_lib::derive::derive_metadata_pda;
-use mpl_token_metadata::{
-    instruction::create_metadata_accounts_v3, state::Data, ID as METADATA_PROGRAM_ID,
-};
 use retry::{delay::Exponential, retry};
 use serde::Deserialize;
 use solana_client::rpc_client::RpcClient;

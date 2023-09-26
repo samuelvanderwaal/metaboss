@@ -1,9 +1,11 @@
 use glob::glob;
 use indicatif::ParallelProgressIterator;
+use metaboss_lib::{data::UpdateNftData, update::V1UpdateArgs};
+use mpl_token_metadata::types::Data;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use std::{collections::HashMap, path::Path, sync::Mutex};
 
-use crate::{cache::NewValue, data::UpdateNftData};
+use crate::cache::NewValue;
 
 use super::*;
 
@@ -27,16 +29,10 @@ pub async fn update_data(args: UpdateDataArgs) -> Result<Signature, ActionError>
     // Add metadata delegate record here later.
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default_v1();
-
-    if let UpdateArgs::V1 { ref mut data, .. } = update_args {
-        *data = Some(args.new_data);
-    } else {
-        return Err(ActionError::ActionFailed(
-            args.mint_account,
-            "UpdateArgs enum is not V1!".to_string(),
-        ));
-    }
+    let update_args = V1UpdateArgs {
+        data: Some(args.new_data),
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

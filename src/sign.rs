@@ -1,11 +1,11 @@
 use anyhow::{anyhow, Result};
+use borsh::BorshDeserialize;
 use indicatif::ParallelProgressIterator;
 use log::{error, info};
-use mpl_token_metadata::{instruction::sign_metadata, state::Metadata, ID as METAPLEX_PROGRAM_ID};
+use mpl_token_metadata::{accounts::Metadata, instructions::SignMetadata};
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
 use solana_client::rpc_client::RpcClient;
-use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::{
     pubkey::Pubkey,
     signature::Signature,
@@ -102,7 +102,12 @@ pub fn sign_all(
 
 pub fn sign(client: &RpcClient, creator: &Keypair, metadata_pubkey: Pubkey) -> Result<Signature> {
     let recent_blockhash = client.get_latest_blockhash()?;
-    let ix = sign_metadata(METAPLEX_PROGRAM_ID, metadata_pubkey, creator.pubkey());
+    let ix = SignMetadata {
+        metadata: metadata_pubkey,
+        creator: creator.pubkey(),
+    }
+    .instruction();
+
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&creator.pubkey()),
@@ -173,15 +178,16 @@ pub fn sign_candy_machine_accounts(
         .progress()
         .for_each(|(metadata_pubkey, account)| {
             let signed_at_least_one_account = signed_at_least_one_account.clone();
-            let metadata: Metadata = match try_from_slice_unchecked(&account.data.clone()) {
-                Ok(metadata) => metadata,
-                Err(_) => {
-                    error!("Account {} has no metadata", metadata_pubkey);
-                    return;
-                }
-            };
+            let metadata: Metadata =
+                match Metadata::deserialize(&mut account.data.clone().as_slice()) {
+                    Ok(metadata) => metadata,
+                    Err(_) => {
+                        error!("Account {} has no metadata", metadata_pubkey);
+                        return;
+                    }
+                };
 
-            if let Some(creators) = metadata.data.creators {
+            if let Some(creators) = metadata.creators {
                 // Check whether the specific creator has already signed the account
                 for creator in creators {
                     if creator.address == signing_creator.pubkey() && !creator.verified {

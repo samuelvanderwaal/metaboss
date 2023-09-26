@@ -1,3 +1,5 @@
+use borsh::BorshDeserialize;
+
 use crate::{cache::NewValue, update::parse_mint_list};
 
 use super::*;
@@ -158,16 +160,16 @@ pub async fn burn(args: BurnArgs) -> AnyResult<Signature> {
         None
     };
 
-    let burn_ix = burn_nft(
-        id(),
-        metadata_pubkey,
-        args.keypair.pubkey(),
-        args.mint_pubkey,
-        assoc,
-        master_edition,
-        spl_token_program_id,
-        collection_md,
-    );
+    let burn_ix = BurnNft {
+        metadata: metadata_pubkey,
+        owner: args.keypair.pubkey(),
+        mint: args.mint_pubkey,
+        token_account: assoc,
+        master_edition_account: master_edition,
+        spl_token_program: spl_token_program_id,
+        collection_metadata: collection_md,
+    }
+    .instruction();
 
     let instructions = vec![burn_ix];
 
@@ -255,24 +257,24 @@ pub async fn burn_print(args: BurnPrintArgs) -> AnyResult<Signature> {
     let print_edition_pda = derive_edition_pda(&args.mint_pubkey);
 
     let data = args.client.get_account_data(&print_edition_pda)?;
-    let print_edition = Edition::safe_deserialize(data.as_slice())?;
+    let print_edition = Edition::deserialize(&mut data.as_slice())?;
 
     let edition_marker_pda =
         derive_edition_marker_pda(&args.master_mint_pubkey, print_edition.edition);
 
-    let burn_ix = burn_edition_nft(
-        id(),
-        metadata_pubkey,
-        args.keypair.pubkey(),
-        args.mint_pubkey,
-        args.master_mint_pubkey,
-        print_edition_token,
-        master_edition_token,
-        master_edition_pda,
-        print_edition_pda,
-        edition_marker_pda,
-        spl_token_program_id,
-    );
+    let burn_ix = BurnEditionNft {
+        metadata: metadata_pubkey,
+        owner: args.keypair.pubkey(),
+        print_edition_mint: args.mint_pubkey,
+        master_edition_mint: args.master_mint_pubkey,
+        print_edition_token_account: print_edition_token,
+        master_edition_token_account: master_edition_token,
+        master_edition_account: master_edition_pda,
+        print_edition_account: print_edition_pda,
+        edition_marker_account: edition_marker_pda,
+        spl_token_program: spl_token_program_id,
+    }
+    .instruction();
 
     let instructions = vec![burn_ix];
 

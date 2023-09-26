@@ -1,9 +1,8 @@
 use std::str::FromStr;
 
 use anyhow::Result;
-use mpl_token_metadata::{
-    id as metadata_program_id,
-    instruction::{approve_use_authority, revoke_use_authority, utilize},
+use mpl_token_metadata::instructions::{
+    ApproveUseAuthorityBuilder, RevokeUseAuthorityBuilder, UtilizeBuilder,
 };
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{pubkey::Pubkey, signer::Signer};
@@ -35,18 +34,17 @@ pub fn approve_use_delegate(
 
     let nft_metadata = derive_metadata_pda(&nft_pubkey);
 
-    let approve_use_auth_ix = approve_use_authority(
-        metadata_program_id(),
-        use_authority_record,
-        delegate_pubkey,
-        keypair.pubkey(),
-        keypair.pubkey(),
-        owner_nft_token_pubkey,
-        nft_metadata,
-        nft_pubkey,
-        burner_program_pubkey,
-        number_of_uses,
-    );
+    let approve_use_auth_ix = ApproveUseAuthorityBuilder::new()
+        .use_authority_record(use_authority_record)
+        .metadata(nft_metadata)
+        .owner(keypair.pubkey())
+        .payer(keypair.pubkey())
+        .mint(nft_pubkey)
+        .burner(burner_program_pubkey)
+        .owner_token_account(owner_nft_token_pubkey)
+        .user(delegate_pubkey)
+        .number_of_uses(number_of_uses)
+        .instruction();
 
     send_and_confirm_transaction(client, keypair, &[approve_use_auth_ix])?;
 
@@ -71,15 +69,14 @@ pub fn revoke_use_delegate(
 
     let nft_metadata = derive_metadata_pda(&nft_pubkey);
 
-    let revoke_use_auth_ix = revoke_use_authority(
-        metadata_program_id(),
-        use_authority_record,
-        delegate_pubkey,
-        keypair.pubkey(),
-        owner_nft_token_pubkey,
-        nft_metadata,
-        nft_pubkey,
-    );
+    let revoke_use_auth_ix = RevokeUseAuthorityBuilder::new()
+        .use_authority_record(use_authority_record)
+        .user(delegate_pubkey)
+        .owner(keypair.pubkey())
+        .owner_token_account(owner_nft_token_pubkey)
+        .metadata(nft_metadata)
+        .mint(nft_pubkey)
+        .instruction();
 
     send_and_confirm_transaction(client, keypair, &[revoke_use_auth_ix])?;
 
@@ -115,17 +112,21 @@ pub fn utilize_nft(
         None
     };
 
-    let utilize_nft_ix = utilize(
-        metadata_program_id(),
-        nft_metadata,
-        owner_nft_token_pubkey,
-        nft_pubkey,
-        use_authority_record,
-        delegate_pubkey,
-        nft_owner,
-        burner_program_pubkey,
-        1,
-    );
+    let mut builder = UtilizeBuilder::new();
+    builder
+        .metadata(nft_metadata)
+        .token_account(owner_nft_token_pubkey)
+        .mint(nft_pubkey)
+        .owner(nft_owner)
+        .number_of_uses(1);
+
+    if let Some(use_authority_record) = use_authority_record {
+        builder.use_authority_record(Some(use_authority_record));
+    }
+    if let Some(burner_program_pubkey) = burner_program_pubkey {
+        builder.burner(Some(burner_program_pubkey));
+    }
+    let utilize_nft_ix = builder.instruction();
 
     send_and_confirm_transaction(client, keypair, &[utilize_nft_ix])?;
 

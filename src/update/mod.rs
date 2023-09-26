@@ -34,9 +34,9 @@ pub use metaboss_lib::{
     update::{update_asset, UpdateAssetArgs},
 };
 pub use mpl_token_metadata::{
-    instruction::{set_token_standard, update_metadata_accounts_v2, RuleSetToggle, UpdateArgs},
-    pda::find_token_record_account,
-    state::{Data, DataV2, Metadata, ProgrammableConfig, TokenStandard},
+    accounts::Metadata,
+    instructions::{SetTokenStandardBuilder, UpdateMetadataAccountV2Builder},
+    types::{DataV2, ProgrammableConfig, RuleSetToggle, TokenStandard, UpdateArgs},
     ID as TOKEN_METADATA_PROGRAM_ID,
 };
 

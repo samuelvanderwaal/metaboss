@@ -1,6 +1,6 @@
 use crate::constants::{MASTER_EDITION_PREFIX, METADATA_PREFIX, USER_PREFIX};
 use metaboss_lib::derive::derive_token_record_pda;
-use mpl_token_metadata::id as metadata_program_id;
+use mpl_token_metadata::ID;
 use solana_sdk::pubkey::Pubkey;
 use std::{convert::AsRef, str::FromStr};
 
@@ -73,7 +73,7 @@ fn derive_generic_pda(seeds: Vec<&[u8]>, program_id: Pubkey) -> Pubkey {
 }
 
 pub fn derive_metadata_pda(pubkey: &Pubkey) -> Pubkey {
-    let metaplex_pubkey = metadata_program_id();
+    let metaplex_pubkey = ID;
 
     let seeds = &[
         METADATA_PREFIX.as_bytes(),
@@ -86,7 +86,7 @@ pub fn derive_metadata_pda(pubkey: &Pubkey) -> Pubkey {
 }
 
 pub fn derive_edition_pda(pubkey: &Pubkey) -> Pubkey {
-    let metaplex_pubkey = metadata_program_id();
+    let metaplex_pubkey = ID;
 
     let seeds = &[
         METADATA_PREFIX.as_bytes(),
@@ -100,7 +100,7 @@ pub fn derive_edition_pda(pubkey: &Pubkey) -> Pubkey {
 }
 
 pub fn derive_edition_marker_pda(pubkey: &Pubkey, edition_num: u64) -> Pubkey {
-    let metaplex_pubkey = metadata_program_id();
+    let metaplex_pubkey = ID;
 
     let num: String = (edition_num / 248).to_string();
 
@@ -140,7 +140,8 @@ pub fn derive_collection_authority_record(
     mint: &Pubkey,
     collection_authority: &Pubkey,
 ) -> (Pubkey, u8) {
-    let metaplex_pubkey = metadata_program_id();
+    let metaplex_pubkey = ID;
+
     let seeds = &[
         METADATA_PREFIX.as_bytes(),
         metaplex_pubkey.as_ref(),
@@ -152,7 +153,8 @@ pub fn derive_collection_authority_record(
 }
 
 pub fn derive_use_authority_record(mint: &Pubkey, use_authority: &Pubkey) -> (Pubkey, u8) {
-    let metaplex_pubkey = &metadata_program_id();
+    let metaplex_pubkey = ID;
+
     let use_authority_seeds = &[
         METADATA_PREFIX.as_bytes(),
         metaplex_pubkey.as_ref(),
@@ -160,7 +162,7 @@ pub fn derive_use_authority_record(mint: &Pubkey, use_authority: &Pubkey) -> (Pu
         USER_PREFIX.as_bytes(),
         use_authority.as_ref(),
     ];
-    Pubkey::find_program_address(use_authority_seeds, metaplex_pubkey)
+    Pubkey::find_program_address(use_authority_seeds, &metaplex_pubkey)
 }
 
 #[cfg(test)]

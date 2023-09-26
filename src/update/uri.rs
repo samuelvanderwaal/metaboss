@@ -1,9 +1,9 @@
 use std::{collections::HashMap, fs::File};
 
-use crate::{
-    cache::{MintValues, NewValue},
-    data::UpdateUriData,
-};
+use metaboss_lib::{data::UpdateUriData, update::V1UpdateArgs};
+use mpl_token_metadata::types::Data;
+
+use crate::cache::{MintValues, NewValue};
 
 use super::*;
 
@@ -24,28 +24,28 @@ pub struct UpdateUriArgs {
 }
 
 pub async fn update_uri(args: UpdateUriArgs) -> Result<Signature, ActionError> {
-    let mut current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
+    let current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
     // Add metadata delegate record here later.
 
     // Save a transaction by not updating if the uri is the same.
-    if current_md.data.uri.trim_matches(char::from(0)) == args.new_uri.trim_matches(char::from(0)) {
+    if current_md.uri.trim_matches(char::from(0)) == args.new_uri.trim_matches(char::from(0)) {
         return Ok(Signature::default());
     }
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default_v1();
+    let mut update_args = V1UpdateArgs::default();
 
-    current_md.data.uri = args.new_uri;
-    if let UpdateArgs::V1 { ref mut data, .. } = update_args {
-        *data = Some(current_md.data);
-    } else {
-        return Err(ActionError::ActionFailed(
-            args.mint_account,
-            "UpdateArgs enum is not V1!".to_string(),
-        ));
-    }
+    let data = Data {
+        name: current_md.name,
+        symbol: current_md.symbol,
+        uri: args.new_uri,
+        seller_fee_basis_points: current_md.seller_fee_basis_points,
+        creators: current_md.creators,
+    };
+
+    update_args.data = Some(data);
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

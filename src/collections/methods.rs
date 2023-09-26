@@ -1,16 +1,21 @@
-use super::common::*;
+use super::*;
 
 use crate::parse::parse_keypair;
 use crate::{
     derive::derive_metadata_pda, parse::parse_solana_config, utils::send_and_confirm_transaction,
 };
-use metaboss_lib::delegate::{delegate_asset, DelegateAssetArgs};
-use metaboss_lib::revoke::{revoke_asset, RevokeAssetArgs};
-use metaboss_lib::unverify::{unverify_collection_ix, UnverifyCollectionArgs};
-use metaboss_lib::update::{update_asset_ix, UpdateAssetArgs};
-use metaboss_lib::verify::{verify_collection_ix, VerifyCollectionArgs};
-use mpl_token_metadata::instruction::{
-    set_collection_size, CollectionToggle, DelegateArgs, RevokeArgs, UpdateArgs,
+use metaboss_lib::update::V1UpdateArgs;
+use metaboss_lib::{
+    delegate::{delegate_asset, DelegateAssetArgs},
+    revoke::{revoke_asset, RevokeAssetArgs},
+    unverify::{unverify_collection_ix, UnverifyCollectionArgs},
+    update::{update_asset_ix, UpdateAssetArgs},
+    verify::{verify_collection_ix, VerifyCollectionArgs},
+};
+use mpl_token_metadata::types::SetCollectionSizeArgs;
+use mpl_token_metadata::{
+    instructions::SetCollectionSizeBuilder,
+    types::{CollectionToggle, DelegateArgs, RevokeArgs},
 };
 
 pub const OPEN_FILES_LIMIT: usize = 1024;
@@ -30,20 +35,13 @@ pub fn set_and_verify_nft_collection(
     let mut instructions = vec![];
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default_v1();
-
-    // We set the collection key with update, but can only verify with Verify.
-    if let UpdateArgs::V1 {
-        ref mut collection, ..
-    } = update_args
-    {
-        *collection = CollectionToggle::Set(MdCollection {
+    let update_args = V1UpdateArgs {
+        collection: CollectionToggle::Set(MdCollection {
             key: collection_pubkey,
             verified: false,
-        });
-    } else {
-        return Err(anyhow!("UpdateArgs enum is not V1!".to_string()));
-    }
+        }),
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {
@@ -189,14 +187,12 @@ pub fn set_size(
     let collection_mint_pubkey = Pubkey::from_str(&collection_mint)?;
     let collection_md_pubkey = derive_metadata_pda(&collection_mint_pubkey);
 
-    let set_collection_size_ix = set_collection_size(
-        metadata_program_id(),
-        collection_md_pubkey,
-        keypair.pubkey(),
-        collection_mint_pubkey,
-        None,
-        size,
-    );
+    let set_collection_size_ix = SetCollectionSizeBuilder::new()
+        .collection_metadata(collection_md_pubkey)
+        .collection_authority(keypair.pubkey())
+        .collection_mint(collection_mint_pubkey)
+        .set_collection_size_args(SetCollectionSizeArgs { size })
+        .instruction();
 
     send_and_confirm_transaction(&client, keypair, &[set_collection_size_ix])?;
 

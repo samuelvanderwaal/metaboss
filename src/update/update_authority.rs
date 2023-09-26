@@ -1,3 +1,5 @@
+use metaboss_lib::update::V1UpdateArgs;
+
 use crate::cache::NewValue;
 
 use super::*;
@@ -22,25 +24,16 @@ pub struct SetUpdateAuthorityArgs {
 }
 
 pub async fn set_update_authority(args: SetUpdateAuthorityArgs) -> Result<Signature, ActionError> {
+    let new_update_authority =
+        Some(Pubkey::from_str(&args.new_authority).map_err(|e| {
+            ActionError::ActionFailed(args.mint_account.to_string(), e.to_string())
+        })?);
+
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default_v1();
-
-    let new_authority = Pubkey::from_str(&args.new_authority)
-        .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
-
-    // Update the sfbp on the data struct.
-    if let UpdateArgs::V1 {
-        ref mut new_update_authority,
-        ..
-    } = update_args
-    {
-        *new_update_authority = Some(new_authority);
-    } else {
-        return Err(ActionError::ActionFailed(
-            args.mint_account,
-            "UpdateArgs enum is not V1!".to_string(),
-        ));
-    }
+    let update_args = V1UpdateArgs {
+        new_update_authority,
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

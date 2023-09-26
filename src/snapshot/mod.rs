@@ -1,7 +1,7 @@
 pub use anyhow::{anyhow, Result};
 pub use indicatif::ParallelProgressIterator;
 pub use log::{error, info};
-pub use mpl_token_metadata::state::Metadata;
+pub use mpl_token_metadata::accounts::Metadata;
 pub use mpl_token_metadata::ID as TOKEN_METADATA_PROGRAM_ID;
 pub use rayon::prelude::*;
 pub use retry::{delay::Exponential, retry};
@@ -15,7 +15,6 @@ pub use solana_client::{
     rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig},
     rpc_filter::{Memcmp, MemcmpEncodedBytes, RpcFilterType},
 };
-pub use solana_program::borsh::try_from_slice_unchecked;
 pub use solana_sdk::{
     account::Account,
     commitment_config::{CommitmentConfig, CommitmentLevel},

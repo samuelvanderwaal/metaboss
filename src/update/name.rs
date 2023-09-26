@@ -1,3 +1,6 @@
+use metaboss_lib::update::V1UpdateArgs;
+use mpl_token_metadata::types::Data;
+
 use super::*;
 
 pub struct UpdateNameArgs {
@@ -8,22 +11,21 @@ pub struct UpdateNameArgs {
 }
 
 pub async fn update_name(args: UpdateNameArgs) -> Result<Signature, ActionError> {
-    let mut current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
+    let current_md = decode_metadata_from_mint(&args.client, args.mint_account.clone())
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default_v1();
+    let mut update_args = V1UpdateArgs::default();
 
-    // Update the name on the data struct.
-    current_md.data.name = args.new_name.clone();
-    if let UpdateArgs::V1 { ref mut data, .. } = update_args {
-        *data = Some(current_md.data);
-    } else {
-        return Err(ActionError::ActionFailed(
-            args.mint_account,
-            "UpdateArgs enum is not V1!".to_string(),
-        ));
-    }
+    let data = Data {
+        name: args.new_name,
+        symbol: current_md.symbol,
+        uri: current_md.uri,
+        seller_fee_basis_points: current_md.seller_fee_basis_points,
+        creators: current_md.creators,
+    };
+
+    update_args.data = Some(data);
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

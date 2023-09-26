@@ -1,8 +1,6 @@
 use anyhow::Result;
-use mpl_token_metadata::{
-    instruction::UsesToggle,
-    state::{UseMethod, Uses},
-};
+use metaboss_lib::update::V1UpdateArgs;
+use mpl_token_metadata::types::{UseMethod, Uses, UsesToggle};
 use solana_client::rpc_client::RpcClient;
 
 use super::*;
@@ -51,16 +49,10 @@ pub fn update_uses_one(args: UsesArgs) -> Result<Signature, ActionError> {
     }
 
     // Token Metadata UpdateArgs enum.
-    let mut update_args = UpdateArgs::default_v1();
-
-    if let UpdateArgs::V1 { ref mut uses, .. } = update_args {
-        *uses = UsesToggle::Set(new_uses);
-    } else {
-        return Err(ActionError::ActionFailed(
-            args.account,
-            "UpdateArgs enum is not V1!".to_string(),
-        ));
-    }
+    let update_args = V1UpdateArgs {
+        uses: UsesToggle::Set(new_uses),
+        ..Default::default()
+    };
 
     // Metaboss UpdateAssetArgs enum.
     let update_args = UpdateAssetArgs::V1 {

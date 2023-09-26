@@ -2,11 +2,12 @@ use anyhow::{anyhow, Result as AnyResult};
 use borsh::BorshDeserialize;
 use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
+use metaboss_lib::data::NftData;
 use metaboss_lib::decode::{
     decode_bpf_loader_upgradeable_state, decode_edition_from_mint, decode_edition_marker_from_mint,
     decode_master_edition_from_mint, decode_mint, decode_token,
 };
-use mpl_token_metadata::state::Metadata;
+use mpl_token_metadata::accounts::Metadata;
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
 use serde::Serialize;
@@ -91,9 +92,9 @@ pub fn decode_metadata_all(
                     }
                 },
             };
-            metadata.data.name = metadata.data.name.replace('\u{0}', "");
-            metadata.data.uri = metadata.data.uri.replace('\u{0}', "");
-            metadata.data.symbol = metadata.data.symbol.replace('\u{0}', "");
+            metadata.name = metadata.name.replace('\u{0}', "");
+            metadata.uri = metadata.uri.replace('\u{0}', "");
+            metadata.symbol = metadata.symbol.replace('\u{0}', "");
 
             debug!("Creating file for mint account: {}", mint_account);
             let mut file = match File::create(format!("{output}/{mint_account}.json")) {
@@ -119,7 +120,9 @@ pub fn decode_metadata_all(
                     }
                 }
             } else {
-                match serde_json::to_writer_pretty(&mut file, &metadata.data) {
+                let data = NftData::from(metadata);
+
+                match serde_json::to_writer_pretty(&mut file, &data) {
                     Ok(_) => {}
                     Err(err) => {
                         error!(
@@ -190,16 +193,17 @@ pub fn decode_metadata_from_mint(
             return Ok(());
         }
         let mut metadata = decode(client, mint_account)?;
-        metadata.data.name = metadata.data.name.replace('\u{0}', "");
-        metadata.data.uri = metadata.data.uri.replace('\u{0}', "");
-        metadata.data.symbol = metadata.data.symbol.replace('\u{0}', "");
+        metadata.name = metadata.name.replace('\u{0}', "");
+        metadata.uri = metadata.uri.replace('\u{0}', "");
+        metadata.symbol = metadata.symbol.replace('\u{0}', "");
 
         let mut file = File::create(format!("{output}/{mint_account}.json"))?;
 
         if full {
             serde_json::to_writer_pretty(&mut file, &metadata)?;
         } else {
-            serde_json::to_writer_pretty(&mut file, &metadata.data)?;
+            let data = NftData::from(metadata);
+            serde_json::to_writer_pretty(&mut file, &data)?;
         }
     } else if let Some(list_path) = list_path {
         decode_metadata_all(client, list_path, full, output)?;
