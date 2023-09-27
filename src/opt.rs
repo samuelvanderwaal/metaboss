@@ -94,6 +94,14 @@ pub enum Command {
         #[structopt(subcommand)]
         derive_subcommands: DeriveSubcommands,
     },
+    /// Extend an on-chain program's binary size
+    ExtendProgram {
+        program_address: Pubkey,
+        additional_bytes: u32,
+        /// Path to payer keypair file
+        #[structopt(short, long)]
+        keypair_path: Option<String>,
+    },
     /// Find things.
     #[structopt(name = "find")]
     Find {
