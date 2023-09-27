@@ -9,6 +9,7 @@ pub mod data;
 pub mod decode;
 pub mod derive;
 pub mod errors;
+pub mod extend_program;
 pub mod find;
 pub mod helius;
 pub mod limiter;

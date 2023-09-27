@@ -4,6 +4,7 @@ extern crate log;
 use anyhow::Result;
 use metaboss::check::process_check;
 use metaboss::constants::PUBLIC_RPC_URLS;
+use metaboss::extend_program::process_extend_program;
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 use solana_sdk::commitment_config::CommitmentConfig;
 use std::str::FromStr;
@@ -75,6 +76,11 @@ async fn main() -> Result<()> {
         Command::Create { create_subcommands } => process_create(client, create_subcommands)?,
         Command::Decode { decode_subcommands } => process_decode(&client, decode_subcommands)?,
         Command::Derive { derive_subcommands } => process_derive(derive_subcommands),
+        Command::ExtendProgram {
+            keypair_path,
+            program_address,
+            additional_bytes,
+        } => process_extend_program(client, keypair_path, program_address, additional_bytes)?,
         Command::Find { find_subcommands } => process_find(&client, find_subcommands)?,
         Command::Mint { mint_subcommands } => process_mint(&client, mint_subcommands)?,
         Command::ParseErrors {
