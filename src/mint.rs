@@ -670,7 +670,7 @@ pub fn mint(
         .mint(mint.pubkey())
         .mint_authority(funder.pubkey())
         .payer(funder.pubkey())
-        .update_authority(funder.pubkey())
+        .update_authority(funder.pubkey(), true)
         .is_mutable(!immutable)
         .data(data_v2);
 
