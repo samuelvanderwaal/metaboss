@@ -854,6 +854,10 @@ pub enum MintSubcommands {
         #[structopt(short = "e", long, default_value = "0")]
         max_editions: i64,
 
+        /// Path to the keypair of the mint account to use for the new NFT
+        #[structopt(long)]
+        mint: Option<String>,
+
         /// Sign NFT after minting it
         #[structopt(long)]
         sign: bool,
@@ -921,6 +925,10 @@ pub enum MintSubcommands {
         /// Mint the NFTs with primary_sale_happened set to true
         #[structopt(short, long)]
         primary_sale_happened: bool,
+
+        /// Path to the keypair of the mint account to use for the new NFT
+        #[structopt(long)]
+        mint: Option<String>,
 
         /// Sign NFTs after minting them
         #[structopt(long)]

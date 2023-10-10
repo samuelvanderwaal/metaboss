@@ -63,6 +63,7 @@ pub fn mint_list(
     external_metadata_uris: Option<String>,
     immutable: bool,
     primary_sale_happened: bool,
+    mint_path: Option<String>,
     sign: bool,
     track: bool,
 ) -> Result<()> {
@@ -82,6 +83,7 @@ pub fn mint_list(
             immutable,
             primary_sale_happened,
             max_editions,
+            mint_path,
             sign,
             false,
         )?;
@@ -115,6 +117,7 @@ pub fn mint_from_files(
     immutable: bool,
     primary_sale_happened: bool,
     max_editions: i64,
+    mint_path: Option<String>,
     sign: bool,
     sized: bool,
 ) -> Result<()> {
@@ -146,6 +149,7 @@ pub fn mint_from_files(
             immutable,
             primary_sale_happened,
             max_editions,
+            mint_path.clone(),
             sign,
             sized,
         ) {
@@ -194,6 +198,7 @@ pub fn mint_from_uris(
                     immutable,
                     primary_sale_happened,
                     max_editions,
+                    None,
                     sign,
                     false,
                 ) {
@@ -227,6 +232,7 @@ pub fn mint_from_uris(
                     immutable,
                     primary_sale_happened,
                     max_editions,
+                    None,
                     sign,
                     false,
                 ) {
@@ -274,6 +280,7 @@ pub fn mint_one<P: AsRef<Path>>(
     immutable: bool,
     primary_sale_happened: bool,
     max_editions: i64,
+    mint_path: Option<String>,
     sign: bool,
     sized: bool,
 ) -> Result<String> {
@@ -327,6 +334,7 @@ pub fn mint_one<P: AsRef<Path>>(
         immutable,
         primary_sale_happened,
         max_editions,
+        mint_path,
         sized,
     )?;
     info!("Tx sig: {:?}\nMint account: {:?}", &tx_id, &mint_account);
@@ -580,10 +588,15 @@ pub fn mint(
     immutable: bool,
     primary_sale_happened: bool,
     max_editions: i64,
+    mint_path: Option<String>,
     sized: bool,
 ) -> Result<(Signature, Pubkey)> {
     let metaplex_program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
-    let mint = Keypair::new();
+    let mint = if let Some(mint_path) = mint_path {
+        read_keypair(&mint_path).expect("Invalid mint keypair path")
+    } else {
+        Keypair::new()
+    };
 
     // Max editions of -1 means infinite supply (max_supply = None)
     // Otherwise max_supply is the number of editions
@@ -670,7 +683,7 @@ pub fn mint(
         .mint(mint.pubkey())
         .mint_authority(funder.pubkey())
         .payer(funder.pubkey())
-        .update_authority(funder.pubkey())
+        .update_authority(funder.pubkey(), true)
         .is_mutable(!immutable)
         .data(data_v2);
 

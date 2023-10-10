@@ -43,7 +43,7 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
         .mint(mint_pubkey)
         .mint_authority(keypair.pubkey())
         .payer(keypair.pubkey())
-        .update_authority(keypair.pubkey())
+        .update_authority(keypair.pubkey(), true)
         .data(data_v2)
         .is_mutable(!args.immutable)
         .instruction();
@@ -157,7 +157,7 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         .mint(mint.pubkey())
         .mint_authority(keypair.pubkey())
         .payer(keypair.pubkey())
-        .update_authority(keypair.pubkey())
+        .update_authority(keypair.pubkey(), true)
         .data(data.into())
         .is_mutable(!args.immutable)
         .instruction();

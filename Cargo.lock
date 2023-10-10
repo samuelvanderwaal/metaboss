@@ -2046,8 +2046,7 @@ dependencies = [
 [[package]]
 name = "metaboss_lib"
 version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b51f8862d4b35e45e674d57b011232313752a6f2b74711de13a97c0fcbbf4db"
+source = "git+https://github.com/samuelvanderwaal/metaboss_lib?branch=fix/token-metadata-3-1#38bc9f2aba8d273cc167b14a7e91fd0d06b408b1"
 dependencies = [
  "anyhow",
  "borsh 0.10.3",
@@ -2119,9 +2118,9 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-metadata"
-version = "3.0.1"
+version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "651388b8ccae4805f240ebd495172eb44ea10153e018623b628df7034e042a96"
+checksum = "177204bbe7486b22ac35af2c91a82630f830a6ddd3392651aefde1ef346aba3d"
 dependencies = [
  "borsh 0.10.3",
  "num-derive",

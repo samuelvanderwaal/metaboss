@@ -492,6 +492,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             immutable,
             primary_sale_happened,
             max_editions,
+            mint,
             sign,
             sized,
         } => mint_one(
@@ -503,6 +504,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             immutable,
             primary_sale_happened,
             max_editions,
+            mint,
             sign,
             sized,
         )
@@ -531,6 +533,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             external_metadata_uris,
             immutable,
             primary_sale_happened,
+            mint,
             sign,
             track,
         } => mint_list(
@@ -541,6 +544,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             external_metadata_uris,
             immutable,
             primary_sale_happened,
+            mint,
             sign,
             track,
         ),
