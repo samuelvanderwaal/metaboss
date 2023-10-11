@@ -806,6 +806,10 @@ pub enum MintSubcommands {
         #[structopt(short = "R", long)]
         receiver: Option<String>,
 
+        /// Path to mint keypair file, if minting from existing keypair.
+        #[structopt(short, long)]
+        mint_path: Option<String>,
+
         /// Asset data
         #[structopt(short = "d", long)]
         asset_data: PathBuf,

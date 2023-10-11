@@ -748,6 +748,7 @@ pub fn process_mint_asset(
     client: &RpcClient,
     keypair_path: Option<String>,
     receiver: Option<String>,
+    mint_path: Option<String>,
     asset_data: PathBuf,
     decimals: u8,
     amount: u64,
@@ -768,10 +769,13 @@ pub fn process_mint_asset(
 
     let print_supply = max_print_edition_supply.map(|s| s.into());
 
+    let mint = mint_path.map(|path| read_keypair(&path).expect("Invalid mint keypair path"));
+
     let args = MintAssetArgs::V1 {
         payer: None,
         authority: &authority,
         receiver,
+        mint,
         asset_data,
         amount,
         mint_decimals: Some(decimals),

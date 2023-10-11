@@ -471,6 +471,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
         MintSubcommands::Asset {
             keypair,
             receiver,
+            mint_path,
             asset_data,
             amount,
             decimals,
@@ -479,6 +480,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             client,
             keypair,
             receiver,
+            mint_path,
             asset_data,
             decimals,
             amount,
