@@ -2021,6 +2021,7 @@ dependencies = [
  "metaboss_lib",
  "mpl-token-metadata",
  "num_cpus",
+ "once_cell",
  "phf",
  "ratelimit",
  "rayon",
