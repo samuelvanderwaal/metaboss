@@ -4,19 +4,16 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum DecodeError {
-    #[error("no account data found")]
-    MissingAccount(String),
-
-    #[error("failed to get account data")]
+    #[error("Client Error: '{0}'")]
     ClientError(ClientErrorKind),
 
-    #[error("network request failed after three attempts: ensure you used a valid address and check the state of the Solana cluster")]
+    #[error("Network Error: '{0}'")]
     NetworkError(String),
 
-    #[error("failed to parse string into Pubkey")]
+    #[error("Pubkey Parsing Failed: '{0}'")]
     PubkeyParseFailed(String),
 
-    #[error("failed to decode metadata")]
+    #[error("Metadata Decode Failed: '{0}'")]
     DecodeMetadataFailed(String),
 }
 
