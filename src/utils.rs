@@ -236,6 +236,12 @@ pub fn find_errors(hex_code: &str) -> Vec<FoundError> {
     found_errors
 }
 
+pub fn find_tm_error(hex_code: &str) -> Option<String> {
+    let hex_code = hex_code.to_uppercase();
+
+    METADATA_ERROR.get(&hex_code).map(|e| e.to_string())
+}
+
 pub fn clone_keypair(keypair: &Keypair) -> Keypair {
     Keypair::from_bytes(&keypair.to_bytes()).unwrap()
 }
