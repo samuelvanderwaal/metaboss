@@ -63,15 +63,14 @@ impl Cache {
         // Clear out old errors.
         self.clear();
 
+        //Regex to find hex codes in error
+        static RE: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r" 0x[0-9a-fA-F]+").expect("Failed to create regex"));
+
         for error in errors {
             match error {
                 ActionError::ActionFailed(mint_address, _) => {
                     // Find hex codes in error message.
-                    //Regex to find hex codes in error
-                    static RE: Lazy<Regex> = Lazy::new(|| {
-                        Regex::new(r" 0x[0-9a-fA-F]+").expect("Failed to create regex")
-                    });
-
                     let error_message = if let Some(mat) = RE.find(&error.to_string()) {
                         find_tm_error(&mat.as_str().trim_start().replace("0x", ""))
                             .unwrap_or_else(|| error.to_string())
