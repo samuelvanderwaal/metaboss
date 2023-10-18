@@ -509,6 +509,8 @@ fn mint_edition(
         1,
     )?;
 
+    let edition_marker_pda = derive_edition_marker_pda(&metadata_mint, edition_num);
+
     let mint_editions_ix = MintNewEditionFromMasterEditionViaTokenBuilder::new()
         .new_metadata(new_metadata)
         .new_edition(new_edition)
@@ -519,6 +521,7 @@ fn mint_edition(
         .new_metadata_update_authority(funder.pubkey())
         .token_account(assoc)
         .token_account_owner(funder.pubkey())
+        .edition_mark_pda(edition_marker_pda)
         .metadata(metadata)
         .mint_new_edition_from_master_edition_via_token_args(
             MintNewEditionFromMasterEditionViaTokenArgs {
