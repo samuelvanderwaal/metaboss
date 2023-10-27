@@ -777,6 +777,13 @@ pub enum DeriveSubcommands {
         mint_account: String,
         token_account: String,
     },
+
+    #[structopt(name = "collection-delegate")]
+    CollectionDelegate {
+        collection_mint: Pubkey,
+        collection_authority: Pubkey,
+        delegate: Pubkey,
+    },
 }
 
 #[derive(Debug, StructOpt)]
