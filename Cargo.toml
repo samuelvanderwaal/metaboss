@@ -22,7 +22,7 @@ indicatif = { version = "0.16.2", features = ["rayon"] }
 jib = "0.4.1"
 lazy_static = "1.4.0"
 log = "0.4.17"
-metaboss_lib = "0.14.0"
+metaboss_lib = "0.15.0"
 mpl-token-metadata = { version = "3.1.0", features = ["serde"] }
 num_cpus = "1.15.0"
 phf = { version = "0.10", features = ["macros"] }
