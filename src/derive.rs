@@ -1,5 +1,5 @@
 use crate::constants::{MASTER_EDITION_PREFIX, METADATA_PREFIX, USER_PREFIX};
-use metaboss_lib::derive::derive_token_record_pda;
+use metaboss_lib::derive::{derive_collection_delegate_pda, derive_token_record_pda};
 use mpl_token_metadata::ID;
 use solana_sdk::pubkey::Pubkey;
 use std::{convert::AsRef, str::FromStr};
@@ -65,6 +65,13 @@ pub fn get_token_record_pda(mint_account: String, token_account: String) {
         Pubkey::from_str(&token_account).expect("Failed to parse pubkey from token account!");
 
     println!("{}", derive_token_record_pda(&mint_pubkey, &token_pubkey));
+}
+
+pub fn get_collection_delegate(mint: Pubkey, authority: Pubkey, delegate: Pubkey) {
+    println!(
+        "{:?}",
+        derive_collection_delegate_pda(&mint, &delegate, &authority)
+    );
 }
 
 fn derive_generic_pda(seeds: Vec<&[u8]>, program_id: Pubkey) -> Pubkey {

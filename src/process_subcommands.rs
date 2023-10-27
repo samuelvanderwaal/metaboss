@@ -26,8 +26,8 @@ use crate::decode::{
     process_decode_bpf_loader_upgradable_state, process_decode_rule_set,
 };
 use crate::derive::{
-    get_cmv2_pda, get_edition_marker_pda, get_edition_pda, get_generic_pda, get_metadata_pda,
-    get_token_record_pda,
+    get_cmv2_pda, get_collection_delegate, get_edition_marker_pda, get_edition_pda,
+    get_generic_pda, get_metadata_pda, get_token_record_pda,
 };
 use crate::find::find_missing_editions_process;
 use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one, process_mint_asset};
@@ -454,6 +454,11 @@ pub fn process_derive(commands: DeriveSubcommands) {
             mint_account,
             token_account,
         } => get_token_record_pda(mint_account, token_account),
+        DeriveSubcommands::CollectionDelegate {
+            collection_mint,
+            collection_authority,
+            delegate,
+        } => get_collection_delegate(collection_mint, collection_authority, delegate),
     }
 }
 

@@ -1,9 +1,8 @@
 use super::*;
 
 use crate::parse::parse_keypair;
-use crate::{
-    derive::derive_metadata_pda, parse::parse_solana_config, utils::send_and_confirm_transaction,
-};
+use crate::{parse::parse_solana_config, utils::send_and_confirm_transaction};
+use metaboss_lib::derive::derive_metadata_pda;
 use metaboss_lib::update::V1UpdateArgs;
 use metaboss_lib::{
     delegate::{delegate_asset, DelegateAssetArgs},
