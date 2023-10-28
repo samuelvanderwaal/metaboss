@@ -69,8 +69,6 @@ Note: The on-chain `Data` struct is *different* than the external metadata store
 ```json
 {
     "mint": "CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp",
-    "data":
-    {
     "name": "FerrisCrab #4",
     "symbol": "FERRIS",
     "uri": "https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls",
@@ -92,11 +90,11 @@ Note: The on-chain `Data` struct is *different* than the external metadata store
             "share": 50
         }
     ]}
-}
 ```
 
 One approach to using `update data-all` is you can get all the JSON files using the `metaboss decode mint -L <mint_list> --full` command, and then write a script to modify the specific fields you want to change.
-The file output from `decode mint` when using the `--full` option provides the correct format that metaboss expects because it uses the same field names as what `update data-all` expects. 
+The file output from `decode mint` when using the `--full` option provides the correct format that metaboss expects because it uses the same field names as what `update data-all` expects.
+The extra fields will be ignored.
 
 Outputs a TxId to the command line so you can check the result.
 
