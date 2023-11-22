@@ -2,10 +2,8 @@ use super::*;
 
 use crate::constants::NANO_SECONDS_IN_SECOND;
 use crate::limiter::create_rate_limiter_with_capacity;
-use crate::{
-    derive::derive_metadata_pda, errors::MigrateError, parse::parse_solana_config,
-    spinner::create_spinner,
-};
+use crate::spinner::create_progress_bar;
+use crate::{derive::derive_metadata_pda, errors::MigrateError, parse::parse_solana_config};
 use crate::{parse::parse_keypair, snapshot::get_mint_accounts};
 use metaboss_lib::update::V1UpdateArgs;
 use metaboss_lib::{
@@ -91,7 +89,7 @@ pub struct CacheItem {
     pub error: Option<String>,
 }
 
-fn set_and_verify(
+async fn set_and_verify(
     client: Arc<RpcClient>,
     authority_keypair: Arc<Keypair>,
     nft_mint: String,
@@ -261,7 +259,8 @@ pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
         let remaining_mints = mint_accounts.clone();
 
         info!("Sending network requests...");
-        let spinner = create_spinner("Sending network requests....");
+        let pb = create_progress_bar("Sending network requests...", remaining_mints.len() as u64);
+
         // Create a vector of futures to execute.
         let mut migrate_tasks = Vec::new();
 
@@ -271,25 +270,33 @@ pub async fn migrate_collection(args: MigrateArgs) -> AnyResult<()> {
             let mint_address = args.mint_address.clone();
             let mut rate_limiter = rate_limiter.clone();
 
-            migrate_tasks.push(tokio::spawn(async move {
+            migrate_tasks.push(tokio::spawn({
                 rate_limiter.wait();
-                set_and_verify(client, keypair, mint, mint_address, false)
+
+                let fut = set_and_verify(client, keypair, mint, mint_address, false);
+                pb.inc(1);
+                fut
             }));
         }
-        spinner.finish();
+        pb.finish_and_clear();
 
         let migrate_tasks_len = migrate_tasks.len();
 
         // Wait for all the tasks to resolve and push the results to our results vector
         let mut migrate_failed = Vec::new();
-        let spinner = create_spinner("Awaiting results...");
+        let pb = create_progress_bar(
+            "Waiting for requests to resolve...",
+            migrate_tasks.len() as u64,
+        );
+
         for task in migrate_tasks {
             match task.await.unwrap() {
                 Ok(_) => (),
                 Err(e) => migrate_failed.push(e),
             }
+            pb.inc(1);
         }
-        spinner.finish();
+        pb.finish_and_clear();
 
         // If some of the migrations failed, ask user if they wish to retry and the loop starts again.
         // Otherwise, break out of the loop and write the cache to disk.
