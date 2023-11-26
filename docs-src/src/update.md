@@ -154,7 +154,7 @@ Using the `--append` flag will set the shares to 0 and append to the existing cr
 Same as update creators but takes a mint list instead of a single account.
 
 ```bash
-metaboss update creators-all  -k ~/.config/solana/devnet.json -L mints.json -c 42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB:70:false,AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ:30:false
+metaboss update creators-all  -k ~/.config/solana/devnet.json -L mints.json -n 42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB:70:false,AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ:30:false
 ```
 
 ### Update URI
