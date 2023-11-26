@@ -785,7 +785,7 @@ Set commands are either irreversible or require a new update authority to revers
 </code></pre>
 <h3 id="set-update-authority-all"><a class="header" href="#set-update-authority-all">Set Update-Authority-All</a></h3>
 <p>Set <code>update_authority</code> to a different public key for a list of NFTs. <strong>This is not reversible by the original update authority.</strong></p>
-<pre><code class="language-bash">metaboss set update-authority-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-accounts-file &lt;PATH_TO_MINT_ACCOUNTS&gt; --new-update-authority &lt;NEW_UPDATE_AUTHORITY&gt;
+<pre><code class="language-bash">metaboss set update-authority-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-list &lt;PATH_TO_MINT_ACCOUNTS&gt; --new-update-authority &lt;NEW_UPDATE_AUTHORITY&gt;
 </code></pre>
 <p>The mint accounts file should be a JSON file with an array of NFT mint accounts to be updated:</p>
 <pre><code class="language-json">[
@@ -800,7 +800,7 @@ Set commands are either irreversible or require a new update authority to revers
 </code></pre>
 <h3 id="set-immutable-all"><a class="header" href="#set-immutable-all">Set Immutable-All</a></h3>
 <p>Set all NFTs in a list to be immutable. <strong>This is not reversible.</strong></p>
-<pre><code class="language-bash">metaboss set immutable-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-accounts-file &lt;PATH_TO_MINT_ACCOUNTS&gt;
+<pre><code class="language-bash">metaboss set immutable-all --keypair &lt;PATH_TO_KEYPAIR&gt; --mint-list &lt;PATH_TO_MINT_ACCOUNTS&gt;
 </code></pre>
 <h3 id="set-token-standard"><a class="header" href="#set-token-standard">Set Token Standard</a></h3>
 <p>Set an asset's Token Standard to automatically be the correct type. <strong>This is not reversible.</strong></p>
@@ -1136,7 +1136,7 @@ The extra fields will be ignored.</p>
 <p>Using the <code>--append</code> flag will set the shares to 0 and append to the existing creators list, otherwise the creators are overwritten with the list you pass in.</p>
 <h3 id="update-creators-all"><a class="header" href="#update-creators-all">Update Creators All</a></h3>
 <p>Same as update creators but takes a mint list instead of a single account.</p>
-<pre><code class="language-bash">metaboss update creators-all  -k ~/.config/solana/devnet.json -L mints.json -c 42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB:70:false,AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ:30:false
+<pre><code class="language-bash">metaboss update creators-all  -k ~/.config/solana/devnet.json -L mints.json -n 42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB:70:false,AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ:30:false
 </code></pre>
 <h3 id="update-uri"><a class="header" href="#update-uri">Update URI</a></h3>
 <p>Update the metadata URI, keeping the rest of the <code>Data</code> struct the same.</p>
