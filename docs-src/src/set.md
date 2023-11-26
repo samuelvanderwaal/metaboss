@@ -32,7 +32,7 @@ metaboss set update-authority --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUN
 Set `update_authority` to a different public key for a list of NFTs. **This is not reversible by the original update authority.**
 
 ```bash
-metaboss set update-authority-all --keypair <PATH_TO_KEYPAIR> --mint-accounts-file <PATH_TO_MINT_ACCOUNTS> --new-update-authority <NEW_UPDATE_AUTHORITY>
+metaboss set update-authority-all --keypair <PATH_TO_KEYPAIR> --mint-list <PATH_TO_MINT_ACCOUNTS> --new-update-authority <NEW_UPDATE_AUTHORITY>
 ```
 
 The mint accounts file should be a JSON file with an array of NFT mint accounts to be updated:
@@ -58,7 +58,7 @@ metaboss set immutable --keypair <PATH_TO_KEYPAIR> --account <MINT_ACCOUNT>
 Set all NFTs in a list to be immutable. **This is not reversible.**
 
 ```bash
-metaboss set immutable-all --keypair <PATH_TO_KEYPAIR> --mint-accounts-file <PATH_TO_MINT_ACCOUNTS>
+metaboss set immutable-all --keypair <PATH_TO_KEYPAIR> --mint-list <PATH_TO_MINT_ACCOUNTS>
 ```
 
 ### Set Token Standard
