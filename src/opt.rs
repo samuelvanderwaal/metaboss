@@ -179,6 +179,36 @@ pub enum AirdropSubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
     },
+    /// Airdrop SPL tokens
+    #[structopt(name = "spl")]
+    Spl {
+        /// Path to the owner keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Network cluster to use, defaults to devnet
+        #[structopt(short, long, default_value = "devnet")]
+        network: String,
+
+        /// Path to the mint list file
+        #[structopt(short = "L", long)]
+        recipient_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Mint from the SPL token mint
+        #[structopt(short, long)]
+        mint: Pubkey,
+
+        #[structopt(long)]
+        mint_tokens: bool,
+
+        /// Boost the transactions w/ priority fees
+        #[structopt(long)]
+        boost: bool,
+    },
 }
 
 #[derive(Debug, StructOpt)]
