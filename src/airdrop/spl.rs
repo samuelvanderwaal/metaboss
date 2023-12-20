@@ -5,7 +5,6 @@ use solana_program::{
     program_pack::Pack,
     pubkey, system_program,
 };
-use solana_sdk::compute_budget::ComputeBudgetInstruction;
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::instruction::transfer_checked;
 
@@ -95,9 +94,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     }
 
     if args.boost {
-        instructions.push(ComputeBudgetInstruction::set_compute_unit_price(
-            PRIORITY_FEE,
-        ));
+        jib.set_priority_fee(PRIORITY_FEE);
     }
 
     for (address, amount) in &airdrop_list {

@@ -1800,9 +1800,9 @@ checksum = "af150ab688ff2122fcef229be89cb50dd66af9e01a4ff320cc137eecc9bacc38"
 
 [[package]]
 name = "jib"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e66683adc02208fbff00788190de136dec6bb61c254f5814eed5d56178b7330"
+checksum = "38488cc7a8673de9e2a39c073d8dad9055327f00a336f44bdd0aee413eed39b8"
 dependencies = [
  "bincode",
  "indicatif 0.17.7",
