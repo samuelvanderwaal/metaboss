@@ -10,6 +10,8 @@ use solana_sdk::signature::read_keypair_file;
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::instruction::mint_to;
 
+use crate::utils::create_token_if_missing_instruction;
+
 use super::*;
 
 pub struct CreateMetadataArgs {
@@ -127,7 +129,7 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         collection: None,
         uses: None,
         collection_details: None,
-        decimals: None,
+        decimals: Some(args.decimals),
         rule_set: None,
         print_supply: None,
     };
@@ -149,6 +151,15 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
 
         // Derive associated token account
         let assoc = get_associated_token_address(&keypair.pubkey(), &mint.pubkey());
+
+        // Create associated token account if needed
+        instructions.push(create_token_if_missing_instruction(
+            &keypair.pubkey(),
+            &assoc,
+            &mint.pubkey(),
+            &keypair.pubkey(),
+            &assoc,
+        ));
 
         // Mint to instruction
         let mint_to_ix = mint_to(
