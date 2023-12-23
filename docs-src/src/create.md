@@ -42,7 +42,7 @@ Decorate an existing SPL token mint with metadata.
 
 #### Usage
 
-Specify the existing mint address and path to a metadata file that contains the `Data` sub-struct of the metadata struct in a JSON format.
+Specify the token decimals and path to a metadata file that contains the `name`, `symbol` and `uri` fields in a JSON format.
 
 E.g. (Note the snake_case field name):
 
@@ -51,9 +51,7 @@ E.g. (Note the snake_case field name):
 {
   "name": "Crabbie",
   "symbol": "CRAB",
-  "uri": "https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k",
-  "seller_fee_basis_points": 0,
-  "creators": null
+  "uri": "https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k"
 }
 ```
 

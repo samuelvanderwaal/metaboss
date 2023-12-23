@@ -174,7 +174,7 @@ Update the metadata URI for a list of mint accounts, keeping the rest of the `Da
 #### Usage
 
 ```bash
-metaboss update uri-all --keypair <PATH_TO_KEYPAIR> --json-file <PATH_TO_JSON_FILE>
+metaboss update uri-all --keypair <PATH_TO_KEYPAIR> --new-uris-file <PATH_TO_JSON_FILE>
 ```
 
 ```json
