@@ -1303,6 +1303,15 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
+    Fcva {
+        /// First verified creator address.
+        #[structopt(short, long)]
+        creator: Pubkey,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: PathBuf,
+    },
 }
 
 #[derive(Debug, StructOpt)]

@@ -14,7 +14,12 @@ use crate::theindexio;
 use crate::theindexio::GPAResult;
 use crate::{constants::*, decode::get_metadata_pda};
 
-pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()> {
+pub fn snapshot_mints(client: ClientLike, args: SnapshotMintsArgs) -> Result<()> {
+    let client = match client {
+        ClientLike::RpcClient(client) => client,
+        ClientLike::DasClient(_) => panic!("DAS client not supported for this method"),
+    };
+
     if !is_only_one_option(&args.creator, &args.update_authority) {
         return Err(anyhow!(
             "Please specify either a candy machine id or an update authority, but not both."
@@ -32,7 +37,7 @@ pub fn snapshot_mints(client: &RpcClient, args: SnapshotMintsArgs) -> Result<()>
     };
 
     let mut mint_addresses = get_mint_accounts(
-        client,
+        &client,
         &args.creator,
         args.position,
         args.update_authority,
@@ -134,30 +139,35 @@ pub fn get_mint_accounts(
     Ok(mint_accounts)
 }
 
-pub fn snapshot_holders(client: &RpcClient, args: SnapshotHoldersArgs) -> Result<()> {
+pub fn snapshot_holders(client: ClientLike, args: SnapshotHoldersArgs) -> Result<()> {
+    let client = match client {
+        ClientLike::RpcClient(client) => client,
+        ClientLike::DasClient(_) => panic!("DAS client not supported for this method"),
+    };
+
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_default_rate_limiter();
 
     let spinner = create_spinner("Getting accounts...");
     let accounts = if let Some(ref update_authority) = args.update_authority {
-        get_mints_by_update_authority(client, update_authority)?
+        get_mints_by_update_authority(&client, update_authority)?
     } else if let Some(ref creator) = args.creator {
         // Support v2 & v3 cm ids
         let creator_pubkey =
             Pubkey::from_str(creator).expect("Failed to parse pubkey from creator!");
         if args.v2 {
             let cmv2_creator = derive_cmv2_pda(&creator_pubkey);
-            get_cm_creator_accounts(client, &cmv2_creator.to_string(), args.position)?
+            get_cm_creator_accounts(&client, &cmv2_creator.to_string(), args.position)?
         } else if args.v3 {
             let cmv3_creator = derive_cmv3_pda(&creator_pubkey);
-            get_cm_creator_accounts(client, &cmv3_creator.to_string(), args.position)?
+            get_cm_creator_accounts(&client, &cmv3_creator.to_string(), args.position)?
         } else {
-            get_cm_creator_accounts(client, creator, args.position)?
+            get_cm_creator_accounts(&client, creator, args.position)?
         }
     } else if let Some(ref mint_accounts_file) = args.mint_accounts_file {
         let file = File::open(mint_accounts_file)?;
         let mint_accounts: Vec<String> = serde_json::from_reader(&file)?;
-        get_mint_account_infos(client, mint_accounts)?
+        get_mint_account_infos(&client, mint_accounts)?
     } else {
         return Err(anyhow!(
             "Must specify either --update-authority or --candy-machine-id or --mint-accounts-file"
@@ -195,7 +205,7 @@ pub fn snapshot_holders(client: &RpcClient, args: SnapshotHoldersArgs) -> Result
 
             let token_accounts = match retry(
                 Exponential::from_millis_with_factor(250, 2.0).take(3),
-                || get_holder_token_accounts(client, metadata.mint.to_string()),
+                || get_holder_token_accounts(&client, metadata.mint.to_string()),
             ) {
                 Ok(token_accounts) => token_accounts,
                 Err(_) => {
@@ -492,11 +502,16 @@ fn get_mints_by_update_authority(
 }
 
 pub fn snapshot_cm_accounts(
-    client: &RpcClient,
+    client: ClientLike,
     update_authority: &str,
     output: &str,
 ) -> Result<()> {
-    let accounts = get_cm_accounts_by_update_authority(client, update_authority)?;
+    let client = match client {
+        ClientLike::RpcClient(client) => client,
+        ClientLike::DasClient(_) => panic!("DAS client not supported for this method"),
+    };
+
+    let accounts = get_cm_accounts_by_update_authority(&client, update_authority)?;
 
     let mut config_accounts = Vec::new();
     let mut candy_machine_accounts = Vec::new();

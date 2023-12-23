@@ -27,12 +27,16 @@ pub use std::{
     sync::{Arc, Mutex},
 };
 
+mod das_api;
 mod data;
 mod indexer_methods;
 mod methods;
 mod print_editions;
+mod process;
 
+pub use das_api::*;
 pub use data::*;
 pub use indexer_methods::*;
 pub use methods::*;
 pub use print_editions::*;
+pub use process::*;

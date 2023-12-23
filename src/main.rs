@@ -15,6 +15,7 @@ use metaboss::constants::*;
 use metaboss::opt::*;
 use metaboss::parse::parse_solana_config;
 use metaboss::process_subcommands::*;
+use metaboss::snapshot::process_snapshot;
 
 #[tokio::main]
 async fn main() -> Result<()> {
