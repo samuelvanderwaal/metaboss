@@ -1,12 +1,14 @@
 use std::path::PathBuf;
 
 use anyhow::anyhow;
-use metaboss_lib::derive::derive_edition_pda;
+use metaboss_lib::{derive::derive_edition_pda, transaction::send_and_confirm_tx};
 use mpl_token_metadata::{
-    instructions::{CreateMasterEditionV3Builder, CreateMetadataAccountV3Builder},
-    types::{Data, DataV2},
+    instructions::{CreateBuilder, CreateMasterEditionV3Builder},
+    types::{CreateArgs, DataV2, TokenStandard},
 };
 use solana_sdk::signature::read_keypair_file;
+use spl_associated_token_account::get_associated_token_address;
+use spl_token::instruction::mint_to;
 
 use super::*;
 
@@ -26,26 +28,42 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
     let keypair = parse_keypair(args.keypair, solana_opts);
 
     let f = File::open(args.metadata)?;
-    let data: Data = serde_json::from_reader(f)?;
+    let data: FungibleFields = serde_json::from_reader(f)?;
 
     let data_v2 = DataV2 {
         name: data.name,
         symbol: data.symbol,
         uri: data.uri,
-        seller_fee_basis_points: data.seller_fee_basis_points,
-        creators: data.creators,
+        seller_fee_basis_points: 0,
+        creators: None,
         collection: None,
         uses: None,
     };
 
-    let ix = CreateMetadataAccountV3Builder::new()
+    let create_args = CreateArgs::V1 {
+        name: data_v2.name,
+        symbol: data_v2.symbol,
+        uri: data_v2.uri,
+        seller_fee_basis_points: data_v2.seller_fee_basis_points,
+        creators: data_v2.creators,
+        primary_sale_happened: false,
+        is_mutable: !args.immutable,
+        token_standard: TokenStandard::Fungible,
+        collection: None,
+        uses: None,
+        collection_details: None,
+        decimals: None,
+        rule_set: None,
+        print_supply: None,
+    };
+
+    let ix = CreateBuilder::new()
         .metadata(metadata_pubkey)
-        .mint(mint_pubkey)
-        .mint_authority(keypair.pubkey())
+        .mint(mint_pubkey, false)
+        .authority(keypair.pubkey())
         .payer(keypair.pubkey())
         .update_authority(keypair.pubkey(), true)
-        .data(data_v2)
-        .is_mutable(!args.immutable)
+        .create_args(create_args)
         .instruction();
 
     let instructions = vec![ix];
@@ -91,58 +109,50 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
-    let f = File::open(args.metadata)?;
-    let data: FungibleFields = serde_json::from_reader(f)?;
-
     let mint = Keypair::new();
     let metadata_pubkey = derive_metadata_pda(&mint.pubkey());
 
-    let mut instructions = Vec::new();
+    let f = File::open(args.metadata)?;
+    let data: FungibleFields = serde_json::from_reader(f)?;
 
-    // Allocate memory for the account
-    let min_rent = args
-        .client
-        .get_minimum_balance_for_rent_exemption(MINT_LAYOUT as usize)?;
+    let create_args = CreateArgs::V1 {
+        name: data.name,
+        symbol: data.symbol,
+        uri: data.uri,
+        seller_fee_basis_points: 0,
+        creators: None,
+        primary_sale_happened: false,
+        is_mutable: !args.immutable,
+        token_standard: TokenStandard::Fungible,
+        collection: None,
+        uses: None,
+        collection_details: None,
+        decimals: None,
+        rule_set: None,
+        print_supply: None,
+    };
 
-    // Create mint account
-    let create_mint_account_ix = create_account(
-        &keypair.pubkey(),
-        &mint.pubkey(),
-        min_rent,
-        MINT_LAYOUT,
-        &TOKEN_PROGRAM_ID,
-    );
-    instructions.push(create_mint_account_ix);
+    let ix = CreateBuilder::new()
+        .metadata(metadata_pubkey)
+        .mint(mint.pubkey(), true)
+        .authority(keypair.pubkey())
+        .payer(keypair.pubkey())
+        .update_authority(keypair.pubkey(), true)
+        .create_args(create_args)
+        .instruction();
 
-    // Initalize mint ix
-    let init_mint_ix = initialize_mint(
-        &TOKEN_PROGRAM_ID,
-        &mint.pubkey(),
-        &keypair.pubkey(),
-        Some(&keypair.pubkey()),
-        args.decimals,
-    )?;
-    instructions.push(init_mint_ix);
-
-    // Derive associated token account
-    let assoc = get_associated_token_address(&keypair.pubkey(), &mint.pubkey());
-
-    // Create associated account instruction
-    let create_assoc_account_ix = create_associated_token_account(
-        &keypair.pubkey(),
-        &keypair.pubkey(),
-        &mint.pubkey(),
-        &spl_token::ID,
-    );
-    instructions.push(create_assoc_account_ix);
+    let mut instructions = vec![ix];
 
     if let Some(initial_supply) = args.initial_supply {
         // Convert float to native token units
         let supply = (initial_supply * 10_f64.powi(args.decimals as i32)) as u64;
 
+        // Derive associated token account
+        let assoc = get_associated_token_address(&keypair.pubkey(), &mint.pubkey());
+
         // Mint to instruction
         let mint_to_ix = mint_to(
-            &TOKEN_PROGRAM_ID,
+            &spl_token::ID,
             &mint.pubkey(),
             &assoc,
             &keypair.pubkey(),
@@ -152,33 +162,8 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         instructions.push(mint_to_ix);
     }
 
-    let metadata_ix = CreateMetadataAccountV3Builder::new()
-        .metadata(metadata_pubkey)
-        .mint(mint.pubkey())
-        .mint_authority(keypair.pubkey())
-        .payer(keypair.pubkey())
-        .update_authority(keypair.pubkey(), true)
-        .data(data.into())
-        .is_mutable(!args.immutable)
-        .instruction();
+    let sig = send_and_confirm_tx(&args.client, &[&keypair, &mint], &instructions)?;
 
-    instructions.push(metadata_ix);
-
-    let recent_blockhash = args.client.get_latest_blockhash()?;
-    let tx = Transaction::new_signed_with_payer(
-        &instructions,
-        Some(&keypair.pubkey()),
-        &[&keypair, &mint],
-        recent_blockhash,
-    );
-
-    // Send tx with retries.
-    let res = retry(
-        Exponential::from_millis_with_factor(250, 2.0).take(3),
-        || args.client.send_and_confirm_transaction(&tx),
-    );
-
-    let sig = res?;
     println!("Signature: {sig}");
     println!("Mint: {}", mint.pubkey());
     println!("Metadata: {metadata_pubkey}");
