@@ -325,7 +325,7 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
         CreateSubcommands::Fungible {
             keypair,
             metadata,
-            mint,
+            mint_path,
             decimals,
             initial_supply,
             immutable,
@@ -333,7 +333,7 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
             client,
             keypair,
             metadata,
-            mint,
+            mint_path,
             decimals,
             initial_supply,
             immutable,

@@ -319,7 +319,7 @@ pub enum CreateSubcommands {
         #[structopt(short, long)]
         keypair: Option<String>,
 
-        /// Mint account
+        /// Existing mint account created elsewhere
         #[structopt(short = "a", long)]
         mint: String,
 
@@ -344,7 +344,7 @@ pub enum CreateSubcommands {
 
         /// Vanity mint: path to a keypair file to use for the mint address.
         #[structopt(long)]
-        mint: Option<String>,
+        mint_path: Option<String>,
 
         /// SPL token decmials, defaults to 0.
         #[structopt(short, long, default_value = "0")]
