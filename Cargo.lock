@@ -2035,9 +2035,9 @@ dependencies = [
 
 [[package]]
 name = "metaboss_lib"
-version = "0.16.1"
+version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "881ee7b42550cba5827c629f8961d3c93e1b2134c639eedeb7be35cdd2512b65"
+checksum = "d54fe28a88a7ae7bc5f4922a60f58808597cfc5b49365a1eff314caa7ebb80f4"
 dependencies = [
  "anyhow",
  "borsh 0.10.3",

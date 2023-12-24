@@ -342,6 +342,10 @@ pub enum CreateSubcommands {
         #[structopt(short, long)]
         metadata: String,
 
+        /// Vanity mint: path to a keypair file to use for the mint address.
+        #[structopt(long)]
+        mint: Option<String>,
+
         /// SPL token decmials, defaults to 0.
         #[structopt(short, long, default_value = "0")]
         decimals: u8,
@@ -813,6 +817,10 @@ pub enum MintSubcommands {
         #[structopt(short = "R", long)]
         receiver: Option<String>,
 
+        /// Path to mint keypair file, if minting from existing keypair.
+        #[structopt(short, long)]
+        mint_path: Option<String>,
+
         /// Asset data
         #[structopt(short = "d", long)]
         asset_data: PathBuf,
@@ -840,6 +848,10 @@ pub enum MintSubcommands {
         /// Receiving address, if different from update authority.
         #[structopt(short = "R", long)]
         receiver: Option<String>,
+
+        /// Path to the keypair of the mint account to use for the new NFT
+        #[structopt(long)]
+        mint_path: Option<String>,
 
         /// On-chain formatted metadata for the new NFT
         #[structopt(short = "d", long)]
