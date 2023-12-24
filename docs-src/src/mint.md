@@ -44,6 +44,11 @@ If `receiver` is set, the NFT will be minted directly to the receiver's address,
 
 Use the `--sign` option to sign the metadata with the keypair immediately after minting.
 
+#### Vanity Mints
+
+You can specify a vanity mint address by using the `--mint-path` option to specify a path to a keypair on your file system.
+It will use this for the mint account instead of creating a new one.
+
 #### Editions
 
 To mint a NFT with the ability to print editions from it use the `--max-editions <max-editions>` option. This defaults to `0` meaning no editions are allowed. Setting it to a positive integer means you can print up to that many editions. Setting to a value of `-1` means unlimited editions. Because of how the CLI interprets the `-` symbol to set max editions to infinite you should use the `=` sign for the `--max-editions` option: `metaboss mint one -a <master_account> --max-editions='-1'`.
@@ -98,12 +103,15 @@ OPTIONS:
             Amount of tokens to mint, for NonFungible types this must be 1 [default: 1]
 
     -d, --asset-data <asset-data>                                Asset data
-        --decimals <decimals>                                    Mint decimals for fungible tokens
+        --decimals <decimals>                                    Mint decimals for fungible tokens [default: 0]
     -k, --keypair <keypair>                                      Path to the update_authority keypair file
     -l, --log-level <log-level>                                  Log level [default: off]
     -s, --max-print-edition-supply <max-print-edition-supply>
             Max supply of print editions. Only applies to NonFungible types. 0 for no prints, n for n prints,
             'unlimited' for unlimited prints
+    -m, --mint-path <mint-path>
+            Path to mint keypair file, if minting from existing keypair
+
     -R, --receiver <receiver>                                    Receiving address, if different from update authority
     -r, --rpc <rpc>
             RPC endpoint url to override using the Solana config or the hard-coded default
@@ -141,7 +149,6 @@ You need an asset json file of this format:
 
 Substitute appropriate values for each field. The creator can only be set as verified if it is the same keypair as the one used to mint the asset, otherwise leave it as `false`.
 
-
 ```bash
 metaboss mint asset -d <asset_json_file> -k <keypair> -R <receiver> -s <print_supply>
 ```
@@ -159,3 +166,8 @@ Leave off the `--receiver` option to mint to your keypair.
 All non-fungible type assets: currently `NonFungible` and `ProgrammableNonFungible`, require the `print-supply` option to be specified to set the maximum number of print editions that can be minted from the asset. For most PFP, 1/1, style NFTs, this should be set to `0` to prevent any editions being minted. Other options are: `n` for a limited number of `n` editions (e.g. `10`), or `unlimited` to allow unlimited editions to be minted.
 
 Fungible types such as `Fungible` and `FungibleAsset` should leave this value off as it has no meaning for them and the `mint asset` command will fail if that is specified for a fungible type.
+
+#### Vanity Mints
+
+You can specify a vanity mint address by using the `--mint-path` option to specify a path to a keypair on your file system.
+It will use this for the mint account instead of creating a new one.

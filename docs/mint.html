@@ -200,6 +200,9 @@
 <p>The --external-metadata-uri option takes a URI to an external metadata file such as an Arweave link pointing to a JSON file.</p>
 <p>If <code>receiver</code> is set, the NFT will be minted directly to the receiver's address, otherwise it is minted to <code>keypair</code>. Observant users may note that with a simple bash script this allows airdrops to be deployed with Metaboss.</p>
 <p>Use the <code>--sign</code> option to sign the metadata with the keypair immediately after minting.</p>
+<h4 id="vanity-mints"><a class="header" href="#vanity-mints">Vanity Mints</a></h4>
+<p>You can specify a vanity mint address by using the <code>--mint-path</code> option to specify a path to a keypair on your file system.
+It will use this for the mint account instead of creating a new one.</p>
 <h4 id="editions"><a class="header" href="#editions">Editions</a></h4>
 <p>To mint a NFT with the ability to print editions from it use the <code>--max-editions &lt;max-editions&gt;</code> option. This defaults to <code>0</code> meaning no editions are allowed. Setting it to a positive integer means you can print up to that many editions. Setting to a value of <code>-1</code> means unlimited editions. Because of how the CLI interprets the <code>-</code> symbol to set max editions to infinite you should use the <code>=</code> sign for the <code>--max-editions</code> option: <code>metaboss mint one -a &lt;master_account&gt; --max-editions='-1'</code>.</p>
 <p>To mint editions from a master NFT use the<code>metaboss mint editions</code> command to either mint the next <code>n</code> editions sequentially using <code>--next-editions &lt;int&gt;</code> or mint specific edition numbers using <code>--specific-editions &lt;int&gt; &lt;int&gt; &lt;int&gt;</code> with a list of integer edition numbers to mint.</p>
@@ -231,12 +234,15 @@ OPTIONS:
             Amount of tokens to mint, for NonFungible types this must be 1 [default: 1]
 
     -d, --asset-data &lt;asset-data&gt;                                Asset data
-        --decimals &lt;decimals&gt;                                    Mint decimals for fungible tokens
+        --decimals &lt;decimals&gt;                                    Mint decimals for fungible tokens [default: 0]
     -k, --keypair &lt;keypair&gt;                                      Path to the update_authority keypair file
     -l, --log-level &lt;log-level&gt;                                  Log level [default: off]
     -s, --max-print-edition-supply &lt;max-print-edition-supply&gt;
             Max supply of print editions. Only applies to NonFungible types. 0 for no prints, n for n prints,
             'unlimited' for unlimited prints
+    -m, --mint-path &lt;mint-path&gt;
+            Path to mint keypair file, if minting from existing keypair
+
     -R, --receiver &lt;receiver&gt;                                    Receiving address, if different from update authority
     -r, --rpc &lt;rpc&gt;
             RPC endpoint url to override using the Solana config or the hard-coded default
@@ -277,6 +283,9 @@ OPTIONS:
 <p><strong>Print Supply</strong></p>
 <p>All non-fungible type assets: currently <code>NonFungible</code> and <code>ProgrammableNonFungible</code>, require the <code>print-supply</code> option to be specified to set the maximum number of print editions that can be minted from the asset. For most PFP, 1/1, style NFTs, this should be set to <code>0</code> to prevent any editions being minted. Other options are: <code>n</code> for a limited number of <code>n</code> editions (e.g. <code>10</code>), or <code>unlimited</code> to allow unlimited editions to be minted.</p>
 <p>Fungible types such as <code>Fungible</code> and <code>FungibleAsset</code> should leave this value off as it has no meaning for them and the <code>mint asset</code> command will fail if that is specified for a fungible type.</p>
+<h4 id="vanity-mints-1"><a class="header" href="#vanity-mints-1">Vanity Mints</a></h4>
+<p>You can specify a vanity mint address by using the <code>--mint-path</code> option to specify a path to a keypair on your file system.
+It will use this for the mint account instead of creating a new one.</p>
 
                     </main>
 
