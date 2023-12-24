@@ -82,7 +82,7 @@ async fn main() -> Result<()> {
             additional_bytes,
         } => process_extend_program(client, keypair_path, program_address, additional_bytes)?,
         Command::Find { find_subcommands } => process_find(&client, find_subcommands)?,
-        Command::Mint { mint_subcommands } => process_mint(&client, mint_subcommands)?,
+        Command::Mint { mint_subcommands } => process_mint(client, mint_subcommands)?,
         Command::ParseErrors {
             parse_errors_file_subcommands,
         } => process_parse_errors_file(parse_errors_file_subcommands)?,

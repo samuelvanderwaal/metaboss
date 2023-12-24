@@ -146,6 +146,7 @@ pub fn mint_from_files(
             immutable,
             primary_sale_happened,
             max_editions,
+            None, // Generate new mint keypair.
             sign,
             sized,
         ) {
@@ -194,6 +195,7 @@ pub fn mint_from_uris(
                     immutable,
                     primary_sale_happened,
                     max_editions,
+                    None,
                     sign,
                     false,
                 ) {
@@ -227,6 +229,7 @@ pub fn mint_from_uris(
                     immutable,
                     primary_sale_happened,
                     max_editions,
+                    None,
                     sign,
                     false,
                 ) {
@@ -274,6 +277,7 @@ pub fn mint_one<P: AsRef<Path>>(
     immutable: bool,
     primary_sale_happened: bool,
     max_editions: i64,
+    mint_path: Option<String>,
     sign: bool,
     sized: bool,
 ) -> Result<String> {
@@ -327,6 +331,7 @@ pub fn mint_one<P: AsRef<Path>>(
         immutable,
         primary_sale_happened,
         max_editions,
+        mint_path,
         sized,
     )?;
     info!("Tx sig: {:?}\nMint account: {:?}", &tx_id, &mint_account);
@@ -583,10 +588,15 @@ pub fn mint(
     immutable: bool,
     primary_sale_happened: bool,
     max_editions: i64,
+    mint_path: Option<String>,
     sized: bool,
 ) -> Result<(Signature, Pubkey)> {
     let metaplex_program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
-    let mint = Keypair::new();
+    let mint = if let Some(mint_path) = mint_path {
+        read_keypair(&mint_path).expect("Invalid mint keypair path")
+    } else {
+        Keypair::new()
+    };
 
     // Max editions of -1 means infinite supply (max_supply = None)
     // Otherwise max_supply is the number of editions
@@ -734,15 +744,29 @@ pub fn mint(
     Ok((sig, mint.pubkey()))
 }
 
-pub fn process_mint_asset(
-    client: &RpcClient,
-    keypair_path: Option<String>,
-    receiver: Option<String>,
-    asset_data: PathBuf,
-    decimals: u8,
-    amount: u64,
-    max_print_edition_supply: Option<Supply>,
-) -> Result<()> {
+pub struct MintAssetParams {
+    pub client: RpcClient,
+    pub keypair_path: Option<String>,
+    pub receiver: Option<String>,
+    pub mint_path: Option<String>,
+    pub asset_data: PathBuf,
+    pub decimals: u8,
+    pub amount: u64,
+    pub max_print_edition_supply: Option<Supply>,
+}
+
+pub fn process_mint_asset(args: MintAssetParams) -> Result<()> {
+    let MintAssetParams {
+        client,
+        keypair_path,
+        receiver,
+        mint_path,
+        asset_data,
+        decimals,
+        amount,
+        max_print_edition_supply,
+    } = args;
+
     let solana_opts = parse_solana_config();
     // Authority is the payer as well.
     let authority = parse_keypair(keypair_path, solana_opts);
@@ -758,10 +782,13 @@ pub fn process_mint_asset(
 
     let print_supply = max_print_edition_supply.map(|s| s.into());
 
+    let mint = mint_path.map(|path| read_keypair(&path).expect("Invalid mint keypair path"));
+
     let args = MintAssetArgs::V1 {
         payer: None,
         authority: &authority,
         receiver,
+        mint,
         asset_data,
         amount,
         mint_decimals: Some(decimals),
@@ -769,7 +796,7 @@ pub fn process_mint_asset(
         authorization_data: None,
     };
 
-    let mint_result = mint_asset(client, args)?;
+    let mint_result = mint_asset(&client, args)?;
 
     println!("Minted asset: {:?}", mint_result.mint);
     println!("Transaction signature: {:?}", mint_result.signature);

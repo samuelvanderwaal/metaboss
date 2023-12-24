@@ -30,7 +30,9 @@ use crate::derive::{
     get_generic_pda, get_metadata_pda, get_token_record_pda,
 };
 use crate::find::find_missing_editions_process;
-use crate::mint::{mint_editions, mint_list, mint_missing_editions, mint_one, process_mint_asset};
+use crate::mint::{
+    mint_editions, mint_list, mint_missing_editions, mint_one, process_mint_asset, MintAssetParams,
+};
 use crate::opt::*;
 use crate::parse::{is_only_one_option, parse_errors_code, parse_errors_file};
 use crate::sign::{sign_all, sign_one};
@@ -323,6 +325,7 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
         CreateSubcommands::Fungible {
             keypair,
             metadata,
+            mint_path,
             decimals,
             initial_supply,
             immutable,
@@ -330,6 +333,7 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
             client,
             keypair,
             metadata,
+            mint_path,
             decimals,
             initial_supply,
             immutable,
@@ -471,27 +475,30 @@ pub fn process_find(client: &RpcClient, commands: FindSubcommands) -> Result<()>
     }
 }
 
-pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()> {
+pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> {
     match commands {
         MintSubcommands::Asset {
             keypair,
             receiver,
+            mint_path,
             asset_data,
             amount,
             decimals,
             max_print_edition_supply,
-        } => process_mint_asset(
+        } => process_mint_asset(MintAssetParams {
             client,
-            keypair,
+            keypair_path: keypair,
             receiver,
+            mint_path,
             asset_data,
             decimals,
             amount,
             max_print_edition_supply,
-        ),
+        }),
         MintSubcommands::One {
             keypair,
             receiver,
+            mint_path,
             nft_data_file,
             external_metadata_uri,
             immutable,
@@ -500,7 +507,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             sign,
             sized,
         } => mint_one(
-            client,
+            &client,
             keypair,
             &receiver,
             nft_data_file,
@@ -508,6 +515,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             immutable,
             primary_sale_happened,
             max_editions,
+            mint_path,
             sign,
             sized,
         )
@@ -519,7 +527,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             next_editions,
             specific_editions,
         } => mint_editions(
-            client,
+            &client,
             keypair,
             account,
             &receiver,
@@ -527,7 +535,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             specific_editions,
         ),
         MintSubcommands::MissingEditions { keypair, account } => {
-            mint_missing_editions(client, &keypair, &account)
+            mint_missing_editions(&client, &keypair, &account)
         }
         MintSubcommands::List {
             keypair,
@@ -539,7 +547,7 @@ pub fn process_mint(client: &RpcClient, commands: MintSubcommands) -> Result<()>
             sign,
             track,
         } => mint_list(
-            client,
+            &client,
             keypair,
             receiver,
             nft_data_dir,

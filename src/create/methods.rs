@@ -81,6 +81,7 @@ pub struct CreateFungibleArgs {
     pub client: RpcClient,
     pub keypair: Option<String>,
     pub metadata: String,
+    pub mint_path: Option<String>,
     pub decimals: u8,
     pub initial_supply: Option<f64>,
     pub immutable: bool,
@@ -111,7 +112,13 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
-    let mint = Keypair::new();
+    let mint = if let Some(path) = args.mint_path {
+        read_keypair_file(&path)
+            .map_err(|e| anyhow!(format!("Failed to read mint keypair file: {e}")))?
+    } else {
+        Keypair::new()
+    };
+
     let metadata_pubkey = derive_metadata_pda(&mint.pubkey());
 
     let f = File::open(args.metadata)?;
