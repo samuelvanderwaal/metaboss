@@ -1303,7 +1303,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
-    Fcva {
+    Fvca {
         /// First verified creator address.
         #[structopt(short, long)]
         creator: Pubkey,

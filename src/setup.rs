@@ -1,18 +1,24 @@
 use anyhow::{anyhow, Result};
 use dirs::home_dir;
+use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
-    clock::Slot,
     commitment_config::CommitmentConfig,
-    hash::Hash,
     signature::{read_keypair_file, Keypair},
 };
+
 use std::{fs::File, path::PathBuf, str::FromStr};
 
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize, Serialize)]
 pub enum ClientType {
     Standard,
     DAS,
+}
+
+pub enum ClientLike {
+    RpcClient(RpcClient),
+    DasClient(Client),
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -23,27 +29,32 @@ struct SolanaConfig {
 }
 
 pub struct CliConfig {
-    pub client: RpcClient,
-    pub keypair: Keypair,
-    pub recent_blockhash: Hash,
-    pub recent_slot: Slot,
+    pub client: ClientLike,
+    pub keypair: Option<Keypair>,
+    pub rpc_url: String,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct CliConfigBuilder {
     pub json_rpc_url: Option<String>,
     pub keypair_path: Option<PathBuf>,
     pub commitment: Option<String>,
-    pub client_type: Option<ClientType>,
+    pub client_type: ClientType,
 }
 
+// impl Default for ClientType {
+//     fn default() -> Self {
+//         Self::Standard
+//     }
+// }
+
 impl CliConfigBuilder {
-    pub fn new() -> Self {
+    pub fn new(client_type: ClientType) -> Self {
         Self {
             json_rpc_url: None,
             keypair_path: None,
             commitment: None,
-            client_type: None,
+            client_type,
         }
     }
     pub fn rpc_url(mut self, json_rpc_url: String) -> Self {
@@ -58,10 +69,7 @@ impl CliConfigBuilder {
         self.commitment = Some(commitment);
         self
     }
-    pub fn client_type(mut self, client_type: Option<ClientType>) -> Self {
-        self.client_type = client_type;
-        self
-    }
+
     pub fn build(&self) -> Result<CliConfig> {
         let rpc_url = self
             .json_rpc_url
@@ -73,24 +81,26 @@ impl CliConfigBuilder {
             None => CommitmentConfig::confirmed(),
         };
 
-        let client = RpcClient::new_with_commitment(rpc_url, commitment);
+        let client = match self.client_type {
+            ClientType::Standard => {
+                ClientLike::RpcClient(RpcClient::new_with_commitment(rpc_url.clone(), commitment))
+            }
+            ClientType::DAS => ClientLike::DasClient(Client::new()),
+        };
 
-        let keypair_path = self
-            .keypair_path
-            .clone()
-            .ok_or_else(|| anyhow!("No keypair path provided"))?;
+        let keypair = if let Some(keypair_path) = &self.keypair_path {
+            let keypair = read_keypair_file(keypair_path)
+                .map_err(|_| anyhow!("Unable to read keypair file"))?;
 
-        let keypair =
-            read_keypair_file(keypair_path).map_err(|_| anyhow!("Unable to read keypair file"))?;
-
-        let recent_blockhash = client.get_latest_blockhash()?;
-        let recent_slot = client.get_slot()?;
+            Some(keypair)
+        } else {
+            None
+        };
 
         Ok(CliConfig {
             client,
             keypair,
-            recent_blockhash,
-            recent_slot,
+            rpc_url,
         })
     }
 }
@@ -101,7 +111,7 @@ impl CliConfig {
         rpc_url: Option<String>,
         client_type: ClientType,
     ) -> Result<Self> {
-        let mut builder = CliConfigBuilder::new();
+        let mut builder = CliConfigBuilder::new(client_type);
         let solana_config = parse_solana_config();
 
         if let Some(config) = solana_config {
@@ -119,19 +129,9 @@ impl CliConfig {
             builder = builder.rpc_url(rpc_url);
         }
 
-        builder.client_type(Some(client_type));
-
         let config = builder.build()?;
 
         Ok(config)
-    }
-
-    #[allow(unused)]
-    pub fn update_blocks(&mut self) -> Result<()> {
-        self.recent_blockhash = self.client.get_latest_blockhash()?;
-        self.recent_slot = self.client.get_slot()?;
-
-        Ok(())
     }
 }
 

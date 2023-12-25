@@ -17,6 +17,7 @@ pub mod mint;
 pub mod opt;
 pub mod parse;
 pub mod process_subcommands;
+pub mod setup;
 pub mod sign;
 pub mod snapshot;
 pub mod spinner;

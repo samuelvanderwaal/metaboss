@@ -14,12 +14,7 @@ use crate::theindexio;
 use crate::theindexio::GPAResult;
 use crate::{constants::*, decode::get_metadata_pda};
 
-pub fn snapshot_mints(client: ClientLike, args: SnapshotMintsArgs) -> Result<()> {
-    let client = match client {
-        ClientLike::RpcClient(client) => client,
-        ClientLike::DasClient(_) => panic!("DAS client not supported for this method"),
-    };
-
+pub fn snapshot_mints(client: RpcClient, args: SnapshotMintsArgs) -> Result<()> {
     if !is_only_one_option(&args.creator, &args.update_authority) {
         return Err(anyhow!(
             "Please specify either a candy machine id or an update authority, but not both."
@@ -139,12 +134,7 @@ pub fn get_mint_accounts(
     Ok(mint_accounts)
 }
 
-pub fn snapshot_holders(client: ClientLike, args: SnapshotHoldersArgs) -> Result<()> {
-    let client = match client {
-        ClientLike::RpcClient(client) => client,
-        ClientLike::DasClient(_) => panic!("DAS client not supported for this method"),
-    };
-
+pub fn snapshot_holders(client: RpcClient, args: SnapshotHoldersArgs) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_default_rate_limiter();
 
@@ -501,16 +491,7 @@ fn get_mints_by_update_authority(
     Ok(accounts)
 }
 
-pub fn snapshot_cm_accounts(
-    client: ClientLike,
-    update_authority: &str,
-    output: &str,
-) -> Result<()> {
-    let client = match client {
-        ClientLike::RpcClient(client) => client,
-        ClientLike::DasClient(_) => panic!("DAS client not supported for this method"),
-    };
-
+pub fn snapshot_cm_accounts(client: RpcClient, update_authority: &str, output: &str) -> Result<()> {
     let accounts = get_cm_accounts_by_update_authority(&client, update_authority)?;
 
     let mut config_accounts = Vec::new();

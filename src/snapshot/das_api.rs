@@ -1,67 +1,91 @@
-use core::panic;
-use std::path::PathBuf;
+use std::{fs::File, path::PathBuf};
 
 use anyhow::Result;
+use reqwest::header::HeaderMap;
+use serde_json::json;
 use solana_program::pubkey::Pubkey;
 
-use super::ClientLike;
+use crate::{
+    helius::ByCreatorResponse,
+    setup::{CliConfig, ClientLike, ClientType},
+    spinner::create_spinner,
+};
 
 pub struct FcvaArgs {
-    pub client: ClientLike,
+    pub rpc_url: String,
     pub creator: Pubkey,
     pub output: PathBuf,
 }
 
-pub fn fcva_mints(args: FcvaArgs) -> Result<()> {
-    let client = match args.client {
-        ClientLike::RpcClient(client) => panic!("Not supported for this method"),
+pub async fn fcva_mints(args: FcvaArgs) -> Result<()> {
+    let config = CliConfig::new(None, Some(args.rpc_url), ClientType::DAS)?;
+
+    let creator = args.creator.to_string();
+
+    let mut headers = HeaderMap::new();
+    headers.insert("Content-Type", "application/json".parse().unwrap());
+
+    let client = match config.client {
         ClientLike::DasClient(client) => client,
+        _ => panic!("Wrong client type"),
     };
 
-    // let mut url = Url::parse("https://api.helius.xyz/v1/mintlist")?;
-    // url.set_query(Some(&format!("api-key={api_key}")));
+    let mut mints = Vec::new();
+    let mut page = 1;
+    let spinner = create_spinner("Getting assets...");
+    loop {
+        let body = json!(
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "getAssetsByCreator",
+            "params": {
+                "creatorAddress": args.creator.to_string(),
+                "onlyVerified": true,
+                "page": page,
+                "limit": 1000,
+                "displayOptions":
+                {
+                    "showUnverifiedCollections": false,
+                    "showCollectionMetadata": false,
+                    "showInscription": false,
+                }
+            },
+        });
 
-    // let mut assets: Vec<Asset> = Vec::new();
-    // let client = reqwest::Client::new();
+        let response = client
+            .post(config.rpc_url.clone())
+            .headers(headers.clone())
+            .json(&body)
+            .send()
+            .await?;
 
-    // let mut pagination_token = None;
+        let res: ByCreatorResponse = response.json().await?;
 
-    // let query = match method {
-    //     Method::Creator => json!({
-    //         "firstVerifiedCreators": [address.to_string()],
-    //         "verifiedCollectionAddresses": []
-    //     }
-    //     ),
-    //     Method::Collection => json!( {
-    //         "firstVerifiedCreators": [],
-    //         "verifiedCollectionAddresses": [address.to_string()]
-    //     }
-    //     ),
-    // };
+        if res.result.items.is_empty() {
+            break;
+        }
 
-    // let spinner = create_spinner("Getting assets...");
-    // loop {
-    //     let body = json!(
-    //     {
-    //         "query": query,
-    //         "options": {
-    //             "limit": 10000,
-    //             "paginationToken": pagination_token
-    //         }
-    //     }
-    //     );
+        page += 1;
 
-    //     let response = client.post(url.clone()).json(&body).send().await?;
-    //     let res: HeliusResult = response.json().await?;
+        res.result
+            .items
+            .iter()
+            .filter(|item| {
+                item.creators.first().is_some()
+                    && item.creators.first().unwrap().address.to_string() == creator
+            })
+            .for_each(|item| {
+                mints.push(item.id.clone());
+            });
+    }
+    spinner.finish();
 
-    //     assets.extend(res.result);
+    mints.sort();
 
-    //     if res.pagination_token.is_empty() {
-    //         break;
-    //     }
-    //     pagination_token = Some(res.pagination_token);
-    // }
-    // spinner.finish();
+    // Write to file
+    let file = File::create(format!("{}_mints.json", args.creator))?;
+    serde_json::to_writer_pretty(file, &mints)?;
 
     // let mut mints: Vec<String> = assets.iter().map(|asset| asset.mint.clone()).collect();
 

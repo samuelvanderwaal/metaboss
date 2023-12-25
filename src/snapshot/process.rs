@@ -1,17 +1,16 @@
 use anyhow::Result;
-use reqwest::Client;
+
 use solana_client::rpc_client::RpcClient;
 
 use crate::opt::SnapshotSubcommands;
 
 use super::*;
 
-pub enum ClientLike {
-    RpcClient(RpcClient),
-    DasClient(Client),
-}
-
-pub async fn process_snapshot(client: RpcClient, commands: SnapshotSubcommands) -> Result<()> {
+pub async fn process_snapshot(
+    client: RpcClient,
+    rpc_url: String,
+    commands: SnapshotSubcommands,
+) -> Result<()> {
     match commands {
         SnapshotSubcommands::Holders {
             update_authority,
@@ -130,10 +129,13 @@ pub async fn process_snapshot(client: RpcClient, commands: SnapshotSubcommands) 
             })
             .await
         }
-        SnapshotSubcommands::Fcva { creator, output } => fcva_mints(FcvaArgs {
-            client,
-            creator,
-            output,
-        }),
+        SnapshotSubcommands::Fvca { creator, output } => {
+            fcva_mints(FcvaArgs {
+                rpc_url,
+                creator,
+                output,
+            })
+            .await
+        }
     }
 }

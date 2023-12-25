@@ -21,25 +21,20 @@ use super::*;
 // If it's a print and it's parent is the master edition, add it to the list
 
 pub struct SnapshotPrintEditionsArgs {
-    pub client: ClientLike,
+    pub client: RpcClient,
     pub master_mint: String,
     pub creator: Option<String>,
     pub output: String,
 }
 
 pub async fn snapshot_print_editions<'a>(args: SnapshotPrintEditionsArgs) -> Result<()> {
-    let client = match args.client {
-        ClientLike::RpcClient(client) => client,
-        ClientLike::DasClient(_) => panic!("DAS client not supported for this method"),
-    };
-
     let master_mint_pubkey = Pubkey::from_str(&args.master_mint)?;
     let master_edition_pubkey = derive_edition_pda(&master_mint_pubkey);
 
     let first_verified_creator = if let Some(creator) = args.creator {
         creator
     } else {
-        let master_nft = decode_metadata_from_mint(&client, args.master_mint.clone())?;
+        let master_nft = decode_metadata_from_mint(&args.client, args.master_mint.clone())?;
 
         master_nft
             .creators
@@ -52,7 +47,7 @@ pub async fn snapshot_print_editions<'a>(args: SnapshotPrintEditionsArgs) -> Res
     };
 
     let spinner = create_spinner("Fetching metadata accounts...");
-    let accounts = get_metadata_accounts_by_creator(&client, &first_verified_creator, 0)?;
+    let accounts = get_metadata_accounts_by_creator(&args.client, &first_verified_creator, 0)?;
     spinner.finish();
 
     let spinner = create_spinner("Converting to mints...");
@@ -69,7 +64,7 @@ pub async fn snapshot_print_editions<'a>(args: SnapshotPrintEditionsArgs) -> Res
     let spinner = create_spinner("Finding edition mints...");
     for m in mints {
         let edition = derive_edition_pda(&m);
-        let edition_account = &client.get_account(&edition)?;
+        let edition_account = &args.client.get_account(&edition)?;
         let edition = match Edition::deserialize(&mut edition_account.data.as_slice()) {
             Ok(e) => e,
             Err(_) => continue,

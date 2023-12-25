@@ -10,7 +10,7 @@ use anyhow::Result;
 use reqwest::Url;
 use serde_json::json;
 
-use super::Asset;
+use super::HeliusAsset;
 
 pub async fn get_mints(args: GetMintsArgs) -> Result<()> {
     let GetMintsArgs {
@@ -24,7 +24,7 @@ pub async fn get_mints(args: GetMintsArgs) -> Result<()> {
     let mut url = Url::parse("https://api.helius.xyz/v1/mintlist")?;
     url.set_query(Some(&format!("api-key={api_key}")));
 
-    let mut assets: Vec<Asset> = Vec::new();
+    let mut assets: Vec<HeliusAsset> = Vec::new();
     let client = reqwest::Client::new();
 
     let mut pagination_token = None;
