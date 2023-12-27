@@ -4,8 +4,11 @@ use solana_program::pubkey::Pubkey;
 use structopt::StructOpt;
 
 use crate::{
-    check::CheckSubcommands, collections::GetCollectionItemsMethods, constants::DEFAULT_RATE_LIMIT,
-    mint::Supply, snapshot::GroupKey,
+    check::CheckSubcommands,
+    collections::GetCollectionItemsMethods,
+    constants::DEFAULT_RATE_LIMIT,
+    mint::Supply,
+    snapshot::{HolderGroupKey, MintsGroupKey},
 };
 
 #[derive(Debug, StructOpt)]
@@ -1137,15 +1140,30 @@ pub enum SignSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum SnapshotSubcommands {
-    ///
-    #[structopt(name = "holders")]
     Holders {
         /// Pubkey of the group to find holders for.
         group_value: Pubkey,
 
         /// Type of group to filter by: mint, mcc, fvca.
         #[structopt(short, long)]
-        group_key: GroupKey,
+        group_key: HolderGroupKey,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: PathBuf,
+    },
+    Mints {
+        /// Pubkey of the group to find holders for.
+        group_value: Pubkey,
+
+        /// Type of group to filter by: authority, mcc, fvca.
+        #[structopt(short, long)]
+        group_key: MintsGroupKey,
+
+        /// For creators, which position to check as the verified creator.
+        /// Defaults to 0, for the First Verified Creator Address.
+        #[structopt(short = "p", long, default_value = "0")]
+        creator_position: usize,
 
         /// Path to directory to save output file
         #[structopt(short, long, default_value = ".")]

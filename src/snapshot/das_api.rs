@@ -16,38 +16,38 @@ use crate::{
 use super::{DasResponse, Holder, Item};
 
 #[derive(Debug)]
-pub enum GroupKey {
+pub enum HolderGroupKey {
     Mint,
     Fvca,
     Mcc,
 }
 
-impl FromStr for GroupKey {
+impl FromStr for HolderGroupKey {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "mint" => Ok(GroupKey::Mint),
-            "fvca" => Ok(GroupKey::Fvca),
-            "mcc" => Ok(GroupKey::Mcc),
+            "mint" => Ok(HolderGroupKey::Mint),
+            "fvca" => Ok(HolderGroupKey::Fvca),
+            "mcc" => Ok(HolderGroupKey::Mcc),
             _ => Err(format!("Invalid group key: {}", s)),
         }
     }
 }
 
-impl Display for GroupKey {
+impl Display for HolderGroupKey {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            GroupKey::Mint => write!(f, "mint"),
-            GroupKey::Fvca => write!(f, "fvca"),
-            GroupKey::Mcc => write!(f, "mcc"),
+            HolderGroupKey::Mint => write!(f, "mint"),
+            HolderGroupKey::Fvca => write!(f, "fvca"),
+            HolderGroupKey::Mcc => write!(f, "mcc"),
         }
     }
 }
 
 pub struct HoldersArgs {
     pub rpc_url: String,
-    pub group_key: GroupKey,
+    pub group_key: HolderGroupKey,
     pub group_value: Pubkey,
     pub output: PathBuf,
 }
@@ -62,8 +62,8 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
     let config = CliConfig::new(None, Some(args.rpc_url), ClientType::DAS)?;
 
     let query = match args.group_key {
-        GroupKey::Mint => todo!(),
-        GroupKey::Fvca => Query {
+        HolderGroupKey::Mint => todo!(),
+        HolderGroupKey::Fvca => Query {
             method: "getAssetsByCreator".to_string(),
             params: json!({
                 "creatorAddress": args.group_value.to_string(),
@@ -73,7 +73,7 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
             }),
             fvca_filter: true,
         },
-        GroupKey::Mcc => Query {
+        HolderGroupKey::Mcc => Query {
             method: "getAssetsByGroup".to_string(),
             params: json!({
                 "groupKey": "collection",
@@ -165,6 +165,155 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
         args.group_value, args.group_key
     ))?;
     serde_json::to_writer_pretty(file, &holders)?;
+
+    Ok(())
+}
+
+#[derive(Debug)]
+pub enum MintsGroupKey {
+    Authority,
+    Creator,
+    Mcc,
+}
+
+impl FromStr for MintsGroupKey {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "authority" => Ok(MintsGroupKey::Authority),
+            "creator" => Ok(MintsGroupKey::Creator),
+            "mcc" => Ok(MintsGroupKey::Mcc),
+            _ => Err(format!("Invalid group key: {}", s)),
+        }
+    }
+}
+
+impl Display for MintsGroupKey {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MintsGroupKey::Authority => write!(f, "authority"),
+            MintsGroupKey::Creator => write!(f, "creator"),
+            MintsGroupKey::Mcc => write!(f, "mcc"),
+        }
+    }
+}
+
+pub struct MintsArgs {
+    pub rpc_url: String,
+    pub group_key: MintsGroupKey,
+    pub group_value: Pubkey,
+    pub creator_position: usize,
+    pub output: PathBuf,
+}
+
+pub async fn snapshot_mints(args: MintsArgs) -> Result<()> {
+    let config = CliConfig::new(None, Some(args.rpc_url), ClientType::DAS)?;
+
+    let query = match args.group_key {
+        MintsGroupKey::Authority => Query {
+            method: "getAssetsByAuthority".to_string(),
+            params: json!({
+                "authorityAddress": args.group_value.to_string(),
+                "page": 1,
+                "limit": 1000
+            }),
+            fvca_filter: false,
+        },
+        MintsGroupKey::Creator => Query {
+            method: "getAssetsByCreator".to_string(),
+            params: json!({
+                "creatorAddress": args.group_value.to_string(),
+                "onlyVerified": true,
+                "page": 1,
+                "limit": 1000
+            }),
+            fvca_filter: true,
+        },
+        MintsGroupKey::Mcc => Query {
+            method: "getAssetsByGroup".to_string(),
+            params: json!({
+                "groupKey": "collection",
+                "groupValue": args.group_value.to_string(),
+                "page": 1,
+                "limit": 1000
+            }),
+            fvca_filter: false,
+        },
+    };
+
+    let mut headers = HeaderMap::new();
+    headers.insert("Content-Type", "application/json".parse().unwrap());
+
+    let client = match config.client {
+        ClientLike::DasClient(client) => client,
+        _ => panic!("Wrong client type"),
+    };
+
+    let mut mints = Vec::new();
+    let mut page = 1;
+
+    let mut body = json!(
+    {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": query.method,
+        "params": query.params,
+    });
+
+    let verified_creator_filter = |item: &Item| {
+        item.creators.get(args.creator_position).is_some()
+            && item
+                .creators
+                .get(args.creator_position)
+                .unwrap()
+                .address
+                .to_string()
+                == args.group_value.to_string()
+    };
+
+    let spinner = create_spinner("Getting assets...");
+    loop {
+        let response = client
+            .post(config.rpc_url.clone())
+            .headers(headers.clone())
+            .json(&body)
+            .send()
+            .await?;
+
+        let res: DasResponse = response.json().await?;
+
+        if res.result.items.is_empty() {
+            break;
+        }
+
+        page += 1;
+        body["params"]["page"] = json!(page);
+
+        res.result
+            .items
+            .iter()
+            .filter(|item| {
+                if query.fvca_filter {
+                    verified_creator_filter(item)
+                } else {
+                    true
+                }
+            })
+            .for_each(|item| {
+                mints.push(item.id.clone());
+            });
+    }
+    spinner.finish();
+
+    mints.sort();
+
+    // Write to file
+    let file = File::create(format!(
+        "{}_{}_mints.json",
+        args.group_value, args.group_key
+    ))?;
+    serde_json::to_writer_pretty(file, &mints)?;
 
     Ok(())
 }

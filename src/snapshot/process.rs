@@ -25,6 +25,21 @@ pub async fn process_snapshot(
             })
             .await
         }
+        SnapshotSubcommands::Mints {
+            group_key,
+            group_value,
+            creator_position,
+            output,
+        } => {
+            snapshot_mints(MintsArgs {
+                rpc_url,
+                group_key,
+                group_value,
+                creator_position,
+                output,
+            })
+            .await
+        }
         SnapshotSubcommands::Fvca { creator, output } => {
             fcva_mints(FcvaArgs {
                 rpc_url,
