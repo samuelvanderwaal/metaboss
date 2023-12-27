@@ -45,7 +45,6 @@ It will use this for the mint account instead of creating a new one.
 metaboss create fungible -d <decimals> -m <metadata_file> --mint-path <path_to_keypair>
 ```
 
-```bash
 
 ### Metadata
 

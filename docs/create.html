@@ -198,20 +198,13 @@ metaboss create fungible -d 3 -m crab.json --initial-supply 10.1
 It will use this for the mint account instead of creating a new one.</p>
 <pre><code class="language-bash">metaboss create fungible -d &lt;decimals&gt; -m &lt;metadata_file&gt; --mint-path &lt;path_to_keypair&gt;
 </code></pre>
-<pre><code class="language-bash">
-### Metadata
-
-Decorate an existing SPL token mint with metadata.
-
-#### Usage
-
-Specify the token decimals and path to a metadata file that contains the `name`, `symbol` and `uri` fields in a JSON format.
-
-E.g. (Note the snake_case field name):
-
-// crab.json
-```json
-{
+<h3 id="metadata"><a class="header" href="#metadata">Metadata</a></h3>
+<p>Decorate an existing SPL token mint with metadata.</p>
+<h4 id="usage-1"><a class="header" href="#usage-1">Usage</a></h4>
+<p>Specify the token decimals and path to a metadata file that contains the <code>name</code>, <code>symbol</code> and <code>uri</code> fields in a JSON format.</p>
+<p>E.g. (Note the snake_case field name):</p>
+<p>// crab.json</p>
+<pre><code class="language-json">{
   &quot;name&quot;: &quot;Crabbie&quot;,
   &quot;symbol&quot;: &quot;CRAB&quot;,
   &quot;uri&quot;: &quot;https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k&quot;
