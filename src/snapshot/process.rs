@@ -13,6 +13,55 @@ pub async fn process_snapshot(
 ) -> Result<()> {
     match commands {
         SnapshotSubcommands::Holders {
+            group_key,
+            group_value,
+            output,
+        } => {
+            snapshot_holders(HoldersArgs {
+                rpc_url,
+                group_key,
+                group_value,
+                output,
+            })
+            .await
+        }
+        SnapshotSubcommands::Fvca { creator, output } => {
+            fcva_mints(FcvaArgs {
+                rpc_url,
+                creator,
+                output,
+            })
+            .await
+        }
+        SnapshotSubcommands::Mcc { mcc_id, output } => {
+            mcc_mints(MccArgs {
+                rpc_url,
+                mcc_id,
+                output,
+            })
+            .await
+        }
+        SnapshotSubcommands::MintsGpa {
+            creator,
+            position,
+            update_authority,
+            v2,
+            v3,
+            allow_unverified,
+            output,
+        } => snapshot_mints_gpa(
+            client,
+            SnapshotMintsGpaArgs {
+                creator,
+                position,
+                update_authority,
+                v2,
+                v3,
+                allow_unverified,
+                output,
+            },
+        ),
+        SnapshotSubcommands::HoldersGpa {
             update_authority,
             creator,
             position,
@@ -21,9 +70,9 @@ pub async fn process_snapshot(
             v3,
             allow_unverified,
             output,
-        } => snapshot_holders(
+        } => snapshot_holders_gpa(
             client,
-            SnapshotHoldersArgs {
+            SnapshotHoldersGpaArgs {
                 update_authority,
                 creator,
                 position,
@@ -34,88 +83,6 @@ pub async fn process_snapshot(
                 output,
             },
         ),
-        SnapshotSubcommands::IndexedHolders {
-            indexer,
-            api_key,
-            creator,
-            output,
-        } => {
-            snapshot_indexed_holders(NftsByCreatorArgs {
-                creator,
-                api_key,
-                indexer,
-                output,
-            })
-            .await
-        }
-        SnapshotSubcommands::CMAccounts {
-            update_authority,
-            output,
-        } => snapshot_cm_accounts(client, &update_authority, &output),
-        SnapshotSubcommands::Mints {
-            creator,
-            position,
-            update_authority,
-            v2,
-            v3,
-            allow_unverified,
-            output,
-        } => snapshot_mints(
-            client,
-            SnapshotMintsArgs {
-                creator,
-                position,
-                update_authority,
-                v2,
-                v3,
-                allow_unverified,
-                output,
-            },
-        ),
-        SnapshotSubcommands::IndexedMints {
-            indexer,
-            api_key,
-            creator,
-            output,
-        } => {
-            snapshot_indexed_mints(NftsByCreatorArgs {
-                creator,
-                api_key,
-                indexer,
-                output,
-            })
-            .await
-        }
-        SnapshotSubcommands::MintsByCreator {
-            indexer,
-            api_key,
-            address,
-            output,
-        } => {
-            snapshot_mints_by_creator(GetMintsArgs {
-                indexer,
-                api_key,
-                method: Method::Creator,
-                address,
-                output,
-            })
-            .await
-        }
-        SnapshotSubcommands::MintsByCollection {
-            indexer,
-            api_key,
-            address,
-            output,
-        } => {
-            snapshot_mints_by_collection(GetMintsArgs {
-                indexer,
-                api_key,
-                method: Method::Collection,
-                address,
-                output,
-            })
-            .await
-        }
         SnapshotSubcommands::Prints {
             master_mint,
             creator,
@@ -124,14 +91,6 @@ pub async fn process_snapshot(
             snapshot_print_editions(SnapshotPrintEditionsArgs {
                 client,
                 master_mint,
-                creator,
-                output,
-            })
-            .await
-        }
-        SnapshotSubcommands::Fvca { creator, output } => {
-            fcva_mints(FcvaArgs {
-                rpc_url,
                 creator,
                 output,
             })

@@ -14,7 +14,7 @@ use crate::theindexio;
 use crate::theindexio::GPAResult;
 use crate::{constants::*, decode::get_metadata_pda};
 
-pub fn snapshot_mints(client: RpcClient, args: SnapshotMintsArgs) -> Result<()> {
+pub fn snapshot_mints_gpa(client: RpcClient, args: SnapshotMintsGpaArgs) -> Result<()> {
     if !is_only_one_option(&args.creator, &args.update_authority) {
         return Err(anyhow!(
             "Please specify either a candy machine id or an update authority, but not both."
@@ -134,7 +134,7 @@ pub fn get_mint_accounts(
     Ok(mint_accounts)
 }
 
-pub fn snapshot_holders(client: RpcClient, args: SnapshotHoldersArgs) -> Result<()> {
+pub fn snapshot_holders_gpa(client: RpcClient, args: SnapshotHoldersGpaArgs) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_default_rate_limiter();
 
