@@ -1,14 +1,14 @@
 [package]
 name = "metaboss"
-version = "0.31.2"
+version = "0.33.0"
 edition = "2021"
 description = "The Metaplex NFT-standard Swiss Army Knife tool."
 repository = "https://github.com/samuelvanderwaal/metaboss"
 license = "Apache-2.0"
 
 [dependencies]
-anyhow = "1.0.75"
-async-trait = "0.1.74"
+anyhow = "1.0.76"
+async-trait = "0.1.75"
 base64 = "0.13.1"
 borsh = "0.10.3"
 bs58 = "0.4.0"
@@ -22,27 +22,34 @@ indicatif = { version = "0.16.2", features = ["rayon"] }
 jib = "0.5.0"
 lazy_static = "1.4.0"
 log = "0.4.20"
-metaboss_lib = "0.16.1"
+metaboss_lib = "0.17.0"
 mpl-token-metadata = { version = "3.2.3", features = ["serde"] }
 num_cpus = "1.16.0"
 once_cell = "1.18.0"
 phf = { version = "0.10", features = ["macros"] }
 ratelimit = "0.4.4"
 rayon = "1.8.0"
-regex = "1.10.2"
-reqwest = { version = "0.11.22", features = ["json"] }
+reqwest = { version = "0.11.23", features = ["json"] }
 retry = "1.3.1"
 serde = { version = "1.0.193", features = ["derive"] }
 serde_json = "1.0.108"
 serde_yaml = "0.8.26"
 shellexpand = "2.1.2"
-solana-client = "~1.16.21"
-solana-account-decoder = "~1.16.21"
-solana-logger = "~1.16.21"
-solana-program = "~1.16.21"
-solana-sdk = "~1.16.21"
+solana-client = "~1.16.24"
+solana-account-decoder = "~1.16.24"
+solana-logger = "~1.16.24"
+solana-program = "~1.16.24"
+solana-sdk = "~1.16.24"
 spl-associated-token-account = "1.1.3"
 spl-token = "3.5.0"
 structopt = "0.3.26"
-thiserror = "1.0.50"
-tokio = "1.34.0"
+thiserror = "1.0.51"
+tokio = "1.35.1"
+regex = "1.10.2"
+once_cell = "1.19.0"
+
+[features]
+
+[dev-dependencies]
+regex = "1.10.2"
+

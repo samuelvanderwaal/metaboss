@@ -36,13 +36,23 @@ Use the `--initial-suply` option to mint the specified amount directly to your k
 metaboss create fungible -d 3 -m crab.json --initial-supply 10.1
 ```
 
+#### Vanity Mints
+
+You can specify a vanity mint address by using the `--mint-path` option to specify a path to a keypair on your file system.
+It will use this for the mint account instead of creating a new one.
+
+```bash
+metaboss create fungible -d <decimals> -m <metadata_file> --mint-path <path_to_keypair>
+```
+
+
 ### Metadata
 
 Decorate an existing SPL token mint with metadata.
 
 #### Usage
 
-Specify the existing mint address and path to a metadata file that contains the `Data` sub-struct of the metadata struct in a JSON format.
+Specify the token decimals and path to a metadata file that contains the `name`, `symbol` and `uri` fields in a JSON format.
 
 E.g. (Note the snake_case field name):
 
@@ -51,9 +61,7 @@ E.g. (Note the snake_case field name):
 {
   "name": "Crabbie",
   "symbol": "CRAB",
-  "uri": "https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k",
-  "seller_fee_basis_points": 0,
-  "creators": null
+  "uri": "https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k"
 }
 ```
 
