@@ -9,7 +9,7 @@ use metaboss_lib::decode::{
 use mpl_token_metadata::types::Data;
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 
-use crate::airdrop::{airdrop_sol, AirdropSolArgs};
+use crate::airdrop::*;
 use crate::burn::*;
 use crate::collections::{
     approve_delegate, check_collection_items, get_collection_items, migrate_collection,
@@ -200,6 +200,27 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
                 network: Network::from_str(&network).unwrap(),
                 recipient_list,
                 cache_file,
+            })
+            .await
+        }
+        AirdropSubcommands::Spl {
+            keypair,
+            recipient_list,
+            network,
+            cache_file,
+            mint,
+            mint_tokens,
+            boost,
+        } => {
+            airdrop_spl(AirdropSplArgs {
+                client,
+                keypair,
+                network: Network::from_str(&network).unwrap(),
+                recipient_list,
+                cache_file,
+                mint,
+                mint_tokens,
+                boost,
             })
             .await
         }
