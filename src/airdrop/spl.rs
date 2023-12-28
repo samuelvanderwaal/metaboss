@@ -90,7 +90,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
             &[],
             total_tokens_native_units,
         )?;
-        send_and_confirm_tx(&args.client, &[&jib.payer()], &[mint_tokens_ix])?;
+        send_and_confirm_tx(&args.client, &[jib.payer()], &[mint_tokens_ix])?;
     }
 
     if args.boost {
