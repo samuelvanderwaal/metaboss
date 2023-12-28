@@ -91,7 +91,9 @@
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="airdrop.html"><strong aria-hidden="true">7.</strong> Airdrop</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">8.</strong> Burn</a></li><li class="chapter-item expanded "><a href="check.html"><strong aria-hidden="true">9.</strong> Check</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">10.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">11.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">12.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">13.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">14.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">15.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">16.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">17.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">18.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">19.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">20.</strong> Update</a></li><li class="chapter-item expanded "><a href="verify_unverify.html"><strong aria-hidden="true">21.</strong> Verify/Unverify</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">22.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">23.</strong> Contact</a></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
         </nav>
 
         <!-- Track and set sidebar scroll position -->
@@ -339,8 +341,8 @@ git checkout main
 <pre><code class="language-bash">metaboss snapshot holders -r https://ssc-dao.genesysgo.net/ -T 120 -u DC2mkgwhy56w3viNtHDjJQmc7SGu2QX785bS4aexojwX
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="airdrop"><a class="header" href="#airdrop">Airdrop</a></h2>
-<p>This is an experimental feature that uses the TPU client to rapidly and efficiently make transfers. It relies on the <a href="https://github.com/samuelvanderwaal/jib">Jib library</a> for transmitting instructiosn via TPU. You should carefully test it on devnet prior to running it on mainnet.</p>
-<p>The benefit of using the TPU client is that is can rapidly transmit the transactions directly to the consensus leader and the command does not require a high-throughput private RPC node and can use the public ones by default as the RPC node is only used for determining the current leader.</p>
+<p>This is an experimental feature that uses the TPU client to rapidly and efficiently make transfers. It relies on the <a href="https://github.com/samuelvanderwaal/jib">Jib library</a> for transmitting instructions via TPU. <strong>You should carefully test it on devnet prior to running it on mainnet.</strong></p>
+<p>The benefit of using the TPU client is that is can rapidly transmit the transactions directly to the consensus leader and the command does not require a high-throughput private RPC node and can use the public ones by default, as the RPC node is only used for determining the current leader.</p>
 <h3 id="airdrop-sol"><a class="header" href="#airdrop-sol">Airdrop SOL</a></h3>
 <p>Airdrop SOL to a list of accounts. </p>
 <pre><code>Airdrop SOL
@@ -380,6 +382,33 @@ OPTIONS:
 <pre><code class="language-bash">metaboss airdrop sol  -c &lt;PATH_TO_CACHE_FILE&gt; -n devnet
 </code></pre>
 <p>If transactions continuously fail you should look at the errors in the cache file and determine the cause.</p>
+<h3 id="airdrop-spl-tokens"><a class="header" href="#airdrop-spl-tokens">Airdrop SPL Tokens</a></h3>
+<p>Airdrop SPL tokens to a list of accounts.</p>
+<pre><code class="language-bash">Airdrop SPL tokens
+
+USAGE:
+    metaboss airdrop spl [FLAGS] [OPTIONS] --mint &lt;mint&gt;
+
+FLAGS:
+        --boost          Boost the transactions w/ priority fees
+    -h, --help           Prints help information
+        --mint-tokens    
+    -V, --version        Prints version information
+
+OPTIONS:
+    -c, --cache-file &lt;cache-file&gt;            Cache file
+    -k, --keypair &lt;keypair&gt;                  Path to the owner keypair file
+    -l, --log-level &lt;log-level&gt;              Log level [default: off]
+    -m, --mint &lt;mint&gt;                        Mint from the SPL token mint
+    -n, --network &lt;network&gt;                  Network cluster to use, defaults to devnet [default: devnet]
+    -L, --recipient-list &lt;recipient-list&gt;    Path to the mint list file
+    -r, --rpc &lt;rpc&gt;                          RPC endpoint url to override using the Solana config or the hard-coded
+                                             default
+    -T, --timeout &lt;timeout&gt;                  Timeout to override default value of 90 seconds [default: 90]
+</code></pre>
+<p>This command works similarly to the SOL airdrop command, but expects the amount to be in the display units of the SPL token. E.g. for a token with three decimal places the amount of 10 will be converted to 10,000 base units behind the scenes.</p>
+<p>Be aware that airdropping SPL tokens to wallets that do not already have a token account for that mint will cost 0.002 SOL per transaction. This is because the token account needs to be created first. This could end up being a significant cost if you are airdropping to a large number of wallets. </p>
+<p>For large SPL token airdrops you may want to consider setting up a claim site instead.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="burn"><a class="header" href="#burn">Burn</a></h2>
 <p>Burn Master Editions NFTs, as long as they do not have any editions (supply == 0). Only the owner/token holder of the NFT can burn it.</p>
 <h3 id="burn-one"><a class="header" href="#burn-one">Burn One</a></h3>

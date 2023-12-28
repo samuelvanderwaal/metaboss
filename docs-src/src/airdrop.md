@@ -1,8 +1,8 @@
 ## Airdrop
 
-This is an experimental feature that uses the TPU client to rapidly and efficiently make transfers. It relies on the [Jib library](https://github.com/samuelvanderwaal/jib) for transmitting instructiosn via TPU. You should carefully test it on devnet prior to running it on mainnet.
+This is an experimental feature that uses the TPU client to rapidly and efficiently make transfers. It relies on the [Jib library](https://github.com/samuelvanderwaal/jib) for transmitting instructions via TPU. **You should carefully test it on devnet prior to running it on mainnet.**
 
-The benefit of using the TPU client is that is can rapidly transmit the transactions directly to the consensus leader and the command does not require a high-throughput private RPC node and can use the public ones by default as the RPC node is only used for determining the current leader.
+The benefit of using the TPU client is that is can rapidly transmit the transactions directly to the consensus leader and the command does not require a high-throughput private RPC node and can use the public ones by default, as the RPC node is only used for determining the current leader.
 
 ### Airdrop SOL
 
@@ -61,3 +61,37 @@ metaboss airdrop sol  -c <PATH_TO_CACHE_FILE> -n devnet
 ```
 
 If transactions continuously fail you should look at the errors in the cache file and determine the cause.
+
+### Airdrop SPL Tokens
+
+Airdrop SPL tokens to a list of accounts.
+
+```bash
+Airdrop SPL tokens
+
+USAGE:
+    metaboss airdrop spl [FLAGS] [OPTIONS] --mint <mint>
+
+FLAGS:
+        --boost          Boost the transactions w/ priority fees
+    -h, --help           Prints help information
+        --mint-tokens    
+    -V, --version        Prints version information
+
+OPTIONS:
+    -c, --cache-file <cache-file>            Cache file
+    -k, --keypair <keypair>                  Path to the owner keypair file
+    -l, --log-level <log-level>              Log level [default: off]
+    -m, --mint <mint>                        Mint from the SPL token mint
+    -n, --network <network>                  Network cluster to use, defaults to devnet [default: devnet]
+    -L, --recipient-list <recipient-list>    Path to the mint list file
+    -r, --rpc <rpc>                          RPC endpoint url to override using the Solana config or the hard-coded
+                                             default
+    -T, --timeout <timeout>                  Timeout to override default value of 90 seconds [default: 90]
+```
+
+This command works similarly to the SOL airdrop command, but expects the amount to be in the display units of the SPL token. E.g. for a token with three decimal places the amount of 10 will be converted to 10,000 base units behind the scenes.
+
+Be aware that airdropping SPL tokens to wallets that do not already have a token account for that mint will cost 0.002 SOL per transaction. This is because the token account needs to be created first. This could end up being a significant cost if you are airdropping to a large number of wallets. 
+
+For large SPL token airdrops you may want to consider setting up a claim site instead.
