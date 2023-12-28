@@ -182,6 +182,36 @@ pub enum AirdropSubcommands {
         #[structopt(short, long)]
         cache_file: Option<String>,
     },
+    /// Airdrop SPL tokens
+    #[structopt(name = "spl")]
+    Spl {
+        /// Path to the owner keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Network cluster to use, defaults to devnet
+        #[structopt(short, long, default_value = "devnet")]
+        network: String,
+
+        /// Path to the mint list file
+        #[structopt(short = "L", long)]
+        recipient_list: Option<String>,
+
+        /// Cache file
+        #[structopt(short, long)]
+        cache_file: Option<String>,
+
+        /// Mint from the SPL token mint
+        #[structopt(short, long)]
+        mint: Pubkey,
+
+        #[structopt(long)]
+        mint_tokens: bool,
+
+        /// Boost the transactions w/ priority fees
+        #[structopt(long)]
+        boost: bool,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -322,7 +352,7 @@ pub enum CreateSubcommands {
         #[structopt(short, long)]
         keypair: Option<String>,
 
-        /// Mint account
+        /// Existing mint account created elsewhere
         #[structopt(short = "a", long)]
         mint: String,
 
@@ -344,6 +374,10 @@ pub enum CreateSubcommands {
         /// Path to JSON file of metadata
         #[structopt(short, long)]
         metadata: String,
+
+        /// Vanity mint: path to a keypair file to use for the mint address.
+        #[structopt(long)]
+        mint_path: Option<String>,
 
         /// SPL token decmials, defaults to 0.
         #[structopt(short, long, default_value = "0")]
@@ -816,6 +850,10 @@ pub enum MintSubcommands {
         #[structopt(short = "R", long)]
         receiver: Option<String>,
 
+        /// Path to mint keypair file, if minting from existing keypair.
+        #[structopt(short, long)]
+        mint_path: Option<String>,
+
         /// Asset data
         #[structopt(short = "d", long)]
         asset_data: PathBuf,
@@ -843,6 +881,10 @@ pub enum MintSubcommands {
         /// Receiving address, if different from update authority.
         #[structopt(short = "R", long)]
         receiver: Option<String>,
+
+        /// Path to the keypair of the mint account to use for the new NFT
+        #[structopt(long)]
+        mint_path: Option<String>,
 
         /// On-chain formatted metadata for the new NFT
         #[structopt(short = "d", long)]
