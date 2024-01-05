@@ -1,7 +1,6 @@
 use std::fmt::Display;
 
-use crate::{data::Indexers, helius, theindexio};
-use anyhow::Result;
+use crate::data::Indexers;
 
 #[derive(Debug, Clone)]
 pub struct NftsByCreatorArgs {
@@ -41,23 +40,4 @@ pub struct GetMintsArgs {
     pub api_key: String,
     pub indexer: Indexers,
     pub output: String,
-}
-
-pub async fn snapshot_mints_by_creator(args: GetMintsArgs) -> Result<()> {
-    match args.indexer {
-        Indexers::Helius => {
-            helius::get_mints(args).await?;
-        }
-        Indexers::TheIndexIO => {
-            theindexio::get_mints(args).await?;
-        }
-    }
-    Ok(())
-}
-
-pub async fn snapshot_mints_by_collection(args: GetMintsArgs) -> Result<()> {
-    match args.indexer {
-        Indexers::Helius => helius::get_mints(args).await,
-        Indexers::TheIndexIO => theindexio::get_mints(args).await,
-    }
 }

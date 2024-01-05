@@ -4,8 +4,11 @@ use solana_program::pubkey::Pubkey;
 use structopt::StructOpt;
 
 use crate::{
-    check::CheckSubcommands, collections::GetCollectionItemsMethods, constants::DEFAULT_RATE_LIMIT,
-    data::Indexers, mint::Supply,
+    check::CheckSubcommands,
+    collections::GetCollectionItemsMethods,
+    constants::DEFAULT_RATE_LIMIT,
+    mint::Supply,
+    snapshot::{HolderGroupKey, MintsGroupKey},
 };
 
 #[derive(Debug, StructOpt)]
@@ -1179,9 +1182,58 @@ pub enum SignSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum SnapshotSubcommands {
-    /// Snapshot all current holders of NFTs by candy_machine_id / creator or update_authority
-    #[structopt(name = "holders")]
+    /// Get all current holders of NFTs by group
     Holders {
+        /// Pubkey of the group to find holders for.
+        group_value: Pubkey,
+
+        /// Type of group to filter by: mint, mcc, fvca.
+        #[structopt(short, long)]
+        group_key: HolderGroupKey,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: PathBuf,
+    },
+    /// Get all mint accounts by various group types
+    Mints {
+        /// Pubkey of the group to find holders for.
+        group_value: Pubkey,
+
+        /// Type of group to filter by: authority, mcc, creator.
+        #[structopt(short, long)]
+        group_key: MintsGroupKey,
+
+        /// For creators, which position to check as the verified creator.
+        /// Defaults to 0, for the First Verified Creator Address.
+        #[structopt(short = "p", long, default_value = "0")]
+        creator_position: usize,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: PathBuf,
+    },
+    /// Get all mint accounts by First Verified Creator Address
+    Fvca {
+        /// First verified creator address.
+        creator: Option<Pubkey>,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: PathBuf,
+    },
+    /// Get all mint accounts by Metaplex Certified Collection key
+    Mcc {
+        /// Collection parent mint address.
+        mcc_id: Pubkey,
+
+        /// Path to directory to save output file
+        #[structopt(short, long, default_value = ".")]
+        output: PathBuf,
+    },
+    /// Get all current holders of NFTs by legacy gPA calls
+    #[structopt(name = "holders-gpa")]
+    HoldersGpa {
         /// Update authority to filter accounts by.
         #[structopt(short, long)]
         update_authority: Option<String>,
@@ -1214,39 +1266,9 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
-    /// Snapshot holders from an indexer.
-    #[structopt(name = "indexed-holders")]
-    IndexedHolders {
-        /// Indexer to use for getting collection items. See docs.
-        #[structopt(short, long, default_value = "the_index_io")]
-        indexer: Indexers,
-
-        /// API key for the indexer.
-        #[structopt(short, long)]
-        api_key: String,
-
-        /// First verified creator.
-        #[structopt(short, long)]
-        creator: String,
-
-        /// Path to directory to save output files.
-        #[structopt(short, long, default_value = ".")]
-        output: String,
-    },
-    ///Snapshot all candy machine config and state accounts for a given update_authority
-    #[structopt(name = "cm-accounts")]
-    CMAccounts {
-        /// Update authority to filter accounts by.
-        #[structopt(short, long)]
-        update_authority: String,
-
-        /// Path to directory to save output files.
-        #[structopt(short, long, default_value = ".")]
-        output: String,
-    },
-    /// Snapshot all mint accounts for a given candy_machine_id / creatoro or update authority
-    #[structopt(name = "mints")]
-    Mints {
+    /// Get all mint accounts using legacy getProgramAccounts call
+    #[structopt(name = "mints-gpa")]
+    MintsGpa {
         /// Creator to filter accounts by (for CM v2 use --v2, for CM v3 use --v3 if candy_machine account is passed)
         #[structopt(short, long)]
         creator: Option<String>,
@@ -1275,63 +1297,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
-    /// Snapshot mints from an indexer.
-    #[structopt(name = "indexed-mints")]
-    IndexedMints {
-        /// Indexer to use for getting collection items. See docs.
-        #[structopt(short, long, default_value = "the_index_io")]
-        indexer: Indexers,
-
-        /// API key for the indexer.
-        #[structopt(short, long)]
-        api_key: String,
-
-        /// First verified creator.
-        #[structopt(short, long)]
-        creator: String,
-
-        /// Path to directory to save output file
-        #[structopt(short, long, default_value = ".")]
-        output: String,
-    },
-    /// Get NFT mints by creator from various indexers.
-    #[structopt(name = "mints-by-creator")]
-    MintsByCreator {
-        /// Indexer to use for getting collection items. See docs.
-        #[structopt(short, long, default_value = "helius")]
-        indexer: Indexers,
-
-        /// API key for the indexer.
-        #[structopt(short, long)]
-        api_key: String,
-
-        /// First verified creator address.
-        #[structopt(short = "c", long)]
-        address: String,
-
-        /// Path to directory to save output file
-        #[structopt(short, long, default_value = ".")]
-        output: String,
-    },
-    /// Get NFT mints by collection from various indexers.
-    #[structopt(name = "mints-by-collection")]
-    MintsByCollection {
-        /// Indexer to use for getting collection items. See docs.
-        #[structopt(short, long, default_value = "helius")]
-        indexer: Indexers,
-
-        /// API key for the indexer.
-        #[structopt(short, long)]
-        api_key: String,
-
-        /// Collection parent mint address.
-        #[structopt(short = "c", long)]
-        address: String,
-
-        /// Path to directory to save output file
-        #[structopt(short, long, default_value = ".")]
-        output: String,
-    },
+    /// Get all print edition mint accounts for a given master edition mint
     Prints {
         /// Master edition mint address.
         #[structopt(short = "m", long)]
