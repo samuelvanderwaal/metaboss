@@ -1182,6 +1182,7 @@ pub enum SignSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum SnapshotSubcommands {
+    /// Get all current holders of NFTs by group
     Holders {
         /// Pubkey of the group to find holders for.
         group_value: Pubkey,
@@ -1194,11 +1195,12 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
     },
+    /// Get all mint accounts by various group types
     Mints {
         /// Pubkey of the group to find holders for.
         group_value: Pubkey,
 
-        /// Type of group to filter by: authority, mcc, fvca.
+        /// Type of group to filter by: authority, mcc, creator.
         #[structopt(short, long)]
         group_key: MintsGroupKey,
 
@@ -1211,6 +1213,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
     },
+    /// Get all mint accounts by First Verified Creator Address
     Fvca {
         /// First verified creator address.
         creator: Option<Pubkey>,
@@ -1219,6 +1222,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
     },
+    /// Get all mint accounts by Metaplex Certified Collection key
     Mcc {
         /// Collection parent mint address.
         mcc_id: Pubkey,
@@ -1227,7 +1231,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
     },
-    /// Snapshot all current holders of NFTs by candy_machine_id / creator or update_authority
+    /// Get all current holders of NFTs by legacy gPA calls
     #[structopt(name = "holders-gpa")]
     HoldersGpa {
         /// Update authority to filter accounts by.
@@ -1262,7 +1266,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
-    /// Snapshot all mint accounts for a given candy_machine_id / creatoro or update authority
+    /// Get all mint accounts using legacy getProgramAccounts call
     #[structopt(name = "mints-gpa")]
     MintsGpa {
         /// Creator to filter accounts by (for CM v2 use --v2, for CM v3 use --v3 if candy_machine account is passed)
@@ -1293,6 +1297,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: String,
     },
+    /// Get all print edition mint accounts for a given master edition mint
     Prints {
         /// Master edition mint address.
         #[structopt(short = "m", long)]
