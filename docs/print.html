@@ -91,7 +91,9 @@
             <div class="sidebar-scrollbox">
                 <ol class="chapter"><li class="chapter-item expanded "><a href="overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="quick_start.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="installation.html"><strong aria-hidden="true">3.</strong> Installation</a></li><li class="chapter-item expanded "><a href="examples.html"><strong aria-hidden="true">4.</strong> Examples</a></li><li class="chapter-item expanded "><a href="recipes.html"><strong aria-hidden="true">5.</strong> Recipes</a></li><li class="chapter-item expanded "><a href="global_options.html"><strong aria-hidden="true">6.</strong> Global Options</a></li><li class="chapter-item expanded "><a href="airdrop.html"><strong aria-hidden="true">7.</strong> Airdrop</a></li><li class="chapter-item expanded "><a href="burn.html"><strong aria-hidden="true">8.</strong> Burn</a></li><li class="chapter-item expanded "><a href="check.html"><strong aria-hidden="true">9.</strong> Check</a></li><li class="chapter-item expanded "><a href="collections.html"><strong aria-hidden="true">10.</strong> Collections</a></li><li class="chapter-item expanded "><a href="create.html"><strong aria-hidden="true">11.</strong> Create</a></li><li class="chapter-item expanded "><a href="decode.html"><strong aria-hidden="true">12.</strong> Decode</a></li><li class="chapter-item expanded "><a href="derive.html"><strong aria-hidden="true">13.</strong> Derive</a></li><li class="chapter-item expanded "><a href="find.html"><strong aria-hidden="true">14.</strong> Find</a></li><li class="chapter-item expanded "><a href="mint.html"><strong aria-hidden="true">15.</strong> Mint</a></li><li class="chapter-item expanded "><a href="set.html"><strong aria-hidden="true">16.</strong> Set</a></li><li class="chapter-item expanded "><a href="sign.html"><strong aria-hidden="true">17.</strong> Sign</a></li><li class="chapter-item expanded "><a href="snapshot.html"><strong aria-hidden="true">18.</strong> Snapshot</a></li><li class="chapter-item expanded "><a href="transfer.html"><strong aria-hidden="true">19.</strong> Transfer</a></li><li class="chapter-item expanded "><a href="update.html"><strong aria-hidden="true">20.</strong> Update</a></li><li class="chapter-item expanded "><a href="verify_unverify.html"><strong aria-hidden="true">21.</strong> Verify/Unverify</a></li><li class="chapter-item expanded "><a href="withdraw.html"><strong aria-hidden="true">22.</strong> Withdraw</a></li><li class="chapter-item expanded "><a href="contact.html"><strong aria-hidden="true">23.</strong> Contact</a></li></ol>
             </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
         </nav>
 
         <!-- Track and set sidebar scroll position -->
@@ -916,39 +918,13 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="snapshot"><a class="header" href="#snapshot">Snapshot</a></h2>
 <p>Get snapshots of various blockchain states.</p>
-<h3 id="snapshot-cm-accounts"><a class="header" href="#snapshot-cm-accounts">Snapshot CM-Accounts</a></h3>
-<p>Snapshot all candy machine config and state accounts for a given update_authority.</p>
-<h4 id="usage-23"><a class="header" href="#usage-23">Usage</a></h4>
-<pre><code class="language-bash">metaboss snapshot cm-accounts --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
-</code></pre>
-<p>Creates a JSON file in the output directory with the name format of <code>&lt;UPDATE_AUTHORITY&gt;_accounts.json</code>, consisting of an object with the fields <code>config_accounts</code> and <code>candy_machine_accounts</code>:</p>
-<pre><code class="language-json">{
-    &quot;config_accounts&quot;: [
-        {
-            &quot;address&quot;: &quot;2XBqwwTLf24ACPR3BDSEKCB95PZiAwYySeX1LyN3FKDL&quot;,
-            &quot;data_len&quot;: 1456
-        },
-        {
-            &quot;address&quot;: &quot;9tNkktGZhLiWHkc4JhoTYvMLXEVA8qauSVeFwyiRPCsT&quot;,
-            &quot;data_len&quot;: 1216
-        }
-    ],
-    &quot;candy_machine_accounts&quot;: [
-        {
-            &quot;address&quot;: &quot;DwoPaGFxJpGRq3kZQBNfBroCGaS9Hdg2rpFHJpD2iBhW&quot;,
-            &quot;data_len&quot;: 529
-        },
-        {
-            &quot;address&quot;: &quot;CpFAvcReAkmxWiL7jwDjBKD9jX1Bi1Lky4bHwMkgCuxc&quot;,
-            &quot;data_len&quot;: 529
-        }
-    ]
-}
-</code></pre>
-<h3 id="snapshot-holders"><a class="header" href="#snapshot-holders">Snapshot Holders</a></h3>
-<p>Snapshot all current holders of NFTs filtered by verified candy_machine_id/first creator or update_authority.
+<p><strong>Note</strong>: Most of the snapshot commands rely on the <a href="https://developers.metaplex.com/bubblegum#metaplex-das-api">Digital Asset Standard (DAS) API</a>, which is a read layer for Metaplex NFTs that uses indexed data to serve up information without having to make onerous getProgramAccounts RPC calls to validators. To use these commands you will need to have a RPC URL set with a provider that supports the DAS API. The current official list from Metaplex is <a href="https://developers.metaplex.com/bubblegum/rpcs">here</a>.</p>
+<p>Metaboss recommends using <a href="https://helius.dev">Helius</a> for DAS API calls as they are the only provider that fully supported the DAS API spec on both mainnet and devnet when these commands were tested. In addition, they have a very generous free tier that should be sufficient for most casual users.</p>
+<h3 id="snapshot-holders-gpa"><a class="header" href="#snapshot-holders-gpa">Snapshot Holders-GPA</a></h3>
+<p>(Legacy: not recommended for use.)</p>
+<p>Snapshot all current holders of NFTs using the legacy getProgramAccounts method, filtered by verified candy_machine_id/first creator or update_authority.
 <strong>Note:</strong> Update authority can be faked so use that option with caution.</p>
-<h4 id="usage-24"><a class="header" href="#usage-24">Usage</a></h4>
+<h4 id="usage-23"><a class="header" href="#usage-23">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot holders --creator &lt;CREATOR_ADDRESS&gt; -p &lt;POSITION&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>Use the position to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
@@ -977,9 +953,10 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
     }
 ]
 </code></pre>
-<h3 id="snapshot-mints"><a class="header" href="#snapshot-mints">Snapshot Mints</a></h3>
-<p>Snapshot all mint accounts for a given verified candy machine id/first creator or update authority</p>
-<h4 id="usage-25"><a class="header" href="#usage-25">Usage</a></h4>
+<h3 id="snapshot-mints-gpa"><a class="header" href="#snapshot-mints-gpa">Snapshot Mints-GPA</a></h3>
+<p>(Legacy: not recommended for use.)</p>
+<p>Snapshot all mint accounts using the legacy getProgramAccounts method, for a given verified candy machine id/first creator or update authority</p>
+<h4 id="usage-24"><a class="header" href="#usage-24">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot mints --creator &lt;FIRST_CREATOR&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>Use the position to indicate which creator in the creators array to filter by; defaults to the first one (position 0).</p>
@@ -998,15 +975,85 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
     &quot;8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o&quot;
 ]
 </code></pre>
-<h3 id="indexed-data"><a class="header" href="#indexed-data">Indexed Data</a></h3>
-<p>Metaboss now has experimental support for running snapshot commands using off-chain, indexed data from https://theindex.io/. Other indexers or methods may be supported later. To use this feature, you need to sign up for a free account with TheIndex to get an API key.</p>
-<h3 id="snapshot-indexed-mints"><a class="header" href="#snapshot-indexed-mints">Snapshot Indexed Mints</a></h3>
-<h4 id="usage-26"><a class="header" href="#usage-26">Usage</a></h4>
-<pre><code class="language-bash">metaboss snapshot indexed-mints --creator &lt;FIRST_VERIFIED_CREATOR&gt; --api-key &lt;THEINDEX.IO_API_KEY&gt;
+<h3 id="snapshot-holders----das-api"><a class="header" href="#snapshot-holders----das-api">Snapshot Holders -- DAS API</a></h3>
+<p>Snapshot all current holders by various group types:</p>
+<ul>
+<li>
+<p>Mint
+Gets all token holders of a specific mint (unimplemented--not supported in DAS yet).</p>
+</li>
+<li>
+<p>First Verified Creator Address (FVCA)
+Gets all holders of NFTs with a specific FVCA.</p>
+</li>
+<li>
+<p>Metaplex Collection Id (MCC)
+Gets all holders of NFTs with a specific verified MCC ID.</p>
+</li>
+</ul>
+<h4 id="usage-25"><a class="header" href="#usage-25">Usage</a></h4>
+<pre><code class="language-bash">metaboss snapshot holders &lt;GROUP_VALUE&gt; --group-key &lt;GROUP_KEY&gt;
 </code></pre>
-<h3 id="snapshot-indexed-holders"><a class="header" href="#snapshot-indexed-holders">Snapshot Indexed Holders</a></h3>
+<p>Creates a JSON file in the output directory with the name format of <code>&lt;GROUP_VALUE&gt;_&lt;GROUP_KEY&gt;_holders.json</code> consisting of an array of objects with the following fields:</p>
+<ul>
+<li>owner -- the address of the holder of the token</li>
+<li>ata -- the associated  token address the NFT is stored at</li>
+<li>mint -- the token mint address for the NFT</li>
+<li>metadata-- the address of the metadata decorating the mint account that defines the NFT</li>
+</ul>
+<p>E.g.:</p>
+<pre><code class="language-json">  {
+    &quot;owner&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
+    &quot;mint&quot;: &quot;2pwsTyuM4Cb2zmN3xydti2ysPYdmu242w1J7TmQya3At&quot;,
+    &quot;metadata&quot;: &quot;Art3NUzP2DxqfzwwMgjLdu8KY9NQLBp2zuEZ63dx9iU2&quot;,
+    &quot;ata&quot;: &quot;FfwoNCYYC5wUkTYTmtYmBSgk9YRWpTTWZCpJB6MjwvSk&quot;
+  },
+</code></pre>
+<p>Example command:</p>
+<pre><code class="language-bash">metaboss snapshot holders PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8 -g fvca
+</code></pre>
+<h3 id="snapshot-mints----das-api"><a class="header" href="#snapshot-mints----das-api">Snapshot Mints -- DAS API</a></h3>
+<p>Snapshot all mint accounts by various group types:</p>
+<ul>
+<li>
+<p>Authority
+Gets all NFT mint addresses for a given update authority. 
+<strong>Warning:</strong> update authority can be set to any address so use this option with caution.</p>
+</li>
+<li>
+<p>Creator
+Gets all NFT mint addresses that have a specific verified creator.</p>
+</li>
+<li>
+<p>Metaplex Collection Id (MCC)
+Gets all NFT mint addresses with a specific verified MCC ID.</p>
+</li>
+</ul>
+<h4 id="usage-26"><a class="header" href="#usage-26">Usage</a></h4>
+<pre><code class="language-bash">metaboss snapshot mints &lt;GROUP_VALUE&gt; --group-key &lt;GROUP_KEY&gt;
+</code></pre>
+<p>Creates a JSON file in the output directory with the name format of <code>&lt;GROUP_VALUE&gt;_&lt;GROUP_KEY&gt;_mints.json</code> consisting of an array of mint accounts.</p>
+<p>For the creator method you can optionally specify which creator position to use with the <code>--position</code> option. This defaults to 0, which is the first verified creator in the creators array.</p>
+<p>Example command:</p>
+<pre><code class="language-bash">metaboss snapshot mints PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8 -g creator --position 1
+</code></pre>
+<h3 id="snapshot-fvca----das-api"><a class="header" href="#snapshot-fvca----das-api">Snapshot FVCA -- DAS API</a></h3>
+<p>An alias for snapshot mints with the group key set to <code>creator</code> and the default position of 0 used to find all mints with a given FVCA.</p>
 <h4 id="usage-27"><a class="header" href="#usage-27">Usage</a></h4>
-<pre><code class="language-bash">metaboss snapshot indexed-holders --creator &lt;FIRST_VERIFIED_CREATOR&gt; --api-key &lt;THEINDEX.IO_API_KEY&gt;
+<pre><code class="language-bash">metaboss snapshot fvca &lt;FVCA&gt;
+</code></pre>
+<p>Creates a JSON file in the output directory with the name format of <code>&lt;FVCA&gt;_fvca_mints.json</code> consisting of an array of mint accounts.</p>
+<p>Example command:</p>
+<pre><code class="language-bash">metaboss snapshot fvca PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8
+</code></pre>
+<h3 id="snapshot-mcc----das-api"><a class="header" href="#snapshot-mcc----das-api">Snapshot MCC -- DAS API</a></h3>
+<p>An alias for snapshot mints with the group key set to <code>mcc</code> used to find all mints with a given MCC.</p>
+<h4 id="usage-28"><a class="header" href="#usage-28">Usage</a></h4>
+<pre><code class="language-bash">metaboss snapshot mcc &lt;MCC&gt;
+</code></pre>
+<p>Creates a JSON file in the output directory with the name format of <code>&lt;MCC&gt;_mcc_mints.json</code> consisting of an array of mint accounts.</p>
+<p>Example command:</p>
+<pre><code class="language-bash">metaboss snapshot mcc PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8
 </code></pre>
 <h3 id="snapshot-prints"><a class="header" href="#snapshot-prints">Snapshot Prints</a></h3>
 <p>Snapshot the print editions of a given master edition. This returns a JSON object of edition mints where the key is the edition number and the value is the mint address.</p>
@@ -1044,7 +1091,7 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>The user can optionally pass in a first verified creator to use instead of deriving it from the master edition.</p>
 <p>Limitations:</p>
 <p>For master editions that have had prints minted, and then had their first verified creator changed and then more prints minted, it will take multiple runs of this command with each of the first verified creators to find all the prints and the user will need to track them in separate files and merge them manually as it will overwrite the default output file each time.</p>
-<h4 id="usage-28"><a class="header" href="#usage-28">Usage</a></h4>
+<h4 id="usage-29"><a class="header" href="#usage-29">Usage</a></h4>
 <pre><code class="language-bash">metaboss snapshot prints -m &lt;MASTER_EDITION_MINT&gt; -c &lt;OPTIONAL_FIRST_VERIFIED_CREATOR&gt;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="transfer"><a class="header" href="#transfer">Transfer</a></h2>
@@ -1066,7 +1113,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h3 id="usage-29"><a class="header" href="#usage-29">Usage</a></h3>
+<h3 id="usage-30"><a class="header" href="#usage-30">Usage</a></h3>
 <pre><code class="language-bash">metaboss transfer asset --mint &lt;asset_mint_address&gt; --receiver &lt;receiver_wallet_address&gt;
 </code></pre>
 <p>E.g.:</p>
@@ -1081,7 +1128,7 @@ OPTIONS:
 <p>See also <strong>Set</strong> commands for updatable values that cannot be reversed (e.g. set immutable).</p>
 <h3 id="update-data"><a class="header" href="#update-data">Update Data</a></h3>
 <p>Update the <code>Data</code> struct on a NFT from a JSON file.</p>
-<h4 id="usage-30"><a class="header" href="#usage-30">Usage</a></h4>
+<h4 id="usage-31"><a class="header" href="#usage-31">Usage</a></h4>
 <pre><code class="language-bash">metaboss update data --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-data-file &lt;PATH_TO_NEW_DATA_FILE&gt;
 </code></pre>
 <p>The JSON file should include all the fields of the metadata <code>Data</code> struct and should match <code>creator</code> <code>verified</code> bools for existing creators. E.g. if your NFT was minted by the Metaplex Candy Machine program, and you wish to keep your candy machine as a verified creator <em>you must add the candy machine to your creators array with <code>verified</code> set to <code>true</code></em>.</p>
@@ -1114,7 +1161,7 @@ OPTIONS:
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="update-data-all"><a class="header" href="#update-data-all">Update Data All</a></h3>
 <p>Update the <code>Data</code> struct on a list of NFTs from JSON files.</p>
-<h4 id="usage-31"><a class="header" href="#usage-31">Usage</a></h4>
+<h4 id="usage-32"><a class="header" href="#usage-32">Usage</a></h4>
 <pre><code class="language-bash">metaboss update data-all --keypair &lt;PATH_TO_KEYPAIR&gt; --data-dir &lt;PATH_TO_DATA_DIR&gt;
 </code></pre>
 <p>Each JSON file in the data directory should include the mint account and all the fields of the metadata <code>Data</code> struct and should match <code>creator</code> <code>verified</code> bools for existing creators. E.g. if your NFT was minted by the Metaplex Candy Machine program, and you wish to keep your candy machine as a verified creator <em>you must add the candy machine to your creators array with <code>verified</code> set to <code>true</code></em>.</p>
@@ -1150,22 +1197,22 @@ The extra fields will be ignored.</p>
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <h3 id="update-name"><a class="header" href="#update-name">Update Name</a></h3>
 <p>Update the on-chain name of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-32"><a class="header" href="#usage-32">Usage</a></h4>
+<h4 id="usage-33"><a class="header" href="#usage-33">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update name --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-name &lt;NEW_NAME&gt;
 </code></pre>
 <h3 id="update-symbol"><a class="header" href="#update-symbol">Update Symbol</a></h3>
 <p>Update the on-chain symbol of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-33"><a class="header" href="#usage-33">Usage</a></h4>
+<h4 id="usage-34"><a class="header" href="#usage-34">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update symbol --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-symbol &lt;NEW_SYMBOL&gt;
 </code></pre>
 <h3 id="update-symbol-all"><a class="header" href="#update-symbol-all">Update Symbol All</a></h3>
 <p>Update the on-chain symbol of a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-34"><a class="header" href="#usage-34">Usage</a></h4>
+<h4 id="usage-35"><a class="header" href="#usage-35">Usage</a></h4>
 <pre><code class="language-bash"> metaboss update symbol-all --keypair &lt;PATH_TO_KEYPAIR&gt; -L &lt;PATH_TO_LIST_MINT_ADDRESSES&gt; --new-symbol &lt;NEW_SYMBOL&gt;
 </code></pre>
 <h3 id="update-creators"><a class="header" href="#update-creators">Update Creators</a></h3>
 <p>Update the creators of a NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-35"><a class="header" href="#usage-35">Usage</a></h4>
+<h4 id="usage-36"><a class="header" href="#usage-36">Usage</a></h4>
 <pre><code class="language-bash">metaboss update creators -k &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -n &lt;CREATOR1:SHARE:VERIFIED,CREATOR2:SHARE:VERIFIED&gt;
 </code></pre>
 <p>Creators should be a comma-delimited list of creator:share:verified. E.g. </p>
@@ -1179,12 +1226,12 @@ The extra fields will be ignored.</p>
 </code></pre>
 <h3 id="update-uri"><a class="header" href="#update-uri">Update URI</a></h3>
 <p>Update the metadata URI, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-36"><a class="header" href="#usage-36">Usage</a></h4>
+<h4 id="usage-37"><a class="header" href="#usage-37">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri --keypair &lt;PATH_TO_KEYPAIR&gt; --account &lt;MINT_ACCOUNT&gt; --new-uri &lt;NEW_URI&gt;
 </code></pre>
 <h3 id="update-uri-all"><a class="header" href="#update-uri-all">Update URI All</a></h3>
 <p>Update the metadata URI for a list of mint accounts, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-37"><a class="header" href="#usage-37">Usage</a></h4>
+<h4 id="usage-38"><a class="header" href="#usage-38">Usage</a></h4>
 <pre><code class="language-bash">metaboss update uri-all --keypair &lt;PATH_TO_KEYPAIR&gt; --new-uris-file &lt;PATH_TO_JSON_FILE&gt;
 </code></pre>
 <pre><code class="language-json">[
@@ -1200,12 +1247,12 @@ The extra fields will be ignored.</p>
 </code></pre>
 <h3 id="update-seller-fee-basis-points"><a class="header" href="#update-seller-fee-basis-points">Update Seller Fee Basis Points</a></h3>
 <p>Update the seller fee basis points field on an NFT, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-38"><a class="header" href="#usage-38">Usage</a></h4>
+<h4 id="usage-39"><a class="header" href="#usage-39">Usage</a></h4>
 <pre><code class="language-bash">metaboss update sfbp --keypair &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
 <h3 id="update-seller-fee-basis-points-all"><a class="header" href="#update-seller-fee-basis-points-all">Update Seller Fee Basis Points All</a></h3>
 <p>Update the seller fee basis points field on a list of NFTs, keeping the rest of the <code>Data</code> struct the same.</p>
-<h4 id="usage-39"><a class="header" href="#usage-39">Usage</a></h4>
+<h4 id="usage-40"><a class="header" href="#usage-40">Usage</a></h4>
 <pre><code class="language-bash">metaboss update sfbp-all --keypair &lt;PATH_TO_KEYPAIR&gt; -L &lt;PATH_TO_MINT_LIST.json&gt; -n &lt;NEW_SELLER_FEE_BASIS_POINTS_VALUE&gt;
 </code></pre>
 <h3 id="update-rule-set"><a class="header" href="#update-rule-set">Update Rule Set</a></h3>
@@ -1225,7 +1272,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                      RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;              Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-40"><a class="header" href="#usage-40">Usage</a></h4>
+<h4 id="usage-41"><a class="header" href="#usage-41">Usage</a></h4>
 <pre><code class="language-bash">metaboss update rule-set --mint &lt;MINT_ADDRESS&gt; --new-rule-set &lt;NEW_RULE_SET_PUBKEY&gt;
 </code></pre>
 <p>E.g.:</p>
@@ -1251,7 +1298,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                      RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;              Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-41"><a class="header" href="#usage-41">Usage</a></h4>
+<h4 id="usage-42"><a class="header" href="#usage-42">Usage</a></h4>
 <pre><code class="language-bash">metaboss update rule-set-all -L &lt;MINT_LIST&gt; -n &lt;NEW_RULE_SET_ADDRESS&gt;
 </code></pre>
 <p>E.g.:</p>
@@ -1273,7 +1320,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-42"><a class="header" href="#usage-42">Usage</a></h4>
+<h4 id="usage-43"><a class="header" href="#usage-43">Usage</a></h4>
 <pre><code class="language-bash">metaboss update clear-rule-set --mint &lt;MINT_ADDRESS&gt;
 </code></pre>
 <p>E.g.:</p>
@@ -1298,7 +1345,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                  RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;          Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-43"><a class="header" href="#usage-43">Usage</a></h4>
+<h4 id="usage-44"><a class="header" href="#usage-44">Usage</a></h4>
 <pre><code class="language-bash">metaboss update clear-rule-set-all -L &lt;MINT_LIST&gt;
 </code></pre>
 <p>E.g.:</p>
@@ -1340,7 +1387,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-44"><a class="header" href="#usage-44">Usage</a></h4>
+<h4 id="usage-45"><a class="header" href="#usage-45">Usage</a></h4>
 <pre><code class="language-bash">metaboss verify creator --account &lt;MINT_ACCOUNT&gt; --keypair &lt;CREATOR_KEYPAIR_FILE&gt;
 </code></pre>
 <h3 id="creator-all"><a class="header" href="#creator-all">Creator All</a></h3>
@@ -1362,7 +1409,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                  RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;          Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-45"><a class="header" href="#usage-45">Usage</a></h4>
+<h4 id="usage-46"><a class="header" href="#usage-46">Usage</a></h4>
 <pre><code class="language-bash">metaboss verify creator-all --mint-list &lt;MINT_LIST_FILE&gt; --keypair &lt;CREATOR_KEYPAIR_FILE&gt;
 </code></pre>
 <h2 id="unverify"><a class="header" href="#unverify">Unverify</a></h2>
@@ -1401,7 +1448,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;        Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-46"><a class="header" href="#usage-46">Usage</a></h4>
+<h4 id="usage-47"><a class="header" href="#usage-47">Usage</a></h4>
 <pre><code class="language-bash">metaboss unverify creator --account &lt;MINT_ACCOUNT&gt; --keypair &lt;CREATOR_KEYPAIR_FILE&gt;
 </code></pre>
 <h3 id="creator-all-1"><a class="header" href="#creator-all-1">Creator All</a></h3>
@@ -1423,7 +1470,7 @@ OPTIONS:
     -r, --rpc &lt;rpc&gt;                  RPC endpoint url to override using the Solana config or the hard-coded default
     -T, --timeout &lt;timeout&gt;          Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<h4 id="usage-47"><a class="header" href="#usage-47">Usage</a></h4>
+<h4 id="usage-48"><a class="header" href="#usage-48">Usage</a></h4>
 <pre><code class="language-bash">metaboss unverify creator-all --mint-list &lt;MINT_LIST_FILE&gt; --keypair &lt;CREATOR_KEYPAIR_FILE&gt;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="withdraw-deprecated"><a class="header" href="#withdraw-deprecated">Withdraw (Deprecated)</a></h2>

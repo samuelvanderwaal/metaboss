@@ -2,46 +2,14 @@
 
 Get snapshots of various blockchain states.
 
-### Snapshot CM-Accounts
+**Note**: Most of the snapshot commands rely on the [Digital Asset Standard (DAS) API](https://developers.metaplex.com/bubblegum#metaplex-das-api), which is a read layer for Metaplex NFTs that uses indexed data to serve up information without having to make onerous getProgramAccounts RPC calls to validators. To use these commands you will need to have a RPC URL set with a provider that supports the DAS API. The current official list from Metaplex is [here](https://developers.metaplex.com/bubblegum/rpcs).
 
-Snapshot all candy machine config and state accounts for a given update_authority.
+Metaboss recommends using [Helius](https://helius.dev) for DAS API calls as they are the only provider that fully supported the DAS API spec on both mainnet and devnet when these commands were tested. In addition, they have a very generous free tier that should be sufficient for most casual users.
 
-#### Usage
+### Snapshot Holders-GPA
+(Legacy: not recommended for use.)
 
-```bash
-metaboss snapshot cm-accounts --update-authority <UPDATE_AUTHORITY> --output <OUTPUT_DIR>
-```
-
-Creates a JSON file in the output directory with the name format of `<UPDATE_AUTHORITY>_accounts.json`, consisting of an object with the fields `config_accounts` and `candy_machine_accounts`:
-
-```json
-{
-    "config_accounts": [
-        {
-            "address": "2XBqwwTLf24ACPR3BDSEKCB95PZiAwYySeX1LyN3FKDL",
-            "data_len": 1456
-        },
-        {
-            "address": "9tNkktGZhLiWHkc4JhoTYvMLXEVA8qauSVeFwyiRPCsT",
-            "data_len": 1216
-        }
-    ],
-    "candy_machine_accounts": [
-        {
-            "address": "DwoPaGFxJpGRq3kZQBNfBroCGaS9Hdg2rpFHJpD2iBhW",
-            "data_len": 529
-        },
-        {
-            "address": "CpFAvcReAkmxWiL7jwDjBKD9jX1Bi1Lky4bHwMkgCuxc",
-            "data_len": 529
-        }
-    ]
-}
-```
-
-### Snapshot Holders
-
-Snapshot all current holders of NFTs filtered by verified candy_machine_id/first creator or update_authority.
+Snapshot all current holders of NFTs using the legacy getProgramAccounts method, filtered by verified candy_machine_id/first creator or update_authority.
 **Note:** Update authority can be faked so use that option with caution.
 
 #### Usage
@@ -86,9 +54,10 @@ Example file:
 ]
 ```
 
-### Snapshot Mints
+### Snapshot Mints-GPA
+(Legacy: not recommended for use.)
 
-Snapshot all mint accounts for a given verified candy machine id/first creator or update authority
+Snapshot all mint accounts using the legacy getProgramAccounts method, for a given verified candy machine id/first creator or update authority
 
 #### Usage
 
@@ -122,24 +91,113 @@ Creates a JSON file in the output directory with the name format of `<CANDY_MACH
 ]
 ```
 
-### Indexed Data
+### Snapshot Holders -- DAS API
 
-Metaboss now has experimental support for running snapshot commands using off-chain, indexed data from https://theindex.io/. Other indexers or methods may be supported later. To use this feature, you need to sign up for a free account with TheIndex to get an API key.
+Snapshot all current holders by various group types:
 
-### Snapshot Indexed Mints
+- Mint
+Gets all token holders of a specific mint (unimplemented--not supported in DAS yet).
+
+- First Verified Creator Address (FVCA)
+Gets all holders of NFTs with a specific FVCA.
+
+- Metaplex Collection Id (MCC)
+Gets all holders of NFTs with a specific verified MCC ID.
 
 #### Usage
 
 ```bash
-metaboss snapshot indexed-mints --creator <FIRST_VERIFIED_CREATOR> --api-key <THEINDEX.IO_API_KEY>
+metaboss snapshot holders <GROUP_VALUE> --group-key <GROUP_KEY>
 ```
 
-### Snapshot Indexed Holders
+Creates a JSON file in the output directory with the name format of `<GROUP_VALUE>_<GROUP_KEY>_holders.json` consisting of an array of objects with the following fields:
+
+* owner -- the address of the holder of the token
+* ata -- the associated  token address the NFT is stored at
+* mint -- the token mint address for the NFT
+* metadata-- the address of the metadata decorating the mint account that defines the NFT
+
+E.g.:
+
+```json
+  {
+    "owner": "42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB",
+    "mint": "2pwsTyuM4Cb2zmN3xydti2ysPYdmu242w1J7TmQya3At",
+    "metadata": "Art3NUzP2DxqfzwwMgjLdu8KY9NQLBp2zuEZ63dx9iU2",
+    "ata": "FfwoNCYYC5wUkTYTmtYmBSgk9YRWpTTWZCpJB6MjwvSk"
+  },
+```
+
+Example command:
+
+```bash
+metaboss snapshot holders PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8 -g fvca
+```
+
+### Snapshot Mints -- DAS API
+
+Snapshot all mint accounts by various group types:
+
+- Authority
+Gets all NFT mint addresses for a given update authority. 
+**Warning:** update authority can be set to any address so use this option with caution.
+
+- Creator
+Gets all NFT mint addresses that have a specific verified creator.
+
+- Metaplex Collection Id (MCC)
+Gets all NFT mint addresses with a specific verified MCC ID.
 
 #### Usage
 
 ```bash
-metaboss snapshot indexed-holders --creator <FIRST_VERIFIED_CREATOR> --api-key <THEINDEX.IO_API_KEY>
+metaboss snapshot mints <GROUP_VALUE> --group-key <GROUP_KEY>
+```
+
+Creates a JSON file in the output directory with the name format of `<GROUP_VALUE>_<GROUP_KEY>_mints.json` consisting of an array of mint accounts.
+
+For the creator method you can optionally specify which creator position to use with the `--position` option. This defaults to 0, which is the first verified creator in the creators array.
+
+Example command:
+
+```bash
+metaboss snapshot mints PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8 -g creator --position 1
+```
+
+### Snapshot FVCA -- DAS API
+
+An alias for snapshot mints with the group key set to `creator` and the default position of 0 used to find all mints with a given FVCA.
+
+#### Usage
+
+```bash
+metaboss snapshot fvca <FVCA>
+```
+
+Creates a JSON file in the output directory with the name format of `<FVCA>_fvca_mints.json` consisting of an array of mint accounts.
+
+Example command:
+
+```bash
+metaboss snapshot fvca PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8
+```
+
+### Snapshot MCC -- DAS API
+
+An alias for snapshot mints with the group key set to `mcc` used to find all mints with a given MCC.
+
+#### Usage
+
+```bash
+metaboss snapshot mcc <MCC>
+```
+
+Creates a JSON file in the output directory with the name format of `<MCC>_mcc_mints.json` consisting of an array of mint accounts.
+
+Example command:
+
+```bash
+metaboss snapshot mcc PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8
 ```
 
 ### Snapshot Prints
