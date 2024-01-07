@@ -233,19 +233,19 @@ pub fn snapshot_holders_gpa(client: RpcClient, args: SnapshotHoldersGpaArgs) -> 
 
                 // Only include current holder of the NFT.
                 if amount == 1 {
-                    let owner_wallet = match parse_owner(&data) {
+                    let owner = match parse_owner(&data) {
                         Ok(owner_wallet) => owner_wallet,
                         Err(err) => {
                             error!("Account {} has no owner: {}", associated_token_address, err);
                             return;
                         }
                     };
-                    let associated_token_address = associated_token_address.to_string();
+                    let ata = associated_token_address.to_string();
                     let holder = Holder {
-                        owner_wallet,
-                        associated_token_address,
-                        mint_account: metadata.mint.to_string(),
-                        metadata_account: metadata_pubkey.to_string(),
+                        owner,
+                        ata,
+                        mint: metadata.mint.to_string(),
+                        metadata: metadata_pubkey.to_string(),
                     };
                     nft_holders.lock().unwrap().push(holder);
                 }
@@ -396,19 +396,19 @@ pub async fn get_holder_from_gpa_result(api_key: String, result: GPAResult) -> R
 
         // Only include current holder of the NFT.
         if amount == 1 {
-            let owner_wallet = match parse_owner(&parsed_account) {
+            let owner = match parse_owner(&parsed_account) {
                 Ok(owner_wallet) => owner_wallet,
                 Err(err) => {
                     error!("Account {} has no owner: {}", token_result.pubkey, err);
                     continue;
                 }
             };
-            let associated_token_address = token_result.pubkey;
+            let ata = token_result.pubkey;
             let holder = Holder {
-                owner_wallet,
-                associated_token_address,
-                mint_account: metadata.mint.to_string(),
-                metadata_account: result.pubkey,
+                owner,
+                ata,
+                mint: metadata.mint.to_string(),
+                metadata: result.pubkey,
             };
 
             return Ok(holder);

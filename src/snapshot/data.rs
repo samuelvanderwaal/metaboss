@@ -5,10 +5,10 @@ pub type HolderResults = Vec<Result<Holder>>;
 
 #[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord, Serialize)]
 pub struct Holder {
-    pub owner_wallet: String,
-    pub mint_account: String,
-    pub metadata_account: String,
-    pub associated_token_address: String,
+    pub owner: String,
+    pub mint: String,
+    pub metadata: String,
+    pub ata: String,
 }
 
 #[derive(Debug, Serialize)]

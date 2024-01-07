@@ -148,10 +148,10 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
                 );
 
                 holders.push(Holder {
-                    owner_wallet: owner_address,
-                    mint_account: item.id.clone(),
-                    metadata_account: metadata_pubkey.to_string(),
-                    associated_token_address: ata_pubkey.to_string(),
+                    owner: owner_address,
+                    mint: item.id.clone(),
+                    metadata: metadata_pubkey.to_string(),
+                    ata: ata_pubkey.to_string(),
                 });
             });
     }
@@ -392,7 +392,7 @@ pub async fn fcva_mints(args: FcvaArgs) -> Result<()> {
     mints.sort();
 
     // Write to file
-    let file = File::create(format!("{}_mints.json", creator))?;
+    let file = File::create(format!("{}_fvca_mints.json", creator))?;
     serde_json::to_writer_pretty(file, &mints)?;
 
     Ok(())
@@ -458,7 +458,7 @@ pub async fn mcc_mints(args: MccArgs) -> Result<()> {
     mints.sort();
 
     // Write to file
-    let file = File::create(format!("{}_mints.json", mcc_id))?;
+    let file = File::create(format!("{}_mcc_mints.json", mcc_id))?;
     serde_json::to_writer_pretty(file, &mints)?;
 
     Ok(())
