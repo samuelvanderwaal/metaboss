@@ -195,18 +195,18 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
 <p>Creates a JSON file in the output directory with the name format of <code>&lt;CREATOR/UPDATE_AUTHORITY&gt;_holders.json</code> consisting of an array of objects with the following fields:</p>
 <ul>
-<li>owner wallet -- the holder of the token</li>
-<li>associated token account -- the token account the NFT is stored at</li>
-<li>mint account -- the token mint account for the NFT</li>
-<li>metadata account -- the metadata account decorating the mint account that defines the NFT</li>
+<li>owner -- the address of the holder of the token</li>
+<li>ata -- the associated  token address the NFT is stored at</li>
+<li>mint -- the token mint address for the NFT</li>
+<li>metadata-- the address of the metadata decorating the mint account that defines the NFT</li>
 </ul>
 <p>Example file:</p>
 <pre><code class="language-json">[
     {
-        &quot;owner_wallet&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
-        &quot;associated_token_address&quot;: &quot;7yGA66LYDU7uoPW2x9jrUKaDWTs9jqZ5cSNKR1VaLQdw&quot;,
-        &quot;mint_account&quot;: &quot;C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG&quot;,
-        &quot;metadata_account&quot;: &quot;8WTA3sLxwRNDKHxZFbn2CFo3FX1ZP59EqrvuDPLbmmWV&quot;
+        &quot;owner&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
+        &quot;ata&quot;: &quot;7yGA66LYDU7uoPW2x9jrUKaDWTs9jqZ5cSNKR1VaLQdw&quot;,
+        &quot;mint&quot;: &quot;C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG&quot;,
+        &quot;metadata&quot;: &quot;8WTA3sLxwRNDKHxZFbn2CFo3FX1ZP59EqrvuDPLbmmWV&quot;
     }
 ]
 </code></pre>

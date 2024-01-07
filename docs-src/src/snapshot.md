@@ -36,20 +36,20 @@ where <CANDY_MACHINE_ID> is the candy machine id retrieved from the cache file.
 
 Creates a JSON file in the output directory with the name format of `<CREATOR/UPDATE_AUTHORITY>_holders.json` consisting of an array of objects with the following fields:
 
--   owner wallet -- the holder of the token
--   associated token account -- the token account the NFT is stored at
--   mint account -- the token mint account for the NFT
--   metadata account -- the metadata account decorating the mint account that defines the NFT
+* owner -- the address of the holder of the token
+* ata -- the associated  token address the NFT is stored at
+* mint -- the token mint address for the NFT
+* metadata-- the address of the metadata decorating the mint account that defines the NFT
 
 Example file:
 
 ```json
 [
     {
-        "owner_wallet": "42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB",
-        "associated_token_address": "7yGA66LYDU7uoPW2x9jrUKaDWTs9jqZ5cSNKR1VaLQdw",
-        "mint_account": "C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG",
-        "metadata_account": "8WTA3sLxwRNDKHxZFbn2CFo3FX1ZP59EqrvuDPLbmmWV"
+        "owner": "42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB",
+        "ata": "7yGA66LYDU7uoPW2x9jrUKaDWTs9jqZ5cSNKR1VaLQdw",
+        "mint": "C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG",
+        "metadata": "8WTA3sLxwRNDKHxZFbn2CFo3FX1ZP59EqrvuDPLbmmWV"
     }
 ]
 ```
