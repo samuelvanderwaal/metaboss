@@ -181,6 +181,14 @@ pub enum AirdropSubcommands {
         /// Cache file
         #[structopt(short, long)]
         cache_file: Option<String>,
+
+        /// Rate limit in requests per second; defaults to 10
+        #[structopt(short = "R", long)]
+        rate_limit: Option<u64>,
+
+        /// Boost the transactions w/ priority fees
+        #[structopt(long)]
+        boost: bool,
     },
     /// Airdrop SPL tokens
     #[structopt(name = "spl")]
@@ -207,6 +215,10 @@ pub enum AirdropSubcommands {
 
         #[structopt(long)]
         mint_tokens: bool,
+
+        /// Rate limit in requests per second; defaults to 10
+        #[structopt(short = "R", long)]
+        rate_limit: Option<u64>,
 
         /// Boost the transactions w/ priority fees
         #[structopt(long)]

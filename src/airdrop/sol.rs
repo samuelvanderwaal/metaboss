@@ -6,13 +6,15 @@ pub struct AirdropSolArgs {
     pub network: Network,
     pub recipient_list: Option<String>,
     pub cache_file: Option<String>,
+    pub boost: bool,
+    pub rate_limit: Option<u64>,
 }
 
 pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
-    let mut jib = Jib::new(vec![keypair], args.network)?;
+    let mut jib = Jib::new(vec![keypair], args.client.url())?;
 
     let mut instructions = vec![];
 
@@ -64,8 +66,16 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
         ));
     }
 
+    if args.boost {
+        jib.set_priority_fee(PRIORITY_FEE);
+    }
+
+    if let Some(rate) = args.rate_limit {
+        jib.set_rate_limit(rate);
+    }
+
     jib.set_instructions(instructions);
-    let results = jib.hoist()?;
+    let results = jib.hoist().await?;
 
     if results.iter().any(|r| r.is_failure()) {
         println!("Some transactions failed. Check the {cache_file_name} cache file for details.");
@@ -76,8 +86,7 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
 
     results.iter().for_each(|r| {
         if r.is_failure() {
-            let tx = r.transaction().unwrap(); // Transactions exist on failures.
-            let account_keys = tx.message().account_keys.clone();
+            let account_keys = r.message().unwrap().account_keys; // Transactions exist on failures.
             let transaction_accounts = account_keys.iter().map(|k| k.to_string()).collect();
 
             // All accounts except the first and last are recipients.

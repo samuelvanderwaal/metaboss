@@ -19,6 +19,7 @@ pub struct AirdropSplArgs {
     pub mint: Pubkey,
     pub mint_tokens: bool,
     pub boost: bool,
+    pub rate_limit: Option<u64>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -35,7 +36,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
-    let mut jib = Jib::new(vec![keypair], args.network)?;
+    let mut jib = Jib::new(vec![keypair], args.client.url())?;
     let mut instructions = vec![];
 
     let mut recipients_lookup: HashMap<Ata, Recipient> = HashMap::new();
@@ -43,7 +44,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     let source_ata = get_associated_token_address(&jib.payer().pubkey(), &args.mint);
 
     let mint_account =
-        spl_token::state::Mint::unpack(jib.rpc_client().get_account(&args.mint)?.data.as_slice())?;
+        spl_token::state::Mint::unpack(args.client.get_account(&args.mint)?.data.as_slice())?;
     let decimals = mint_account.decimals;
 
     if args.recipient_list.is_some() && args.cache_file.is_some() {
@@ -93,10 +94,6 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
         send_and_confirm_tx(&args.client, &[jib.payer()], &[mint_tokens_ix])?;
     }
 
-    if args.boost {
-        jib.set_priority_fee(PRIORITY_FEE);
-    }
-
     for (address, amount) in &airdrop_list {
         let amount_native_units = amount * 10u64.pow(decimals as u32);
 
@@ -132,8 +129,16 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
         )?);
     }
 
+    if args.boost {
+        jib.set_priority_fee(PRIORITY_FEE);
+    }
+
+    if let Some(rate) = args.rate_limit {
+        jib.set_rate_limit(rate);
+    }
+
     jib.set_instructions(instructions);
-    let results = jib.hoist()?;
+    let results = jib.hoist().await?;
 
     if results.iter().any(|r| r.is_failure()) {
         println!("Some transactions failed. Check the {cache_file_name} cache file for details.");
@@ -144,8 +149,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
 
     results.iter().for_each(|r| {
         if r.is_failure() {
-            let tx = r.transaction().unwrap(); // Transactions exist on failures.
-            let account_keys = tx.message().account_keys.clone();
+            let account_keys = r.message().unwrap().account_keys; // Transactions exist on failures.
             let transaction_accounts = account_keys.iter().map(|k| k.to_string()).collect();
 
             // We iterate over all account keys and check if they are in the recipients lookup to find the
