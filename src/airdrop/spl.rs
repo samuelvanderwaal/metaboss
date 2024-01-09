@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use borsh::{BorshDeserialize, BorshSerialize};
 use metaboss_lib::transaction::send_and_confirm_tx;
 use solana_program::{
@@ -19,13 +20,14 @@ pub struct AirdropSplArgs {
     pub mint: Pubkey,
     pub mint_tokens: bool,
     pub boost: bool,
+    pub rate_limit: Option<u64>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-struct SplRecipient {
-    address: String,
-    ata: String,
-    amount: u64,
+struct SplFailedTransaction {
+    transaction_accounts: Vec<String>,
+    recipients: HashMap<String, f64>,
+    error: String,
 }
 
 type Recipient = String;
@@ -35,7 +37,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
-    let mut jib = Jib::new(vec![keypair], args.network)?;
+    let mut jib = Jib::new(vec![keypair], args.client.url())?;
     let mut instructions = vec![];
 
     let mut recipients_lookup: HashMap<Ata, Recipient> = HashMap::new();
@@ -43,7 +45,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     let source_ata = get_associated_token_address(&jib.payer().pubkey(), &args.mint);
 
     let mint_account =
-        spl_token::state::Mint::unpack(jib.rpc_client().get_account(&args.mint)?.data.as_slice())?;
+        spl_token::state::Mint::unpack(args.client.get_account(&args.mint)?.data.as_slice())?;
     let decimals = mint_account.decimals;
 
     if args.recipient_list.is_some() && args.cache_file.is_some() {
@@ -58,7 +60,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     let mut cache_file_name = format!("mb-cache-airdrop-{timestamp}.json");
     let successful_tx_file_name = format!("mb-successful-airdrops-{timestamp}.json");
 
-    let airdrop_list: HashMap<String, u64> = if let Some(list_file) = args.recipient_list {
+    let airdrop_list: HashMap<String, f64> = if let Some(list_file) = args.recipient_list {
         serde_json::from_reader(File::open(list_file)?)?
     } else if let Some(cache_file) = args.cache_file {
         cache_file_name = PathBuf::from(cache_file.clone())
@@ -68,7 +70,8 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
             .unwrap()
             .to_string();
 
-        let failed_txes: Vec<FailedTransaction> = serde_json::from_reader(File::open(cache_file)?)?;
+        let failed_txes: Vec<SplFailedTransaction> =
+            serde_json::from_reader(File::open(cache_file)?)?;
         failed_txes
             .iter()
             .flat_map(|f| f.recipients.clone())
@@ -79,8 +82,10 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     };
 
     if args.mint_tokens {
-        let total_tokens = airdrop_list.values().sum::<u64>();
-        let total_tokens_native_units = total_tokens * 10u64.pow(decimals as u32);
+        let total_tokens = airdrop_list.values().sum::<f64>();
+
+        let total_tokens_native_units = convert_to_base_units(total_tokens, decimals)
+            .ok_or(anyhow!("Invalid total amount of SPL tokens to mint"))?;
 
         let mint_tokens_ix = spl_token::instruction::mint_to(
             &spl_token::ID,
@@ -93,12 +98,10 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
         send_and_confirm_tx(&args.client, &[jib.payer()], &[mint_tokens_ix])?;
     }
 
-    if args.boost {
-        jib.set_priority_fee(PRIORITY_FEE);
-    }
-
     for (address, amount) in &airdrop_list {
-        let amount_native_units = amount * 10u64.pow(decimals as u32);
+        let amount_native_units = convert_to_base_units(*amount, decimals).ok_or(anyhow!(
+            format!("Invalid token amount for address {address}")
+        ))?;
 
         let pubkey = match Pubkey::from_str(address) {
             Ok(pubkey) => pubkey,
@@ -132,8 +135,16 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
         )?);
     }
 
+    if args.boost {
+        jib.set_priority_fee(PRIORITY_FEE);
+    }
+
+    if let Some(rate) = args.rate_limit {
+        jib.set_rate_limit(rate);
+    }
+
     jib.set_instructions(instructions);
-    let results = jib.hoist()?;
+    let results = jib.hoist().await?;
 
     if results.iter().any(|r| r.is_failure()) {
         println!("Some transactions failed. Check the {cache_file_name} cache file for details.");
@@ -144,14 +155,13 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
 
     results.iter().for_each(|r| {
         if r.is_failure() {
-            let tx = r.transaction().unwrap(); // Transactions exist on failures.
-            let account_keys = tx.message().account_keys.clone();
+            let account_keys = r.message().unwrap().account_keys; // Transactions exist on failures.
             let transaction_accounts = account_keys.iter().map(|k| k.to_string()).collect();
 
             // We iterate over all account keys and check if they are in the recipients lookup to find the
             // pubkey associated with any ATAs. Then we use the pubkey to find the address and amount pair
             // to build the airdrop list from the failures so they can be retried.
-            let recipients: HashMap<String, u64> = account_keys
+            let recipients: HashMap<String, f64> = account_keys
                 .iter()
                 .map(|p| p.to_string())
                 .filter_map(|s| {
@@ -163,7 +173,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
                 })
                 .collect();
 
-            failures.push(FailedTransaction {
+            failures.push(SplFailedTransaction {
                 transaction_accounts,
                 recipients,
                 error: r.error().unwrap(), // Errors exist on failures.
@@ -230,5 +240,18 @@ fn create_token_if_missing_instruction(
         data: TokenExtrasInstruction::CreateTokenIfMissing
             .try_to_vec()
             .unwrap(),
+    }
+}
+
+// Decimals is max 9, so this shouldn't lose precision.
+fn convert_to_base_units(amount: f64, decimals: u8) -> Option<u64> {
+    let multiplier = 10u64.pow(decimals as u32);
+    let base_units = (amount * multiplier as f64).round();
+
+    // Check for overflow and precision issues
+    if base_units > u64::MAX as f64 || base_units < 0.0 {
+        None // Indicates an overflow or invalid input
+    } else {
+        Some(base_units as u64)
     }
 }

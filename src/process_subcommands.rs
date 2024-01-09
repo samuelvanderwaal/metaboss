@@ -187,6 +187,8 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
             recipient_list,
             network,
             cache_file,
+            boost,
+            rate_limit,
         } => {
             airdrop_sol(AirdropSolArgs {
                 client,
@@ -194,6 +196,8 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
                 network: Network::from_str(&network).unwrap(),
                 recipient_list,
                 cache_file,
+                boost,
+                rate_limit,
             })
             .await
         }
@@ -205,6 +209,7 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
             mint,
             mint_tokens,
             boost,
+            rate_limit,
         } => {
             airdrop_spl(AirdropSplArgs {
                 client,
@@ -215,6 +220,7 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
                 mint,
                 mint_tokens,
                 boost,
+                rate_limit,
             })
             .await
         }
