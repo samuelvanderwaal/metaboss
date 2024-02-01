@@ -163,7 +163,7 @@ pub enum Command {
 
 #[derive(Debug, StructOpt)]
 pub enum AirdropSubcommands {
-    /// Airdrop SOL
+    /// Airdrop SOL (experimental)
     #[structopt(name = "sol")]
     Sol {
         /// Path to the owner keypair file
@@ -190,7 +190,7 @@ pub enum AirdropSubcommands {
         #[structopt(long)]
         boost: bool,
     },
-    /// Airdrop SPL tokens
+    /// Airdrop SPL tokens (experimental)
     #[structopt(name = "spl")]
     Spl {
         /// Path to the owner keypair file
