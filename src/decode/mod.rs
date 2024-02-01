@@ -1,5 +1,4 @@
 use anyhow::{anyhow, Result as AnyResult};
-use borsh::BorshDeserialize;
 use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
 use metaboss_lib::data::NftData;
@@ -283,7 +282,7 @@ pub fn decode(client: &RpcClient, mint_account: &str) -> Result<Metadata, Decode
         }
     };
 
-    Metadata::deserialize(&mut account_data.as_slice())
+    Metadata::safe_deserialize(account_data.as_slice())
         .map_err(|e| DecodeError::DecodeMetadataFailed(e.to_string()))
 }
 
