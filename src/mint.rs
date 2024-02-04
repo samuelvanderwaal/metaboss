@@ -292,8 +292,7 @@ pub fn mint_fungible(
     }
 
     let destination_pubkey = if let Some(receiver_str) = receiver {
-        let receiver_pubkey = Pubkey::from_str(&receiver_str)?;
-        receiver_pubkey
+        Pubkey::from_str(receiver_str)?
     } else {
         mint_authority_pubkey
     };
