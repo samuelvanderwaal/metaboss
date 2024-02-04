@@ -377,7 +377,7 @@ pub enum CreateSubcommands {
         immutable: bool,
     },
 
-    /// Create a new SPL Token mint and metadata account.
+    /// Mint SPL tokens from an existing mint account using the Token Program.
     Fungible {
         /// Path to the update authority keypair file
         #[structopt(short, long)]

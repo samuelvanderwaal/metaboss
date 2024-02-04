@@ -269,7 +269,6 @@ pub fn mint_from_uris(
     Ok(())
 }
 
-#[allow(clippy::too_many_arguments)]
 pub fn mint_fungible(
     client: &RpcClient,
     keypair_path: Option<String>,
