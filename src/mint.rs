@@ -23,6 +23,7 @@ use retry::{delay::Exponential, retry};
 use serde::Serialize;
 use serde_json::Value;
 use solana_client::rpc_client::RpcClient;
+use solana_program::program_pack::Pack;
 use solana_sdk::{
     commitment_config::CommitmentConfig,
     pubkey::Pubkey,
@@ -36,6 +37,7 @@ use spl_associated_token_account::{
 };
 use spl_token::{
     instruction::{initialize_mint, mint_to},
+    state::Mint,
     ID as TOKEN_PROGRAM_ID,
 };
 use std::{
@@ -263,6 +265,92 @@ pub fn mint_from_uris(
             fs::write(minted_path, serde_json::to_string_pretty(&minted)?)?;
         }
     }
+
+    Ok(())
+}
+
+pub fn mint_fungible(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    mint_address: &str,
+    amount: u64,
+    receiver: &Option<String>,
+) -> Result<()> {
+    let solana_opts = parse_solana_config();
+    let mint_authority_keypair = parse_keypair(keypair_path, solana_opts);
+
+    let mint_authority_pubkey = mint_authority_keypair.pubkey();
+    let mint_pubkey = Pubkey::from_str(mint_address)?;
+
+    let mint_account_info = client
+        .get_account_with_commitment(&mint_pubkey, CommitmentConfig::confirmed())?
+        .value;
+
+    if mint_account_info.is_none() {
+        return Err(anyhow!("Invalid Mint Address"));
+    }
+
+    let destination_pubkey = if let Some(receiver_str) = receiver {
+        Pubkey::from_str(receiver_str)?
+    } else {
+        mint_authority_pubkey
+    };
+
+    let destination_ata_pubkey = get_associated_token_address(&destination_pubkey, &mint_pubkey);
+
+    let destination_ata_pubkey_info = client
+        .get_account_with_commitment(&destination_ata_pubkey, CommitmentConfig::confirmed())?
+        .value;
+
+    let mut instructions = vec![];
+
+    if destination_ata_pubkey_info.is_none() {
+        instructions.push(create_associated_token_account(
+            &mint_authority_pubkey,
+            &destination_pubkey,
+            &mint_pubkey,
+            &TOKEN_PROGRAM_ID,
+        ))
+    }
+
+    let mint_data = Mint::unpack(&mint_account_info.unwrap().data)?;
+
+    let mint_amount = amount
+        .checked_mul(10_u64.pow(mint_data.decimals.into()))
+        .ok_or(anyhow!("Invalid Mint Amount"))?;
+
+    let mint_ix = mint_to(
+        &TOKEN_PROGRAM_ID,
+        &mint_pubkey,
+        &destination_ata_pubkey,
+        &mint_authority_pubkey,
+        &[&mint_authority_pubkey],
+        mint_amount,
+    )?;
+
+    instructions.push(mint_ix);
+
+    let recent_blockhash = client.get_latest_blockhash()?;
+    let tx = Transaction::new_signed_with_payer(
+        &instructions,
+        Some(&mint_authority_pubkey),
+        &[&mint_authority_keypair],
+        recent_blockhash,
+    );
+
+    // Send tx with retries.
+    let res = retry(
+        Exponential::from_millis_with_factor(250, 2.0).take(3),
+        || client.send_and_confirm_transaction(&tx),
+    );
+    let sig = res?;
+
+    println!(
+        "Mint: {:?} minted {:?} tokens successfully!",
+        mint_address, amount
+    );
+
+    println!("Created in tx: {:?}", &sig);
 
     Ok(())
 }

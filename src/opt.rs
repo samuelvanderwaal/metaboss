@@ -377,7 +377,7 @@ pub enum CreateSubcommands {
         immutable: bool,
     },
 
-    /// Create a new SPL Token mint and metadata account.
+    /// Mint SPL tokens from an existing mint account using the Token Program.
     Fungible {
         /// Path to the update authority keypair file
         #[structopt(short, long)]
@@ -852,6 +852,24 @@ pub enum FindSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum MintSubcommands {
+    /// Mint a normal SPL Token from the Token Program
+    Fungible {
+        /// Path to the mint_authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Token Mint address
+        #[structopt(short = "M", long)]
+        mint_address: String,
+
+        /// Receiving address, if different from mint authority.
+        #[structopt(short = "R", long)]
+        receiver: Option<String>,
+
+        /// Amount of tokens to mint
+        #[structopt(short, long)]
+        amount: u64,
+    },
     /// Mint an asset from the new Token Metadata Program unified handlers.
     Asset {
         /// Path to the update_authority keypair file

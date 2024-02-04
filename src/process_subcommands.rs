@@ -31,7 +31,8 @@ use crate::derive::{
 };
 use crate::find::find_missing_editions_process;
 use crate::mint::{
-    mint_editions, mint_list, mint_missing_editions, mint_one, process_mint_asset, MintAssetParams,
+    mint_editions, mint_fungible, mint_list, mint_missing_editions, mint_one, process_mint_asset,
+    MintAssetParams,
 };
 use crate::opt::*;
 use crate::parse::{is_only_one_option, parse_errors_code, parse_errors_file};
@@ -498,6 +499,12 @@ pub fn process_find(client: &RpcClient, commands: FindSubcommands) -> Result<()>
 
 pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> {
     match commands {
+        MintSubcommands::Fungible {
+            keypair,
+            receiver,
+            amount,
+            mint_address,
+        } => mint_fungible(&client, keypair, &mint_address, amount, &receiver),
         MintSubcommands::Asset {
             keypair,
             receiver,
