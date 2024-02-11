@@ -242,7 +242,7 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
                 pb.set_message("Writing cache file...");
                 pb.enable_steady_tick(100);
 
-                let cache_file = std::fs::File::create(&json_filename)?;
+                let cache_file = std::fs::File::create(json_filename)?;
                 serde_json::to_writer(cache_file, &cache)?;
                 pb.finish_and_clear();
             }
