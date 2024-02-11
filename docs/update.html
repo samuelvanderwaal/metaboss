@@ -186,25 +186,25 @@
 <p>Note: The on-chain <code>Data</code> struct is <em>different</em> than the external metadata stored at the link in the <code>uri</code> field so make you understand the difference before running this command.</p>
 <p><strong>Make sure you understand how the Metaplex Metadata <code>Data</code> struct works and how this command will affect your NFT. Always test on <code>devnet</code> before running on mainnet.</strong></p>
 <pre><code class="language-json">{
-    &quot;name&quot;: &quot;FerrisCrab #4&quot;,
-    &quot;symbol&quot;: &quot;FERRIS&quot;,
-    &quot;uri&quot;: &quot;https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls&quot;,
-    &quot;seller_fee_basis_points&quot;: 100,
-    &quot;creators&quot;: [
+    "name": "FerrisCrab #4",
+    "symbol": "FERRIS",
+    "uri": "https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls",
+    "seller_fee_basis_points": 100,
+    "creators": [
         {
-            &quot;address&quot;: &quot;&lt;YOUR_CANDY_MACHINE_ID&gt;&quot;,
-            &quot;verified&quot;: true,
-            &quot;share&quot;: 0
+            "address": "&lt;YOUR_CANDY_MACHINE_ID&gt;",
+            "verified": true,
+            "share": 0
         },
         {
-            &quot;address&quot;: &quot;&lt;KEYPAIR_CREATOR&gt;&quot;,
-            &quot;verified&quot;: true,
-            &quot;share&quot;: 50
+            "address": "&lt;KEYPAIR_CREATOR&gt;",
+            "verified": true,
+            "share": 50
         },
         {
-            &quot;address&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
-            &quot;verified&quot;: false,
-            &quot;share&quot;: 50
+            "address": "42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB",
+            "verified": false,
+            "share": 50
         }
     ]
 }
@@ -219,26 +219,26 @@
 <p>Note: The on-chain <code>Data</code> struct is <em>different</em> than the external metadata stored at the link in the <code>uri</code> field so make you understand the difference before running this command.</p>
 <p><strong>Make sure you understand how the Metaplex Metadata <code>Data</code> struct works and how this command will affect your NFT. Always test on <code>devnet</code> before running on mainnet.</strong></p>
 <pre><code class="language-json">{
-    &quot;mint&quot;: &quot;CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp&quot;,
-    &quot;name&quot;: &quot;FerrisCrab #4&quot;,
-    &quot;symbol&quot;: &quot;FERRIS&quot;,
-    &quot;uri&quot;: &quot;https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls&quot;,
-    &quot;seller_fee_basis_points&quot;: 100,
-    &quot;creators&quot;: [
+    "mint": "CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp",
+    "name": "FerrisCrab #4",
+    "symbol": "FERRIS",
+    "uri": "https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls",
+    "seller_fee_basis_points": 100,
+    "creators": [
         {
-            &quot;address&quot;: &quot;&lt;YOUR_CANDY_MACHINE_ID&gt;&quot;,
-            &quot;verified&quot;: true,
-            &quot;share&quot;: 0
+            "address": "&lt;YOUR_CANDY_MACHINE_ID&gt;",
+            "verified": true,
+            "share": 0
         },
         {
-            &quot;address&quot;: &quot;&lt;KEYPAIR_CREATOR&gt;&quot;,
-            &quot;verified&quot;: true,
-            &quot;share&quot;: 50
+            "address": "&lt;KEYPAIR_CREATOR&gt;",
+            "verified": true,
+            "share": 50
         },
         {
-            &quot;address&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
-            &quot;verified&quot;: false,
-            &quot;share&quot;: 50
+            "address": "42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB",
+            "verified": false,
+            "share": 50
         }
     ]}
 </code></pre>
@@ -266,7 +266,7 @@ The extra fields will be ignored.</p>
 <h4 id="usage-5"><a class="header" href="#usage-5">Usage</a></h4>
 <pre><code class="language-bash">metaboss update creators -k &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -n &lt;CREATOR1:SHARE:VERIFIED,CREATOR2:SHARE:VERIFIED&gt;
 </code></pre>
-<p>Creators should be a comma-delimited list of creator:share:verified. E.g. </p>
+<p>Creators should be a comma-delimited list of creator:share:verified. E.g.</p>
 <p>Example:</p>
 <pre><code class="language-bash">metaboss update creators -k ~/.config/solana/devnet.json -a 4rxTT8pKeYFrFgNBgTspBWVEnMnsAZGwChkjRUtP4Xpi -n 42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB:70:false,AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ:30:false
 </code></pre>
@@ -287,12 +287,12 @@ The extra fields will be ignored.</p>
 </code></pre>
 <pre><code class="language-json">[
     {
-        &quot;mint_account&quot;: &quot;xZ43...&quot;,
-        &quot;new_uri&quot;: &quot;https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls&quot;
+        "mint_account": "xZ43...",
+        "new_uri": "https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls"
     },
         {
-        &quot;mint_account&quot;: &quot;71bk...&quot;,
-        &quot;new_uri&quot;: &quot;https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw&quot;
+        "mint_account": "71bk...",
+        "new_uri": "https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw"
     }
 ]
 </code></pre>

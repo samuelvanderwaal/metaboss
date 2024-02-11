@@ -186,10 +186,10 @@
 </ol>
 <p>Example contents of the mint list file:</p>
 <pre><code class="language-json">[
-    &quot;D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28&quot;,
-    &quot;4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW&quot;,
-    &quot;J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz&quot;,
-    &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
+    "D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28",
+    "4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW",
+    "J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz",
+    "4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh"
 ]
 </code></pre>
 <p>Your Collection Parent NFT must have the <em>same update authority</em> as the items you will put in the collection. If you don't want to connect your update authority keypair to a website, you can mint with a different keypair and then change the update authority with Metaboss, or mint with Metaboss's <code>mint one</code> command.</p>
@@ -199,7 +199,7 @@
 <pre><code class="language-bash">metaboss collections migrate -k my_keypair.json -c 8yuhovH7fb63ed7Q3rcxL3kYZDhps4qspjaxx1N8WSni --mint-address 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq
 </code></pre>
 <h4 id="using-a-mint-list-file"><a class="header" href="#using-a-mint-list-file">Using a Mint List File</a></h4>
-<p>Assume the same scenario above but with a mint list file named &quot;my_mint_list.json&quot; in the same directory you are running the command. Your Metaboss command would be:</p>
+<p>Assume the same scenario above but with a mint list file named "my_mint_list.json" in the same directory you are running the command. Your Metaboss command would be:</p>
 <pre><code class="language-bash">metaboss collections migrate -k my_keypair.json -L my_mint_list.json --mint-address 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq
 </code></pre>
 <p>This assumes you have your RPC set in your <a href="https://docs.solana.com/cli/choose-a-cluster">Solana config</a>, otherwise it can be passed in with the <code>-r</code> option. As with all Metaboss commands, if you've set your keypair in your Solana config, you can omit the <code>-k</code> option. I recommend setting both in the Solana config to simplify commands:</p>
@@ -216,11 +216,11 @@
 <p>When retrying, if you consistently end up with the same number being retried each time it probably indicates those items cannot be migrated for some reason. Check the errors on the items that failed to migrate.</p>
 <p>Example cache file:</p>
 <pre><code class="language-json">{
-    &quot;FqKGC9CCVThn857VAyZtZQq5L31njnbeUTe1JoCsCX8J&quot;: {
-        &quot;error&quot;: &quot;Migration failed with error: RPC response error -32002: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x39 [5 log messages]&quot;
+    "FqKGC9CCVThn857VAyZtZQq5L31njnbeUTe1JoCsCX8J": {
+        "error": "Migration failed with error: RPC response error -32002: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x39 [5 log messages]"
     },
-    &quot;H7xrCZwA7oqsFeRcPsP6EEYHCxqq7atUBuuQAursXvWF&quot;: {
-        &quot;error&quot;: &quot;Migration failed with error: RPC response error -32002: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x39 [5 log messages]&quot;
+    "H7xrCZwA7oqsFeRcPsP6EEYHCxqq7atUBuuQAursXvWF": {
+        "error": "Migration failed with error: RPC response error -32002: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x39 [5 log messages]"
     }
 }
 </code></pre>

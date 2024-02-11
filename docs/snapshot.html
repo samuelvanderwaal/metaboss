@@ -189,7 +189,7 @@
 <pre><code class="language-bash">metaboss snapshot holders --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with candy machine id.</strong>
-Candy machine v2 has a separate creator id from the candy machine account id. </p>
+Candy machine v2 has a separate creator id from the candy machine account id.</p>
 <pre><code class="language-bash">metaboss snapshot holders --creator &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
@@ -203,10 +203,10 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <p>Example file:</p>
 <pre><code class="language-json">[
     {
-        &quot;owner&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
-        &quot;ata&quot;: &quot;7yGA66LYDU7uoPW2x9jrUKaDWTs9jqZ5cSNKR1VaLQdw&quot;,
-        &quot;mint&quot;: &quot;C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG&quot;,
-        &quot;metadata&quot;: &quot;8WTA3sLxwRNDKHxZFbn2CFo3FX1ZP59EqrvuDPLbmmWV&quot;
+        "owner": "42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB",
+        "ata": "7yGA66LYDU7uoPW2x9jrUKaDWTs9jqZ5cSNKR1VaLQdw",
+        "mint": "C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG",
+        "metadata": "8WTA3sLxwRNDKHxZFbn2CFo3FX1ZP59EqrvuDPLbmmWV"
     }
 ]
 </code></pre>
@@ -227,9 +227,9 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
 <p>Creates a JSON file in the output directory with the name format of <code>&lt;CANDY_MACHINE_ID/UPDATE_AUTHORITY&gt;_mint_accounts.json</code> consisting of an array of mint accounts.</p>
 <pre><code class="language-json">[
-    &quot;CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp&quot;,
-    &quot;5pgGJ5npeMxBzTiQctDgoofEVGSwZMYm3QMz4F4NDShz&quot;,
-    &quot;8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o&quot;
+    "CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp",
+    "5pgGJ5npeMxBzTiQctDgoofEVGSwZMYm3QMz4F4NDShz",
+    "8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o"
 ]
 </code></pre>
 <h3 id="snapshot-holders----das-api"><a class="header" href="#snapshot-holders----das-api">Snapshot Holders -- DAS API</a></h3>
@@ -260,10 +260,10 @@ Gets all holders of NFTs with a specific verified MCC ID.</p>
 </ul>
 <p>E.g.:</p>
 <pre><code class="language-json">  {
-    &quot;owner&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
-    &quot;mint&quot;: &quot;2pwsTyuM4Cb2zmN3xydti2ysPYdmu242w1J7TmQya3At&quot;,
-    &quot;metadata&quot;: &quot;Art3NUzP2DxqfzwwMgjLdu8KY9NQLBp2zuEZ63dx9iU2&quot;,
-    &quot;ata&quot;: &quot;FfwoNCYYC5wUkTYTmtYmBSgk9YRWpTTWZCpJB6MjwvSk&quot;
+    "owner": "42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB",
+    "mint": "2pwsTyuM4Cb2zmN3xydti2ysPYdmu242w1J7TmQya3At",
+    "metadata": "Art3NUzP2DxqfzwwMgjLdu8KY9NQLBp2zuEZ63dx9iU2",
+    "ata": "FfwoNCYYC5wUkTYTmtYmBSgk9YRWpTTWZCpJB6MjwvSk"
   },
 </code></pre>
 <p>Example command:</p>
@@ -274,7 +274,7 @@ Gets all holders of NFTs with a specific verified MCC ID.</p>
 <ul>
 <li>
 <p>Authority
-Gets all NFT mint addresses for a given update authority. 
+Gets all NFT mint addresses for a given update authority.
 <strong>Warning:</strong> update authority can be set to any address so use this option with caution.</p>
 </li>
 <li>
@@ -316,21 +316,21 @@ Gets all NFT mint addresses with a specific verified MCC ID.</p>
 <p>Snapshot the print editions of a given master edition. This returns a JSON object of edition mints where the key is the edition number and the value is the mint address.</p>
 <p>E.g.:</p>
 <pre><code class="language-json">{
-  &quot;1&quot;: &quot;CgCmZJCBeJs9m596NzqxLg3HB8eerHHWXQPiiigB3fpt&quot;,
-  &quot;2&quot;: &quot;C7kfCVwadqrQwjCBewE147r3xg8ZgYgqeUJk2tMsZ5zi&quot;,
-  &quot;3&quot;: &quot;6HQBWdC9BpY6Ky3YvmxoEJGce8PgQ6NqfkLgP3dJRDpb&quot;,
-  &quot;4&quot;: &quot;FiDSNjCM5sLPmMvHvCWtnqEp9yt4NvZ2ThXJ9kpvBT73&quot;,
-  &quot;5&quot;: &quot;4DwpsvxzemsHxDjz8qrVkQFP7nK5QwT6irL1KQkt5NJy&quot;,
-  &quot;6&quot;: &quot;DBLeCRfF8t7q2oe5DYip8J9m4eRTc46EKMazqitth5eL&quot;,
-  &quot;7&quot;: &quot;AUYNrra3XmPg4FBZ5t3w1m9Nou1AQqGEs5RUPqMu9Bz1&quot;,
-  &quot;8&quot;: &quot;Ewj5hZ7Z2HLojk3Du7RXcHnNtqBv8UrMCNxuukHA436J&quot;,
-  &quot;9&quot;: &quot;CJgszcJTg5MKFrRa9pcty42ybaaoq13thh3a71Ep2G8t&quot;,
-  &quot;10&quot;: &quot;7zZKJ9g5Bz4UZnAjY9DoiGzsV56JSTbx3ejgrzuupKQ2&quot;,
-  &quot;11&quot;: &quot;Fq1rT9krzj6zMUJbDUraMEekHKcTdwyfYeYdbcAgN5qE&quot;,
-  &quot;12&quot;: &quot;EqnXBCwU2eTCVTE6G82PnZ5ujKpxeCnGrGvaURYMyjvr&quot;,
-  &quot;13&quot;: &quot;4oWVGXtCMA7QQi8KJaWD2sc89kapQ9yYybTwqD99LVhi&quot;,
-  &quot;14&quot;: &quot;3P7aumi3e4ZALiMY6g9Ec7H6zpN4jfyRC5Hs1G5n4Nt4&quot;,
-  &quot;15&quot;: &quot;5pwz2Fn3YGFFLzNVFAZZESfpjjjnA2k71Hd2mHPCX1ro&quot;
+  "1": "CgCmZJCBeJs9m596NzqxLg3HB8eerHHWXQPiiigB3fpt",
+  "2": "C7kfCVwadqrQwjCBewE147r3xg8ZgYgqeUJk2tMsZ5zi",
+  "3": "6HQBWdC9BpY6Ky3YvmxoEJGce8PgQ6NqfkLgP3dJRDpb",
+  "4": "FiDSNjCM5sLPmMvHvCWtnqEp9yt4NvZ2ThXJ9kpvBT73",
+  "5": "4DwpsvxzemsHxDjz8qrVkQFP7nK5QwT6irL1KQkt5NJy",
+  "6": "DBLeCRfF8t7q2oe5DYip8J9m4eRTc46EKMazqitth5eL",
+  "7": "AUYNrra3XmPg4FBZ5t3w1m9Nou1AQqGEs5RUPqMu9Bz1",
+  "8": "Ewj5hZ7Z2HLojk3Du7RXcHnNtqBv8UrMCNxuukHA436J",
+  "9": "CJgszcJTg5MKFrRa9pcty42ybaaoq13thh3a71Ep2G8t",
+  "10": "7zZKJ9g5Bz4UZnAjY9DoiGzsV56JSTbx3ejgrzuupKQ2",
+  "11": "Fq1rT9krzj6zMUJbDUraMEekHKcTdwyfYeYdbcAgN5qE",
+  "12": "EqnXBCwU2eTCVTE6G82PnZ5ujKpxeCnGrGvaURYMyjvr",
+  "13": "4oWVGXtCMA7QQi8KJaWD2sc89kapQ9yYybTwqD99LVhi",
+  "14": "3P7aumi3e4ZALiMY6g9Ec7H6zpN4jfyRC5Hs1G5n4Nt4",
+  "15": "5pwz2Fn3YGFFLzNVFAZZESfpjjjnA2k71Hd2mHPCX1ro"
 }
 </code></pre>
 <p>There is no direct way to find all print editions of a given master edition, so this command uses the following heuristic:</p>

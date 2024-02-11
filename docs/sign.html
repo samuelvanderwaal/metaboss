@@ -188,7 +188,7 @@
 <pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --creator &lt;FIRST_CREATOR&gt;
 </code></pre>
 <p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with the candy machine id.</strong>
-Candy machine v2 has a separate creator id from the candy machine account id. </p>
+Candy machine v2 has a separate creator id from the candy machine account id.</p>
 <pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --creator &lt;CANDY_MACHINE_ID&gt; --v2
 </code></pre>
 <p>or you can use the candy machine creator id which will be the first creator in the creators array.</p>
@@ -199,9 +199,9 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 </code></pre>
 <p>For the latter usage, the mint accounts file should be a JSON file with a list of mint accounts to be signed:</p>
 <pre><code class="language-json">[
-    &quot;C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG&quot;,
-    &quot;8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o&quot;,
-    &quot;CK2npuck3WTRNFXSdZv8YjudJJEa69EVGd6GFfeSzfGP&quot;
+    "C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG",
+    "8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o",
+    "CK2npuck3WTRNFXSdZv8YjudJJEa69EVGd6GFfeSzfGP"
 ]
 </code></pre>
 <p>Outputs a TxId to the command line so you can check the result.</p>

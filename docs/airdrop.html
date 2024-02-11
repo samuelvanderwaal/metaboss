@@ -174,10 +174,9 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="airdrop"><a class="header" href="#airdrop">Airdrop</a></h2>
-<p>This is an experimental feature that uses the TPU client to rapidly and efficiently make transfers. It relies on the <a href="https://github.com/samuelvanderwaal/jib">Jib library</a> for transmitting instructions via TPU. <strong>You should carefully test it on devnet prior to running it on mainnet.</strong></p>
-<p>The benefit of using the TPU client is that is can rapidly transmit the transactions directly to the consensus leader and the command does not require a high-throughput private RPC node and can use the public ones by default, as the RPC node is only used for determining the current leader.</p>
+<p>This is an experimental feature that uses the <a href="https://github.com/samuelvanderwaal/jib">Jib library</a> for batching and transmitting instructions. <strong>You should carefully test it on devnet prior to running it on mainnet.</strong></p>
 <h3 id="airdrop-sol"><a class="header" href="#airdrop-sol">Airdrop SOL</a></h3>
-<p>Airdrop SOL to a list of accounts. </p>
+<p>Airdrop SOL to a list of accounts.</p>
 <pre><code>Airdrop SOL
 
 USAGE:
@@ -197,23 +196,24 @@ OPTIONS:
                                              default
     -T, --timeout &lt;timeout&gt;                  Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<p>This command requires a recipient list file that should be a hashmap/dictionary/object of addresses and the amount of lamports to send to them. (1 SOL = 1,000,000,000 lamports) E.g.:</p>
+<p>This command requires a recipient list file that should be a JSON file of addresses and the amount of lamports to send to them. (1 SOL = 1,000,000,000 lamports) E.g.:</p>
 <pre><code class="language-json">{
-  &quot;HVtodaLcq6zVvqp7h6JwLLrsAGxeJ9BatvgpUfp9b4oM&quot;: 1000,
-  &quot;5VXU4QbhUZbkBqKxT3Mv55krE4MomMgtV68whNRotjk5&quot;: 1000,
-  &quot;GSFKDFeCe93aUscmG84ugtXXNPMGoMcbZwRaamPLXS9o&quot;: 5000,
-  &quot;DCYHBcWGgdUUCBbj7rjbkBJWkuoHAH88BzMKfbbkFUNJ&quot;: 7000,
-  &quot;8MUCm4HxRXQUKMyanyNcvcG4qbAmw5s6y9exiszFZgg&quot;: 5000,
-  &quot;sknqbvGgVFpniWRK9kM1e77Fuq5oEhSZ5He4PtbTeZh&quot;: 3000  
+  "HVtodaLcq6zVvqp7h6JwLLrsAGxeJ9BatvgpUfp9b4oM": 1000,
+  "5VXU4QbhUZbkBqKxT3Mv55krE4MomMgtV68whNRotjk5": 1000,
+  "GSFKDFeCe93aUscmG84ugtXXNPMGoMcbZwRaamPLXS9o": 5000,
+  "DCYHBcWGgdUUCBbj7rjbkBJWkuoHAH88BzMKfbbkFUNJ": 7000,
+  "8MUCm4HxRXQUKMyanyNcvcG4qbAmw5s6y9exiszFZgg": 5000,
+  "sknqbvGgVFpniWRK9kM1e77Fuq5oEhSZ5He4PtbTeZh": 3000  
 }
 </code></pre>
 <h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
 <pre><code class="language-bash">metaboss airdrop sol  -L &lt;PATH_TO_RECIPIENTS_LIST_FILE&gt; -n devnet
 </code></pre>
-<p>This command creates two files: <code>mb-cache-airdrop-&lt;TIMESTAMP&gt;.json</code> and <code>mb-successful-airdrops-&lt;TIMESTAMP&gt;.json</code>. The cache file is used to track the airdrop progress by storing failed transactions and the successful airdrops file is used to track the successful airdrops by storing transaction signatures of the successful airdrops. </p>
+<p>This command creates two files: <code>mb-cache-airdrop-&lt;TIMESTAMP&gt;.json</code> and <code>mb-successful-airdrops-&lt;TIMESTAMP&gt;.json</code>. The cache file is used to track the airdrop progress by storing failed transactions and the successful airdrops file is used to track the successful airdrops by storing transaction signatures of the successful airdrops.</p>
 <p>To re-run failed transactions run the command with the cache file instead of the recipient list file:</p>
 <pre><code class="language-bash">metaboss airdrop sol  -c &lt;PATH_TO_CACHE_FILE&gt; -n devnet
 </code></pre>
+<p>The command will first check the status of all the failed transactions to ensure they were not already successful before re-running them which should prevent any double-sends.</p>
 <p>If transactions continuously fail you should look at the errors in the cache file and determine the cause.</p>
 <h3 id="airdrop-spl-tokens"><a class="header" href="#airdrop-spl-tokens">Airdrop SPL Tokens</a></h3>
 <p>Airdrop SPL tokens to a list of accounts.</p>
@@ -240,8 +240,12 @@ OPTIONS:
     -T, --timeout &lt;timeout&gt;                  Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
 <p>This command works similarly to the SOL airdrop command, but expects the amount to be in the display units of the SPL token. E.g. for a token with three decimal places the amount of 10 will be converted to 10,000 base units behind the scenes.</p>
-<p>Be aware that airdropping SPL tokens to wallets that do not already have a token account for that mint will cost 0.002 SOL per transaction. This is because the token account needs to be created first. This could end up being a significant cost if you are airdropping to a large number of wallets. </p>
+<p>Be aware that airdropping SPL tokens to wallets that do not already have a token account for that mint will cost 0.002 SOL per transaction. This is because the token account needs to be created first. This could end up being a significant cost if you are airdropping to a large number of wallets.</p>
 <p>For large SPL token airdrops you may want to consider setting up a claim site instead.</p>
+<h3 id="read-cache-file"><a class="header" href="#read-cache-file">Read Cache File</a></h3>
+<p>For storage and speed constraints, the cache file is not human-readable. To read the cache file you can use the <code>read-cache</code> command with either or both the <code>--json</code> and <code>--errors</code> flags which convert the cache file to a JSON file and print the errors respectively.</p>
+<pre><code class="language-bash">metaboss airdrop read-cache &lt;PATH_TO_CACHE_FILE&gt; --json
+</code></pre>
 
                     </main>
 
