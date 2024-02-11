@@ -234,7 +234,7 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
         } => {
             let path = std::path::Path::new(&cache_file);
             let file = File::open(path)?;
-            let cache: Vec<JibFailedTransaction> = serde_cbor::from_reader(file)?;
+            let cache: Vec<JibFailedTransaction> = bincode::deserialize_from(file)?;
 
             if json {
                 let json_filename = path.with_extension("json");

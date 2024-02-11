@@ -1,6 +1,6 @@
 /target
 *.json
-*.cbor
+*.bin
 /temp
 /binaries
 .test_files

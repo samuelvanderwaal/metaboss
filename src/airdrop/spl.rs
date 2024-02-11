@@ -59,7 +59,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     let now = chrono::Local::now();
     let timestamp = now.format("%Y-%m-%d-%H-%M-%S").to_string();
 
-    let mut cache_file_name = format!("mb-cache-airdrop-{timestamp}.cbor");
+    let mut cache_file_name = format!("mb-cache-airdrop-{timestamp}.bin");
     let successful_tx_file_name = format!("mb-successful-airdrops-{timestamp}.json");
 
     if args.boost {
@@ -138,7 +138,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
             .to_string();
 
         let failed_txes: Vec<JibFailedTransaction> =
-            serde_cbor::from_reader(File::open(cache_file)?)?;
+            bincode::deserialize_from(File::open(cache_file)?)?;
         jib.retry_failed(failed_txes).await?
     } else {
         eprintln!("No recipient list or cache file provided.");
@@ -171,7 +171,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     pb.enable_steady_tick(100);
 
     let cache_file = std::fs::File::create(cache_file_name)?;
-    serde_cbor::to_writer(cache_file, &failures)?;
+    bincode::serialize_into(cache_file, &failures)?;
     pb.finish_and_clear();
 
     Ok(())
