@@ -754,9 +754,9 @@ dependencies = [
 
 [[package]]
 name = "clocksource"
-version = "0.8.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f3ca503ea4a169812981018ee2810f4e4157b0c9006f5dc4a582df637b415c2e"
+checksum = "129026dd5a8a9592d96916258f3a5379589e513ea5e86aeb0bd2530286e44e9e"
 dependencies = [
  "libc",
  "time",
@@ -1501,6 +1501,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "half"
+version = "1.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eabb4a44450da02c90444cf74558da904edde8fb4e9035a9a6a4e15445af0bd7"
+
+[[package]]
 name = "hash32"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1832,13 +1838,13 @@ checksum = "b1a46d1a171d865aa5f83f92695765caa047a9b4cbae2cbf37dbd613a793fd4c"
 [[package]]
 name = "jib"
 version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4dd0940d451142a65b3afb28f0ca6783e4e7348dd3cd3b7ee3412863b22105e"
+source = "git+https://github.com/samuelvanderwaal/jib.git?branch=main#3e98d311faf86be8060d2a881cf7171d9b5c619b"
 dependencies = [
  "bincode",
  "futures-util",
  "indicatif 0.17.7",
  "ratelimit 0.9.0",
+ "rayon",
  "serde",
  "solana-client",
  "solana-sdk",
@@ -2053,6 +2059,7 @@ dependencies = [
  "reqwest",
  "retry",
  "serde",
+ "serde_cbor",
  "serde_json",
  "serde_yaml",
  "shellexpand",
@@ -3329,6 +3336,16 @@ version = "0.11.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab33ec92f677585af6d88c65593ae2375adde54efdbf16d597f2cbc7a6d368ff"
 dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "serde_cbor"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2bef2ebfde456fb76bbcf9f59315333decc4fda0b2b44b420243c11e0f5ec1f5"
+dependencies = [
+ "half",
  "serde",
 ]
 

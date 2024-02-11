@@ -20,7 +20,8 @@ futures = "0.3.29"
 glob = "0.3.1"
 indexmap = { version = "1.9.3", features = ["serde"] }
 indicatif = { version = "0.16.2", features = ["rayon"] }
-jib = "0.7.0"
+# jib = "0.7.0"
+jib = { git = "https://github.com/samuelvanderwaal/jib.git", branch = "main" }
 lazy_static = "1.4.0"
 log = "0.4.20"
 metaboss_lib = "0.17.1"
@@ -47,3 +48,4 @@ spl-token = "3.5.0"
 structopt = "0.3.26"
 thiserror = "1.0.51"
 tokio = "1.35.1"
+serde_cbor = "0.11.2"
