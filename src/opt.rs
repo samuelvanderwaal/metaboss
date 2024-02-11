@@ -224,6 +224,18 @@ pub enum AirdropSubcommands {
         #[structopt(long)]
         boost: bool,
     },
+    ReadCache {
+        /// Path to the cache file
+        cache_file: String,
+
+        /// Convert to JSON file--this may take a while and create a large file.
+        #[structopt(long)]
+        json: bool,
+
+        /// Print errors
+        #[structopt(long)]
+        errors: bool,
+    },
 }
 
 #[derive(Debug, StructOpt)]

@@ -1,6 +1,8 @@
 use std::fs::File;
 
 use anyhow::{bail, Result};
+use indicatif::ProgressBar;
+use jib::JibFailedTransaction;
 use jib::Network;
 use metaboss_lib::decode::{
     decode_collection_authority_record, decode_metadata_delegate, decode_token_record,
@@ -224,6 +226,33 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
                 rate_limit,
             })
             .await
+        }
+        AirdropSubcommands::ReadCache {
+            cache_file,
+            json,
+            errors,
+        } => {
+            let path = std::path::Path::new(&cache_file);
+            let file = File::open(path)?;
+            let cache: Vec<JibFailedTransaction> = serde_cbor::from_reader(file)?;
+
+            if json {
+                let json_filename = path.with_extension("json");
+                let pb = ProgressBar::new_spinner();
+                pb.set_message("Writing cache file...");
+                pb.enable_steady_tick(100);
+
+                let cache_file = std::fs::File::create(&json_filename)?;
+                serde_json::to_writer(cache_file, &cache)?;
+                pb.finish_and_clear();
+            }
+
+            if errors {
+                for tx in cache {
+                    println!("{:?}", tx.error);
+                }
+            }
+            Ok(())
         }
     }
 }

@@ -59,7 +59,7 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     let now = chrono::Local::now();
     let timestamp = now.format("%Y-%m-%d-%H-%M-%S").to_string();
 
-    let mut cache_file_name = format!("mb-cache-airdrop-{timestamp}.json");
+    let mut cache_file_name = format!("mb-cache-airdrop-{timestamp}.cbor");
     let successful_tx_file_name = format!("mb-successful-airdrops-{timestamp}.json");
 
     if args.boost {
