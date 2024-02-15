@@ -170,10 +170,6 @@ pub enum AirdropSubcommands {
         #[structopt(short, long)]
         keypair: Option<String>,
 
-        /// Network cluster to use, defaults to devnet
-        #[structopt(short, long, default_value = "devnet")]
-        network: String,
-
         /// Path to the mint list file
         #[structopt(short = "L", long)]
         recipient_list: Option<String>,
@@ -196,10 +192,6 @@ pub enum AirdropSubcommands {
         /// Path to the owner keypair file
         #[structopt(short, long)]
         keypair: Option<String>,
-
-        /// Network cluster to use, defaults to devnet
-        #[structopt(short, long, default_value = "devnet")]
-        network: String,
 
         /// Path to the mint list file
         #[structopt(short = "L", long)]
@@ -224,15 +216,12 @@ pub enum AirdropSubcommands {
         #[structopt(long)]
         boost: bool,
     },
+    /// Convert the bin cache file to json for readability
     ReadCache {
         /// Path to the cache file
         cache_file: String,
 
-        /// Convert to JSON file--this may take a while and create a large file.
-        #[structopt(long)]
-        json: bool,
-
-        /// Print errors
+        /// Print errors to std out in addition to converting the cache file to json
         #[structopt(long)]
         errors: bool,
     },

@@ -6,7 +6,6 @@ use super::*;
 pub struct AirdropSolArgs {
     pub client: RpcClient,
     pub keypair: Option<String>,
-    pub network: Network,
     pub recipient_list: Option<String>,
     pub cache_file: Option<String>,
     pub boost: bool,
@@ -82,7 +81,8 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
     };
 
     if results.iter().any(|r| r.is_failure()) {
-        println!("Some transactions failed. Check the {cache_file_name} cache file for details.");
+        println!(
+            "Some transactions failed. Check the cache file for details by running `metaboss airdrop read-cache {cache_file_name}` to convert it to a JSON file.");
     }
 
     let mut successes = vec![];
@@ -99,8 +99,10 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
     });
 
     // Write cache file and successful transactions.
-    let successful_tx_file = std::fs::File::create(successful_tx_file_name)?;
-    serde_json::to_writer_pretty(successful_tx_file, &successes)?;
+    if !successes.is_empty() {
+        let successful_tx_file = std::fs::File::create(successful_tx_file_name)?;
+        serde_json::to_writer_pretty(successful_tx_file, &successes)?;
+    }
 
     let pb = ProgressBar::new_spinner();
     pb.set_message("Writing cache file...");
