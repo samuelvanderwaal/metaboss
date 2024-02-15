@@ -1,5 +1,6 @@
 /target
 *.json
+*.bin
 /temp
 /binaries
 .test_files

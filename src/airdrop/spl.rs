@@ -1,5 +1,7 @@
 use anyhow::anyhow;
 use borsh::{BorshDeserialize, BorshSerialize};
+use indicatif::ProgressBar;
+use jib::JibFailedTransaction;
 use metaboss_lib::transaction::send_and_confirm_tx;
 use solana_program::{
     instruction::{AccountMeta, Instruction},
@@ -14,7 +16,6 @@ use super::*;
 pub struct AirdropSplArgs {
     pub client: RpcClient,
     pub keypair: Option<String>,
-    pub network: Network,
     pub recipient_list: Option<String>,
     pub cache_file: Option<String>,
     pub mint: Pubkey,
@@ -57,83 +58,8 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     let now = chrono::Local::now();
     let timestamp = now.format("%Y-%m-%d-%H-%M-%S").to_string();
 
-    let mut cache_file_name = format!("mb-cache-airdrop-{timestamp}.json");
+    let mut cache_file_name = format!("mb-cache-airdrop-{timestamp}.bin");
     let successful_tx_file_name = format!("mb-successful-airdrops-{timestamp}.json");
-
-    let airdrop_list: HashMap<String, f64> = if let Some(list_file) = args.recipient_list {
-        serde_json::from_reader(File::open(list_file)?)?
-    } else if let Some(cache_file) = args.cache_file {
-        cache_file_name = PathBuf::from(cache_file.clone())
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .to_string();
-
-        let failed_txes: Vec<SplFailedTransaction> =
-            serde_json::from_reader(File::open(cache_file)?)?;
-        failed_txes
-            .iter()
-            .flat_map(|f| f.recipients.clone())
-            .collect()
-    } else {
-        eprintln!("No recipient list or cache file provided.");
-        std::process::exit(1);
-    };
-
-    if args.mint_tokens {
-        let total_tokens = airdrop_list.values().sum::<f64>();
-
-        let total_tokens_native_units = convert_to_base_units(total_tokens, decimals)
-            .ok_or(anyhow!("Invalid total amount of SPL tokens to mint"))?;
-
-        let mint_tokens_ix = spl_token::instruction::mint_to(
-            &spl_token::ID,
-            &args.mint,
-            &source_ata,
-            &jib.payer().pubkey(),
-            &[],
-            total_tokens_native_units,
-        )?;
-        send_and_confirm_tx(&args.client, &[jib.payer()], &[mint_tokens_ix])?;
-    }
-
-    for (address, amount) in &airdrop_list {
-        let amount_native_units = convert_to_base_units(*amount, decimals).ok_or(anyhow!(
-            format!("Invalid token amount for address {address}")
-        ))?;
-
-        let pubkey = match Pubkey::from_str(address) {
-            Ok(pubkey) => pubkey,
-            Err(_) => {
-                eprintln!("Invalid address: {}, skipping...", address);
-                continue;
-            }
-        };
-
-        let destination_ata = get_associated_token_address(&pubkey, &args.mint);
-
-        recipients_lookup.insert(destination_ata.to_string(), pubkey.to_string());
-
-        instructions.push(create_token_if_missing_instruction(
-            &jib.payer().pubkey(),
-            &destination_ata,
-            &args.mint,
-            &pubkey,
-            &destination_ata,
-        ));
-
-        instructions.push(transfer_checked(
-            &spl_token::ID,
-            &source_ata,
-            &args.mint,
-            &destination_ata,
-            &jib.payer().pubkey(),
-            &[],
-            amount_native_units,
-            decimals,
-        )?);
-    }
 
     if args.boost {
         jib.set_priority_fee(PRIORITY_FEE);
@@ -143,41 +69,94 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
         jib.set_rate_limit(rate);
     }
 
-    jib.set_instructions(instructions);
-    let results = jib.hoist().await?;
+    let results = if let Some(list_file) = args.recipient_list {
+        let airdrop_list: HashMap<String, f64> = serde_json::from_reader(File::open(list_file)?)?;
+
+        if args.mint_tokens {
+            let total_tokens = airdrop_list.values().sum::<f64>();
+
+            let total_tokens_native_units = convert_to_base_units(total_tokens, decimals)
+                .ok_or(anyhow!("Invalid total amount of SPL tokens to mint"))?;
+
+            let mint_tokens_ix = spl_token::instruction::mint_to(
+                &spl_token::ID,
+                &args.mint,
+                &source_ata,
+                &jib.payer().pubkey(),
+                &[],
+                total_tokens_native_units,
+            )?;
+            send_and_confirm_tx(&args.client, &[jib.payer()], &[mint_tokens_ix])?;
+        }
+
+        for (address, amount) in &airdrop_list {
+            let amount_native_units = convert_to_base_units(*amount, decimals).ok_or(anyhow!(
+                format!("Invalid token amount for address {address}")
+            ))?;
+
+            let pubkey = match Pubkey::from_str(address) {
+                Ok(pubkey) => pubkey,
+                Err(_) => {
+                    eprintln!("Invalid address: {}, skipping...", address);
+                    continue;
+                }
+            };
+
+            let destination_ata = get_associated_token_address(&pubkey, &args.mint);
+
+            recipients_lookup.insert(destination_ata.to_string(), pubkey.to_string());
+
+            instructions.push(create_token_if_missing_instruction(
+                &jib.payer().pubkey(),
+                &destination_ata,
+                &args.mint,
+                &pubkey,
+                &destination_ata,
+            ));
+
+            instructions.push(transfer_checked(
+                &spl_token::ID,
+                &source_ata,
+                &args.mint,
+                &destination_ata,
+                &jib.payer().pubkey(),
+                &[],
+                amount_native_units,
+                decimals,
+            )?);
+        }
+
+        jib.set_instructions(instructions);
+        jib.hoist().await?
+    } else if let Some(cache_file) = args.cache_file {
+        cache_file_name = PathBuf::from(cache_file.clone())
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string();
+
+        let failed_txes: Vec<JibFailedTransaction> =
+            bincode::deserialize_from(File::open(cache_file)?)?;
+        jib.retry_failed(failed_txes).await?
+    } else {
+        eprintln!("No recipient list or cache file provided.");
+        std::process::exit(1);
+    };
 
     if results.iter().any(|r| r.is_failure()) {
-        println!("Some transactions failed. Check the {cache_file_name} cache file for details.");
+        println!(
+            "Some transactions failed. Check the cache file for details by running `metaboss airdrop read-cache {cache_file_name}` to convert it to a JSON file."
+        );
     }
 
     let mut successes = vec![];
     let mut failures = vec![];
 
-    results.iter().for_each(|r| {
+    results.into_iter().for_each(|r| {
         if r.is_failure() {
-            let account_keys = r.message().unwrap().account_keys; // Transactions exist on failures.
-            let transaction_accounts = account_keys.iter().map(|k| k.to_string()).collect();
-
-            // We iterate over all account keys and check if they are in the recipients lookup to find the
-            // pubkey associated with any ATAs. Then we use the pubkey to find the address and amount pair
-            // to build the airdrop list from the failures so they can be retried.
-            let recipients: HashMap<String, f64> = account_keys
-                .iter()
-                .map(|p| p.to_string())
-                .filter_map(|s| {
-                    recipients_lookup.get(&s).and_then(|a| {
-                        airdrop_list
-                            .get_key_value(a)
-                            .map(|(address, amount)| (address.clone(), *amount))
-                    })
-                })
-                .collect();
-
-            failures.push(SplFailedTransaction {
-                transaction_accounts,
-                recipients,
-                error: r.error().unwrap(), // Errors exist on failures.
-            })
+            let failure = r.get_failure().unwrap();
+            failures.push(failure);
         } else {
             debug!("Transaction successful: {}", r.signature().unwrap()); // Signatures exist on successes.
             successes.push(r.signature().unwrap()); // Signatures exist on successes.
@@ -185,11 +164,18 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     });
 
     // Write cache file and successful transactions.
-    let successful_tx_file = std::fs::File::create(successful_tx_file_name)?;
-    serde_json::to_writer_pretty(successful_tx_file, &successes)?;
+    if !successes.is_empty() {
+        let successful_tx_file = std::fs::File::create(successful_tx_file_name)?;
+        serde_json::to_writer_pretty(successful_tx_file, &successes)?;
+    }
+
+    let pb = ProgressBar::new_spinner();
+    pb.set_message("Writing cache file...");
+    pb.enable_steady_tick(100);
 
     let cache_file = std::fs::File::create(cache_file_name)?;
-    serde_json::to_writer_pretty(cache_file, &failures)?;
+    bincode::serialize_into(cache_file, &failures)?;
+    pb.finish_and_clear();
 
     Ok(())
 }

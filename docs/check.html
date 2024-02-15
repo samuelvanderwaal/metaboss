@@ -177,7 +177,7 @@
 <h3 id="metadata-values"><a class="header" href="#metadata-values">Metadata Values</a></h3>
 <p>Check for a specific metadata value in downloaded metadata files.</p>
 <h3 id="usage"><a class="header" href="#usage">Usage</a></h3>
-<p>Run </p>
+<p>Run</p>
 <pre><code class="language-bash">metaboss decode mint -L &lt;mint_list_json&gt; -o &lt;output_dir&gt; --full
 </code></pre>
 <p>to decode all the metadata files in the <code>mint_list_json</code> file and save them to the <code>output_dir</code> directory.</p>
@@ -202,15 +202,15 @@ values:</p>
 </ul>
 <p>and <code>VALUE</code> is the specific value of the field you wish to check for in the metadata files.</p>
 <p>E.g., to see if all the metadata files in the <code>output_dir</code> directory have a specific <code>update_authority</code> value:</p>
-<pre><code class="language-bash">metaboss check metadata-value -d my_collection_files/ update_authority=&quot;PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8&quot;
+<pre><code class="language-bash">metaboss check metadata-value -d my_collection_files/ update_authority="PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8"
 </code></pre>
 <p>The command will print a list of files that do not have the specified value as well as create a files with the list of mints.
-The mint file will have the name format: &quot;mb_check_mints_&lt;METADATA_VALUE&gt;.json&quot; and will be created in the directory where the command is run.
-In the above example the mint file will be &quot;mb_check_mints_update_authority.json&quot; and will contain all the mints that do not have the specified
+The mint file will have the name format: "mb_check_mints_&lt;METADATA_VALUE&gt;.json" and will be created in the directory where the command is run.
+In the above example the mint file will be "mb_check_mints_update_authority.json" and will contain all the mints that do not have the specified
 update authority. This will allow you to easily rerun an update or set command to fix metadata values that weren't set properly.</p>
-<p>The &quot;name&quot; field will check that the name on the metadata <em>contains</em> the name you specify so you can check for partial matches.
-E.g. if your collection's name format is &quot;MyCollection #xx&quot; you can set the name to be &quot;MyCollection&quot; and it will match all the metadata files
-that have the name &quot;MyCollection&quot; in their name.</p>
+<p>The "name" field will check that the name on the metadata <em>contains</em> the name you specify so you can check for partial matches.
+E.g. if your collection's name format is "MyCollection #xx" you can set the name to be "MyCollection" and it will match all the metadata files
+that have the name "MyCollection" in their name.</p>
 
                     </main>
 

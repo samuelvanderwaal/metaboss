@@ -1,7 +1,8 @@
 use std::fs::File;
 
 use anyhow::{bail, Result};
-use jib::Network;
+use indicatif::ProgressBar;
+use jib::JibFailedTransaction;
 use metaboss_lib::decode::{
     decode_collection_authority_record, decode_metadata_delegate, decode_token_record,
     decode_token_record_from_mint, decode_use_authority_record,
@@ -186,7 +187,6 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
         AirdropSubcommands::Sol {
             keypair,
             recipient_list,
-            network,
             cache_file,
             boost,
             rate_limit,
@@ -194,7 +194,6 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
             airdrop_sol(AirdropSolArgs {
                 client,
                 keypair,
-                network: Network::from_str(&network).unwrap(),
                 recipient_list,
                 cache_file,
                 boost,
@@ -205,7 +204,6 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
         AirdropSubcommands::Spl {
             keypair,
             recipient_list,
-            network,
             cache_file,
             mint,
             mint_tokens,
@@ -215,7 +213,6 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
             airdrop_spl(AirdropSplArgs {
                 client,
                 keypair,
-                network: Network::from_str(&network).unwrap(),
                 recipient_list,
                 cache_file,
                 mint,
@@ -224,6 +221,28 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
                 rate_limit,
             })
             .await
+        }
+        AirdropSubcommands::ReadCache { cache_file, errors } => {
+            let path = std::path::Path::new(&cache_file);
+            let file = File::open(path)?;
+            let cache: Vec<JibFailedTransaction> = bincode::deserialize_from(file)?;
+
+            // Convert to JSON
+            let json_filename = path.with_extension("json");
+            let pb = ProgressBar::new_spinner();
+            pb.set_message("Writing cache file...");
+            pb.enable_steady_tick(100);
+
+            let cache_file = std::fs::File::create(json_filename)?;
+            serde_json::to_writer(cache_file, &cache)?;
+            pb.finish_and_clear();
+
+            if errors {
+                for tx in cache {
+                    println!("{:?}", tx.error);
+                }
+            }
+            Ok(())
         }
     }
 }

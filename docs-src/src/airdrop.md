@@ -1,13 +1,10 @@
 ## Airdrop
 
-This is an experimental feature that uses the TPU client to rapidly and efficiently make transfers. It relies on the [Jib library](https://github.com/samuelvanderwaal/jib) for transmitting instructions via TPU. **You should carefully test it on devnet prior to running it on mainnet.**
-
-The benefit of using the TPU client is that is can rapidly transmit the transactions directly to the consensus leader and the command does not require a high-throughput private RPC node and can use the public ones by default, as the RPC node is only used for determining the current leader.
+This is an experimental feature that uses the [Jib library](https://github.com/samuelvanderwaal/jib) for batching and transmitting instructions. **You should carefully test it on devnet prior to running it on mainnet.**
 
 ### Airdrop SOL
 
 Airdrop SOL to a list of accounts. 
-
 
 
 ```
@@ -31,7 +28,7 @@ OPTIONS:
     -T, --timeout <timeout>                  Timeout to override default value of 90 seconds [default: 90]
 ```
 
-This command requires a recipient list file that should be a hashmap/dictionary/object of addresses and the amount of lamports to send to them. (1 SOL = 1,000,000,000 lamports) E.g.:
+This command requires a recipient list file that should be a JSON file of addresses and the amount of lamports to send to them. (1 SOL = 1,000,000,000 lamports) E.g.:
 
 ```json
 {
@@ -43,8 +40,6 @@ This command requires a recipient list file that should be a hashmap/dictionary/
   "sknqbvGgVFpniWRK9kM1e77Fuq5oEhSZ5He4PtbTeZh": 3000  
 }
 ```
-
-
 
 #### Usage
 
@@ -59,6 +54,8 @@ To re-run failed transactions run the command with the cache file instead of the
 ```bash
 metaboss airdrop sol  -c <PATH_TO_CACHE_FILE> -n devnet
 ```
+
+The command will first check the status of all the failed transactions to ensure they were not already successful before re-running them which should prevent any double-sends.
 
 If transactions continuously fail you should look at the errors in the cache file and determine the cause.
 
@@ -95,3 +92,11 @@ This command works similarly to the SOL airdrop command, but expects the amount 
 Be aware that airdropping SPL tokens to wallets that do not already have a token account for that mint will cost 0.002 SOL per transaction. This is because the token account needs to be created first. This could end up being a significant cost if you are airdropping to a large number of wallets. 
 
 For large SPL token airdrops you may want to consider setting up a claim site instead.
+
+### Read Cache File
+
+For storage and speed constraints, the cache file is not human-readable. To read the cache file you can use the `read-cache` command with either or both the `--json` and `--errors` flags which convert the cache file to a JSON file and print the errors respectively.
+
+```bash
+metaboss airdrop read-cache <PATH_TO_CACHE_FILE> --json
+```

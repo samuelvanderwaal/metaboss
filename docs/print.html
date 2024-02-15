@@ -241,7 +241,7 @@
 </code></pre>
 <p>This will download the appropriate binary for your system and install it. Feel free to inspect the install script directly at <a href="https://raw.githubusercontent.com/samuelvanderwaal/metaboss/main/scripts/install.sh">the link</a> to see what you are running before you run the command.</p>
 <p>For <strong>Windows</strong>, either use the prebuilt binary in the following section, or install Windows Subsystem Linux (WSL) to use the Ubuntu terminal to run the above installation script.</p>
-<p>To install WSL on Windows, either run <code>wsl --install -d ubuntu</code> in the cmd prompt terminal, or install &quot;Ubuntu&quot; from the Windows app store. Once you have that set up you can simply run the install script in the WSL terminal. You will then run all your Metaboss commands from WSL as well.</p>
+<p>To install WSL on Windows, either run <code>wsl --install -d ubuntu</code> in the cmd prompt terminal, or install "Ubuntu" from the Windows app store. Once you have that set up you can simply run the install script in the WSL terminal. You will then run all your Metaboss commands from WSL as well.</p>
 <p><a href="https://discord.gg/n3H9rQ8s4R">The Metaboss Discord</a> has a step-by-step guide for installing on Windows in the #windows-install channel.</p>
 <h2 id="binaries"><a class="header" href="#binaries">Binaries</a></h2>
 <p>Linux, MacOS and Windows binaries available in <a href="https://github.com/samuelvanderwaal/metaboss/releases">releases</a>, thanks to CI work done by <a href="https://github.com/KartikSoneji">Kartik Soneji</a>.</p>
@@ -282,20 +282,20 @@ git checkout main
 <h3 id="mint-a-new-nft"><a class="header" href="#mint-a-new-nft">Mint a new NFT</a></h3>
 <p>Prepare a JSON file.</p>
 <pre><code class="language-json">{
-    &quot;name&quot;: &quot;TestNFT2&quot;,
-    &quot;symbol&quot;: &quot;TNFT&quot;,
-    &quot;uri&quot;: &quot;https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw&quot;,
-    &quot;seller_fee_basis_points&quot;: 200,
-    &quot;creators&quot;: [
+    "name": "TestNFT2",
+    "symbol": "TNFT",
+    "uri": "https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw",
+    "seller_fee_basis_points": 200,
+    "creators": [
         {
-            &quot;address&quot;: &quot;AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ&quot;,
-            &quot;verified&quot;: false,
-            &quot;share&quot;: 50
+            "address": "AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ",
+            "verified": false,
+            "share": 50
         },
         {
-            &quot;address&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
-            &quot;verified&quot;: false,
-            &quot;share&quot;: 50
+            "address": "42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB",
+            "verified": false,
+            "share": 50
         }
     ]
 }
@@ -309,10 +309,10 @@ git checkout main
 </code></pre>
 <p>The file <code>BHZWQEtGRMs7voC7vDyVQCXawB1P6UvxG899ATGwxmaR_mint_accounts.json</code> is created with the contents:</p>
 <pre><code class="language-json">[
-    &quot;D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28&quot;,
-    &quot;4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW&quot;,
-    &quot;J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz&quot;,
-    &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
+    "D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28",
+    "4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW",
+    "J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz",
+    "4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh"
 ]
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="update-list-of-nft-metadata"><a class="header" href="#update-list-of-nft-metadata">Update List of NFT Metadata</a></h2>
@@ -341,10 +341,9 @@ git checkout main
 <pre><code class="language-bash">metaboss snapshot holders -r https://ssc-dao.genesysgo.net/ -T 120 -u DC2mkgwhy56w3viNtHDjJQmc7SGu2QX785bS4aexojwX
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="airdrop"><a class="header" href="#airdrop">Airdrop</a></h2>
-<p>This is an experimental feature that uses the TPU client to rapidly and efficiently make transfers. It relies on the <a href="https://github.com/samuelvanderwaal/jib">Jib library</a> for transmitting instructions via TPU. <strong>You should carefully test it on devnet prior to running it on mainnet.</strong></p>
-<p>The benefit of using the TPU client is that is can rapidly transmit the transactions directly to the consensus leader and the command does not require a high-throughput private RPC node and can use the public ones by default, as the RPC node is only used for determining the current leader.</p>
+<p>This is an experimental feature that uses the <a href="https://github.com/samuelvanderwaal/jib">Jib library</a> for batching and transmitting instructions. <strong>You should carefully test it on devnet prior to running it on mainnet.</strong></p>
 <h3 id="airdrop-sol"><a class="header" href="#airdrop-sol">Airdrop SOL</a></h3>
-<p>Airdrop SOL to a list of accounts. </p>
+<p>Airdrop SOL to a list of accounts.</p>
 <pre><code>Airdrop SOL
 
 USAGE:
@@ -364,23 +363,24 @@ OPTIONS:
                                              default
     -T, --timeout &lt;timeout&gt;                  Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
-<p>This command requires a recipient list file that should be a hashmap/dictionary/object of addresses and the amount of lamports to send to them. (1 SOL = 1,000,000,000 lamports) E.g.:</p>
+<p>This command requires a recipient list file that should be a JSON file of addresses and the amount of lamports to send to them. (1 SOL = 1,000,000,000 lamports) E.g.:</p>
 <pre><code class="language-json">{
-  &quot;HVtodaLcq6zVvqp7h6JwLLrsAGxeJ9BatvgpUfp9b4oM&quot;: 1000,
-  &quot;5VXU4QbhUZbkBqKxT3Mv55krE4MomMgtV68whNRotjk5&quot;: 1000,
-  &quot;GSFKDFeCe93aUscmG84ugtXXNPMGoMcbZwRaamPLXS9o&quot;: 5000,
-  &quot;DCYHBcWGgdUUCBbj7rjbkBJWkuoHAH88BzMKfbbkFUNJ&quot;: 7000,
-  &quot;8MUCm4HxRXQUKMyanyNcvcG4qbAmw5s6y9exiszFZgg&quot;: 5000,
-  &quot;sknqbvGgVFpniWRK9kM1e77Fuq5oEhSZ5He4PtbTeZh&quot;: 3000  
+  "HVtodaLcq6zVvqp7h6JwLLrsAGxeJ9BatvgpUfp9b4oM": 1000,
+  "5VXU4QbhUZbkBqKxT3Mv55krE4MomMgtV68whNRotjk5": 1000,
+  "GSFKDFeCe93aUscmG84ugtXXNPMGoMcbZwRaamPLXS9o": 5000,
+  "DCYHBcWGgdUUCBbj7rjbkBJWkuoHAH88BzMKfbbkFUNJ": 7000,
+  "8MUCm4HxRXQUKMyanyNcvcG4qbAmw5s6y9exiszFZgg": 5000,
+  "sknqbvGgVFpniWRK9kM1e77Fuq5oEhSZ5He4PtbTeZh": 3000  
 }
 </code></pre>
 <h4 id="usage"><a class="header" href="#usage">Usage</a></h4>
 <pre><code class="language-bash">metaboss airdrop sol  -L &lt;PATH_TO_RECIPIENTS_LIST_FILE&gt; -n devnet
 </code></pre>
-<p>This command creates two files: <code>mb-cache-airdrop-&lt;TIMESTAMP&gt;.json</code> and <code>mb-successful-airdrops-&lt;TIMESTAMP&gt;.json</code>. The cache file is used to track the airdrop progress by storing failed transactions and the successful airdrops file is used to track the successful airdrops by storing transaction signatures of the successful airdrops. </p>
+<p>This command creates two files: <code>mb-cache-airdrop-&lt;TIMESTAMP&gt;.json</code> and <code>mb-successful-airdrops-&lt;TIMESTAMP&gt;.json</code>. The cache file is used to track the airdrop progress by storing failed transactions and the successful airdrops file is used to track the successful airdrops by storing transaction signatures of the successful airdrops.</p>
 <p>To re-run failed transactions run the command with the cache file instead of the recipient list file:</p>
 <pre><code class="language-bash">metaboss airdrop sol  -c &lt;PATH_TO_CACHE_FILE&gt; -n devnet
 </code></pre>
+<p>The command will first check the status of all the failed transactions to ensure they were not already successful before re-running them which should prevent any double-sends.</p>
 <p>If transactions continuously fail you should look at the errors in the cache file and determine the cause.</p>
 <h3 id="airdrop-spl-tokens"><a class="header" href="#airdrop-spl-tokens">Airdrop SPL Tokens</a></h3>
 <p>Airdrop SPL tokens to a list of accounts.</p>
@@ -407,8 +407,12 @@ OPTIONS:
     -T, --timeout &lt;timeout&gt;                  Timeout to override default value of 90 seconds [default: 90]
 </code></pre>
 <p>This command works similarly to the SOL airdrop command, but expects the amount to be in the display units of the SPL token. E.g. for a token with three decimal places the amount of 10 will be converted to 10,000 base units behind the scenes.</p>
-<p>Be aware that airdropping SPL tokens to wallets that do not already have a token account for that mint will cost 0.002 SOL per transaction. This is because the token account needs to be created first. This could end up being a significant cost if you are airdropping to a large number of wallets. </p>
+<p>Be aware that airdropping SPL tokens to wallets that do not already have a token account for that mint will cost 0.002 SOL per transaction. This is because the token account needs to be created first. This could end up being a significant cost if you are airdropping to a large number of wallets.</p>
 <p>For large SPL token airdrops you may want to consider setting up a claim site instead.</p>
+<h3 id="read-cache-file"><a class="header" href="#read-cache-file">Read Cache File</a></h3>
+<p>For storage and speed constraints, the cache file is not human-readable. To read the cache file you can use the <code>read-cache</code> command with either or both the <code>--json</code> and <code>--errors</code> flags which convert the cache file to a JSON file and print the errors respectively.</p>
+<pre><code class="language-bash">metaboss airdrop read-cache &lt;PATH_TO_CACHE_FILE&gt; --json
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="burn"><a class="header" href="#burn">Burn</a></h2>
 <p>Burn Master Editions NFTs, as long as they do not have any editions (supply == 0). Only the owner/token holder of the NFT can burn it.</p>
 <h3 id="burn-one"><a class="header" href="#burn-one">Burn One</a></h3>
@@ -420,10 +424,10 @@ OPTIONS:
 <p>Fully burn multiple NFTs by providing a JSON list file of mint accounts.</p>
 <p>E.g. JSON file:</p>
 <pre><code class="language-json">[
-    &quot;D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28&quot;,
-    &quot;4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW&quot;,
-    &quot;J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz&quot;,
-    &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
+    "D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28",
+    "4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW",
+    "J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz",
+    "4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh"
 ]
 </code></pre>
 <h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
@@ -441,10 +445,10 @@ OPTIONS:
 <p>Fully burn multiple Print Edition NFTs by providing a JSON list file of mint accounts.</p>
 <p>E.g. JSON file:</p>
 <pre><code class="language-json">[
-    &quot;D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28&quot;,
-    &quot;4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW&quot;,
-    &quot;J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz&quot;,
-    &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
+    "D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28",
+    "4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW",
+    "J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz",
+    "4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh"
 ]
 </code></pre>
 <p>Due to on-chain limitations, you also have to provide the mint account of the Master Edition NFT.</p>
@@ -456,7 +460,7 @@ OPTIONS:
 <h3 id="metadata-values"><a class="header" href="#metadata-values">Metadata Values</a></h3>
 <p>Check for a specific metadata value in downloaded metadata files.</p>
 <h3 id="usage-5"><a class="header" href="#usage-5">Usage</a></h3>
-<p>Run </p>
+<p>Run</p>
 <pre><code class="language-bash">metaboss decode mint -L &lt;mint_list_json&gt; -o &lt;output_dir&gt; --full
 </code></pre>
 <p>to decode all the metadata files in the <code>mint_list_json</code> file and save them to the <code>output_dir</code> directory.</p>
@@ -481,15 +485,15 @@ values:</p>
 </ul>
 <p>and <code>VALUE</code> is the specific value of the field you wish to check for in the metadata files.</p>
 <p>E.g., to see if all the metadata files in the <code>output_dir</code> directory have a specific <code>update_authority</code> value:</p>
-<pre><code class="language-bash">metaboss check metadata-value -d my_collection_files/ update_authority=&quot;PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8&quot;
+<pre><code class="language-bash">metaboss check metadata-value -d my_collection_files/ update_authority="PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8"
 </code></pre>
 <p>The command will print a list of files that do not have the specified value as well as create a files with the list of mints.
-The mint file will have the name format: &quot;mb_check_mints_&lt;METADATA_VALUE&gt;.json&quot; and will be created in the directory where the command is run.
-In the above example the mint file will be &quot;mb_check_mints_update_authority.json&quot; and will contain all the mints that do not have the specified
+The mint file will have the name format: "mb_check_mints_&lt;METADATA_VALUE&gt;.json" and will be created in the directory where the command is run.
+In the above example the mint file will be "mb_check_mints_update_authority.json" and will contain all the mints that do not have the specified
 update authority. This will allow you to easily rerun an update or set command to fix metadata values that weren't set properly.</p>
-<p>The &quot;name&quot; field will check that the name on the metadata <em>contains</em> the name you specify so you can check for partial matches.
-E.g. if your collection's name format is &quot;MyCollection #xx&quot; you can set the name to be &quot;MyCollection&quot; and it will match all the metadata files
-that have the name &quot;MyCollection&quot; in their name.</p>
+<p>The "name" field will check that the name on the metadata <em>contains</em> the name you specify so you can check for partial matches.
+E.g. if your collection's name format is "MyCollection #xx" you can set the name to be "MyCollection" and it will match all the metadata files
+that have the name "MyCollection" in their name.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="collections"><a class="header" href="#collections">Collections</a></h1>
 <h2 id="migrate"><a class="header" href="#migrate">Migrate</a></h2>
 <p>Migrate a collection of NFTs or pNFTs to be part of a single on-chain Metaplex Certified Collection (MCC).</p>
@@ -503,10 +507,10 @@ that have the name &quot;MyCollection&quot; in their name.</p>
 </ol>
 <p>Example contents of the mint list file:</p>
 <pre><code class="language-json">[
-    &quot;D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28&quot;,
-    &quot;4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW&quot;,
-    &quot;J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz&quot;,
-    &quot;4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh&quot;
+    "D5ycm2mgBWDR37QVkvM389x84V4ux48bSeHLeiHPtX28",
+    "4kYdMRRYtXjmkusgKEBntSXLDhqkHNE57GF3RPdtx6MW",
+    "J8xuCFCeBRESoXewtMwrrpVUGikUG3B1WznNdLffyymz",
+    "4gRtRjrbD7g5ZKUvSVA1tYMK9LZqz6uWuSc3rKeinySh"
 ]
 </code></pre>
 <p>Your Collection Parent NFT must have the <em>same update authority</em> as the items you will put in the collection. If you don't want to connect your update authority keypair to a website, you can mint with a different keypair and then change the update authority with Metaboss, or mint with Metaboss's <code>mint one</code> command.</p>
@@ -516,7 +520,7 @@ that have the name &quot;MyCollection&quot; in their name.</p>
 <pre><code class="language-bash">metaboss collections migrate -k my_keypair.json -c 8yuhovH7fb63ed7Q3rcxL3kYZDhps4qspjaxx1N8WSni --mint-address 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq
 </code></pre>
 <h4 id="using-a-mint-list-file"><a class="header" href="#using-a-mint-list-file">Using a Mint List File</a></h4>
-<p>Assume the same scenario above but with a mint list file named &quot;my_mint_list.json&quot; in the same directory you are running the command. Your Metaboss command would be:</p>
+<p>Assume the same scenario above but with a mint list file named "my_mint_list.json" in the same directory you are running the command. Your Metaboss command would be:</p>
 <pre><code class="language-bash">metaboss collections migrate -k my_keypair.json -L my_mint_list.json --mint-address 9wtpdjMysSphxipTSJi7pYWGzSZFm2PRFtQucJiiXUzq
 </code></pre>
 <p>This assumes you have your RPC set in your <a href="https://docs.solana.com/cli/choose-a-cluster">Solana config</a>, otherwise it can be passed in with the <code>-r</code> option. As with all Metaboss commands, if you've set your keypair in your Solana config, you can omit the <code>-k</code> option. I recommend setting both in the Solana config to simplify commands:</p>
@@ -533,11 +537,11 @@ that have the name &quot;MyCollection&quot; in their name.</p>
 <p>When retrying, if you consistently end up with the same number being retried each time it probably indicates those items cannot be migrated for some reason. Check the errors on the items that failed to migrate.</p>
 <p>Example cache file:</p>
 <pre><code class="language-json">{
-    &quot;FqKGC9CCVThn857VAyZtZQq5L31njnbeUTe1JoCsCX8J&quot;: {
-        &quot;error&quot;: &quot;Migration failed with error: RPC response error -32002: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x39 [5 log messages]&quot;
+    "FqKGC9CCVThn857VAyZtZQq5L31njnbeUTe1JoCsCX8J": {
+        "error": "Migration failed with error: RPC response error -32002: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x39 [5 log messages]"
     },
-    &quot;H7xrCZwA7oqsFeRcPsP6EEYHCxqq7atUBuuQAursXvWF&quot;: {
-        &quot;error&quot;: &quot;Migration failed with error: RPC response error -32002: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x39 [5 log messages]&quot;
+    "H7xrCZwA7oqsFeRcPsP6EEYHCxqq7atUBuuQAursXvWF": {
+        "error": "Migration failed with error: RPC response error -32002: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x39 [5 log messages]"
     }
 }
 </code></pre>
@@ -575,9 +579,9 @@ that have the name &quot;MyCollection&quot; in their name.</p>
 <p>E.g.:</p>
 <p>// crab.json</p>
 <pre><code class="language-json">{
-  &quot;name&quot;: &quot;Crabbie&quot;,
-  &quot;symbol&quot;: &quot;CRAB&quot;,
-  &quot;uri&quot;: &quot;https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k&quot;
+  "name": "Crabbie",
+  "symbol": "CRAB",
+  "uri": "https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k"
 }
 </code></pre>
 <pre><code class="language-bash">metaboss create fungible -d 6 -m crab.json
@@ -599,9 +603,9 @@ It will use this for the mint account instead of creating a new one.</p>
 <p>E.g. (Note the snake_case field name):</p>
 <p>// crab.json</p>
 <pre><code class="language-json">{
-  &quot;name&quot;: &quot;Crabbie&quot;,
-  &quot;symbol&quot;: &quot;CRAB&quot;,
-  &quot;uri&quot;: &quot;https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k&quot;
+  "name": "Crabbie",
+  "symbol": "CRAB",
+  "uri": "https://arweave.net/KZDlKw8aCG4kfZtj9Qmh8tmYpH4Q287P_jmUtkl2s-k"
 }
 </code></pre>
 <pre><code class="language-bash">metaboss create metadata -a &lt;mint_address&gt; -m &lt;metadata_file&gt;
@@ -616,7 +620,7 @@ It will use this for the mint account instead of creating a new one.</p>
 <pre><code class="language-bash">metaboss decode mint --list-file &lt;LIST_FILE&gt; -o &lt;OUPUT_DIRECTORY&gt;
 </code></pre>
 <p>The JSON list file should be an array of mint accounts to be decoded:</p>
-<pre><code class="language-json">[&quot;xSy...&quot;, &quot;Cnb...&quot; ...]
+<pre><code class="language-json">["xSy...", "Cnb..." ...]
 </code></pre>
 <p>The command will write each metadata JSON file to the output directory as a separate file with the mint account as the name: e.g. <code>CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp.json</code>. The output option defaults to the current directory.</p>
 <p>As of v0.4.0, the default output will only be the <code>Data</code> struct matching the input format of the <code>update data</code> and <code>update data-all</code> commands. To get the full <code>Metadata</code> struct, use the <code>--full</code> option.</p>
@@ -645,7 +649,7 @@ It will use this for the mint account instead of creating a new one.</p>
 <h3 id="decode-pubkey"><a class="header" href="#decode-pubkey">Decode Pubkey</a></h3>
 <p>Decode a pubkey from a u8 array.</p>
 <h4 id="usage-13"><a class="header" href="#usage-13">Usage</a></h4>
-<pre><code class="language-bash">metaboss decode pubkey &quot;[198,63,89,223,232,36,128,201,194,84,163,124,239,91,140,18,189,137,137,47,53,111,44,226,53,45,91,202,241,224,183,205]&quot;
+<pre><code class="language-bash">metaboss decode pubkey "[198,63,89,223,232,36,128,201,194,84,163,124,239,91,140,18,189,137,137,47,53,111,44,226,53,45,91,202,241,224,183,205]"
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="derive"><a class="header" href="#derive">Derive</a></h2>
 <h3 id="derive-candy-machine-v2-creator"><a class="header" href="#derive-candy-machine-v2-creator">Derive Candy Machine V2 Creator</a></h3>
@@ -668,11 +672,11 @@ It will use this for the mint account instead of creating a new one.</p>
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="find"><a class="header" href="#find">Find</a></h2>
 <h3 id="error"><a class="header" href="#error">Error</a></h3>
-<p>Look up Metaplex program error codes by hex or decimal values. </p>
+<p>Look up Metaplex program error codes by hex or decimal values.</p>
 <p>E.g.:</p>
 <pre><code class="language-bash">metaboss find error 0x1770
 </code></pre>
-<p>or </p>
+<p>or</p>
 <pre><code class="language-bash">metaboss find error 6000
 </code></pre>
 <p>returns:</p>
@@ -682,7 +686,7 @@ Candy Machine | IncorrectOwner: Account does not have correct owner!
 </code></pre>
 <p>Currently supported programs:</p>
 <ul>
-<li>Token Metadata </li>
+<li>Token Metadata</li>
 <li>Auction House</li>
 <li>Auctioneer</li>
 <li>Candy Machine</li>
@@ -695,7 +699,7 @@ Candy Machine | IncorrectOwner: Account does not have correct owner!
 <h3 id="missing-editions"><a class="header" href="#missing-editions">Missing Editions</a></h3>
 <p>Find any edition numbers in the sequence that have not been minted. See [editions][https://metaboss.rs/mint.html#editions] for more details on how to interact with editions with Metaboss.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="mint"><a class="header" href="#mint">Mint</a></h2>
-<p>Mint new NFTs from JSON files. </p>
+<p>Mint new NFTs from JSON files.</p>
 <p>For both subcommands the <code>--immutable</code> flag sets the NFT data to be immutable and the <code>--primary-sale-happened</code> flag sets the primary sale happened bool to true.</p>
 <h3 id="mint-one"><a class="header" href="#mint-one">Mint One</a></h3>
 <p>Mint a single NFT from a JSON file.</p>
@@ -707,15 +711,15 @@ Candy Machine | IncorrectOwner: Account does not have correct owner!
 <p>The JSON files should contain all the necessary data required to create an NFT's metadata fields. Creator <code>verified</code> fields must be false unless the creator is also the <code>keypair</code>.</p>
 <p>Example JSON file:</p>
 <pre><code class="language-json">{
-    &quot;name&quot;: &quot;TestNFT1&quot;,
-    &quot;symbol&quot;: &quot;TNFT&quot;,
-    &quot;uri&quot;: &quot;https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw&quot;,
-    &quot;seller_fee_basis_points&quot;: 100,
-    &quot;creators&quot;: [
+    "name": "TestNFT1",
+    "symbol": "TNFT",
+    "uri": "https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw",
+    "seller_fee_basis_points": 100,
+    "creators": [
         {
-            &quot;address&quot;: &quot;PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8&quot;,
-            &quot;verified&quot;: false,
-            &quot;share&quot;: 100
+            "address": "PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8",
+            "verified": false,
+            "share": 100
         }
     ]
 }
@@ -776,24 +780,24 @@ OPTIONS:
 <h4 id="usage-18"><a class="header" href="#usage-18">Usage</a></h4>
 <p>You need an asset json file of this format:</p>
 <pre><code class="language-json">    {
-        &quot;name&quot;: &quot;Studious Crab #1&quot;,
-        &quot;symbol&quot;: &quot;CRAB&quot;,
-        &quot;uri&quot;: &quot;https://arweave.net/uVtABL4PYv0wVke3LL4DLMkqkSMcQl1qswRZNkJ0a0g&quot;,
-        &quot;seller_fee_basis_points&quot;: 100,
-        &quot;creators&quot;: [
+        "name": "Studious Crab #1",
+        "symbol": "CRAB",
+        "uri": "https://arweave.net/uVtABL4PYv0wVke3LL4DLMkqkSMcQl1qswRZNkJ0a0g",
+        "seller_fee_basis_points": 100,
+        "creators": [
             {
-                &quot;address&quot;: &quot;ccc9XfyEMh9sU6DRkUmqQGJqgdKb6QyUaaT5h5BGYw4&quot;,
-                &quot;verified&quot;: true,
-                &quot;share&quot;: 100
+                "address": "ccc9XfyEMh9sU6DRkUmqQGJqgdKb6QyUaaT5h5BGYw4",
+                "verified": true,
+                "share": 100
             }
         ],
-        &quot;primary_sale_happened&quot;: false,
-        &quot;is_mutable&quot;: true,
-        &quot;token_standard&quot;: &quot;ProgrammableNonFungible&quot;,
-        &quot;collection&quot;: null,
-        &quot;uses&quot;: null,
-        &quot;collection_details&quot;: null,
-        &quot;rule_set&quot;: null
+        "primary_sale_happened": false,
+        "is_mutable": true,
+        "token_standard": "ProgrammableNonFungible",
+        "collection": null,
+        "uses": null,
+        "collection_details": null,
+        "rule_set": null
     }
 </code></pre>
 <p>Substitute appropriate values for each field. The creator can only be set as verified if it is the same keypair as the one used to mint the asset, otherwise leave it as <code>false</code>.</p>
@@ -810,7 +814,7 @@ OPTIONS:
 <p>You can specify a vanity mint address by using the <code>--mint-path</code> option to specify a path to a keypair on your file system.
 It will use this for the mint account instead of creating a new one.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="set"><a class="header" href="#set">Set</a></h2>
-<p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution. 
+<p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution.
 Set commands are either irreversible or require a new update authority to reverse.</strong></p>
 <p>Set non-Data struct values for a NFT.</p>
 <h3 id="set-secondary-sale"><a class="header" href="#set-secondary-sale">Set Secondary Sale</a></h3>
@@ -830,9 +834,9 @@ Set commands are either irreversible or require a new update authority to revers
 </code></pre>
 <p>The mint accounts file should be a JSON file with an array of NFT mint accounts to be updated:</p>
 <pre><code class="language-json">[
-    &quot;C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG&quot;,
-    &quot;8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o&quot;,
-    &quot;CK2npuck3WTRNFXSdZv8YjudJJEa69EVGd6GFfeSzfGP&quot;
+    "C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG",
+    "8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o",
+    "CK2npuck3WTRNFXSdZv8YjudJJEa69EVGd6GFfeSzfGP"
 ]
 </code></pre>
 <h3 id="set-immutable"><a class="header" href="#set-immutable">Set Immutable</a></h3>
@@ -899,7 +903,7 @@ OPTIONS:
 <pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --creator &lt;FIRST_CREATOR&gt;
 </code></pre>
 <p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with the candy machine id.</strong>
-Candy machine v2 has a separate creator id from the candy machine account id. </p>
+Candy machine v2 has a separate creator id from the candy machine account id.</p>
 <pre><code class="language-bash">metaboss sign all --keypair &lt;PATH_TO_KEYPAIR&gt; --creator &lt;CANDY_MACHINE_ID&gt; --v2
 </code></pre>
 <p>or you can use the candy machine creator id which will be the first creator in the creators array.</p>
@@ -910,9 +914,9 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 </code></pre>
 <p>For the latter usage, the mint accounts file should be a JSON file with a list of mint accounts to be signed:</p>
 <pre><code class="language-json">[
-    &quot;C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG&quot;,
-    &quot;8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o&quot;,
-    &quot;CK2npuck3WTRNFXSdZv8YjudJJEa69EVGd6GFfeSzfGP&quot;
+    "C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG",
+    "8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o",
+    "CK2npuck3WTRNFXSdZv8YjudJJEa69EVGd6GFfeSzfGP"
 ]
 </code></pre>
 <p>Outputs a TxId to the command line so you can check the result.</p>
@@ -932,7 +936,7 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <pre><code class="language-bash">metaboss snapshot holders --update-authority &lt;UPDATE_AUTHORITY&gt; --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p><strong>For candy machine v2, you can add the <code>--v2</code> option when using it with candy machine id.</strong>
-Candy machine v2 has a separate creator id from the candy machine account id. </p>
+Candy machine v2 has a separate creator id from the candy machine account id.</p>
 <pre><code class="language-bash">metaboss snapshot holders --creator &lt;CANDY_MACHINE_ID&gt; --v2 --output &lt;OUTPUT_DIR&gt;
 </code></pre>
 <p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
@@ -946,10 +950,10 @@ Candy machine v2 has a separate creator id from the candy machine account id. </
 <p>Example file:</p>
 <pre><code class="language-json">[
     {
-        &quot;owner&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
-        &quot;ata&quot;: &quot;7yGA66LYDU7uoPW2x9jrUKaDWTs9jqZ5cSNKR1VaLQdw&quot;,
-        &quot;mint&quot;: &quot;C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG&quot;,
-        &quot;metadata&quot;: &quot;8WTA3sLxwRNDKHxZFbn2CFo3FX1ZP59EqrvuDPLbmmWV&quot;
+        "owner": "42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB",
+        "ata": "7yGA66LYDU7uoPW2x9jrUKaDWTs9jqZ5cSNKR1VaLQdw",
+        "mint": "C2eGm8iQPnKVWxakyo8QhwJUvYrZHKF52DPQuAejpTWG",
+        "metadata": "8WTA3sLxwRNDKHxZFbn2CFo3FX1ZP59EqrvuDPLbmmWV"
     }
 ]
 </code></pre>
@@ -970,9 +974,9 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>where &lt;CANDY_MACHINE_ID&gt; is the candy machine id retrieved from the cache file.</p>
 <p>Creates a JSON file in the output directory with the name format of <code>&lt;CANDY_MACHINE_ID/UPDATE_AUTHORITY&gt;_mint_accounts.json</code> consisting of an array of mint accounts.</p>
 <pre><code class="language-json">[
-    &quot;CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp&quot;,
-    &quot;5pgGJ5npeMxBzTiQctDgoofEVGSwZMYm3QMz4F4NDShz&quot;,
-    &quot;8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o&quot;
+    "CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp",
+    "5pgGJ5npeMxBzTiQctDgoofEVGSwZMYm3QMz4F4NDShz",
+    "8GcRqxy4VAocTcAkoxCXkPCEmM36HMtjBc8ZarWhAD6o"
 ]
 </code></pre>
 <h3 id="snapshot-holders----das-api"><a class="header" href="#snapshot-holders----das-api">Snapshot Holders -- DAS API</a></h3>
@@ -1003,10 +1007,10 @@ Gets all holders of NFTs with a specific verified MCC ID.</p>
 </ul>
 <p>E.g.:</p>
 <pre><code class="language-json">  {
-    &quot;owner&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
-    &quot;mint&quot;: &quot;2pwsTyuM4Cb2zmN3xydti2ysPYdmu242w1J7TmQya3At&quot;,
-    &quot;metadata&quot;: &quot;Art3NUzP2DxqfzwwMgjLdu8KY9NQLBp2zuEZ63dx9iU2&quot;,
-    &quot;ata&quot;: &quot;FfwoNCYYC5wUkTYTmtYmBSgk9YRWpTTWZCpJB6MjwvSk&quot;
+    "owner": "42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB",
+    "mint": "2pwsTyuM4Cb2zmN3xydti2ysPYdmu242w1J7TmQya3At",
+    "metadata": "Art3NUzP2DxqfzwwMgjLdu8KY9NQLBp2zuEZ63dx9iU2",
+    "ata": "FfwoNCYYC5wUkTYTmtYmBSgk9YRWpTTWZCpJB6MjwvSk"
   },
 </code></pre>
 <p>Example command:</p>
@@ -1017,7 +1021,7 @@ Gets all holders of NFTs with a specific verified MCC ID.</p>
 <ul>
 <li>
 <p>Authority
-Gets all NFT mint addresses for a given update authority. 
+Gets all NFT mint addresses for a given update authority.
 <strong>Warning:</strong> update authority can be set to any address so use this option with caution.</p>
 </li>
 <li>
@@ -1059,21 +1063,21 @@ Gets all NFT mint addresses with a specific verified MCC ID.</p>
 <p>Snapshot the print editions of a given master edition. This returns a JSON object of edition mints where the key is the edition number and the value is the mint address.</p>
 <p>E.g.:</p>
 <pre><code class="language-json">{
-  &quot;1&quot;: &quot;CgCmZJCBeJs9m596NzqxLg3HB8eerHHWXQPiiigB3fpt&quot;,
-  &quot;2&quot;: &quot;C7kfCVwadqrQwjCBewE147r3xg8ZgYgqeUJk2tMsZ5zi&quot;,
-  &quot;3&quot;: &quot;6HQBWdC9BpY6Ky3YvmxoEJGce8PgQ6NqfkLgP3dJRDpb&quot;,
-  &quot;4&quot;: &quot;FiDSNjCM5sLPmMvHvCWtnqEp9yt4NvZ2ThXJ9kpvBT73&quot;,
-  &quot;5&quot;: &quot;4DwpsvxzemsHxDjz8qrVkQFP7nK5QwT6irL1KQkt5NJy&quot;,
-  &quot;6&quot;: &quot;DBLeCRfF8t7q2oe5DYip8J9m4eRTc46EKMazqitth5eL&quot;,
-  &quot;7&quot;: &quot;AUYNrra3XmPg4FBZ5t3w1m9Nou1AQqGEs5RUPqMu9Bz1&quot;,
-  &quot;8&quot;: &quot;Ewj5hZ7Z2HLojk3Du7RXcHnNtqBv8UrMCNxuukHA436J&quot;,
-  &quot;9&quot;: &quot;CJgszcJTg5MKFrRa9pcty42ybaaoq13thh3a71Ep2G8t&quot;,
-  &quot;10&quot;: &quot;7zZKJ9g5Bz4UZnAjY9DoiGzsV56JSTbx3ejgrzuupKQ2&quot;,
-  &quot;11&quot;: &quot;Fq1rT9krzj6zMUJbDUraMEekHKcTdwyfYeYdbcAgN5qE&quot;,
-  &quot;12&quot;: &quot;EqnXBCwU2eTCVTE6G82PnZ5ujKpxeCnGrGvaURYMyjvr&quot;,
-  &quot;13&quot;: &quot;4oWVGXtCMA7QQi8KJaWD2sc89kapQ9yYybTwqD99LVhi&quot;,
-  &quot;14&quot;: &quot;3P7aumi3e4ZALiMY6g9Ec7H6zpN4jfyRC5Hs1G5n4Nt4&quot;,
-  &quot;15&quot;: &quot;5pwz2Fn3YGFFLzNVFAZZESfpjjjnA2k71Hd2mHPCX1ro&quot;
+  "1": "CgCmZJCBeJs9m596NzqxLg3HB8eerHHWXQPiiigB3fpt",
+  "2": "C7kfCVwadqrQwjCBewE147r3xg8ZgYgqeUJk2tMsZ5zi",
+  "3": "6HQBWdC9BpY6Ky3YvmxoEJGce8PgQ6NqfkLgP3dJRDpb",
+  "4": "FiDSNjCM5sLPmMvHvCWtnqEp9yt4NvZ2ThXJ9kpvBT73",
+  "5": "4DwpsvxzemsHxDjz8qrVkQFP7nK5QwT6irL1KQkt5NJy",
+  "6": "DBLeCRfF8t7q2oe5DYip8J9m4eRTc46EKMazqitth5eL",
+  "7": "AUYNrra3XmPg4FBZ5t3w1m9Nou1AQqGEs5RUPqMu9Bz1",
+  "8": "Ewj5hZ7Z2HLojk3Du7RXcHnNtqBv8UrMCNxuukHA436J",
+  "9": "CJgszcJTg5MKFrRa9pcty42ybaaoq13thh3a71Ep2G8t",
+  "10": "7zZKJ9g5Bz4UZnAjY9DoiGzsV56JSTbx3ejgrzuupKQ2",
+  "11": "Fq1rT9krzj6zMUJbDUraMEekHKcTdwyfYeYdbcAgN5qE",
+  "12": "EqnXBCwU2eTCVTE6G82PnZ5ujKpxeCnGrGvaURYMyjvr",
+  "13": "4oWVGXtCMA7QQi8KJaWD2sc89kapQ9yYybTwqD99LVhi",
+  "14": "3P7aumi3e4ZALiMY6g9Ec7H6zpN4jfyRC5Hs1G5n4Nt4",
+  "15": "5pwz2Fn3YGFFLzNVFAZZESfpjjjnA2k71Hd2mHPCX1ro"
 }
 </code></pre>
 <p>There is no direct way to find all print editions of a given master edition, so this command uses the following heuristic:</p>
@@ -1120,7 +1124,7 @@ OPTIONS:
 <pre><code class="language-bash">metaboss transfer asset --mint 2KGQLgypChErw3kKPqG26uyUjVtZj8QSJg2AUNR7BWdM -R PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8
 </code></pre>
 <p><strong>Amount</strong></p>
-<p>For non-fungible types such as <code>NonFungible</code> and <code>ProgrammableNonFungible</code>, the amount can only be <code>1</code> and that is the default value for the CLI argument if not specified. </p>
+<p>For non-fungible types such as <code>NonFungible</code> and <code>ProgrammableNonFungible</code>, the amount can only be <code>1</code> and that is the default value for the CLI argument if not specified.</p>
 <p>For fungible types, specify the amount to be transferred with <code>--amount &lt;number&gt;</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="update"><a class="header" href="#update">Update</a></h2>
 <p><strong>Warning: These commands modify your NFT and are for advanced users. Use with caution.</strong></p>
@@ -1135,25 +1139,25 @@ OPTIONS:
 <p>Note: The on-chain <code>Data</code> struct is <em>different</em> than the external metadata stored at the link in the <code>uri</code> field so make you understand the difference before running this command.</p>
 <p><strong>Make sure you understand how the Metaplex Metadata <code>Data</code> struct works and how this command will affect your NFT. Always test on <code>devnet</code> before running on mainnet.</strong></p>
 <pre><code class="language-json">{
-    &quot;name&quot;: &quot;FerrisCrab #4&quot;,
-    &quot;symbol&quot;: &quot;FERRIS&quot;,
-    &quot;uri&quot;: &quot;https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls&quot;,
-    &quot;seller_fee_basis_points&quot;: 100,
-    &quot;creators&quot;: [
+    "name": "FerrisCrab #4",
+    "symbol": "FERRIS",
+    "uri": "https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls",
+    "seller_fee_basis_points": 100,
+    "creators": [
         {
-            &quot;address&quot;: &quot;&lt;YOUR_CANDY_MACHINE_ID&gt;&quot;,
-            &quot;verified&quot;: true,
-            &quot;share&quot;: 0
+            "address": "&lt;YOUR_CANDY_MACHINE_ID&gt;",
+            "verified": true,
+            "share": 0
         },
         {
-            &quot;address&quot;: &quot;&lt;KEYPAIR_CREATOR&gt;&quot;,
-            &quot;verified&quot;: true,
-            &quot;share&quot;: 50
+            "address": "&lt;KEYPAIR_CREATOR&gt;",
+            "verified": true,
+            "share": 50
         },
         {
-            &quot;address&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
-            &quot;verified&quot;: false,
-            &quot;share&quot;: 50
+            "address": "42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB",
+            "verified": false,
+            "share": 50
         }
     ]
 }
@@ -1168,26 +1172,26 @@ OPTIONS:
 <p>Note: The on-chain <code>Data</code> struct is <em>different</em> than the external metadata stored at the link in the <code>uri</code> field so make you understand the difference before running this command.</p>
 <p><strong>Make sure you understand how the Metaplex Metadata <code>Data</code> struct works and how this command will affect your NFT. Always test on <code>devnet</code> before running on mainnet.</strong></p>
 <pre><code class="language-json">{
-    &quot;mint&quot;: &quot;CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp&quot;,
-    &quot;name&quot;: &quot;FerrisCrab #4&quot;,
-    &quot;symbol&quot;: &quot;FERRIS&quot;,
-    &quot;uri&quot;: &quot;https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls&quot;,
-    &quot;seller_fee_basis_points&quot;: 100,
-    &quot;creators&quot;: [
+    "mint": "CQNKXw1rw2eWwi812Exk4cKUjKuomZ2156STGRyXd2Mp",
+    "name": "FerrisCrab #4",
+    "symbol": "FERRIS",
+    "uri": "https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls",
+    "seller_fee_basis_points": 100,
+    "creators": [
         {
-            &quot;address&quot;: &quot;&lt;YOUR_CANDY_MACHINE_ID&gt;&quot;,
-            &quot;verified&quot;: true,
-            &quot;share&quot;: 0
+            "address": "&lt;YOUR_CANDY_MACHINE_ID&gt;",
+            "verified": true,
+            "share": 0
         },
         {
-            &quot;address&quot;: &quot;&lt;KEYPAIR_CREATOR&gt;&quot;,
-            &quot;verified&quot;: true,
-            &quot;share&quot;: 50
+            "address": "&lt;KEYPAIR_CREATOR&gt;",
+            "verified": true,
+            "share": 50
         },
         {
-            &quot;address&quot;: &quot;42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB&quot;,
-            &quot;verified&quot;: false,
-            &quot;share&quot;: 50
+            "address": "42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB",
+            "verified": false,
+            "share": 50
         }
     ]}
 </code></pre>
@@ -1215,7 +1219,7 @@ The extra fields will be ignored.</p>
 <h4 id="usage-36"><a class="header" href="#usage-36">Usage</a></h4>
 <pre><code class="language-bash">metaboss update creators -k &lt;PATH_TO_KEYPAIR&gt; -a &lt;MINT_ACCOUNT&gt; -n &lt;CREATOR1:SHARE:VERIFIED,CREATOR2:SHARE:VERIFIED&gt;
 </code></pre>
-<p>Creators should be a comma-delimited list of creator:share:verified. E.g. </p>
+<p>Creators should be a comma-delimited list of creator:share:verified. E.g.</p>
 <p>Example:</p>
 <pre><code class="language-bash">metaboss update creators -k ~/.config/solana/devnet.json -a 4rxTT8pKeYFrFgNBgTspBWVEnMnsAZGwChkjRUtP4Xpi -n 42NevAWA6A8m9prDvZRUYReQmhNC3NtSZQNFUppPJDRB:70:false,AVdBTNhDqYgXGaaVkqiaUJ1Yqa61hMiFFaVRtqwzs5GZ:30:false
 </code></pre>
@@ -1236,12 +1240,12 @@ The extra fields will be ignored.</p>
 </code></pre>
 <pre><code class="language-json">[
     {
-        &quot;mint_account&quot;: &quot;xZ43...&quot;,
-        &quot;new_uri&quot;: &quot;https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls&quot;
+        "mint_account": "xZ43...",
+        "new_uri": "https://arweave.net/N36gZYJ6PEH8OE11i0MppIbPG4VXKV4iuQw1zaq3rls"
     },
         {
-        &quot;mint_account&quot;: &quot;71bk...&quot;,
-        &quot;new_uri&quot;: &quot;https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw&quot;
+        "mint_account": "71bk...",
+        "new_uri": "https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw"
     }
 ]
 </code></pre>

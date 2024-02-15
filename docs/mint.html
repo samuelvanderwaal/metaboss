@@ -174,7 +174,7 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="mint"><a class="header" href="#mint">Mint</a></h2>
-<p>Mint new NFTs from JSON files. </p>
+<p>Mint new NFTs from JSON files.</p>
 <p>For both subcommands the <code>--immutable</code> flag sets the NFT data to be immutable and the <code>--primary-sale-happened</code> flag sets the primary sale happened bool to true.</p>
 <h3 id="mint-one"><a class="header" href="#mint-one">Mint One</a></h3>
 <p>Mint a single NFT from a JSON file.</p>
@@ -186,15 +186,15 @@
 <p>The JSON files should contain all the necessary data required to create an NFT's metadata fields. Creator <code>verified</code> fields must be false unless the creator is also the <code>keypair</code>.</p>
 <p>Example JSON file:</p>
 <pre><code class="language-json">{
-    &quot;name&quot;: &quot;TestNFT1&quot;,
-    &quot;symbol&quot;: &quot;TNFT&quot;,
-    &quot;uri&quot;: &quot;https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw&quot;,
-    &quot;seller_fee_basis_points&quot;: 100,
-    &quot;creators&quot;: [
+    "name": "TestNFT1",
+    "symbol": "TNFT",
+    "uri": "https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw",
+    "seller_fee_basis_points": 100,
+    "creators": [
         {
-            &quot;address&quot;: &quot;PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8&quot;,
-            &quot;verified&quot;: false,
-            &quot;share&quot;: 100
+            "address": "PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8",
+            "verified": false,
+            "share": 100
         }
     ]
 }
@@ -255,24 +255,24 @@ OPTIONS:
 <h4 id="usage-2"><a class="header" href="#usage-2">Usage</a></h4>
 <p>You need an asset json file of this format:</p>
 <pre><code class="language-json">    {
-        &quot;name&quot;: &quot;Studious Crab #1&quot;,
-        &quot;symbol&quot;: &quot;CRAB&quot;,
-        &quot;uri&quot;: &quot;https://arweave.net/uVtABL4PYv0wVke3LL4DLMkqkSMcQl1qswRZNkJ0a0g&quot;,
-        &quot;seller_fee_basis_points&quot;: 100,
-        &quot;creators&quot;: [
+        "name": "Studious Crab #1",
+        "symbol": "CRAB",
+        "uri": "https://arweave.net/uVtABL4PYv0wVke3LL4DLMkqkSMcQl1qswRZNkJ0a0g",
+        "seller_fee_basis_points": 100,
+        "creators": [
             {
-                &quot;address&quot;: &quot;ccc9XfyEMh9sU6DRkUmqQGJqgdKb6QyUaaT5h5BGYw4&quot;,
-                &quot;verified&quot;: true,
-                &quot;share&quot;: 100
+                "address": "ccc9XfyEMh9sU6DRkUmqQGJqgdKb6QyUaaT5h5BGYw4",
+                "verified": true,
+                "share": 100
             }
         ],
-        &quot;primary_sale_happened&quot;: false,
-        &quot;is_mutable&quot;: true,
-        &quot;token_standard&quot;: &quot;ProgrammableNonFungible&quot;,
-        &quot;collection&quot;: null,
-        &quot;uses&quot;: null,
-        &quot;collection_details&quot;: null,
-        &quot;rule_set&quot;: null
+        "primary_sale_happened": false,
+        "is_mutable": true,
+        "token_standard": "ProgrammableNonFungible",
+        "collection": null,
+        "uses": null,
+        "collection_details": null,
+        "rule_set": null
     }
 </code></pre>
 <p>Substitute appropriate values for each field. The creator can only be set as verified if it is the same keypair as the one used to mint the asset, otherwise leave it as <code>false</code>.</p>

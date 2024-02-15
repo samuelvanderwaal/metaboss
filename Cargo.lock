@@ -754,9 +754,9 @@ dependencies = [
 
 [[package]]
 name = "clocksource"
-version = "0.8.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f3ca503ea4a169812981018ee2810f4e4157b0c9006f5dc4a582df637b415c2e"
+checksum = "129026dd5a8a9592d96916258f3a5379589e513ea5e86aeb0bd2530286e44e9e"
 dependencies = [
  "libc",
  "time",
@@ -1831,14 +1831,15 @@ checksum = "b1a46d1a171d865aa5f83f92695765caa047a9b4cbae2cbf37dbd613a793fd4c"
 
 [[package]]
 name = "jib"
-version = "0.7.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4dd0940d451142a65b3afb28f0ca6783e4e7348dd3cd3b7ee3412863b22105e"
+checksum = "08d3a9d9b02b1dd85267a0552d3823e763fa26104ccdb4b4aa3beef8e508b216"
 dependencies = [
  "bincode",
  "futures-util",
  "indicatif 0.17.7",
  "ratelimit 0.9.0",
+ "rayon",
  "serde",
  "solana-client",
  "solana-sdk",
@@ -2029,6 +2030,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "base64 0.13.1",
+ "bincode",
  "borsh 0.10.3",
  "bs58",
  "chrono",
