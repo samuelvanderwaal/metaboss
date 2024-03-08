@@ -290,6 +290,3 @@ mod tests {
         );
     }
 }
-
-// 2D49Wa5zMu16p73KBoSyJ596Uf1ShboTGNF51abKU2VE - Token keg
-// CCFjUhgpDy2am8mqVM9ib8rszyU1bgpyDnLAJ7KjLAVy - Token 22
