@@ -28,7 +28,7 @@ use crate::decode::{
 };
 use crate::derive::{
     get_cmv2_pda, get_collection_delegate, get_edition_marker_pda, get_edition_pda,
-    get_generic_pda, get_metadata_pda, get_token_record_pda,
+    get_generic_pda, get_metadata_pda, get_token_account_pda, get_token_record_pda,
 };
 use crate::find::find_missing_editions_process;
 use crate::mint::{
@@ -487,6 +487,11 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
 
 pub fn process_derive(commands: DeriveSubcommands) {
     match commands {
+        DeriveSubcommands::TokenAccount {
+            mint,
+            owner,
+            token_22,
+        } => get_token_account_pda(mint, owner, token_22),
         DeriveSubcommands::Pda { seeds, program_id } => get_generic_pda(seeds, program_id),
         DeriveSubcommands::Metadata { mint_account } => get_metadata_pda(mint_account),
         DeriveSubcommands::Edition { mint_account } => get_edition_pda(mint_account),
