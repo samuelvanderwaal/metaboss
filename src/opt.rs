@@ -794,6 +794,18 @@ pub enum DecodeSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum DeriveSubcommands {
+    /// Derive token account for Token program and Token 22 program
+    #[structopt(name = "token-account")]
+    TokenAccount {
+        /// The token mint address
+        mint: String,
+        /// The owner address to derive the token account for
+        owner: Option<String>,
+        /// Use Token 22 (Extensions) program
+        #[structopt(long, short)]
+        token_22: bool,
+    },
+
     /// Derive generic PDA from seeds and program id
     #[structopt(name = "pda")]
     Pda {

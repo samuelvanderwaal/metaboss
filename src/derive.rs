@@ -1,8 +1,33 @@
 use crate::constants::{MASTER_EDITION_PREFIX, METADATA_PREFIX, USER_PREFIX};
+use crate::update::{parse_keypair, parse_solana_config};
 use metaboss_lib::derive::{derive_collection_delegate_pda, derive_token_record_pda};
 use mpl_token_metadata::ID;
 use solana_sdk::pubkey::Pubkey;
+use solana_sdk::signer::Signer;
+use spl_associated_token_account::get_associated_token_address_with_program_id;
+use spl_token::ID as token_program_id;
 use std::{convert::AsRef, str::FromStr};
+
+pub fn get_token_account_pda(mint: String, owner: Option<String>, token_22: bool) {
+    let mint = Pubkey::from_str(&mint).expect("Failed to parse pubkey from mint!");
+
+    let owner = if let Some(owner) = owner {
+        Pubkey::from_str(&owner).expect("Failed to parse pubkey from owner!")
+    } else {
+        let solana_opts = parse_solana_config();
+        let config_keypair = parse_keypair(None, solana_opts);
+        config_keypair.pubkey()
+    };
+
+    let program_id = if token_22 {
+        Pubkey::from_str("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb")
+            .expect("Failed to parse pubkey from token 22 (extensions) program!")
+    } else {
+        token_program_id
+    };
+
+    println!("{}", derive_token_account_pda(&mint, &owner, &program_id))
+}
 
 pub fn get_generic_pda(str_seeds: String, program_id: String) {
     let seeds: Vec<Vec<u8>> = str_seeds
@@ -77,6 +102,10 @@ pub fn get_collection_delegate(mint: Pubkey, authority: Pubkey, delegate: Pubkey
 fn derive_generic_pda(seeds: Vec<&[u8]>, program_id: Pubkey) -> Pubkey {
     let (pda, _) = Pubkey::find_program_address(&seeds, &program_id);
     pda
+}
+
+pub fn derive_token_account_pda(mint: &Pubkey, owner: &Pubkey, program_id: &Pubkey) -> Pubkey {
+    get_associated_token_address_with_program_id(owner, mint, program_id)
 }
 
 pub fn derive_metadata_pda(pubkey: &Pubkey) -> Pubkey {
@@ -228,5 +257,36 @@ mod tests {
         let expected_pda =
             Pubkey::from_str("Ei45DbGouAM7NkN5Rk22ep415vbGrbVPEDG9tRfoHb5B").unwrap();
         assert_eq!(derive_cmv3_pda(&candy_machine_pubkey), expected_pda);
+    }
+
+    #[test]
+    fn test_derive_token_account_pda() {
+        let owner_pubkey =
+            Pubkey::from_str("8LSSjDHrfzcf3GnyE41F6SxMifpRCBA7NKSnfAEYzU7q").unwrap();
+
+        let token_keg_mint_pubkey =
+            Pubkey::from_str("2D49Wa5zMu16p73KBoSyJ596Uf1ShboTGNF51abKU2VE").unwrap();
+        let token_22_mint_pubkey =
+            Pubkey::from_str("CCFjUhgpDy2am8mqVM9ib8rszyU1bgpyDnLAJ7KjLAVy").unwrap();
+
+        let token_keg_program_id =
+            Pubkey::from_str("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA").unwrap();
+        let token_22_program_id =
+            Pubkey::from_str("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb").unwrap();
+
+        let expected_token_keg_account_pda =
+            Pubkey::from_str("z2pwPKE1vKSUq9gEjejj2Y9FFq3Unh2eF94LYFQPMES").unwrap();
+        let expected_token_22_account_pda =
+            Pubkey::from_str("87dZdrtQwbbBTSYbVN6DfQUhugx7YZmrha3ZNKhKarKa").unwrap();
+
+        assert_eq!(
+            derive_token_account_pda(&token_keg_mint_pubkey, &owner_pubkey, &token_keg_program_id),
+            expected_token_keg_account_pda
+        );
+
+        assert_eq!(
+            derive_token_account_pda(&token_22_mint_pubkey, &owner_pubkey, &token_22_program_id),
+            expected_token_22_account_pda
+        );
     }
 }
