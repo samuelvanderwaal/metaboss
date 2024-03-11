@@ -8,6 +8,7 @@ pub struct UpdateNameArgs {
     pub keypair: Arc<Keypair>,
     pub mint_account: String,
     pub new_name: String,
+    pub priority: Priority,
 }
 
 pub async fn update_name(args: UpdateNameArgs) -> Result<Signature, ActionError> {
@@ -35,6 +36,7 @@ pub async fn update_name(args: UpdateNameArgs) -> Result<Signature, ActionError>
         token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
+        priority: args.priority,
     };
 
     update_asset(&args.client, update_args)

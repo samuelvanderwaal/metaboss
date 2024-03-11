@@ -15,6 +15,7 @@ pub struct BurnAllArgs {
     pub cache_file: Option<String>,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub struct BurnPrintAllArgs {
@@ -25,12 +26,14 @@ pub struct BurnPrintAllArgs {
     pub cache_file: Option<String>,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub struct BurnArgs {
     pub client: Arc<RpcClient>,
     pub keypair: Arc<Keypair>,
     pub mint_pubkey: Pubkey,
+    pub priority: Priority,
 }
 
 pub struct BurnPrintArgs {
@@ -38,12 +41,14 @@ pub struct BurnPrintArgs {
     pub keypair: Arc<Keypair>,
     pub mint_pubkey: Pubkey,
     pub master_mint_pubkey: Pubkey,
+    pub priority: Priority,
 }
 
 pub async fn burn_one(
     client: RpcClient,
     keypair: Option<String>,
     mint_address: String,
+    priority: Priority,
 ) -> AnyResult<()> {
     let mint_pubkey = Pubkey::from_str(&mint_address)?;
     let solana_opts = parse_solana_config();
@@ -56,6 +61,7 @@ pub async fn burn_one(
         client,
         keypair,
         mint_pubkey,
+        priority,
     };
 
     let sig = burn(args).await?;
@@ -70,6 +76,7 @@ pub async fn burn_print_one(
     keypair: Option<String>,
     mint_address: String,
     master_mint_address: String,
+    priority: Priority,
 ) -> AnyResult<()> {
     let mint_pubkey = Pubkey::from_str(&mint_address)?;
     let master_mint_pubkey = Pubkey::from_str(&master_mint_address)?;
@@ -84,6 +91,7 @@ pub async fn burn_print_one(
         keypair,
         mint_pubkey,
         master_mint_pubkey,
+        priority,
     };
 
     let sig = burn_print(args).await?;
@@ -107,6 +115,7 @@ impl Action for BurnAll {
             client: args.client.clone(),
             keypair: args.keypair.clone(),
             mint_pubkey,
+            priority: args.priority,
         })
         .await
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
@@ -133,6 +142,7 @@ pub async fn burn_all(args: BurnAllArgs) -> AnyResult<()> {
         new_value: NewValue::None,
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     BurnAll::run(args).await?;
 
@@ -208,6 +218,7 @@ impl Action for BurnPrintAll {
             keypair: args.keypair.clone(),
             mint_pubkey,
             master_mint_pubkey,
+            priority: args.priority,
         })
         .await
         .map_err(|e| ActionError::ActionFailed(args.mint_account.to_string(), e.to_string()))?;
@@ -234,6 +245,7 @@ pub async fn burn_print_all(args: BurnPrintAllArgs) -> AnyResult<()> {
         new_value: NewValue::Single(args.master_mint),
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     BurnPrintAll::run(args).await?;
 

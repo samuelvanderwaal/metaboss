@@ -62,6 +62,7 @@ pub async fn unverify_creator_all(args: UnverifyCreatorAllArgs) -> AnyResult<()>
         new_value: NewValue::None,
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: Priority::None,
     };
     UnverifyCreatorAll::run(args).await
 }

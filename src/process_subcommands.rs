@@ -254,6 +254,7 @@ pub async fn process_burn_asset(client: RpcClient, commands: BurnSubcommands) ->
             mint_account,
             token_account,
             amount,
+            priority,
         } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
@@ -264,6 +265,7 @@ pub async fn process_burn_asset(client: RpcClient, commands: BurnSubcommands) ->
                 mint_account,
                 token_account,
                 amount,
+                priority,
             };
 
             let sig = burn_asset(args).await.map_err(Into::<ActionError>::into)?;
@@ -279,6 +281,7 @@ pub async fn process_burn_asset(client: RpcClient, commands: BurnSubcommands) ->
             cache_file,
             rate_limit,
             retries,
+            priority,
         } => {
             burn_asset_all(BurnAssetAllArgs {
                 client,
@@ -287,6 +290,7 @@ pub async fn process_burn_asset(client: RpcClient, commands: BurnSubcommands) ->
                 cache_file,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
@@ -298,7 +302,8 @@ pub async fn process_burn_nft(client: RpcClient, commands: BurnNftSubcommands) -
         BurnNftSubcommands::One {
             keypair,
             mint_account,
-        } => burn_one(client, keypair, mint_account).await,
+            priority,
+        } => burn_one(client, keypair, mint_account, priority).await,
 
         BurnNftSubcommands::All {
             keypair,
@@ -306,6 +311,7 @@ pub async fn process_burn_nft(client: RpcClient, commands: BurnNftSubcommands) -
             cache_file,
             rate_limit,
             retries,
+            priority,
         } => {
             burn_all(BurnAllArgs {
                 client,
@@ -314,6 +320,7 @@ pub async fn process_burn_nft(client: RpcClient, commands: BurnNftSubcommands) -
                 cache_file,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
@@ -326,7 +333,8 @@ pub async fn process_burn_print(client: RpcClient, commands: BurnPrintSubcommand
             keypair,
             account,
             master_edition,
-        } => burn_print_one(client, keypair, account, master_edition).await,
+            priority,
+        } => burn_print_one(client, keypair, account, master_edition, priority).await,
         BurnPrintSubcommands::All {
             keypair,
             mint_list,
@@ -334,6 +342,7 @@ pub async fn process_burn_print(client: RpcClient, commands: BurnPrintSubcommand
             cache_file,
             rate_limit,
             retries,
+            priority,
         } => {
             burn_print_all(BurnPrintAllArgs {
                 client,
@@ -343,6 +352,7 @@ pub async fn process_burn_print(client: RpcClient, commands: BurnPrintSubcommand
                 cache_file,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
@@ -614,7 +624,11 @@ pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> 
 
 pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<()> {
     match commands {
-        SetSubcommands::PrimarySaleHappened { keypair, account } => {
+        SetSubcommands::PrimarySaleHappened {
+            keypair,
+            account,
+            priority,
+        } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
 
@@ -622,6 +636,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 client: Arc::new(client),
                 keypair: Arc::new(keypair),
                 mint_account: account,
+                priority,
             };
 
             let sig = set_primary_sale_happened(args)
@@ -638,6 +653,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             cache_file,
             rate_limit,
             retries,
+            priority,
         } => {
             set_primary_sale_happened_all(SetPrimarySaleHappenedAllArgs {
                 client,
@@ -646,6 +662,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 cache_file,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
@@ -654,6 +671,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             account,
             new_update_authority,
             keypair_payer,
+            priority,
         } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
@@ -666,6 +684,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 payer: Arc::new(payer),
                 mint_account: account,
                 new_authority: new_update_authority,
+                priority,
             };
 
             let sig = set_update_authority(args)
@@ -684,6 +703,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             cache_file,
             rate_limit,
             retries,
+            priority,
         } => {
             set_update_authority_all(SetUpdateAuthorityAllArgs {
                 client,
@@ -694,10 +714,15 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 cache_file,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
-        SetSubcommands::Immutable { keypair, account } => {
+        SetSubcommands::Immutable {
+            keypair,
+            account,
+            priority,
+        } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
 
@@ -705,6 +730,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 client: Arc::new(client),
                 keypair: Arc::new(keypair),
                 mint_account: account,
+                priority,
             };
 
             let sig = set_immutable(args)
@@ -721,6 +747,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             cache_file,
             rate_limit,
             retries,
+            priority,
         } => {
             set_immutable_all(SetImmutableAllArgs {
                 client,
@@ -729,10 +756,15 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 cache_file,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
-        SetSubcommands::TokenStandard { keypair, account } => {
+        SetSubcommands::TokenStandard {
+            keypair,
+            account,
+            priority,
+        } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
 
@@ -740,6 +772,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 client: Arc::new(client),
                 keypair: Arc::new(keypair),
                 mint_account: account,
+                priority,
             };
 
             let sig = set_token_standard_one(args)
@@ -756,6 +789,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
             cache_file,
             rate_limit,
             retries,
+            priority,
         } => {
             set_token_standard_all(SetTokenStandardAllArgs {
                 client,
@@ -764,6 +798,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 cache_file,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
@@ -810,6 +845,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             mint,
             new_rule_set,
+            priority,
         } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
@@ -819,6 +855,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 keypair: Arc::new(keypair),
                 mint_account: mint,
                 new_rule_set,
+                priority,
             };
 
             let sig = update_rule_set(args)
@@ -836,6 +873,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             new_rule_set,
             rate_limit,
             retries,
+            priority,
         } => {
             update_rule_set_all(UpdateRuleSetAllArgs {
                 client,
@@ -845,10 +883,15 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 new_rule_set,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
-        UpdateSubcommands::ClearRuleSet { keypair, mint } => {
+        UpdateSubcommands::ClearRuleSet {
+            keypair,
+            mint,
+            priority,
+        } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
 
@@ -856,6 +899,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 client: Arc::new(client),
                 keypair: Arc::new(keypair),
                 mint_account: mint,
+                priority,
             };
 
             let sig = clear_rule_set(args)
@@ -873,6 +917,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             cache_file,
             rate_limit,
             retries,
+            priority,
         } => {
             clear_rule_set_all(ClearRuleSetAllArgs {
                 client,
@@ -881,6 +926,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 cache_file,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
@@ -888,6 +934,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             account,
             new_sfbp,
+            priority,
         } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
@@ -897,6 +944,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 keypair: Arc::new(keypair),
                 mint_account: account,
                 new_sfbp,
+                priority,
             };
 
             let sig = update_sfbp(args).await.map_err(Into::<ActionError>::into)?;
@@ -912,6 +960,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             new_sfbp,
             rate_limit,
             retries,
+            priority,
         } => {
             update_sfbp_all(UpdateSellerFeeBasisPointsAllArgs {
                 client,
@@ -921,6 +970,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 new_sfbp,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
@@ -928,6 +978,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             account,
             new_name,
+            priority,
         } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
@@ -937,6 +988,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 keypair: Arc::new(keypair),
                 mint_account: account,
                 new_name,
+                priority,
             };
 
             let sig = update_name(args).await.map_err(Into::<ActionError>::into)?;
@@ -949,6 +1001,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             account,
             new_symbol,
+            priority,
         } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
@@ -958,6 +1011,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 keypair: Arc::new(keypair),
                 mint_account: account,
                 new_symbol,
+                priority,
             };
 
             let sig = update_symbol(args)
@@ -975,6 +1029,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             new_symbol,
             rate_limit,
             retries,
+            priority,
         } => {
             update_symbol_all(UpdateSymbolAllArgs {
                 client,
@@ -984,6 +1039,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 new_symbol,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
@@ -992,6 +1048,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             account,
             new_creators,
             append,
+            priority,
         } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
@@ -1002,6 +1059,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 mint_account: account,
                 new_creators,
                 should_append: append,
+                priority,
             };
 
             let sig = update_creator(args)
@@ -1020,6 +1078,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             append,
             rate_limit,
             retries,
+            priority,
         } => {
             update_creator_all(UpdateCreatorAllArgs {
                 client,
@@ -1030,6 +1089,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 should_append: append,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
@@ -1037,6 +1097,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             account,
             new_data_file,
+            priority,
         } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
@@ -1048,6 +1109,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 keypair: Arc::new(keypair),
                 mint_account: account,
                 new_data,
+                priority,
             };
 
             let sig = update_data(args).await.map_err(Into::<ActionError>::into)?;
@@ -1062,6 +1124,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             data_dir,
             rate_limit,
             retries,
+            priority,
         } => {
             update_data_all(UpdateDataAllArgs {
                 client,
@@ -1070,6 +1133,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 new_data_dir: data_dir,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
@@ -1077,6 +1141,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             keypair,
             account,
             new_uri,
+            priority,
         } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
@@ -1086,6 +1151,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 keypair: Arc::new(keypair),
                 mint_account: account,
                 new_uri,
+                priority,
             };
 
             let sig = update_uri(args).await.map_err(Into::<ActionError>::into)?;
@@ -1100,6 +1166,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             cache_file,
             rate_limit,
             retries,
+            priority,
         } => {
             update_uri_all(UpdateUriAllArgs {
                 client,
@@ -1108,6 +1175,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 cache_file,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
@@ -1118,6 +1186,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
             remaining,
             total,
             overwrite,
+            priority,
         } => {
             let args = UsesArgs {
                 client,
@@ -1127,6 +1196,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 remaining,
                 total,
                 overwrite,
+                priority,
             };
             let sig = update_uses_one(args).map_err(Into::<ActionError>::into)?;
             info!("Tx sig: {:?}", sig);

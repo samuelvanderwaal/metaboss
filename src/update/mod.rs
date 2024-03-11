@@ -28,14 +28,16 @@ pub use anyhow::{anyhow, Result as AnyResult};
 pub use async_trait::async_trait;
 pub use log::{debug, error, info, warn};
 pub use metaboss_lib::{
+    data::Priority,
     decode::{decode_metadata_from_mint, ToPubkey},
     derive::{derive_edition_pda, derive_metadata_pda},
     nft::get_nft_token_account,
-    update::{update_asset, UpdateAssetArgs},
+    update::{update_asset, UpdateAssetArgs, V1UpdateArgs},
 };
 pub use mpl_token_metadata::{
     accounts::Metadata,
     instructions::{SetTokenStandardBuilder, UpdateMetadataAccountV2Builder},
+    types::Data,
     types::{DataV2, ProgrammableConfig, RuleSetToggle, TokenStandard, UpdateArgs},
     ID as TOKEN_METADATA_PROGRAM_ID,
 };
@@ -51,7 +53,7 @@ pub use spl_token::state::Account as TokenAccount;
 use std::fs::File;
 pub use std::{cmp, fmt::Display, str::FromStr, sync::Arc};
 
-pub use crate::cache::{Action, BatchActionArgs, RunActionArgs};
+pub use crate::cache::{Action, BatchActionArgs, Cache, NewValue, RunActionArgs};
 pub use crate::decode::{decode, get_metadata_pda};
 pub use crate::errors::ActionError;
 pub use crate::parse::parse_solana_config;

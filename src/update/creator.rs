@@ -1,8 +1,3 @@
-use metaboss_lib::update::V1UpdateArgs;
-use mpl_token_metadata::types::Data;
-
-use crate::cache::NewValue;
-
 use super::*;
 
 pub type UpdateResults = Vec<Result<(), ActionError>>;
@@ -13,6 +8,7 @@ pub struct UpdateCreatorArgs {
     pub mint_account: String,
     pub new_creators: String,
     pub should_append: bool,
+    pub priority: Priority,
 }
 
 pub async fn update_creator(args: UpdateCreatorArgs) -> Result<Signature, ActionError> {
@@ -70,6 +66,7 @@ pub async fn update_creator(args: UpdateCreatorArgs) -> Result<Signature, Action
         token: None::<String>, // The lib will find this if it's a pNFT.
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
+        priority: args.priority,
     };
 
     update_asset(&args.client, update_args)
@@ -85,6 +82,7 @@ pub struct UpdateCreatorAllArgs {
     pub should_append: bool,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub async fn update_creator_all(args: UpdateCreatorAllArgs) -> AnyResult<()> {
@@ -105,6 +103,7 @@ pub async fn update_creator_all(args: UpdateCreatorAllArgs) -> AnyResult<()> {
         new_value: NewValue::Single(args.new_creators),
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     UpdateCreatorAll::run(args).await
 }
@@ -124,6 +123,7 @@ impl Action for UpdateCreatorAll {
             mint_account: args.mint_account,
             new_creators: args.new_value,
             should_append: false,
+            priority: args.priority,
         })
         .await
         .map(|_| ())

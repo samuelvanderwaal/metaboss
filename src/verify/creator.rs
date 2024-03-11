@@ -62,6 +62,7 @@ pub async fn verify_creator_all(args: VerifyCreatorAllArgs) -> AnyResult<()> {
         new_value: NewValue::None,
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: Priority::None,
     };
     VerifyCreatorAll::run(args).await
 }

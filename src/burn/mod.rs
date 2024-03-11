@@ -1,5 +1,6 @@
 use anyhow::Result as AnyResult;
 use async_trait::async_trait;
+use metaboss_lib::data::Priority;
 use mpl_token_metadata::{
     accounts::{Edition, Metadata},
     instructions::{BurnEditionNft, BurnNft},

@@ -13,6 +13,7 @@ pub struct UsesArgs {
     pub remaining: u64,
     pub total: u64,
     pub overwrite: bool,
+    pub priority: Priority,
 }
 
 pub fn update_uses_one(args: UsesArgs) -> Result<Signature, ActionError> {
@@ -62,6 +63,7 @@ pub fn update_uses_one(args: UsesArgs) -> Result<Signature, ActionError> {
         token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
+        priority: args.priority,
     };
 
     update_asset(&args.client, update_args)

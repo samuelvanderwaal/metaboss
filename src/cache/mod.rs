@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result as AnyResult};
 use async_trait::async_trait;
 use indexmap::IndexMap;
 use log::info;
+use metaboss_lib::data::Priority;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -111,6 +112,7 @@ pub struct BatchActionArgs {
     pub new_value: NewValue,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub struct RunActionArgs {
@@ -119,6 +121,7 @@ pub struct RunActionArgs {
     pub payer: Arc<Option<Keypair>>,
     pub mint_account: String,
     pub new_value: String,
+    pub priority: Priority,
 }
 
 #[async_trait]
@@ -202,6 +205,7 @@ pub trait Action {
                         payer: payer.clone(),
                         mint_account: mint_address,
                         new_value: new_value.to_string(),
+                        priority: args.priority.clone(),
                     });
 
                     pb.inc(1);
