@@ -1,5 +1,7 @@
 use anyhow::{anyhow, Result};
 use borsh::{BorshDeserialize, BorshSerialize};
+use dialoguer::Confirm;
+use metaboss_lib::data::{ComputeUnits, PriorityFee};
 use retry::{delay::Exponential, retry};
 use serde::Deserialize;
 use serde_json::json;
@@ -10,6 +12,7 @@ use solana_program::program_pack::Pack;
 use solana_program::system_program;
 use solana_program::{pubkey, pubkey::Pubkey};
 use solana_sdk::commitment_config::CommitmentConfig;
+use solana_sdk::compute_budget::ComputeBudgetInstruction;
 use solana_sdk::{
     instruction::Instruction, signature::Keypair, signer::Signer, transaction::Transaction,
 };
@@ -22,6 +25,82 @@ use crate::wtf_errors::{
     ANCHOR_ERROR, AUCTIONEER_ERROR, AUCTION_HOUSE_ERROR, CANDY_CORE_ERROR, CANDY_ERROR,
     CANDY_GUARD_ERROR, METADATA_ERROR,
 };
+pub fn calculate_priority_fees(
+    client: &RpcClient,
+    signers: Vec<&Keypair>,
+    instruction: Instruction,
+) -> Result<PriorityFee> {
+    let compute_units = calculate_units_consumed(client, signers, vec![instruction.clone()])?;
+
+    let write_lock_accounts = instruction
+        .accounts
+        .into_iter()
+        .filter(|am| am.is_writable)
+        .map(|am| am.pubkey)
+        .collect::<Vec<Pubkey>>();
+
+    // Get recent prioritization fees.
+    let fees = client.get_recent_prioritization_fees(&write_lock_accounts)?;
+
+    let max_fee = fees.iter().map(|pf| pf.prioritization_fee).max();
+    let max_fee = max_fee.unwrap_or(0);
+
+    println!("Max fee: {}", max_fee);
+    println!("Compute units: {}", compute_units);
+
+    // At least 1 lamport priority fee.
+    let priority_fee_lamports = std::cmp::max(max_fee * compute_units as u64 / 1_000_000, 1);
+    let priority_fee_sol = priority_fee_lamports as f64 / 1_000_000_000.0;
+
+    let confirmation = Confirm::new()
+        .with_prompt(format!(
+            "The priority fee for this transaction is {} SOL. Continue?",
+            priority_fee_sol,
+        ))
+        .interact()?;
+
+    if !confirmation {
+        return Err(anyhow!("Transaction cancelled"));
+    }
+
+    // Pad compute units a bit.
+    let compute = compute_units + 20_000;
+    // Ensure that fee * compute / 1_000_000 is at least 1 lamport.
+    let fee = std::cmp::max(max_fee, 1_400_000 / compute as u64);
+
+    Ok(PriorityFee { fee, compute })
+}
+
+pub fn calculate_units_consumed(
+    client: &RpcClient,
+    signers: Vec<&Keypair>,
+    instructions: Vec<Instruction>,
+) -> Result<ComputeUnits> {
+    // Simulate the transaction and see how much compute it used
+    let mut ixs = vec![
+        ComputeBudgetInstruction::set_compute_unit_limit(1_000_000),
+        ComputeBudgetInstruction::set_compute_unit_price(1),
+    ];
+    ixs.extend(instructions);
+
+    let blockhash = client.get_latest_blockhash()?;
+
+    let tx = Transaction::new_signed_with_payer(
+        &ixs,
+        Some(&signers[0].pubkey()),
+        signers.as_slice(),
+        blockhash,
+    );
+
+    let tx_simulation = client.simulate_transaction(&tx)?;
+
+    let fee = tx_simulation
+        .value
+        .units_consumed
+        .ok_or_else(|| anyhow!("No compute units in simulation response"))? as u32;
+
+    Ok(fee)
+}
 
 pub fn send_and_confirm_transaction(
     client: &RpcClient,

@@ -6,11 +6,11 @@ use mpl_token_metadata::{
     instructions::{CreateBuilder, CreateMasterEditionV3Builder},
     types::{CreateArgs, DataV2, TokenStandard},
 };
-use solana_sdk::signature::read_keypair_file;
+use solana_sdk::{compute_budget::ComputeBudgetInstruction, signature::read_keypair_file};
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::instruction::mint_to;
 
-use crate::utils::create_token_if_missing_instruction;
+use crate::utils::{calculate_priority_fees, create_token_if_missing_instruction};
 
 use super::*;
 
@@ -68,7 +68,13 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
         .create_args(create_args)
         .instruction();
 
-    let instructions = vec![ix];
+    let priority_fee = calculate_priority_fees(&args.client, vec![&keypair], ix.clone())?;
+
+    let instructions = vec![
+        ComputeBudgetInstruction::set_compute_unit_limit(priority_fee.compute),
+        ComputeBudgetInstruction::set_compute_unit_price(priority_fee.fee),
+        ix,
+    ];
 
     let sig = send_and_confirm_transaction(&args.client, keypair, &instructions)?;
 
@@ -150,7 +156,13 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         .create_args(create_args)
         .instruction();
 
-    let mut instructions = vec![ix];
+    let priority_fee = calculate_priority_fees(&args.client, vec![&keypair, &mint], ix.clone())?;
+
+    let mut instructions = vec![
+        ComputeBudgetInstruction::set_compute_unit_limit(priority_fee.compute),
+        ComputeBudgetInstruction::set_compute_unit_price(priority_fee.fee),
+        ix,
+    ];
 
     if let Some(initial_supply) = args.initial_supply {
         // Convert float to native token units
@@ -233,9 +245,17 @@ pub fn create_master_edition(args: CreateMasterEditionArgs) -> Result<()> {
     }
     let ix = builder.instruction();
 
+    let priority_fee = calculate_priority_fees(&args.client, vec![&keypair], ix.clone())?;
+
+    let instructions = vec![
+        ComputeBudgetInstruction::set_compute_unit_limit(priority_fee.compute),
+        ComputeBudgetInstruction::set_compute_unit_price(priority_fee.fee),
+        ix,
+    ];
+
     let recent_blockhash = args.client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
-        &[ix],
+        &instructions,
         Some(&keypair.pubkey()),
         &[&keypair, &mint_authority],
         recent_blockhash,
