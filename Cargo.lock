@@ -1059,6 +1059,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "dialoguer"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "658bce805d770f407bc62102fca7c2c64ceef2fbcb2b8bd19d2765ce093980de"
+dependencies = [
+ "console",
+ "shell-words",
+ "tempfile",
+ "thiserror",
+ "zeroize",
+]
+
+[[package]]
 name = "digest"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2035,6 +2048,7 @@ dependencies = [
  "bs58",
  "chrono",
  "console",
+ "dialoguer 0.11.0",
  "dirs 5.0.1",
  "env_logger",
  "futures",
@@ -2072,9 +2086,9 @@ dependencies = [
 
 [[package]]
 name = "metaboss_lib"
-version = "0.17.1"
+version = "0.17.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff5b6202d5b896961bde8c1d0a2f42dc76a663e0f5d4f3207f2cd8cd074f3cee"
+checksum = "8523d7c03fd1188ac24b1fba5edb4ecb4237bddd92b6a75476a36c394c902c9c"
 dependencies = [
  "anyhow",
  "borsh 0.10.3",
@@ -4017,7 +4031,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56a5a567539d6585acc0a0038da5f1350cfca6574272fef545988a469e87286b"
 dependencies = [
  "console",
- "dialoguer",
+ "dialoguer 0.10.4",
  "log",
  "num-derive 0.3.3",
  "num-traits",
