@@ -1238,7 +1238,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
 
-        /// Delay between DAS API requests in milliseconds; defaults to 100
+        /// Delay between DAS API requests in milliseconds; defaults to 500
         #[structopt(short = "D", long, default_value = "500")]
         delay: u64,
     },
@@ -1260,7 +1260,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
 
-        /// Delay between DAS API requests in milliseconds; defaults to 100
+        /// Delay between DAS API requests in milliseconds; defaults to 500
         #[structopt(short = "D", long, default_value = "500")]
         delay: u64,
     },
@@ -1273,7 +1273,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
 
-        /// Delay between DAS API requests in milliseconds; defaults to 100
+        /// Delay between DAS API requests in milliseconds; defaults to 500
         #[structopt(short = "D", long, default_value = "500")]
         delay: u64,
     },
@@ -1286,7 +1286,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
 
-        /// Delay between DAS API requests in milliseconds; defaults to 100
+        /// Delay between DAS API requests in milliseconds; defaults to 500
         #[structopt(short = "D", long, default_value = "500")]
         delay: u64,
     },
