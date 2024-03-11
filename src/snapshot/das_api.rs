@@ -1,8 +1,8 @@
 use std::{fmt::Display, fs::File, path::PathBuf, str::FromStr};
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use metaboss_lib::derive::derive_metadata_pda;
-use reqwest::header::HeaderMap;
+use reqwest::{header::HeaderMap, StatusCode};
 use serde_json::{json, Value};
 use solana_program::pubkey::Pubkey;
 use solana_sdk::signer::Signer;
@@ -50,6 +50,7 @@ pub struct HoldersArgs {
     pub group_key: HolderGroupKey,
     pub group_value: Pubkey,
     pub output: PathBuf,
+    pub delay: u64,
 }
 
 struct Query {
@@ -118,6 +119,11 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
             .send()
             .await?;
 
+        let status = response.status();
+        if response.status() != StatusCode::OK {
+            bail!("Status: {status}\nResponse: {}", response.text().await?);
+        }
+
         let res: DasResponse = response.json().await?;
 
         if res.result.items.is_empty() {
@@ -154,6 +160,8 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
                     ata: ata_pubkey.to_string(),
                 });
             });
+
+        std::thread::sleep(std::time::Duration::from_millis(args.delay));
     }
     spinner.finish();
 
@@ -205,6 +213,7 @@ pub struct MintsArgs {
     pub group_value: Pubkey,
     pub creator_position: usize,
     pub output: PathBuf,
+    pub delay: u64,
 }
 
 pub async fn snapshot_mints(args: MintsArgs) -> Result<()> {
@@ -281,6 +290,11 @@ pub async fn snapshot_mints(args: MintsArgs) -> Result<()> {
             .send()
             .await?;
 
+        let status = response.status();
+        if response.status() != StatusCode::OK {
+            bail!("Status: {status}\nResponse: {}", response.text().await?);
+        }
+
         let res: DasResponse = response.json().await?;
 
         if res.result.items.is_empty() {
@@ -303,6 +317,8 @@ pub async fn snapshot_mints(args: MintsArgs) -> Result<()> {
             .for_each(|item| {
                 mints.push(item.id.clone());
             });
+
+        std::thread::sleep(std::time::Duration::from_millis(args.delay));
     }
     spinner.finish();
 
@@ -322,6 +338,7 @@ pub struct FcvaArgs {
     pub rpc_url: String,
     pub creator: Option<Pubkey>,
     pub output: PathBuf,
+    pub delay: u64,
 }
 
 pub async fn fcva_mints(args: FcvaArgs) -> Result<()> {
@@ -368,6 +385,11 @@ pub async fn fcva_mints(args: FcvaArgs) -> Result<()> {
             .send()
             .await?;
 
+        let status = response.status();
+        if response.status() != StatusCode::OK {
+            bail!("Status: {status}\nResponse: {}", response.text().await?);
+        }
+
         let res: DasResponse = response.json().await?;
 
         if res.result.items.is_empty() {
@@ -386,6 +408,8 @@ pub async fn fcva_mints(args: FcvaArgs) -> Result<()> {
             .for_each(|item| {
                 mints.push(item.id.clone());
             });
+
+        std::thread::sleep(std::time::Duration::from_millis(args.delay));
     }
     spinner.finish();
 
@@ -402,6 +426,7 @@ pub struct MccArgs {
     pub rpc_url: String,
     pub mcc_id: Pubkey,
     pub output: PathBuf,
+    pub delay: u64,
 }
 
 pub async fn mcc_mints(args: MccArgs) -> Result<()> {
@@ -441,6 +466,11 @@ pub async fn mcc_mints(args: MccArgs) -> Result<()> {
             .send()
             .await?;
 
+        let status = response.status();
+        if response.status() != StatusCode::OK {
+            bail!("Status: {status}\nResponse: {}", response.text().await?);
+        }
+
         let res: DasResponse = response.json().await?;
 
         if res.result.items.is_empty() {
@@ -452,6 +482,8 @@ pub async fn mcc_mints(args: MccArgs) -> Result<()> {
         res.result.items.iter().for_each(|item| {
             mints.push(item.id.clone());
         });
+
+        std::thread::sleep(std::time::Duration::from_millis(args.delay));
     }
     spinner.finish_and_clear();
 
