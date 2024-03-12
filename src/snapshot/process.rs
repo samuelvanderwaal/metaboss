@@ -16,12 +16,14 @@ pub async fn process_snapshot(
             group_key,
             group_value,
             output,
+            delay,
         } => {
             snapshot_holders(HoldersArgs {
                 rpc_url,
                 group_key,
                 group_value,
                 output,
+                delay,
             })
             .await
         }
@@ -30,6 +32,7 @@ pub async fn process_snapshot(
             group_value,
             creator_position,
             output,
+            delay,
         } => {
             snapshot_mints(MintsArgs {
                 rpc_url,
@@ -37,22 +40,33 @@ pub async fn process_snapshot(
                 group_value,
                 creator_position,
                 output,
+                delay,
             })
             .await
         }
-        SnapshotSubcommands::Fvca { creator, output } => {
+        SnapshotSubcommands::Fvca {
+            creator,
+            output,
+            delay,
+        } => {
             fcva_mints(FcvaArgs {
                 rpc_url,
                 creator,
                 output,
+                delay,
             })
             .await
         }
-        SnapshotSubcommands::Mcc { mcc_id, output } => {
+        SnapshotSubcommands::Mcc {
+            mcc_id,
+            output,
+            delay,
+        } => {
             mcc_mints(MccArgs {
                 rpc_url,
                 mcc_id,
                 output,
+                delay,
             })
             .await
         }
