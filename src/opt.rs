@@ -1308,6 +1308,10 @@ pub enum SnapshotSubcommands {
         /// Path to directory to save output file
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
+
+        /// Delay between DAS API requests in milliseconds; defaults to 500
+        #[structopt(short = "D", long, default_value = "500")]
+        delay: u64,
     },
     /// Get all mint accounts by various group types
     Mints {
@@ -1326,6 +1330,10 @@ pub enum SnapshotSubcommands {
         /// Path to directory to save output file
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
+
+        /// Delay between DAS API requests in milliseconds; defaults to 500
+        #[structopt(short = "D", long, default_value = "500")]
+        delay: u64,
     },
     /// Get all mint accounts by First Verified Creator Address
     Fvca {
@@ -1335,6 +1343,10 @@ pub enum SnapshotSubcommands {
         /// Path to directory to save output file
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
+
+        /// Delay between DAS API requests in milliseconds; defaults to 500
+        #[structopt(short = "D", long, default_value = "500")]
+        delay: u64,
     },
     /// Get all mint accounts by Metaplex Certified Collection key
     Mcc {
@@ -1344,6 +1356,10 @@ pub enum SnapshotSubcommands {
         /// Path to directory to save output file
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
+
+        /// Delay between DAS API requests in milliseconds; defaults to 500
+        #[structopt(short = "D", long, default_value = "500")]
+        delay: u64,
     },
     /// Get all current holders of NFTs by legacy gPA calls
     #[structopt(name = "holders-gpa")]

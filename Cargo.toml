@@ -1,6 +1,6 @@
 [package]
 name = "metaboss"
-version = "0.37.0"
+version = "0.37.1"
 edition = "2021"
 description = "The Metaplex NFT-standard Swiss Army Knife tool."
 repository = "https://github.com/samuelvanderwaal/metaboss"
@@ -24,8 +24,7 @@ indicatif = { version = "0.16.2", features = ["rayon"] }
 jib = "0.8.0"
 lazy_static = "1.4.0"
 log = "0.4.20"
-# metaboss_lib = { git = "https://github.com/samuelvanderwaal/metaboss_lib", branch = "feat/simple-priority-fees" }
-metaboss_lib = { path = "../metaboss_lib" }
+metaboss_lib = { git = "https://github.com/samuelvanderwaal/metaboss_lib", branch = "feat/simple-priority-fees" }
 mpl-token-metadata = { version = "3.2.3", features = ["serde"] }
 num_cpus = "1.16.0"
 once_cell = "1.19.0"
