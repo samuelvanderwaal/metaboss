@@ -14,6 +14,7 @@ pub struct UpdateUriAllArgs {
     pub new_uris_file: String,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub struct UpdateUriArgs {
@@ -21,6 +22,7 @@ pub struct UpdateUriArgs {
     pub keypair: Arc<Keypair>,
     pub mint_account: String,
     pub new_uri: String,
+    pub priority: Priority,
 }
 
 pub async fn update_uri(args: UpdateUriArgs) -> Result<Signature, ActionError> {
@@ -55,6 +57,7 @@ pub async fn update_uri(args: UpdateUriArgs) -> Result<Signature, ActionError> {
         token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
+        priority: args.priority,
     };
 
     update_asset(&args.client, update_args)
@@ -75,6 +78,7 @@ impl Action for UpdateUriAll {
             keypair: args.keypair.clone(),
             mint_account: args.mint_account,
             new_uri: args.new_value,
+            priority: args.priority,
         })
         .await
         .map(|_| ())
@@ -118,6 +122,7 @@ pub async fn update_uri_all(args: UpdateUriAllArgs) -> AnyResult<()> {
         new_value: NewValue::List(mint_values),
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     UpdateUriAll::run(args).await?;
     Ok(())

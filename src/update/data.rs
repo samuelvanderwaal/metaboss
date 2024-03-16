@@ -16,6 +16,7 @@ pub struct UpdateDataAllArgs {
     pub new_data_dir: String,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub struct UpdateDataArgs {
@@ -23,6 +24,7 @@ pub struct UpdateDataArgs {
     pub keypair: Arc<Keypair>,
     pub mint_account: String,
     pub new_data: Data,
+    pub priority: Priority,
 }
 
 pub async fn update_data(args: UpdateDataArgs) -> Result<Signature, ActionError> {
@@ -42,6 +44,7 @@ pub async fn update_data(args: UpdateDataArgs) -> Result<Signature, ActionError>
         token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
+        priority: args.priority,
     };
 
     update_asset(&args.client, update_args)
@@ -69,6 +72,7 @@ impl Action for UpdateDataAll {
             keypair: args.keypair.clone(),
             mint_account: args.mint_account,
             new_data,
+            priority: args.priority,
         })
         .await
         .map(|_| ())
@@ -160,6 +164,7 @@ pub async fn update_data_all(args: UpdateDataAllArgs) -> AnyResult<()> {
         new_value: NewValue::List(mint_values),
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     UpdateDataAll::run(args).await
 }

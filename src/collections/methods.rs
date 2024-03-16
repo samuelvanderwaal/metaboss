@@ -2,13 +2,13 @@ use super::*;
 
 use crate::parse::parse_keypair;
 use crate::{parse::parse_solana_config, utils::send_and_confirm_transaction};
-use metaboss_lib::derive::derive_metadata_pda;
-use metaboss_lib::update::V1UpdateArgs;
 use metaboss_lib::{
+    data::Priority,
     delegate::{delegate_asset, DelegateAssetArgs},
+    derive::derive_metadata_pda,
     revoke::{revoke_asset, RevokeAssetArgs},
     unverify::{unverify_collection_ix, UnverifyCollectionArgs},
-    update::{update_asset_ix, UpdateAssetArgs},
+    update::{update_asset_ix, UpdateAssetArgs, V1UpdateArgs},
     verify::{verify_collection_ix, VerifyCollectionArgs},
 };
 use mpl_token_metadata::types::SetCollectionSizeArgs;
@@ -50,6 +50,7 @@ pub fn set_and_verify_nft_collection(
         token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
+        priority: Priority::None,
     };
 
     instructions.push(update_asset_ix(&client, update_args)?);

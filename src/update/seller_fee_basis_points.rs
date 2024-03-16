@@ -10,6 +10,7 @@ pub struct UpdateSellerFeeBasisPointsArgs {
     pub keypair: Arc<Keypair>,
     pub mint_account: String,
     pub new_sfbp: u16,
+    pub priority: Priority,
 }
 pub struct UpdateSellerFeeBasisPointsAllArgs {
     pub client: RpcClient,
@@ -19,6 +20,7 @@ pub struct UpdateSellerFeeBasisPointsAllArgs {
     pub new_sfbp: u16,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<Signature, ActionError> {
@@ -48,6 +50,7 @@ pub async fn update_sfbp(args: UpdateSellerFeeBasisPointsArgs) -> Result<Signatu
         token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
+        priority: args.priority,
     };
 
     update_asset(&args.client, update_args)
@@ -77,6 +80,7 @@ impl Action for UpdateSellerFeeBasisPointsAll {
             keypair: args.keypair.clone(),
             mint_account: args.mint_account,
             new_sfbp: sfbp,
+            priority: args.priority,
         })
         .await
         .map(|_| ())
@@ -101,6 +105,7 @@ pub async fn update_sfbp_all(args: UpdateSellerFeeBasisPointsAllArgs) -> AnyResu
         new_value: NewValue::Single(args.new_sfbp.to_string()),
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     UpdateSellerFeeBasisPointsAll::run(args).await
 }

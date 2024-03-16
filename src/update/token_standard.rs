@@ -9,6 +9,7 @@ pub struct SetTokenStandardArgs {
     pub client: Arc<RpcClient>,
     pub keypair: Arc<Keypair>,
     pub mint_account: String,
+    pub priority: Priority,
 }
 
 pub struct SetTokenStandardAllArgs {
@@ -18,6 +19,7 @@ pub struct SetTokenStandardAllArgs {
     pub cache_file: Option<String>,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub async fn set_token_standard_one(args: SetTokenStandardArgs) -> Result<Signature, ActionError> {
@@ -73,6 +75,7 @@ impl Action for SetTokenStandardAll {
             client: args.client.clone(),
             keypair: args.keypair.clone(),
             mint_account: args.mint_account.clone(),
+            priority: args.priority,
         })
         .await
         .map(|_| ())
@@ -97,6 +100,7 @@ pub async fn set_token_standard_all(args: SetTokenStandardAllArgs) -> AnyResult<
         new_value: NewValue::None,
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     SetTokenStandardAll::run(args).await
 }

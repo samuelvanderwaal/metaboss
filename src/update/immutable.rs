@@ -8,6 +8,7 @@ pub struct SetImmutableArgs {
     pub client: Arc<RpcClient>,
     pub keypair: Arc<Keypair>,
     pub mint_account: String,
+    pub priority: Priority,
 }
 
 pub struct SetImmutableAllArgs {
@@ -17,6 +18,7 @@ pub struct SetImmutableAllArgs {
     pub cache_file: Option<String>,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub async fn set_immutable(args: SetImmutableArgs) -> Result<Signature, ActionError> {
@@ -36,6 +38,7 @@ pub async fn set_immutable(args: SetImmutableArgs) -> Result<Signature, ActionEr
         token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
+        priority: args.priority,
     };
 
     update_asset(&args.client, update_args)
@@ -55,6 +58,7 @@ impl Action for SetImmutableAll {
             client: args.client.clone(),
             keypair: args.keypair.clone(),
             mint_account: args.mint_account.clone(),
+            priority: args.priority,
         })
         .await
         .map(|_| ())
@@ -79,6 +83,7 @@ pub async fn set_immutable_all(args: SetImmutableAllArgs) -> AnyResult<()> {
         new_value: NewValue::None,
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     SetImmutableAll::run(args).await
 }

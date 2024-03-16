@@ -1,4 +1,4 @@
-use metaboss_lib::update::V1UpdateArgs;
+use metaboss_lib::{data::Priority, update::V1UpdateArgs};
 use mpl_token_metadata::types::Data;
 
 use crate::cache::NewValue;
@@ -13,6 +13,7 @@ pub struct UpdateSymbolAllArgs {
     pub new_symbol: String,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub struct UpdateSymbolArgs {
@@ -20,6 +21,7 @@ pub struct UpdateSymbolArgs {
     pub keypair: Arc<Keypair>,
     pub mint_account: String,
     pub new_symbol: String,
+    pub priority: Priority,
 }
 
 pub async fn update_symbol(args: UpdateSymbolArgs) -> Result<Signature, ActionError> {
@@ -47,6 +49,7 @@ pub async fn update_symbol(args: UpdateSymbolArgs) -> Result<Signature, ActionEr
         token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
+        priority: args.priority,
     };
 
     update_asset(&args.client, update_args)
@@ -67,6 +70,7 @@ impl Action for UpdateSymbolAll {
             keypair: args.keypair.clone(),
             mint_account: args.mint_account,
             new_symbol: args.new_value,
+            priority: args.priority,
         })
         .await
         .map(|_| ())
@@ -91,6 +95,7 @@ pub async fn update_symbol_all(args: UpdateSymbolAllArgs) -> AnyResult<()> {
         new_value: NewValue::Single(args.new_symbol),
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     UpdateSymbolAll::run(args).await?;
 

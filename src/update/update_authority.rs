@@ -13,6 +13,7 @@ pub struct SetUpdateAuthorityAllArgs {
     pub new_authority: String,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub struct SetUpdateAuthorityArgs {
@@ -21,6 +22,7 @@ pub struct SetUpdateAuthorityArgs {
     pub payer: Arc<Option<Keypair>>,
     pub mint_account: String,
     pub new_authority: String,
+    pub priority: Priority,
 }
 
 pub async fn set_update_authority(args: SetUpdateAuthorityArgs) -> Result<Signature, ActionError> {
@@ -43,6 +45,7 @@ pub async fn set_update_authority(args: SetUpdateAuthorityArgs) -> Result<Signat
         token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
+        priority: args.priority,
     };
 
     update_asset(&args.client, update_args)
@@ -65,6 +68,7 @@ impl Action for SetUpdateAuthorityAll {
             payer: args.payer.clone(),
             mint_account: args.mint_account,
             new_authority: args.new_value,
+            priority: args.priority,
         })
         .await
         .map(|_| ())
@@ -91,6 +95,7 @@ pub async fn set_update_authority_all(args: SetUpdateAuthorityAllArgs) -> AnyRes
         new_value: NewValue::Single(args.new_authority),
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     SetUpdateAuthorityAll::run(args).await
 }

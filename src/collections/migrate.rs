@@ -5,10 +5,10 @@ use crate::limiter::create_rate_limiter_with_capacity;
 use crate::spinner::create_progress_bar;
 use crate::{derive::derive_metadata_pda, errors::MigrateError, parse::parse_solana_config};
 use crate::{parse::parse_keypair, snapshot::get_mint_accounts};
-use metaboss_lib::update::V1UpdateArgs;
 use metaboss_lib::{
+    data::Priority,
     unverify::{unverify_collection_ix, UnverifyCollectionArgs},
-    update::{update_asset_ix, UpdateAssetArgs},
+    update::{update_asset_ix, UpdateAssetArgs, V1UpdateArgs},
     verify::{verify_collection_ix, VerifyCollectionArgs},
 };
 use mpl_token_metadata::types::CollectionToggle;
@@ -148,6 +148,7 @@ async fn set_and_verify(
             token: None::<String>,
             delegate_record: None::<String>, // Not supported yet in update.
             update_args,
+            priority: Priority::None,
         },
     )
     .map_err(|e| MigrateError::MigrationFailed(nft_mint.clone(), e.to_string()))?;

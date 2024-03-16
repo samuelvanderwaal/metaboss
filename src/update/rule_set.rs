@@ -12,6 +12,7 @@ pub struct UpdateRuleSetAllArgs {
     pub new_rule_set: String,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub struct UpdateRuleSetArgs {
@@ -19,6 +20,7 @@ pub struct UpdateRuleSetArgs {
     pub keypair: Arc<Keypair>,
     pub mint_account: String,
     pub new_rule_set: String,
+    pub priority: Priority,
 }
 
 pub struct ClearRuleSetAllArgs {
@@ -28,12 +30,14 @@ pub struct ClearRuleSetAllArgs {
     pub cache_file: Option<String>,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub struct ClearRuleSetArgs {
     pub client: Arc<RpcClient>,
     pub keypair: Arc<Keypair>,
     pub mint_account: String,
+    pub priority: Priority,
 }
 
 pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<Signature, ActionError> {
@@ -56,6 +60,7 @@ pub async fn update_rule_set(args: UpdateRuleSetArgs) -> Result<Signature, Actio
         token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
+        priority: args.priority,
     };
 
     update_asset(&args.client, update_args)
@@ -82,6 +87,7 @@ pub async fn clear_rule_set(args: ClearRuleSetArgs) -> Result<Signature, ActionE
         token: None::<String>,
         delegate_record: None::<String>, // Not supported yet in update.
         update_args,
+        priority: args.priority,
     };
 
     update_asset(&args.client, update_args)
@@ -102,6 +108,7 @@ impl Action for UpdateRuleSetAll {
             keypair: args.keypair.clone(),
             mint_account: args.mint_account,
             new_rule_set: args.new_value,
+            priority: args.priority,
         })
         .await
         .map(|_| ())
@@ -126,6 +133,7 @@ pub async fn update_rule_set_all(args: UpdateRuleSetAllArgs) -> AnyResult<()> {
         new_value: NewValue::Single(args.new_rule_set),
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     UpdateRuleSetAll::run(args).await
 }
@@ -143,6 +151,7 @@ impl Action for ClearRuleSetAll {
             client: args.client.clone(),
             keypair: args.keypair.clone(),
             mint_account: args.mint_account,
+            priority: args.priority,
         })
         .await
         .map(|_| ())
@@ -167,6 +176,7 @@ pub async fn clear_rule_set_all(args: ClearRuleSetAllArgs) -> AnyResult<()> {
         new_value: NewValue::None,
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     ClearRuleSetAll::run(args).await
 }

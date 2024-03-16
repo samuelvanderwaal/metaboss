@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use metaboss_lib::data::Priority;
 use solana_program::pubkey::Pubkey;
 use structopt::StructOpt;
 
@@ -247,6 +248,11 @@ pub enum BurnSubcommands {
         /// Amount, defaults to 1.
         #[structopt(long, default_value = "1")]
         amount: u64,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Burn a batch of assets.
     #[structopt(name = "asset-all")]
@@ -270,6 +276,11 @@ pub enum BurnSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
 }
 
@@ -285,6 +296,11 @@ pub enum BurnNftSubcommands {
         /// Token mint account of the asset
         #[structopt(short = "a", long)]
         mint_account: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Burn a batch of NFTs.
     #[structopt(name = "all")]
@@ -308,6 +324,11 @@ pub enum BurnNftSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
 }
 
@@ -327,6 +348,11 @@ pub enum BurnPrintSubcommands {
         /// Token mint account of the master edition NFT
         #[structopt(short, long)]
         master_edition: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Burn a batch of NFTs.
     #[structopt(name = "all")]
@@ -354,6 +380,11 @@ pub enum BurnPrintSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
 }
 
@@ -1041,6 +1072,11 @@ pub enum SetSubcommands {
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
         account: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Set primary sale happened to true for a list of mint addresses, enabling secondary sale royalties.
     #[structopt(name = "secondary-sale-all")]
@@ -1064,6 +1100,11 @@ pub enum SetSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Set update authority to a new account
     #[structopt(name = "update-authority")]
@@ -1083,6 +1124,11 @@ pub enum SetSubcommands {
         //Path to the payers's keypair file
         #[structopt(short = "p", long)]
         keypair_payer: Option<String>,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Set update authority on multiple accounts to a new account
     #[structopt(name = "update-authority-all")]
@@ -1114,6 +1160,11 @@ pub enum SetSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Set is-mutable to false, preventing any future updates to the NFT
     #[structopt(name = "immutable")]
@@ -1125,6 +1176,11 @@ pub enum SetSubcommands {
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
         account: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     ImmutableAll {
         /// Path to the update authority's keypair file
@@ -1146,6 +1202,11 @@ pub enum SetSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Set an asset to the correct Token Standard.
     TokenStandard {
@@ -1156,6 +1217,11 @@ pub enum SetSubcommands {
         /// Mint account of corresponding metadata to update
         #[structopt(short, long)]
         account: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Set all assets in a list to be the correct Token Standard.
     TokenStandardAll {
@@ -1178,6 +1244,11 @@ pub enum SetSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
 }
 
@@ -1387,6 +1458,11 @@ pub enum UpdateSubcommands {
         /// New rule set pubkey
         #[structopt(short, long)]
         new_rule_set: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update the rule set of a batch of pNFTs.
     RuleSetAll {
@@ -1413,6 +1489,11 @@ pub enum UpdateSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Remove the rule set of a pNFT.
     ClearRuleSet {
@@ -1423,6 +1504,11 @@ pub enum UpdateSubcommands {
         /// Mint account of token to transfer
         #[structopt(short = "a", long)]
         mint: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Remove the rule set from a batch of pNFTs.
     ClearRuleSetAll {
@@ -1445,6 +1531,11 @@ pub enum UpdateSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update the seller fee basis points field inside the data struct on an NFT
     #[structopt(name = "sfbp")]
@@ -1460,6 +1551,11 @@ pub enum UpdateSubcommands {
         /// New seller fee basis points for the metadata
         #[structopt(short, long)]
         new_sfbp: u16,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update the seller fee basis points field inside the data struct on an NFT
     #[structopt(name = "sfbp-all")]
@@ -1487,6 +1583,11 @@ pub enum UpdateSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update the name field inside the data struct on an NFT
     #[structopt(name = "name")]
@@ -1502,6 +1603,11 @@ pub enum UpdateSubcommands {
         /// New name for the metadata
         #[structopt(short, long)]
         new_name: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update the symbol field inside the data struct on an NFT
     #[structopt(name = "symbol")]
@@ -1517,6 +1623,11 @@ pub enum UpdateSubcommands {
         /// New name for the metadata
         #[structopt(short, long)]
         new_symbol: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update all symbols for a list of mint addresses.
     SymbolAll {
@@ -1543,6 +1654,11 @@ pub enum UpdateSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update the creators field by position inside the data struct on an NFT
     #[structopt(name = "creators")]
@@ -1562,6 +1678,11 @@ pub enum UpdateSubcommands {
         /// Should be appended instead of overwriting
         #[structopt(short = "A", long = "append")]
         append: bool,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update all the creators fields for a list of mint addresses.
     #[structopt(name = "creators-all")]
@@ -1593,6 +1714,11 @@ pub enum UpdateSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update the data struct on a NFT
     #[structopt(name = "data")]
@@ -1608,6 +1734,11 @@ pub enum UpdateSubcommands {
         /// Path to JSON file containing new data
         #[structopt(short, long)]
         new_data_file: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update the data struct on a list of NFTs
     #[structopt(name = "data-all")]
@@ -1631,6 +1762,11 @@ pub enum UpdateSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update the metadata URI, keeping the rest of the data the same
     #[structopt(name = "uri")]
@@ -1646,6 +1782,11 @@ pub enum UpdateSubcommands {
         /// New uri
         #[structopt(short = "u", long)]
         new_uri: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update the metadata URI on a list of mint accounts
     #[structopt(name = "uri-all")]
@@ -1669,6 +1810,11 @@ pub enum UpdateSubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
     /// Update the Uses data on a NFT
     #[structopt(name = "uses")]
@@ -1696,6 +1842,11 @@ pub enum UpdateSubcommands {
         /// Override existing values
         #[structopt(long)]
         overwrite: bool,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See metaboss.rs/update for more details.
+        #[structopt(short, long, default_value = "none")]
+        priority: Priority,
     },
 }
 

@@ -8,6 +8,7 @@ pub struct BurnAssetArgs {
     pub mint_account: String,
     pub token_account: Option<String>,
     pub amount: u64,
+    pub priority: Priority,
 }
 
 pub struct BurnAssetAllArgs {
@@ -17,6 +18,7 @@ pub struct BurnAssetAllArgs {
     pub cache_file: Option<String>,
     pub rate_limit: usize,
     pub retries: u8,
+    pub priority: Priority,
 }
 
 pub async fn burn_asset(args: BurnAssetArgs) -> Result<Signature, ActionError> {
@@ -57,6 +59,7 @@ impl Action for BurnAssetAll {
             mint_account: args.mint_account.clone(),
             token_account: None, // Must be ATA for this action, currently.
             amount: 1,
+            priority: args.priority,
         })
         .await
         .map(|_| ())
@@ -81,6 +84,7 @@ pub async fn burn_asset_all(args: BurnAssetAllArgs) -> AnyResult<()> {
         new_value: NewValue::None,
         rate_limit: args.rate_limit,
         retries: args.retries,
+        priority: args.priority,
     };
     BurnAssetAll::run(args).await
 }
