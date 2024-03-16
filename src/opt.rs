@@ -250,7 +250,7 @@ pub enum BurnSubcommands {
         amount: u64,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -278,7 +278,7 @@ pub enum BurnSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -298,7 +298,7 @@ pub enum BurnNftSubcommands {
         mint_account: String,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -326,7 +326,7 @@ pub enum BurnNftSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -350,7 +350,7 @@ pub enum BurnPrintSubcommands {
         master_edition: String,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -382,7 +382,7 @@ pub enum BurnPrintSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1074,7 +1074,7 @@ pub enum SetSubcommands {
         account: String,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1102,7 +1102,7 @@ pub enum SetSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1126,7 +1126,7 @@ pub enum SetSubcommands {
         keypair_payer: Option<String>,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1162,7 +1162,7 @@ pub enum SetSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1178,7 +1178,7 @@ pub enum SetSubcommands {
         account: String,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1204,7 +1204,7 @@ pub enum SetSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1219,7 +1219,7 @@ pub enum SetSubcommands {
         account: String,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1246,7 +1246,7 @@ pub enum SetSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1460,7 +1460,7 @@ pub enum UpdateSubcommands {
         new_rule_set: String,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1491,7 +1491,7 @@ pub enum UpdateSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1506,7 +1506,7 @@ pub enum UpdateSubcommands {
         mint: String,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1533,7 +1533,7 @@ pub enum UpdateSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1553,7 +1553,7 @@ pub enum UpdateSubcommands {
         new_sfbp: u16,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1585,7 +1585,7 @@ pub enum UpdateSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1605,7 +1605,7 @@ pub enum UpdateSubcommands {
         new_name: String,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1625,7 +1625,7 @@ pub enum UpdateSubcommands {
         new_symbol: String,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1656,7 +1656,7 @@ pub enum UpdateSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1680,7 +1680,7 @@ pub enum UpdateSubcommands {
         append: bool,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1716,7 +1716,7 @@ pub enum UpdateSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1736,7 +1736,7 @@ pub enum UpdateSubcommands {
         new_data_file: String,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1764,7 +1764,7 @@ pub enum UpdateSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1784,7 +1784,7 @@ pub enum UpdateSubcommands {
         new_uri: String,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1812,7 +1812,7 @@ pub enum UpdateSubcommands {
         retries: u8,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
@@ -1844,7 +1844,7 @@ pub enum UpdateSubcommands {
         overwrite: bool,
 
         /// Priority of the transaction: higher priority costs more.
-        /// See metaboss.rs/update for more details.
+        /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short, long, default_value = "none")]
         priority: Priority,
     },
