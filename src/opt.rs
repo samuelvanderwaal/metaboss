@@ -251,7 +251,7 @@ pub enum BurnSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Burn a batch of assets.
@@ -279,7 +279,7 @@ pub enum BurnSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
 }
@@ -299,7 +299,7 @@ pub enum BurnNftSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Burn a batch of NFTs.
@@ -327,7 +327,7 @@ pub enum BurnNftSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
 }
@@ -351,7 +351,7 @@ pub enum BurnPrintSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Burn a batch of NFTs.
@@ -383,7 +383,7 @@ pub enum BurnPrintSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
 }
@@ -407,6 +407,11 @@ pub enum CreateSubcommands {
         /// Create metadata account as immutable.
         #[structopt(long)]
         immutable: bool,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
 
     /// Mint SPL tokens from an existing mint account using the Token Program.
@@ -434,6 +439,11 @@ pub enum CreateSubcommands {
         /// Create metadata account as immutable.
         #[structopt(long)]
         immutable: bool,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
     // Decorate an existing mint + metadata account with a master edition account.
     MasterEdition {
@@ -453,6 +463,11 @@ pub enum CreateSubcommands {
         /// -1 means no limit.
         #[structopt(short = "s", long, default_value = "0")]
         max_supply: i64,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
 }
 
@@ -1075,7 +1090,7 @@ pub enum SetSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Set primary sale happened to true for a list of mint addresses, enabling secondary sale royalties.
@@ -1103,7 +1118,7 @@ pub enum SetSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Set update authority to a new account
@@ -1127,7 +1142,7 @@ pub enum SetSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Set update authority on multiple accounts to a new account
@@ -1163,7 +1178,7 @@ pub enum SetSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Set is-mutable to false, preventing any future updates to the NFT
@@ -1179,7 +1194,7 @@ pub enum SetSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     ImmutableAll {
@@ -1205,7 +1220,7 @@ pub enum SetSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Set an asset to the correct Token Standard.
@@ -1220,7 +1235,7 @@ pub enum SetSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Set all assets in a list to be the correct Token Standard.
@@ -1247,7 +1262,7 @@ pub enum SetSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
 }
@@ -1461,7 +1476,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update the rule set of a batch of pNFTs.
@@ -1492,7 +1507,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Remove the rule set of a pNFT.
@@ -1507,7 +1522,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Remove the rule set from a batch of pNFTs.
@@ -1534,7 +1549,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update the seller fee basis points field inside the data struct on an NFT
@@ -1554,7 +1569,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update the seller fee basis points field inside the data struct on an NFT
@@ -1586,7 +1601,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update the name field inside the data struct on an NFT
@@ -1606,7 +1621,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update the symbol field inside the data struct on an NFT
@@ -1626,7 +1641,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update all symbols for a list of mint addresses.
@@ -1657,7 +1672,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update the creators field by position inside the data struct on an NFT
@@ -1681,7 +1696,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update all the creators fields for a list of mint addresses.
@@ -1717,7 +1732,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update the data struct on a NFT
@@ -1737,7 +1752,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update the data struct on a list of NFTs
@@ -1765,7 +1780,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update the metadata URI, keeping the rest of the data the same
@@ -1785,7 +1800,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update the metadata URI on a list of mint accounts
@@ -1813,7 +1828,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
     /// Update the Uses data on a NFT
@@ -1845,7 +1860,7 @@ pub enum UpdateSubcommands {
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
-        #[structopt(short, long, default_value = "none")]
+        #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
 }

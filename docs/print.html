@@ -1480,29 +1480,6 @@ OPTIONS:
 <div style="break-before: page; page-break-before: always;"></div><h2 id="withdraw-deprecated"><a class="header" href="#withdraw-deprecated">Withdraw (Deprecated)</a></h2>
 <p>Use Metaplex's <a href="https://docs.metaplex.com/sugar/introduction">Sugar</a> tool for withdrawing from candy machines instead.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="priority-fees"><a class="header" href="#priority-fees">Priority Fees</a></h1>
-<p>To specify priority fees on Metaboss transactions, use the <code>--priority/-p</code> flag. The current priority values are set at:</p>
-<div class="table-wrapper"><table><thead><tr><th>Priority</th><th>MicroLamport Units</th></tr></thead><tbody>
-<tr><td>"none"</td><td>20</td></tr>
-<tr><td>"low"</td><td>20_000</td></tr>
-<tr><td>"medium"</td><td>200_000</td></tr>
-<tr><td>"high"</td><td>1_000_000</td></tr>
-<tr><td>"max"</td><td>2_000_000</td></tr>
-<tr><td>------------</td><td>--------------------</td></tr>
-</tbody></table>
-</div>
-<p>The default value if no priority is specified is <code>None</code>.</p>
-<p>The total amount spennt on priority fees per transaction is the microlamports multiplied by the compute units used. The approximate value of each priority level for the <code>update</code> subcommands are given below with a hard-coded compute unit value of 50k:</p>
-<div class="table-wrapper"><table><thead><tr><th>Priority</th><th>MicroLamport Units</th><th>Approximate Value @ $150</th></tr></thead><tbody>
-<tr><td>"none"</td><td>20</td><td>1 lamport/update</td></tr>
-<tr><td>"low"</td><td>20_000</td><td>~$1 for 10k updates</td></tr>
-<tr><td>"medium"</td><td>200_000</td><td>~$10 for 10k updates</td></tr>
-<tr><td>"high"</td><td>1_000_000</td><td>~$0.01/update @ $150 SOL</td></tr>
-<tr><td>"max"</td><td>2_000_000</td><td>~$0.02/update @ $150 SOL</td></tr>
-<tr><td>------------</td><td>-----------</td><td>-----------------------------------</td></tr>
-</tbody></table>
-</div>
-<p>Currently only <code>update</code> subcommands support priority fees.</p>
-<p><strong>When running large batch updates be sure to consider the cost of priority fees for the level you set!!</strong></p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="contact"><a class="header" href="#contact">Contact</a></h2>
 <p>Email: sam@vanderwaal.dev</p>
 <p>Twitter: <a href="https://twitter.com/samvwaal">@samvwaal</a></p>
