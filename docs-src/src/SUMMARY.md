@@ -22,5 +22,5 @@
 - [Update](./update.md)
 - [Verify/Unverify](./verify_unverify.md)
 - [Withdraw](./withdraw.md)
-- [Priority Fees](./priority-fees.md)
+- [Priority Fees](./priority_fees.md)
 - [Contact](./contact.md)
