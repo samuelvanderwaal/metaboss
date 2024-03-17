@@ -366,12 +366,14 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
             mint,
             metadata,
             immutable,
+            priority,
         } => create_metadata(CreateMetadataArgs {
             client,
             keypair,
             mint,
             metadata,
             immutable,
+            priority,
         }),
         CreateSubcommands::Fungible {
             keypair,
@@ -380,6 +382,7 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
             decimals,
             initial_supply,
             immutable,
+            priority,
         } => create_fungible(CreateFungibleArgs {
             client,
             keypair,
@@ -388,18 +391,21 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
             decimals,
             initial_supply,
             immutable,
+            priority,
         }),
         CreateSubcommands::MasterEdition {
             keypair,
             mint_authority,
             mint,
             max_supply,
+            priority,
         } => create_master_edition(CreateMasterEditionArgs {
             client,
             keypair,
             mint_authority,
             mint,
             max_supply,
+            priority,
         }),
     }
 }

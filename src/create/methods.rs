@@ -1,12 +1,16 @@
 use std::path::PathBuf;
 
 use anyhow::anyhow;
-use metaboss_lib::{derive::derive_edition_pda, transaction::send_and_confirm_tx};
+use metaboss_lib::{
+    data::Priority,
+    derive::derive_edition_pda,
+    transaction::{get_compute_units, send_and_confirm_tx},
+};
 use mpl_token_metadata::{
     instructions::{CreateBuilder, CreateMasterEditionV3Builder},
     types::{CreateArgs, DataV2, TokenStandard},
 };
-use solana_sdk::signature::read_keypair_file;
+use solana_sdk::{compute_budget::ComputeBudgetInstruction, signature::read_keypair_file};
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::instruction::mint_to;
 
@@ -14,12 +18,16 @@ use crate::utils::create_token_if_missing_instruction;
 
 use super::*;
 
+// Arbitrary and capricious. Only used in the tx simulation does not return a value.
+const DEFAULT_COMPUTE_UNITS: u64 = 75_000;
+
 pub struct CreateMetadataArgs {
     pub client: RpcClient,
     pub keypair: Option<String>,
     pub mint: String,
     pub metadata: String,
     pub immutable: bool,
+    pub priority: Priority,
 }
 
 pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
@@ -59,7 +67,7 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
         print_supply: None,
     };
 
-    let ix = CreateBuilder::new()
+    let create_ix = CreateBuilder::new()
         .metadata(metadata_pubkey)
         .mint(mint_pubkey, false)
         .authority(keypair.pubkey())
@@ -68,7 +76,22 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
         .create_args(create_args)
         .instruction();
 
-    let instructions = vec![ix];
+    let compute_units = get_compute_units(&args.client, &[create_ix.clone()], &[&keypair])?
+        .unwrap_or(DEFAULT_COMPUTE_UNITS);
+
+    let micro_lamports = match args.priority {
+        Priority::None => 20,
+        Priority::Low => 20_000,
+        Priority::Medium => 200_000,
+        Priority::High => 1_000_000,
+        Priority::Max => 2_000_000,
+    };
+
+    let instructions = vec![
+        ComputeBudgetInstruction::set_compute_unit_limit(compute_units as u32),
+        ComputeBudgetInstruction::set_compute_unit_price(micro_lamports),
+        create_ix,
+    ];
 
     let sig = send_and_confirm_transaction(&args.client, keypair, &instructions)?;
 
@@ -85,6 +108,7 @@ pub struct CreateFungibleArgs {
     pub decimals: u8,
     pub initial_supply: Option<f64>,
     pub immutable: bool,
+    pub priority: Priority,
 }
 
 #[derive(Deserialize)]
@@ -141,7 +165,7 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         print_supply: None,
     };
 
-    let ix = CreateBuilder::new()
+    let create_ix = CreateBuilder::new()
         .metadata(metadata_pubkey)
         .mint(mint.pubkey(), true)
         .authority(keypair.pubkey())
@@ -150,7 +174,7 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         .create_args(create_args)
         .instruction();
 
-    let mut instructions = vec![ix];
+    let mut instructions = vec![create_ix];
 
     if let Some(initial_supply) = args.initial_supply {
         // Convert float to native token units
@@ -180,7 +204,30 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         instructions.push(mint_to_ix);
     }
 
-    let sig = send_and_confirm_tx(&args.client, &[&keypair, &mint], &instructions)?;
+    let signers = vec![&keypair, &mint];
+
+    let compute_units =
+        get_compute_units(&args.client, &instructions, &signers)?.unwrap_or(DEFAULT_COMPUTE_UNITS);
+
+    let micro_lamports = match args.priority {
+        Priority::None => 20,
+        Priority::Low => 20_000,
+        Priority::Medium => 200_000,
+        Priority::High => 1_000_000,
+        Priority::Max => 2_000_000,
+    };
+
+    instructions.splice(
+        0..0,
+        vec![
+            ComputeBudgetInstruction::set_compute_unit_limit(compute_units as u32),
+            ComputeBudgetInstruction::set_compute_unit_price(micro_lamports),
+        ],
+    );
+
+    println!("Instructions: {}", instructions.len());
+
+    let sig = send_and_confirm_tx(&args.client, &signers, &instructions)?;
 
     println!("Signature: {sig}");
     println!("Mint: {}", mint.pubkey());
@@ -195,6 +242,7 @@ pub struct CreateMasterEditionArgs {
     pub mint_authority: Option<PathBuf>,
     pub mint: Pubkey,
     pub max_supply: i64,
+    pub priority: Priority,
 }
 
 pub fn create_master_edition(args: CreateMasterEditionArgs) -> Result<()> {
@@ -233,11 +281,30 @@ pub fn create_master_edition(args: CreateMasterEditionArgs) -> Result<()> {
     }
     let ix = builder.instruction();
 
+    let signers = vec![&keypair, &mint_authority];
+
+    let compute_units =
+        get_compute_units(&args.client, &[ix.clone()], &signers)?.unwrap_or(DEFAULT_COMPUTE_UNITS);
+
+    let micro_lamports = match args.priority {
+        Priority::None => 20,
+        Priority::Low => 20_000,
+        Priority::Medium => 200_000,
+        Priority::High => 1_000_000,
+        Priority::Max => 2_000_000,
+    };
+
+    let instructions = vec![
+        ComputeBudgetInstruction::set_compute_unit_limit(compute_units as u32),
+        ComputeBudgetInstruction::set_compute_unit_price(micro_lamports),
+        ix,
+    ];
+
     let recent_blockhash = args.client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
-        &[ix],
+        &instructions,
         Some(&keypair.pubkey()),
-        &[&keypair, &mint_authority],
+        &signers,
         recent_blockhash,
     );
 
