@@ -15,8 +15,12 @@ jobs:
           - windows-latest
           - buildjet-16vcpu-ubuntu-2004
           - macos-latest
+          - macos-14
 
     runs-on: ${{ matrix.os }}
+
+    env:
+      MATRIX_OS: ${{ matrix.os }}
 
     steps:
       - name: Checkout
@@ -45,7 +49,11 @@ jobs:
             binary_path="metaboss-windows-latest${binary_extension}"
           fi
           if [[ "${RUNNER_OS}" == "macOS" ]]; then
-            binary_path="metaboss-macos-intel-latest${binary_extension}"
+            if [[ "${MATRIX_OS}" == "macos-14" ]]; then
+              binary_path="metaboss-macos-m1-latest"
+            else
+              binary_path="metaboss-macos-intel-latest"
+            fi
           fi
           mv "target/release/metaboss${binary_extension}" "${binary_path}"
           echo "::set-output name=binary_path::${binary_path}"
