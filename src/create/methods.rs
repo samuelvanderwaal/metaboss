@@ -18,8 +18,8 @@ use crate::utils::create_token_if_missing_instruction;
 
 use super::*;
 
-// Arbitrary and capricious. Only used in the tx simulation does not return a value.
-const DEFAULT_COMPUTE_UNITS: u64 = 75_000;
+// Arbitrary and capricious. Only used if the tx simulation does not return a value.
+const DEFAULT_COMPUTE_UNITS: u64 = 150_000;
 
 pub struct CreateMetadataArgs {
     pub client: RpcClient,
