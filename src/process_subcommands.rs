@@ -544,7 +544,8 @@ pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> 
             receiver,
             amount,
             mint_address,
-        } => mint_fungible(&client, keypair, &mint_address, amount, &receiver),
+            priority,
+        } => mint_fungible(&client, keypair, &mint_address, amount, &receiver, priority),
         MintSubcommands::Asset {
             keypair,
             receiver,
@@ -553,6 +554,7 @@ pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> 
             amount,
             decimals,
             max_print_edition_supply,
+            priority,
         } => process_mint_asset(MintAssetParams {
             client,
             keypair_path: keypair,
@@ -562,6 +564,7 @@ pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> 
             decimals,
             amount,
             max_print_edition_supply,
+            priority,
         }),
         MintSubcommands::One {
             keypair,
@@ -574,6 +577,7 @@ pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> 
             max_editions,
             sign,
             sized,
+            priority,
         } => mint_one(
             &client,
             keypair,
@@ -586,6 +590,7 @@ pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> 
             mint_path,
             sign,
             sized,
+            &priority,
         )
         .map(|_| ()),
         MintSubcommands::Editions {
@@ -594,6 +599,7 @@ pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> 
             receiver,
             next_editions,
             specific_editions,
+            priority,
         } => mint_editions(
             &client,
             keypair,
@@ -601,10 +607,13 @@ pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> 
             &receiver,
             next_editions,
             specific_editions,
+            priority,
         ),
-        MintSubcommands::MissingEditions { keypair, account } => {
-            mint_missing_editions(&client, &keypair, &account)
-        }
+        MintSubcommands::MissingEditions {
+            keypair,
+            account,
+            priority,
+        } => mint_missing_editions(&client, &keypair, &account, priority),
         MintSubcommands::List {
             keypair,
             receiver,
@@ -614,6 +623,7 @@ pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> 
             primary_sale_happened,
             sign,
             track,
+            priority,
         } => mint_list(
             &client,
             keypair,
@@ -624,6 +634,7 @@ pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> 
             primary_sale_happened,
             sign,
             track,
+            priority,
         ),
     }
 }
