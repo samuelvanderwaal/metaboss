@@ -928,6 +928,11 @@ pub enum MintSubcommands {
         /// Amount of tokens to mint
         #[structopt(short, long)]
         amount: u64,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
     /// Mint an asset from the new Token Metadata Program unified handlers.
     Asset {
@@ -959,6 +964,11 @@ pub enum MintSubcommands {
         /// 0 for no prints, n for n prints, 'unlimited' for unlimited prints.
         #[structopt(short = "s", long)]
         max_print_edition_supply: Option<Supply>,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
     /// Mint a single NFT from a JSON file
     #[structopt(name = "one")]
@@ -1002,6 +1012,11 @@ pub enum MintSubcommands {
         /// Create a sized collection parent NFT
         #[structopt(long)]
         sized: bool,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
     /// Mint one or more editions from a Master NFT.
     #[structopt(name = "editions")]
@@ -1025,6 +1040,11 @@ pub enum MintSubcommands {
         /// Mint the provided specific editions e.g.: --specific-editions 1,7,10
         #[structopt(short = "s", long)]
         specific_editions: Option<Vec<u64>>,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
     /// Find any missing editions for a Master NFT.
     #[structopt(name = "missing-editions")]
@@ -1035,6 +1055,11 @@ pub enum MintSubcommands {
 
         #[structopt(short, long)]
         account: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
     #[structopt(name = "list")]
     /// Mint a list of NFTs from a directory of JSON files
@@ -1072,6 +1097,11 @@ pub enum MintSubcommands {
         /// with list of unminted URIs for easy continuation of command
         #[structopt(long)]
         track: bool,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
 }
 

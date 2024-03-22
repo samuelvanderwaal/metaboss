@@ -3,9 +3,11 @@ use borsh::BorshDeserialize;
 use glob::glob;
 use log::{error, info};
 use metaboss_lib::{
+    data::Priority,
     decode::*,
     derive::derive_edition_marker_pda,
     mint::{mint_asset, AssetData, MintAssetArgs},
+    transaction::get_compute_units,
 };
 use mpl_token_metadata::{
     accounts::EditionMarker,
@@ -26,6 +28,7 @@ use solana_client::rpc_client::RpcClient;
 use solana_program::program_pack::Pack;
 use solana_sdk::{
     commitment_config::CommitmentConfig,
+    compute_budget::ComputeBudgetInstruction,
     pubkey::Pubkey,
     signature::Signature,
     signer::{keypair::Keypair, Signer},
@@ -67,6 +70,7 @@ pub fn mint_list(
     primary_sale_happened: bool,
     sign: bool,
     track: bool,
+    priority: Priority,
 ) -> Result<()> {
     if !is_only_one_option(&list_dir, &external_metadata_uris) {
         return Err(anyhow!(
@@ -86,6 +90,7 @@ pub fn mint_list(
             max_editions,
             sign,
             false,
+            priority,
         )?;
     } else if let Some(external_metadata_uris) = external_metadata_uris {
         mint_from_uris(
@@ -98,6 +103,7 @@ pub fn mint_list(
             max_editions,
             sign,
             track,
+            priority,
         )?;
     } else {
         return Err(anyhow!(
@@ -119,6 +125,7 @@ pub fn mint_from_files(
     max_editions: i64,
     sign: bool,
     sized: bool,
+    priority: Priority,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_default_rate_limiter();
@@ -151,6 +158,7 @@ pub fn mint_from_files(
             None, // Generate new mint keypair.
             sign,
             sized,
+            &priority,
         ) {
             Ok(_) => (),
             Err(e) => error!("Failed to mint {:?}: {}", &path, e),
@@ -179,6 +187,7 @@ pub fn mint_from_uris(
     max_editions: i64,
     sign: bool,
     track: bool,
+    priority: Priority,
 ) -> Result<()> {
     let f = File::open(&external_metadata_uris_path)?;
     let external_metadata_uris: Vec<String> = serde_json::from_reader(f)?;
@@ -200,6 +209,7 @@ pub fn mint_from_uris(
                     None,
                     sign,
                     false,
+                    &priority,
                 ) {
                     Ok(_) => (),
                     Err(e) => println!("Failed to mint {:?}: {}", &uri, e),
@@ -234,6 +244,7 @@ pub fn mint_from_uris(
                     None,
                     sign,
                     false,
+                    &priority,
                 ) {
                     Ok(m) => MintResult {
                         uri: uri.clone(),
@@ -275,6 +286,7 @@ pub fn mint_fungible(
     mint_address: &str,
     amount: u64,
     receiver: &Option<String>,
+    priority: Priority,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
     let mint_authority_keypair = parse_keypair(keypair_path, solana_opts);
@@ -330,9 +342,27 @@ pub fn mint_fungible(
 
     instructions.push(mint_ix);
 
+    let signers = vec![&mint_authority_keypair];
+
+    let compute_units = get_compute_units(client, &instructions, &signers)?.unwrap_or(200_000);
+
+    let micro_lamports = match priority {
+        Priority::None => 20,
+        Priority::Low => 20_000,
+        Priority::Medium => 200_000,
+        Priority::High => 1_000_000,
+        Priority::Max => 2_000_000,
+    };
+
+    let mut final_instructions = vec![
+        ComputeBudgetInstruction::set_compute_unit_limit(compute_units as u32),
+        ComputeBudgetInstruction::set_compute_unit_price(micro_lamports),
+    ];
+    final_instructions.extend(instructions);
+
     let recent_blockhash = client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
-        &instructions,
+        &final_instructions,
         Some(&mint_authority_pubkey),
         &[&mint_authority_keypair],
         recent_blockhash,
@@ -368,6 +398,7 @@ pub fn mint_one<P: AsRef<Path>>(
     mint_path: Option<String>,
     sign: bool,
     sized: bool,
+    priority: &Priority,
 ) -> Result<String> {
     if !is_only_one_option(&nft_data_file, &external_metadata_uri) {
         return Err(anyhow!(
@@ -421,6 +452,7 @@ pub fn mint_one<P: AsRef<Path>>(
         max_editions,
         mint_path,
         sized,
+        priority.clone(),
     )?;
     info!("Tx sig: {:?}\nMint account: {:?}", &tx_id, &mint_account);
     let message = format!("Tx sig: {:?}\nMint account: {:?}", &tx_id, &mint_account,);
@@ -440,17 +472,18 @@ pub fn mint_editions(
     receiver: &Option<String>,
     next_editions: Option<u64>,
     specific_editions: Option<Vec<u64>>,
+    priority: Priority,
 ) -> Result<()> {
     let spinner = create_spinner("Minting...");
     if let Some(next_editions) = next_editions {
         for _ in 0..next_editions {
-            mint_next_edition(client, &keypair_path, &account, receiver)?;
+            mint_next_edition(client, &keypair_path, &account, receiver, &priority)?;
         }
         return Ok(());
     }
     if let Some(specific_editions) = specific_editions {
         for num in specific_editions {
-            mint_edition(client, &keypair_path, &account, num, receiver)?;
+            mint_edition(client, &keypair_path, &account, num, receiver, &priority)?;
         }
         return Ok(());
     }
@@ -464,6 +497,7 @@ fn mint_next_edition(
     keypair_path: &Option<String>,
     account: &str,
     receiver: &Option<String>,
+    priority: &Priority,
 ) -> Result<()> {
     // Send tx with retries.
     let master_edition = retry(
@@ -516,7 +550,14 @@ fn mint_next_edition(
         edition_num += 1;
     }
 
-    mint_edition(client, keypair_path, account, edition_num, receiver)?;
+    mint_edition(
+        client,
+        keypair_path,
+        account,
+        edition_num,
+        receiver,
+        priority,
+    )?;
 
     Ok(())
 }
@@ -546,6 +587,7 @@ fn mint_edition(
     account: &str,
     edition_num: u64,
     receiver: &Option<String>,
+    priority: &Priority,
 ) -> Result<(Signature, Pubkey)> {
     let solana_opts = parse_solana_config();
     let funder = parse_keypair(keypair_path.clone(), solana_opts);
@@ -631,11 +673,29 @@ fn mint_edition(
         mint_editions_ix,
     ];
 
+    let signers = vec![&funder, &new_mint_keypair];
+
+    let compute_units = get_compute_units(client, &instructions, &signers)?.unwrap_or(200_000);
+
+    let micro_lamports = match priority {
+        Priority::None => 20,
+        Priority::Low => 20_000,
+        Priority::Medium => 200_000,
+        Priority::High => 1_000_000,
+        Priority::Max => 2_000_000,
+    };
+
+    let mut final_instructions = vec![
+        ComputeBudgetInstruction::set_compute_unit_limit(compute_units as u32),
+        ComputeBudgetInstruction::set_compute_unit_price(micro_lamports),
+    ];
+    final_instructions.extend(instructions);
+
     let recent_blockhash = client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
-        &instructions,
+        &final_instructions,
         Some(&funder.pubkey()),
-        &[&funder, &new_mint_keypair],
+        &signers,
         recent_blockhash,
     );
 
@@ -655,12 +715,20 @@ pub fn mint_missing_editions(
     client: &RpcClient,
     keypair_path: &Option<String>,
     mint_account: &str,
+    priority: Priority,
 ) -> Result<()> {
     let missing_editions = find_missing_editions(client, mint_account)?;
 
     let spinner = create_spinner("Printing missing editions");
     for missing_edition in missing_editions {
-        mint_edition(client, keypair_path, mint_account, missing_edition, &None)?;
+        mint_edition(
+            client,
+            keypair_path,
+            mint_account,
+            missing_edition,
+            &None,
+            &priority,
+        )?;
     }
     spinner.finish();
 
@@ -678,6 +746,7 @@ pub fn mint(
     max_editions: i64,
     mint_path: Option<String>,
     sized: bool,
+    priority: Priority,
 ) -> Result<(Signature, Pubkey)> {
     let metaplex_program_id = Pubkey::from_str(METAPLEX_PROGRAM_ID)?;
     let mint = if let Some(mint_path) = mint_path {
@@ -814,11 +883,29 @@ pub fn mint(
         instructions.push(ix);
     }
 
+    let signers = vec![&funder, &mint];
+
+    let compute_units = get_compute_units(client, &instructions, &signers)?.unwrap_or(200_000);
+
+    let micro_lamports = match priority {
+        Priority::None => 20,
+        Priority::Low => 20_000,
+        Priority::Medium => 200_000,
+        Priority::High => 1_000_000,
+        Priority::Max => 2_000_000,
+    };
+
+    let mut final_instructions = vec![
+        ComputeBudgetInstruction::set_compute_unit_limit(compute_units as u32),
+        ComputeBudgetInstruction::set_compute_unit_price(micro_lamports),
+    ];
+    final_instructions.extend(instructions);
+
     let recent_blockhash = client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
-        &instructions,
+        &final_instructions,
         Some(&funder.pubkey()),
-        &[&funder, &mint],
+        &signers,
         recent_blockhash,
     );
 
@@ -841,6 +928,7 @@ pub struct MintAssetParams {
     pub decimals: u8,
     pub amount: u64,
     pub max_print_edition_supply: Option<Supply>,
+    pub priority: Priority,
 }
 
 pub fn process_mint_asset(args: MintAssetParams) -> Result<()> {
@@ -853,6 +941,7 @@ pub fn process_mint_asset(args: MintAssetParams) -> Result<()> {
         decimals,
         amount,
         max_print_edition_supply,
+        priority,
     } = args;
 
     let solana_opts = parse_solana_config();
@@ -882,6 +971,7 @@ pub fn process_mint_asset(args: MintAssetParams) -> Result<()> {
         mint_decimals: Some(decimals),
         print_supply,
         authorization_data: None,
+        priority,
     };
 
     let mint_result = mint_asset(&client, args)?;
