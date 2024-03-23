@@ -2,6 +2,7 @@
 extern crate log;
 
 use anyhow::Result;
+use metaboss::airdrop::process_airdrop;
 use metaboss::check::process_check;
 use metaboss::constants::PUBLIC_RPC_URLS;
 use metaboss::extend_program::process_extend_program;

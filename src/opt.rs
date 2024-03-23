@@ -5,6 +5,7 @@ use solana_program::pubkey::Pubkey;
 use structopt::StructOpt;
 
 use crate::{
+    airdrop::AirdropSubcommands,
     check::CheckSubcommands,
     collections::GetCollectionItemsMethods,
     constants::DEFAULT_RATE_LIMIT,
@@ -159,72 +160,6 @@ pub enum Command {
     Unverify {
         #[structopt(subcommand)]
         unverify_subcommands: UnverifySubcommands,
-    },
-}
-
-#[derive(Debug, StructOpt)]
-pub enum AirdropSubcommands {
-    /// Airdrop SOL (experimental)
-    #[structopt(name = "sol")]
-    Sol {
-        /// Path to the owner keypair file
-        #[structopt(short, long)]
-        keypair: Option<String>,
-
-        /// Path to the mint list file
-        #[structopt(short = "L", long)]
-        recipient_list: Option<String>,
-
-        /// Cache file
-        #[structopt(short, long)]
-        cache_file: Option<String>,
-
-        /// Rate limit in requests per second; defaults to 10
-        #[structopt(short = "R", long)]
-        rate_limit: Option<u64>,
-
-        /// Boost the transactions w/ priority fees
-        #[structopt(long)]
-        boost: bool,
-    },
-    /// Airdrop SPL tokens (experimental)
-    #[structopt(name = "spl")]
-    Spl {
-        /// Path to the owner keypair file
-        #[structopt(short, long)]
-        keypair: Option<String>,
-
-        /// Path to the mint list file
-        #[structopt(short = "L", long)]
-        recipient_list: Option<String>,
-
-        /// Cache file
-        #[structopt(short, long)]
-        cache_file: Option<String>,
-
-        /// Mint from the SPL token mint
-        #[structopt(short, long)]
-        mint: Pubkey,
-
-        #[structopt(long)]
-        mint_tokens: bool,
-
-        /// Rate limit in requests per second; defaults to 10
-        #[structopt(short = "R", long)]
-        rate_limit: Option<u64>,
-
-        /// Boost the transactions w/ priority fees
-        #[structopt(long)]
-        boost: bool,
-    },
-    /// Convert the bin cache file to json for readability
-    ReadCache {
-        /// Path to the cache file
-        cache_file: String,
-
-        /// Print errors to std out in addition to converting the cache file to json
-        #[structopt(long)]
-        errors: bool,
     },
 }
 
