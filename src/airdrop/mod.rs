@@ -1,20 +1,16 @@
-pub mod process;
 pub mod sol;
 pub mod spl;
-pub use process::*;
 pub use sol::*;
 pub use spl::*;
 
 pub use std::{collections::HashMap, fs::File, path::PathBuf, str::FromStr};
 
 pub use anyhow::Result;
-use indicatif::ProgressBar;
-pub use jib::{Jib, JibFailedTransaction, Network};
+pub use jib::{Jib, Network};
 pub use log::debug;
 pub use serde::{Deserialize, Serialize};
 pub use solana_client::rpc_client::RpcClient;
 pub use solana_sdk::{pubkey::Pubkey, signer::Signer};
-use structopt::StructOpt;
 
 pub use crate::update::{parse_keypair, parse_solana_config};
 
@@ -31,5 +27,4 @@ struct Recipient {
     amount: u64,
 }
 
-// Test transactions take 3_150, but we pad it a bit.
-pub const AIRDROP_SOL_CU: u32 = 5_000;
+pub const PRIORITY_FEE: u64 = 25_000;

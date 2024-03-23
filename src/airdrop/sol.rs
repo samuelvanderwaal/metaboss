@@ -1,6 +1,5 @@
 use indicatif::ProgressBar;
 use jib::JibFailedTransaction;
-use metaboss_lib::data::Priority;
 
 use super::*;
 
@@ -9,11 +8,9 @@ pub struct AirdropSolArgs {
     pub keypair: Option<String>,
     pub recipient_list: Option<String>,
     pub cache_file: Option<String>,
-    pub priority: Priority,
+    pub boost: bool,
     pub rate_limit: Option<u64>,
 }
-
-
 
 pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
     let solana_opts = parse_solana_config();
@@ -34,16 +31,9 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
     let mut cache_file_name = format!("mb-cache-airdrop-{timestamp}.bin");
     let successful_tx_file_name = format!("mb-successful-airdrops-{timestamp}.json");
 
-    let priority_fee = match args.priority {
-        Priority::None => 200,         // 1 lamport
-        Priority::Low => 200_000,      // 1_000 lamports
-        Priority::Medium => 1_000_000, // 5_000 lamports
-        Priority::High => 5_000_000,   // 25_000 lamports
-        Priority::Max => 20_000_000,   // 100_000 lamports
-    };
-
-    jib.set_priority_fee(priority_fee);
-    jib.set_compute_budget(AIRDROP_SOL_CU);
+    if args.boost {
+        jib.set_priority_fee(PRIORITY_FEE);
+    }
 
     if let Some(rate) = args.rate_limit {
         jib.set_rate_limit(rate);
