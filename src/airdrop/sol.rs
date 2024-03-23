@@ -13,8 +13,6 @@ pub struct AirdropSolArgs {
     pub rate_limit: Option<u64>,
 }
 
-
-
 pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
