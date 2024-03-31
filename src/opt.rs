@@ -347,6 +347,10 @@ pub enum CreateSubcommands {
         /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
+
+        /// Use full compute units, 200k CU, instead of simulating the expected amount.
+        #[structopt(long)]
+        full_compute: bool,
     },
 
     /// Mint SPL tokens from an existing mint account using the Token Program.
@@ -379,6 +383,10 @@ pub enum CreateSubcommands {
         /// See https://metaboss.rs/priority-fees.html for more details.
         #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
+
+        /// Use full compute units, 200k CU, instead of simulating the expected amount.
+        #[structopt(long)]
+        full_compute: bool,
     },
     // Decorate an existing mint + metadata account with a master edition account.
     MasterEdition {
