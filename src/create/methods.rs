@@ -18,8 +18,7 @@ use crate::utils::create_token_if_missing_instruction;
 
 use super::*;
 
-// Arbitrary and capricious. Only used if the tx simulation does not return a value.
-const DEFAULT_COMPUTE_UNITS: u64 = 150_000;
+const DEFAULT_COMPUTE_UNITS: u64 = 200_000;
 
 pub struct CreateMetadataArgs {
     pub client: RpcClient,
@@ -28,6 +27,7 @@ pub struct CreateMetadataArgs {
     pub metadata: String,
     pub immutable: bool,
     pub priority: Priority,
+    pub full_compute: bool,
 }
 
 pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
@@ -76,9 +76,6 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
         .create_args(create_args)
         .instruction();
 
-    let compute_units = get_compute_units(&args.client, &[create_ix.clone()], &[&keypair])?
-        .unwrap_or(DEFAULT_COMPUTE_UNITS);
-
     let micro_lamports = match args.priority {
         Priority::None => 20,
         Priority::Low => 20_000,
@@ -87,11 +84,23 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
         Priority::Max => 2_000_000,
     };
 
-    let instructions = vec![
-        ComputeBudgetInstruction::set_compute_unit_limit(compute_units as u32),
-        ComputeBudgetInstruction::set_compute_unit_price(micro_lamports),
-        create_ix,
-    ];
+    let mut instructions = vec![];
+
+    if !args.full_compute {
+        // Only set the compute unit limit if we're not doing a full compute
+        let compute_units = get_compute_units(&args.client, &[create_ix.clone()], &[&keypair])?
+            .unwrap_or(DEFAULT_COMPUTE_UNITS);
+
+        instructions.push(ComputeBudgetInstruction::set_compute_unit_limit(
+            compute_units as u32,
+        ));
+    }
+
+    // Always set the compute unit price
+    instructions.push(ComputeBudgetInstruction::set_compute_unit_price(
+        micro_lamports,
+    ));
+    instructions.push(create_ix);
 
     let sig = send_and_confirm_transaction(&args.client, keypair, &instructions)?;
 
@@ -109,6 +118,7 @@ pub struct CreateFungibleArgs {
     pub initial_supply: Option<f64>,
     pub immutable: bool,
     pub priority: Priority,
+    pub full_compute: bool,
 }
 
 #[derive(Deserialize)]
@@ -206,9 +216,6 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
 
     let signers = vec![&keypair, &mint];
 
-    let compute_units =
-        get_compute_units(&args.client, &instructions, &signers)?.unwrap_or(DEFAULT_COMPUTE_UNITS);
-
     let micro_lamports = match args.priority {
         Priority::None => 20,
         Priority::Low => 20_000,
@@ -217,15 +224,24 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         Priority::Max => 2_000_000,
     };
 
-    instructions.splice(
-        0..0,
-        vec![
-            ComputeBudgetInstruction::set_compute_unit_limit(compute_units as u32),
-            ComputeBudgetInstruction::set_compute_unit_price(micro_lamports),
-        ],
-    );
+    let mut extra_instructions = vec![];
 
-    println!("Instructions: {}", instructions.len());
+    if !args.full_compute {
+        // Only set the compute unit limit if not using full compute
+        let compute_units = get_compute_units(&args.client, &instructions, &signers)?
+            .unwrap_or(DEFAULT_COMPUTE_UNITS);
+
+        extra_instructions.push(ComputeBudgetInstruction::set_compute_unit_limit(
+            compute_units as u32,
+        ));
+    }
+
+    // Always set the compute unit price
+    extra_instructions.push(ComputeBudgetInstruction::set_compute_unit_price(
+        micro_lamports,
+    ));
+
+    instructions.splice(0..0, extra_instructions);
 
     let sig = send_and_confirm_tx(&args.client, &signers, &instructions)?;
 

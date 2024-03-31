@@ -300,6 +300,7 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
             metadata,
             immutable,
             priority,
+            full_compute,
         } => create_metadata(CreateMetadataArgs {
             client,
             keypair,
@@ -307,6 +308,7 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
             metadata,
             immutable,
             priority,
+            full_compute,
         }),
         CreateSubcommands::Fungible {
             keypair,
@@ -316,6 +318,7 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
             initial_supply,
             immutable,
             priority,
+            full_compute,
         } => create_fungible(CreateFungibleArgs {
             client,
             keypair,
@@ -325,6 +328,7 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
             initial_supply,
             immutable,
             priority,
+            full_compute,
         }),
         CreateSubcommands::MasterEdition {
             keypair,
