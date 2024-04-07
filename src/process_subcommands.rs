@@ -15,6 +15,8 @@ use crate::collections::{
     revoke_delegate, set_and_verify_nft_collection, set_size, unverify_nft_collection,
     verify_nft_collection, MigrateArgs,
 };
+use crate::create::create_fungible_22;
+use crate::create::CreateFungible22Args;
 use crate::create::{
     create_fungible, create_master_edition, create_metadata, CreateFungibleArgs,
     CreateMasterEditionArgs, CreateMetadataArgs,
@@ -329,6 +331,22 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
             immutable,
             priority,
             full_compute,
+        }),
+        CreateSubcommands::Fungible22 {
+            keypair,
+            extensions,
+            mint_path,
+            decimals,
+            initial_supply,
+            priority,
+        } => create_fungible_22(CreateFungible22Args {
+            client,
+            keypair,
+            extensions,
+            mint_path,
+            decimals,
+            initial_supply,
+            priority,
         }),
         CreateSubcommands::MasterEdition {
             keypair,

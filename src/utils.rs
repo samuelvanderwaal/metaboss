@@ -352,3 +352,28 @@ pub fn create_token_if_missing_instruction(
             .unwrap(),
     }
 }
+
+pub fn create_token_22_if_missing_instruction(
+    payer: &Pubkey,
+    token: &Pubkey,
+    mint: &Pubkey,
+    owner: &Pubkey,
+    ata: &Pubkey,
+) -> Instruction {
+    Instruction {
+        program_id: MPL_TOOLBOX_ID,
+        accounts: vec![
+            AccountMeta::new(*payer, true),
+            AccountMeta::new_readonly(*token, false),
+            AccountMeta::new_readonly(*mint, false),
+            AccountMeta::new_readonly(*owner, false),
+            AccountMeta::new(*ata, false),
+            AccountMeta::new_readonly(system_program::id(), false),
+            AccountMeta::new_readonly(spl_token_2022::id(), false),
+            AccountMeta::new_readonly(spl_associated_token_account::id(), false),
+        ],
+        data: TokenExtrasInstruction::CreateTokenIfMissing
+            .try_to_vec()
+            .unwrap(),
+    }
+}

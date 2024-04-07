@@ -353,7 +353,7 @@ pub enum CreateSubcommands {
         full_compute: bool,
     },
 
-    /// Mint SPL tokens from an existing mint account using the Token Program.
+    /// Create a new SPL Token mint and metadata account.
     Fungible {
         /// Path to the update authority keypair file
         #[structopt(short, long)]
@@ -387,6 +387,34 @@ pub enum CreateSubcommands {
         /// Use full compute units, 200k CU, instead of simulating the expected amount.
         #[structopt(long)]
         full_compute: bool,
+    },
+    /// Mint a SPL22 Token from the Token Extensions Program
+    #[structopt(name = "fungible-22")]
+    Fungible22 {
+        /// Path to the update authority keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Path to JSON file of extensions
+        #[structopt(short, long)]
+        extensions: String,
+
+        /// Vanity mint: path to a keypair file to use for the mint address.
+        #[structopt(long)]
+        mint_path: Option<String>,
+
+        /// SPL token decmials, defaults to 0.
+        #[structopt(short, long, default_value = "0")]
+        decimals: u8,
+
+        /// Mint this amount to your keypair.
+        #[structopt(short, long)]
+        initial_supply: Option<u64>,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
     // Decorate an existing mint + metadata account with a master edition account.
     MasterEdition {
