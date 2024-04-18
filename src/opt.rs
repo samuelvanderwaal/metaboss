@@ -1035,7 +1035,7 @@ pub enum MintSubcommands {
         #[structopt(long)]
         sign: bool,
 
-        /// Track whether URIs are succesfully minted or not, and output to
+        /// Track whether URIs are successfully minted or not, and output to
         /// `minted` file with URIs -> Mint Accounts or to `unminted` file
         /// with list of unminted URIs for easy continuation of command
         #[structopt(long)]

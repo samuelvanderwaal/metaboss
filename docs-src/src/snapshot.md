@@ -2,7 +2,7 @@
 
 Get snapshots of various blockchain states.
 
-**Note**: Most of the snapshot commands rely on the [Digital Asset Standard (DAS) API](https://developers.metaplex.com/bubblegum#metaplex-das-api), which is a read layer for Metaplex NFTs that uses indexed data to serve up information without having to make onerous getProgramAccounts RPC calls to validators. To use these commands you will need to have a RPC URL set with a provider that supports the DAS API. The current official list from Metaplex is [here](https://developers.metaplex.com/bubblegum/rpcs).
+**Note**: Most of the snapshot commands rely on the [Digital Asset Standard (DAS) API](https://developers.metaplex.com/bubblegum#metaplex-das-api), which is a read layer for Metaplex NFTs that uses indexed data to serve up information without having to make onerous getProgramAccounts RPC calls to validators. To use these commands you will need to have a RPC URL set with a provider that supports the DAS API. The current official list from Metaplex is [here](https://developers.metaplex.com/rpc-providers).
 
 Metaboss recommends using [Helius](https://helius.dev) for DAS API calls as they are the only provider that fully supported the DAS API spec on both mainnet and devnet when these commands were tested. In addition, they have a very generous free tier that should be sufficient for most casual users.
 

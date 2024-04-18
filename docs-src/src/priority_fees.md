@@ -14,7 +14,7 @@ To specify priority fees on Metaboss transactions, use the `--priority/-p` flag.
 
 The default value if no priority is specified is `None`.
 
-The total amount spennt on priority fees per transaction is the microlamports multiplied by the compute units used. Metaboss simulates each tranasaction to determine the compute units required, and then uses that value or a default.
+The total amount spennt on priority fees per transaction is the microlamports multiplied by the compute units used. Metaboss simulates each transaction to determine the compute units required, and then uses that value or a default.
 
 Setting higher levels of priority fees are unlikely to make a significant difference in the getting transactions confirmed, so it's recommended to use "none" or "low" until Solana network performance improves. However, higher levels are included to give users options.
 
