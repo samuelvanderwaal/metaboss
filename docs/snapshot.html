@@ -176,7 +176,7 @@
                         <h2 id="snapshot"><a class="header" href="#snapshot">Snapshot</a></h2>
 <p>Get snapshots of various blockchain states.</p>
 <p><strong>Note</strong>: Most of the snapshot commands rely on the <a href="https://developers.metaplex.com/bubblegum#metaplex-das-api">Digital Asset Standard (DAS) API</a>, which is a read layer for Metaplex NFTs that uses indexed data to serve up information without having to make onerous getProgramAccounts RPC calls to validators. To use these commands you will need to have a RPC URL set with a provider that supports the DAS API. The current official list from Metaplex is <a href="https://developers.metaplex.com/rpc-providers">here</a>.</p>
-<p>Metaboss recommends using <a href="https://helius.dev">Helius</a> for DAS API calls as they are the only provider that fully supported the DAS API spec on both mainnet and devnet when these commands were tested. In addition, they have a very generous free tier that should be sufficient for most casual users.</p>
+<p>Metaboss recommends using <a href="https://helius.dev">Helius</a> for DAS API calls as they are the only provider that fully supported the DAS API spec on both mainnet and devnet when these commands were tested. In addition, they have a very generous free tier that should be sufficient for most casual users. The <code>snapshot holders</code> command with the group key set to <code>mint</code> is only supported on Helius endpoints currently, as it relies on their <code>getTokenAccounts</code> custom addition to the DAS API.</p>
 <h3 id="snapshot-holders-gpa"><a class="header" href="#snapshot-holders-gpa">Snapshot Holders-GPA</a></h3>
 <p>(Legacy: not recommended for use.)</p>
 <p>Snapshot all current holders of NFTs using the legacy getProgramAccounts method, filtered by verified candy_machine_id/first creator or update_authority.
@@ -236,15 +236,14 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>Snapshot all current holders by various group types:</p>
 <ul>
 <li>
-<p>Mint
-Gets all token holders of a specific mint (unimplemented--not supported in DAS yet).</p>
+<p><strong>Mint:</strong> Gets all token holders of a specific mint (currently only supported on Helius endpoints).</p>
 </li>
 <li>
-<p>First Verified Creator Address (FVCA)
+<p><strong>First Verified Creator Address (FVCA):</strong>
 Gets all holders of NFTs with a specific FVCA.</p>
 </li>
 <li>
-<p>Metaplex Collection Id (MCC)
+<p><strong>Metaplex Collection Id (MCC):</strong>
 Gets all holders of NFTs with a specific verified MCC ID.</p>
 </li>
 </ul>
@@ -273,16 +272,16 @@ Gets all holders of NFTs with a specific verified MCC ID.</p>
 <p>Snapshot all mint accounts by various group types:</p>
 <ul>
 <li>
-<p>Authority
+<p><strong>Authority:</strong>
 Gets all NFT mint addresses for a given update authority.
 <strong>Warning:</strong> update authority can be set to any address so use this option with caution.</p>
 </li>
 <li>
-<p>Creator
+<p><strong>Creator:</strong>
 Gets all NFT mint addresses that have a specific verified creator.</p>
 </li>
 <li>
-<p>Metaplex Collection Id (MCC)
+<p><strong>Metaplex Collection Id (MCC):</strong>
 Gets all NFT mint addresses with a specific verified MCC ID.</p>
 </li>
 </ul>

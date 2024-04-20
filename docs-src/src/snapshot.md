@@ -4,7 +4,7 @@ Get snapshots of various blockchain states.
 
 **Note**: Most of the snapshot commands rely on the [Digital Asset Standard (DAS) API](https://developers.metaplex.com/bubblegum#metaplex-das-api), which is a read layer for Metaplex NFTs that uses indexed data to serve up information without having to make onerous getProgramAccounts RPC calls to validators. To use these commands you will need to have a RPC URL set with a provider that supports the DAS API. The current official list from Metaplex is [here](https://developers.metaplex.com/rpc-providers).
 
-Metaboss recommends using [Helius](https://helius.dev) for DAS API calls as they are the only provider that fully supported the DAS API spec on both mainnet and devnet when these commands were tested. In addition, they have a very generous free tier that should be sufficient for most casual users.
+Metaboss recommends using [Helius](https://helius.dev) for DAS API calls as they are the only provider that fully supported the DAS API spec on both mainnet and devnet when these commands were tested. In addition, they have a very generous free tier that should be sufficient for most casual users. The `snapshot holders` command with the group key set to `mint` is only supported on Helius endpoints currently, as it relies on their `getTokenAccounts` custom addition to the DAS API.
 
 ### Snapshot Holders-GPA
 (Legacy: not recommended for use.)
@@ -95,13 +95,12 @@ Creates a JSON file in the output directory with the name format of `<CANDY_MACH
 
 Snapshot all current holders by various group types:
 
-- Mint
-Gets all token holders of a specific mint (unimplemented--not supported in DAS yet).
+- **Mint:** Gets all token holders of a specific mint (currently only supported on Helius endpoints).
 
-- First Verified Creator Address (FVCA)
+- **First Verified Creator Address (FVCA):**
 Gets all holders of NFTs with a specific FVCA.
 
-- Metaplex Collection Id (MCC)
+- **Metaplex Collection Id (MCC):**
 Gets all holders of NFTs with a specific verified MCC ID.
 
 #### Usage
@@ -138,14 +137,14 @@ metaboss snapshot holders PanbgtcTiZ2PveV96t2FHSffiLHXXjMuhvoabUUKKm8 -g fvca
 
 Snapshot all mint accounts by various group types:
 
-- Authority
+- **Authority:**
 Gets all NFT mint addresses for a given update authority. 
 **Warning:** update authority can be set to any address so use this option with caution.
 
-- Creator
+- **Creator:**
 Gets all NFT mint addresses that have a specific verified creator.
 
-- Metaplex Collection Id (MCC)
+- **Metaplex Collection Id (MCC):**
 Gets all NFT mint addresses with a specific verified MCC ID.
 
 #### Usage
