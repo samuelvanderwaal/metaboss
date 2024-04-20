@@ -69,7 +69,10 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
             params: json!({
                 "mint": args.group_value.to_string(),
                 "page": 1,
-                "limit": 1000
+                "limit": 1000,
+                "displayOptions": {
+                    "showZeroBalance": false,
+                }
             }),
             fvca_filter: false,
         },
