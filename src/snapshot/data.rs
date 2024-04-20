@@ -76,7 +76,7 @@ pub struct TokenAccount {
     pub owner: String,
     pub mint: String,
     pub address: String,
-    pub amount: u64,
+    pub amount: Option<u64>, // Some tokens seem to be missing this field
     pub delegated_amount: u64,
     pub frozen: bool,
 }
