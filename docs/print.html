@@ -922,7 +922,7 @@ Candy machine v2 has a separate creator id from the candy machine account id.</p
 <p>Outputs a TxId to the command line so you can check the result.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="snapshot"><a class="header" href="#snapshot">Snapshot</a></h2>
 <p>Get snapshots of various blockchain states.</p>
-<p><strong>Note</strong>: Most of the snapshot commands rely on the <a href="https://developers.metaplex.com/bubblegum#metaplex-das-api">Digital Asset Standard (DAS) API</a>, which is a read layer for Metaplex NFTs that uses indexed data to serve up information without having to make onerous getProgramAccounts RPC calls to validators. To use these commands you will need to have a RPC URL set with a provider that supports the DAS API. The current official list from Metaplex is <a href="https://developers.metaplex.com/bubblegum/rpcs">here</a>.</p>
+<p><strong>Note</strong>: Most of the snapshot commands rely on the <a href="https://developers.metaplex.com/bubblegum#metaplex-das-api">Digital Asset Standard (DAS) API</a>, which is a read layer for Metaplex NFTs that uses indexed data to serve up information without having to make onerous getProgramAccounts RPC calls to validators. To use these commands you will need to have a RPC URL set with a provider that supports the DAS API. The current official list from Metaplex is <a href="https://developers.metaplex.com/rpc-providers">here</a>.</p>
 <p>Metaboss recommends using <a href="https://helius.dev">Helius</a> for DAS API calls as they are the only provider that fully supported the DAS API spec on both mainnet and devnet when these commands were tested. In addition, they have a very generous free tier that should be sufficient for most casual users.</p>
 <h3 id="snapshot-holders-gpa"><a class="header" href="#snapshot-holders-gpa">Snapshot Holders-GPA</a></h3>
 <p>(Legacy: not recommended for use.)</p>
@@ -1491,7 +1491,7 @@ OPTIONS:
 </tbody></table>
 </div>
 <p>The default value if no priority is specified is <code>None</code>.</p>
-<p>The total amount spennt on priority fees per transaction is the microlamports multiplied by the compute units used. Metaboss simulates each tranasaction to determine the compute units required, and then uses that value or a default.</p>
+<p>The total amount spennt on priority fees per transaction is the microlamports multiplied by the compute units used. Metaboss simulates each transaction to determine the compute units required, and then uses that value or a default.</p>
 <p>Setting higher levels of priority fees are unlikely to make a significant difference in the getting transactions confirmed, so it's recommended to use "none" or "low" until Solana network performance improves. However, higher levels are included to give users options.</p>
 <p><strong>When running large batch updates be sure to consider the cost of priority fees for the level you set!! Medium, High and Max could cost significant amounts of SOL when updating thousands of NFTs.</strong></p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="contact"><a class="header" href="#contact">Contact</a></h2>
