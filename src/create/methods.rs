@@ -11,8 +11,8 @@ use mpl_token_metadata::{
     types::{CreateArgs, DataV2, TokenStandard},
 };
 use solana_sdk::{
-    compute_budget::ComputeBudgetInstruction, signature::read_keypair_file,
-    system_instruction::create_account,
+    commitment_config::CommitmentConfig, compute_budget::ComputeBudgetInstruction,
+    signature::read_keypair_file, system_instruction::create_account,
 };
 use spl_associated_token_account::{
     get_associated_token_address, get_associated_token_address_with_program_id,
@@ -22,17 +22,21 @@ use spl_pod::optional_keys::OptionalNonZeroPubkey;
 use spl_token::instruction::mint_to;
 use spl_token_2022::{
     extension::{
+        cpi_guard::instruction::enable_cpi_guard,
         interest_bearing_mint::instruction::initialize as initialize_interest_bearing,
+        memo_transfer::instruction::enable_required_transfer_memos,
         metadata_pointer::instruction::initialize as initialize_metadata_pointer,
         transfer_fee::instruction::initialize_transfer_fee_config,
-        transfer_hook::instruction::initialize as initialize_transfer_hook, ExtensionType,
+        transfer_hook::instruction::initialize as initialize_transfer_hook,
+        BaseStateWithExtensions, ExtensionType, StateWithExtensions,
     },
-    id as TOKEN_22_PROGRAM_ID,
     instruction::{
-        initialize_mint2, initialize_mint_close_authority, initialize_non_transferable_mint,
+        initialize_account, initialize_immutable_owner, initialize_mint2,
+        initialize_mint_close_authority, initialize_non_transferable_mint,
         initialize_permanent_delegate, mint_to_checked as mint_22_to,
     },
-    state::Mint,
+    state::{Account, Mint},
+    ID as TOKEN_22_PROGRAM_ID,
 };
 use spl_token_metadata_interface::{
     instruction::{initialize as initialize_metadata, update_field as add_additional_metadata},
@@ -216,6 +220,29 @@ pub struct Fungible22Fields {
     pub metadata: Option<MetadataConfig>,
 }
 
+pub struct CreateFungible22TokenArgs {
+    pub client: RpcClient,
+    pub keypair: Option<String>,
+    pub extensions: String,
+    pub mint_address: String,
+    pub priority: Priority,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Fungible22TokenFields {
+    pub require_memo: Option<bool>,
+    pub cpi_guard: Option<bool>,
+}
+
+pub struct CreateMasterEditionArgs {
+    pub client: RpcClient,
+    pub keypair: Option<String>,
+    pub mint_authority: Option<PathBuf>,
+    pub mint: Pubkey,
+    pub max_supply: i64,
+    pub priority: Priority,
+}
+
 pub fn parse_pubkey(pubkey_str: &str) -> Result<Pubkey> {
     match Pubkey::from_str(pubkey_str) {
         Ok(key) => Ok(key),
@@ -334,7 +361,6 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
 }
 
 pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
-    const TOKEN_EXTENSIONS_PROGRAM_ID: Pubkey = TOKEN_22_PROGRAM_ID();
     let solana_opts = parse_solana_config();
     let keypair = parse_keypair(args.keypair, solana_opts);
 
@@ -445,14 +471,14 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
         &mint_pubkey,
         mint_rent,
         u64::try_from(mint_size).unwrap(),
-        &TOKEN_EXTENSIONS_PROGRAM_ID,
+        &TOKEN_22_PROGRAM_ID,
     );
     instructions.push(create_mint_account_ix);
 
     // Initialize extensions
     if is_metadata {
         let init_metadata_pointer_ix = initialize_metadata_pointer(
-            &TOKEN_EXTENSIONS_PROGRAM_ID,
+            &TOKEN_22_PROGRAM_ID,
             &mint_pubkey,
             Some(keypair_pubkey),
             Some(mint_pubkey),
@@ -463,7 +489,7 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
     if let Some(close_authority) = extensions_data.close_authority {
         let close_authority = parse_pubkey(&close_authority)?;
         let init_close_authority_ix = initialize_mint_close_authority(
-            &TOKEN_EXTENSIONS_PROGRAM_ID,
+            &TOKEN_22_PROGRAM_ID,
             &mint_pubkey,
             Some(&close_authority),
         )?;
@@ -473,7 +499,7 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
     if let Some(non_transferrable) = extensions_data.non_transferrable {
         if non_transferrable {
             let init_non_transferrable_ix =
-                initialize_non_transferable_mint(&TOKEN_EXTENSIONS_PROGRAM_ID, &mint_pubkey)?;
+                initialize_non_transferable_mint(&TOKEN_22_PROGRAM_ID, &mint_pubkey)?;
             instructions.push(init_non_transferrable_ix);
         }
     }
@@ -501,7 +527,7 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
         let withdraw_withheld_authority = w_auth.as_ref();
 
         let init_transfer_fee_ix = initialize_transfer_fee_config(
-            &TOKEN_EXTENSIONS_PROGRAM_ID,
+            &TOKEN_22_PROGRAM_ID,
             &mint_pubkey,
             transfer_fee_config_authority,
             withdraw_withheld_authority,
@@ -514,11 +540,8 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
 
     if let Some(permanent_delegate) = extensions_data.permanent_delegate {
         let permanent_delegate = parse_pubkey(&permanent_delegate)?;
-        let init_permanent_delegate_ix = initialize_permanent_delegate(
-            &TOKEN_EXTENSIONS_PROGRAM_ID,
-            &mint_pubkey,
-            &permanent_delegate,
-        )?;
+        let init_permanent_delegate_ix =
+            initialize_permanent_delegate(&TOKEN_22_PROGRAM_ID, &mint_pubkey, &permanent_delegate)?;
         instructions.push(init_permanent_delegate_ix);
     }
 
@@ -534,7 +557,7 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
         };
 
         let init_interest_bearing_ix =
-            initialize_interest_bearing(&TOKEN_EXTENSIONS_PROGRAM_ID, &mint_pubkey, r_auth, rate)?;
+            initialize_interest_bearing(&TOKEN_22_PROGRAM_ID, &mint_pubkey, r_auth, rate)?;
         instructions.push(init_interest_bearing_ix);
     }
 
@@ -555,18 +578,14 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
             None
         };
 
-        let init_transfer_hook_ix = initialize_transfer_hook(
-            &TOKEN_EXTENSIONS_PROGRAM_ID,
-            &mint_pubkey,
-            authority,
-            program_id,
-        )?;
+        let init_transfer_hook_ix =
+            initialize_transfer_hook(&TOKEN_22_PROGRAM_ID, &mint_pubkey, authority, program_id)?;
         instructions.push(init_transfer_hook_ix);
     }
 
     // Initialize mint
     let initialize_mint_ix = initialize_mint2(
-        &TOKEN_EXTENSIONS_PROGRAM_ID,
+        &TOKEN_22_PROGRAM_ID,
         &mint_pubkey,
         &keypair_pubkey,
         Some(&keypair_pubkey),
@@ -583,7 +602,7 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
     }) = extensions_data.metadata
     {
         let init_metadata_ix = initialize_metadata(
-            &TOKEN_EXTENSIONS_PROGRAM_ID,
+            &TOKEN_22_PROGRAM_ID,
             &mint_pubkey,
             &keypair_pubkey,
             &mint_pubkey,
@@ -597,7 +616,7 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
         if let Some(additional_metadata) = additional_metadata {
             for field_value_pair in additional_metadata {
                 let add_additional_metadata_ix = add_additional_metadata(
-                    &TOKEN_EXTENSIONS_PROGRAM_ID,
+                    &TOKEN_22_PROGRAM_ID,
                     &mint_pubkey,
                     &keypair_pubkey,
                     Field::Key(field_value_pair[0].clone()),
@@ -619,7 +638,7 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
             let associated_token_account = get_associated_token_address_with_program_id(
                 &keypair_pubkey,
                 &mint_pubkey,
-                &TOKEN_EXTENSIONS_PROGRAM_ID,
+                &TOKEN_22_PROGRAM_ID,
             );
 
             // Create associated token account if needed
@@ -627,13 +646,13 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
                 &keypair_pubkey,
                 &keypair_pubkey,
                 &mint_pubkey,
-                &TOKEN_EXTENSIONS_PROGRAM_ID,
+                &TOKEN_22_PROGRAM_ID,
             );
             instructions.push(create_token_ix);
 
             // Mint to instruction
             let mint_to_ix = mint_22_to(
-                &TOKEN_EXTENSIONS_PROGRAM_ID,
+                &TOKEN_22_PROGRAM_ID,
                 &mint_pubkey,
                 &associated_token_account,
                 &keypair_pubkey,
@@ -675,13 +694,148 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
     Ok(())
 }
 
-pub struct CreateMasterEditionArgs {
-    pub client: RpcClient,
-    pub keypair: Option<String>,
-    pub mint_authority: Option<PathBuf>,
-    pub mint: Pubkey,
-    pub max_supply: i64,
-    pub priority: Priority,
+pub fn create_fungible_22_token(args: CreateFungible22TokenArgs) -> Result<()> {
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(args.keypair, solana_opts);
+
+    let mint_pubkey = Pubkey::from_str(&args.mint_address)?;
+    let keypair_pubkey = keypair.pubkey();
+
+    let mint_account_info = args
+        .client
+        .get_account_with_commitment(&mint_pubkey, CommitmentConfig::confirmed())?
+        .value;
+
+    if mint_account_info.is_none() {
+        return Err(anyhow!("Invalid Mint Address"));
+    }
+
+    let token = Keypair::new();
+    let destination_token_pubkey = token.pubkey();
+
+    let destination_token_pubkey_info = args
+        .client
+        .get_account_with_commitment(&destination_token_pubkey, CommitmentConfig::confirmed())?
+        .value;
+
+    let mut instructions = vec![];
+
+    if destination_token_pubkey_info.is_none() {
+        let f = File::open(args.extensions)?;
+        let extensions_data: Fungible22TokenFields = serde_json::from_reader(f)?;
+
+        let is_require_memo = extensions_data.require_memo.is_some();
+        let is_cpi_guard = extensions_data.cpi_guard.is_some();
+
+        let mut extension_types = vec![ExtensionType::ImmutableOwner];
+
+        if is_require_memo && extensions_data.require_memo.unwrap() {
+            extension_types.push(ExtensionType::MemoTransfer);
+        }
+
+        if is_cpi_guard && extensions_data.cpi_guard.unwrap() {
+            extension_types.push(ExtensionType::CpiGuard);
+        }
+
+        let mint_account_info_data = mint_account_info.unwrap().data;
+        let mint_account_data = StateWithExtensions::<Mint>::unpack(&mint_account_info_data)?;
+        let mint_extensions = mint_account_data.get_extension_types()?;
+        let mut required_extensions =
+            ExtensionType::get_required_init_account_extensions(&mint_extensions);
+
+        for extension_type in extension_types.into_iter() {
+            if !required_extensions.contains(&extension_type) {
+                required_extensions.push(extension_type);
+            }
+        }
+
+        let account_size =
+            ExtensionType::try_calculate_account_len::<Account>(&required_extensions)?;
+        let account_rent = args
+            .client
+            .get_minimum_balance_for_rent_exemption(account_size)?;
+
+        instructions.push(create_account(
+            &keypair_pubkey,
+            &destination_token_pubkey,
+            account_rent,
+            u64::try_from(account_size).unwrap(),
+            &TOKEN_22_PROGRAM_ID,
+        ));
+
+        instructions.push(initialize_immutable_owner(
+            &TOKEN_22_PROGRAM_ID,
+            &destination_token_pubkey,
+        )?);
+
+        instructions.push(initialize_account(
+            &TOKEN_22_PROGRAM_ID,
+            &destination_token_pubkey,
+            &mint_pubkey,
+            &keypair_pubkey,
+        )?);
+
+        if is_cpi_guard {
+            instructions.push(enable_cpi_guard(
+                &TOKEN_22_PROGRAM_ID,
+                &destination_token_pubkey,
+                &keypair_pubkey,
+                &[],
+            )?);
+        }
+
+        if is_require_memo {
+            instructions.push(enable_required_transfer_memos(
+                &TOKEN_22_PROGRAM_ID,
+                &destination_token_pubkey,
+                &keypair_pubkey,
+                &[],
+            )?);
+        }
+    }
+
+    let signers = vec![&keypair, &token];
+
+    let compute_units =
+        get_compute_units(&args.client, &instructions, &signers)?.unwrap_or(200_000);
+
+    let micro_lamports = match args.priority {
+        Priority::None => 20,
+        Priority::Low => 20_000,
+        Priority::Medium => 200_000,
+        Priority::High => 1_000_000,
+        Priority::Max => 2_000_000,
+    };
+
+    let mut final_instructions = vec![
+        ComputeBudgetInstruction::set_compute_unit_limit(compute_units as u32),
+        ComputeBudgetInstruction::set_compute_unit_price(micro_lamports),
+    ];
+    final_instructions.extend(instructions);
+
+    let recent_blockhash = args.client.get_latest_blockhash()?;
+    let tx = Transaction::new_signed_with_payer(
+        &final_instructions,
+        Some(&keypair_pubkey),
+        &signers,
+        recent_blockhash,
+    );
+
+    // Send tx with retries.
+    let res = retry(
+        Exponential::from_millis_with_factor(250, 2.0).take(3),
+        || args.client.send_and_confirm_transaction(&tx),
+    );
+    let sig = res?;
+
+    println!(
+        "Token: {:?} created successfully!",
+        destination_token_pubkey.to_string()
+    );
+
+    println!("Created in tx: {:?}", &sig);
+
+    Ok(())
 }
 
 pub fn create_master_edition(args: CreateMasterEditionArgs) -> Result<()> {

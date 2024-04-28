@@ -15,10 +15,9 @@ use crate::collections::{
     revoke_delegate, set_and_verify_nft_collection, set_size, unverify_nft_collection,
     verify_nft_collection, MigrateArgs,
 };
-use crate::create::create_fungible_22;
-use crate::create::CreateFungible22Args;
 use crate::create::{
-    create_fungible, create_master_edition, create_metadata, CreateFungibleArgs,
+    create_fungible, create_fungible_22, create_fungible_22_token, create_master_edition,
+    create_metadata, CreateFungible22Args, CreateFungible22TokenArgs, CreateFungibleArgs,
     CreateMasterEditionArgs, CreateMetadataArgs,
 };
 use crate::decode::{
@@ -348,6 +347,18 @@ pub fn process_create(client: RpcClient, commands: CreateSubcommands) -> Result<
             initial_supply,
             priority,
         }),
+        CreateSubcommands::Fungible22Token {
+            keypair,
+            extensions,
+            mint_address,
+            priority,
+        } => create_fungible_22_token(CreateFungible22TokenArgs {
+            client,
+            keypair,
+            extensions,
+            mint_address,
+            priority,
+        }),
         CreateSubcommands::MasterEdition {
             keypair,
             mint_authority,
@@ -500,7 +511,16 @@ pub fn process_mint(client: RpcClient, commands: MintSubcommands) -> Result<()> 
             amount,
             mint_address,
             priority,
-        } => mint_fungible(&client, keypair, &mint_address, amount, &receiver, priority),
+            token_22,
+        } => mint_fungible(
+            &client,
+            keypair,
+            &mint_address,
+            amount,
+            &receiver,
+            token_22,
+            priority,
+        ),
         MintSubcommands::Asset {
             keypair,
             receiver,

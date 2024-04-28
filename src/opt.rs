@@ -388,7 +388,7 @@ pub enum CreateSubcommands {
         #[structopt(long)]
         full_compute: bool,
     },
-    /// Mint a SPL22 Token from the Token Extensions Program
+    /// Create a new SPL22 Mint and optional metadata from Token Extensions
     #[structopt(name = "fungible-22")]
     Fungible22 {
         /// Path to the update authority keypair file
@@ -416,6 +416,28 @@ pub enum CreateSubcommands {
         #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
+
+    /// Create a SPL22 Token account from the Token Extensions Program
+    #[structopt(name = "fungible-token-22")]
+    Fungible22Token {
+        /// Path to the token creator keypair file
+        #[structopt(short, long)]
+        keypair: Option<String>,
+
+        /// Token Mint address
+        #[structopt(short = "M", long)]
+        mint_address: String,
+
+        /// Path to JSON file of extensions
+        #[structopt(short, long)]
+        extensions: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
+    },
+
     // Decorate an existing mint + metadata account with a master edition account.
     MasterEdition {
         /// Path to the update authority keypair file
@@ -882,7 +904,7 @@ pub enum FindSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum MintSubcommands {
-    /// Mint a normal SPL Token from the Token Program
+    /// Mint a normal SPL/SPL22 Token from the Token/Token Extensions Program
     Fungible {
         /// Path to the mint_authority keypair file
         #[structopt(short, long)]
@@ -899,6 +921,10 @@ pub enum MintSubcommands {
         /// Amount of tokens to mint
         #[structopt(short, long)]
         amount: u64,
+
+        /// Is Mint Token22
+        #[structopt(short, long)]
+        token_22: bool,
 
         /// Priority of the transaction: higher priority costs more.
         /// See https://metaboss.rs/priority-fees.html for more details.
