@@ -625,7 +625,7 @@ pub fn create_fungible_22(args: CreateFungible22Args) -> Result<()> {
             // Create associated token account if needed
             let create_token_ix = create_associated_token_account(
                 &keypair_pubkey,
-                &associated_token_account,
+                &keypair_pubkey,
                 &mint_pubkey,
                 &TOKEN_EXTENSIONS_PROGRAM_ID,
             );
