@@ -36,12 +36,17 @@ use solana_sdk::{
     transaction::Transaction,
 };
 use spl_associated_token_account::{
-    get_associated_token_address, instruction::create_associated_token_account,
+    get_associated_token_address, get_associated_token_address_with_program_id,
+    instruction::create_associated_token_account,
 };
 use spl_token::{
-    instruction::{initialize_mint, mint_to},
+    instruction::{initialize_mint, mint_to, mint_to_checked},
     state::Mint,
     ID as TOKEN_PROGRAM_ID,
+};
+use spl_token_2022::{
+    extension::StateWithExtensions, instruction::mint_to_checked as mint_22_to_checked,
+    state::Mint as Token2022Mint, ID as TOKEN_22_PROGRAM_ID,
 };
 use std::{
     fs,
@@ -286,10 +291,17 @@ pub fn mint_fungible(
     mint_address: &str,
     amount: u64,
     receiver: &Option<String>,
+    token_22: bool,
     priority: Priority,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
     let mint_authority_keypair = parse_keypair(keypair_path, solana_opts);
+
+    let token_program_id = if token_22 {
+        TOKEN_22_PROGRAM_ID
+    } else {
+        TOKEN_PROGRAM_ID
+    };
 
     let mint_authority_pubkey = mint_authority_keypair.pubkey();
     let mint_pubkey = Pubkey::from_str(mint_address)?;
@@ -308,7 +320,11 @@ pub fn mint_fungible(
         mint_authority_pubkey
     };
 
-    let destination_ata_pubkey = get_associated_token_address(&destination_pubkey, &mint_pubkey);
+    let destination_ata_pubkey = get_associated_token_address_with_program_id(
+        &destination_pubkey,
+        &mint_pubkey,
+        &token_program_id,
+    );
 
     let destination_ata_pubkey_info = client
         .get_account_with_commitment(&destination_ata_pubkey, CommitmentConfig::confirmed())?
@@ -321,24 +337,43 @@ pub fn mint_fungible(
             &mint_authority_pubkey,
             &destination_pubkey,
             &mint_pubkey,
-            &TOKEN_PROGRAM_ID,
+            &token_program_id,
         ))
     }
 
-    let mint_data = Mint::unpack(&mint_account_info.unwrap().data)?;
+    let mint_decimals = if token_22 {
+        StateWithExtensions::<Token2022Mint>::unpack(&mint_account_info.unwrap().data)?
+            .base
+            .decimals
+    } else {
+        Mint::unpack(&mint_account_info.unwrap().data)?.decimals
+    };
 
     let mint_amount = amount
-        .checked_mul(10_u64.pow(mint_data.decimals.into()))
+        .checked_mul(10_u64.pow(mint_decimals.into()))
         .ok_or(anyhow!("Invalid Mint Amount"))?;
 
-    let mint_ix = mint_to(
-        &TOKEN_PROGRAM_ID,
-        &mint_pubkey,
-        &destination_ata_pubkey,
-        &mint_authority_pubkey,
-        &[&mint_authority_pubkey],
-        mint_amount,
-    )?;
+    let mint_ix = if token_22 {
+        mint_22_to_checked(
+            &TOKEN_22_PROGRAM_ID,
+            &mint_pubkey,
+            &destination_ata_pubkey,
+            &mint_authority_pubkey,
+            &[&mint_authority_pubkey],
+            mint_amount,
+            mint_decimals,
+        )?
+    } else {
+        mint_to_checked(
+            &TOKEN_PROGRAM_ID,
+            &mint_pubkey,
+            &destination_ata_pubkey,
+            &mint_authority_pubkey,
+            &[&mint_authority_pubkey],
+            mint_amount,
+            mint_decimals,
+        )?
+    };
 
     instructions.push(mint_ix);
 
