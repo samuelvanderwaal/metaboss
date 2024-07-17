@@ -454,6 +454,7 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
                 .trim_start_matches('[')
                 .trim_end_matches(']')
                 .split(',')
+                .map(|c| c.trim())
                 .map(|c| {
                     c.parse::<u8>()
                         .unwrap_or_else(|_| panic!("failed to parse {}", c))
@@ -462,6 +463,17 @@ pub fn process_decode(client: &RpcClient, commands: DecodeSubcommands) -> Result
 
             let array: [u8; 32] = key.try_into().map_err(|_| anyhow!("Invalid pubkey"))?;
             println!("{:?}", Pubkey::new_from_array(array));
+        }
+        DecodeSubcommands::Account {
+            account,
+            start,
+            end,
+        } => {
+            let account = client.get_account(&account)?;
+            let data = account.data;
+            let start = start.unwrap_or(0);
+            let end = end.unwrap_or(data.len());
+            println!("{:?}", &data[start..end]);
         }
     }
     Ok(())
