@@ -829,6 +829,19 @@ pub enum DecodeSubcommands {
         /// Pubkey
         pubkey: String,
     },
+    /// Get Account's raw bytes
+    Account {
+        /// Account address
+        account: Pubkey,
+
+        /// Optional start index
+        #[structopt(short, long)]
+        start: Option<usize>,
+
+        /// Optional end index
+        #[structopt(short, long)]
+        end: Option<usize>,
+    },
 }
 
 #[derive(Debug, StructOpt)]
