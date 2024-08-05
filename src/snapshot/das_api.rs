@@ -10,6 +10,7 @@ use spl_associated_token_account::get_associated_token_address;
 
 use crate::{
     setup::{CliConfig, ClientLike, ClientType},
+    snapshot::TokenResponse,
     spinner::create_spinner,
 };
 
@@ -63,7 +64,18 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
     let config = CliConfig::new(None, Some(args.rpc_url), ClientType::DAS)?;
 
     let query = match args.group_key {
-        HolderGroupKey::Mint => todo!(),
+        HolderGroupKey::Mint => Query {
+            method: "getTokenAccounts".to_string(),
+            params: json!({
+                "mint": args.group_value.to_string(),
+                "page": 1,
+                "limit": 1000,
+                "displayOptions": {
+                    "showZeroBalance": false,
+                }
+            }),
+            fvca_filter: false,
+        },
         HolderGroupKey::Fvca => Query {
             method: "getAssetsByCreator".to_string(),
             params: json!({
@@ -94,6 +106,7 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
         _ => panic!("Wrong client type"),
     };
 
+    let mut token_holders = Vec::new();
     let mut holders = Vec::new();
     let mut page = 1;
 
@@ -124,55 +137,81 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
             bail!("Status: {status}\nResponse: {}", response.text().await?);
         }
 
-        let res: DasResponse = response.json().await?;
+        match args.group_key {
+            HolderGroupKey::Mint => {
+                let res: TokenResponse = response.json().await?;
 
-        if res.result.items.is_empty() {
-            break;
-        }
-
-        page += 1;
-        body["params"]["page"] = json!(page);
-
-        res.result
-            .items
-            .iter()
-            .filter(|item| {
-                if query.fvca_filter {
-                    fvca_filter(item)
-                } else {
-                    true
+                if res.result.token_accounts.is_empty() {
+                    break;
                 }
-            })
-            .for_each(|item| {
-                let mint_address = item.id.clone();
-                let metadata_pubkey =
-                    derive_metadata_pda(&Pubkey::from_str(mint_address.as_str()).unwrap());
-                let owner_address = item.ownership.owner.clone();
-                let ata_pubkey = get_associated_token_address(
-                    &Pubkey::from_str(&owner_address).unwrap(),
-                    &Pubkey::from_str(&mint_address).unwrap(),
-                );
 
-                holders.push(Holder {
-                    owner: owner_address,
-                    mint: item.id.clone(),
-                    metadata: metadata_pubkey.to_string(),
-                    ata: ata_pubkey.to_string(),
-                });
-            });
+                page += 1;
+                body["params"]["page"] = json!(page);
 
-        std::thread::sleep(std::time::Duration::from_millis(args.delay));
+                token_holders.extend(res.result.token_accounts);
+            }
+            HolderGroupKey::Fvca | HolderGroupKey::Mcc => {
+                let res: DasResponse = response.json().await?;
+
+                if res.result.items.is_empty() {
+                    break;
+                }
+
+                page += 1;
+                body["params"]["page"] = json!(page);
+
+                res.result
+                    .items
+                    .iter()
+                    .filter(|item| {
+                        if query.fvca_filter {
+                            fvca_filter(item)
+                        } else {
+                            true
+                        }
+                    })
+                    .for_each(|item| {
+                        let mint_address = item.id.clone();
+                        let metadata_pubkey =
+                            derive_metadata_pda(&Pubkey::from_str(mint_address.as_str()).unwrap());
+                        let owner_address = item.ownership.owner.clone();
+                        let ata_pubkey = get_associated_token_address(
+                            &Pubkey::from_str(&owner_address).unwrap(),
+                            &Pubkey::from_str(&mint_address).unwrap(),
+                        );
+
+                        holders.push(Holder {
+                            owner: owner_address,
+                            mint: item.id.clone(),
+                            metadata: metadata_pubkey.to_string(),
+                            ata: ata_pubkey.to_string(),
+                        });
+                    });
+
+                std::thread::sleep(std::time::Duration::from_millis(args.delay));
+            }
+        }
     }
     spinner.finish();
 
-    holders.sort();
+    if !holders.is_empty() {
+        holders.sort();
 
-    // Write to file
-    let file = File::create(format!(
-        "{}_{}_holders.json",
-        args.group_value, args.group_key
-    ))?;
-    serde_json::to_writer_pretty(file, &holders)?;
+        // Write to file
+        let file = File::create(format!(
+            "{}_{}_holders.json",
+            args.group_value, args.group_key
+        ))?;
+        serde_json::to_writer_pretty(file, &holders)?;
+    }
+
+    if !token_holders.is_empty() {
+        token_holders.sort_by(|a, b| a.owner.cmp(&b.owner));
+
+        // Write to file
+        let file = File::create(format!("{}_token_holders.json", args.group_value))?;
+        serde_json::to_writer_pretty(file, &token_holders)?;
+    }
 
     Ok(())
 }

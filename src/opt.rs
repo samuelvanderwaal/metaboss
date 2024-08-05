@@ -1364,7 +1364,7 @@ pub enum SnapshotSubcommands {
         #[structopt(short, long, default_value = ".")]
         output: PathBuf,
 
-        /// Delay between DAS API requests in milliseconds; defaults to 500
+        /// Delay between DAS API requests in milliseconds
         #[structopt(short = "D", long, default_value = "500")]
         delay: u64,
     },

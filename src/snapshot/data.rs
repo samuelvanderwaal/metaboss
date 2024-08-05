@@ -54,6 +54,33 @@ use mpl_token_metadata::types::Creator;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+// `getTokenAccounts` has different return types than other DAS methods.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TokenResponse {
+    id: u32,
+    jsonrpc: String,
+    pub result: TokenResult,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TokenResult {
+    pub total: u32,
+    pub limit: u32,
+    pub page: u32,
+    pub token_accounts: Vec<TokenAccount>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TokenAccount {
+    pub owner: String,
+    pub mint: String,
+    pub address: String,
+    pub amount: Option<u64>, // Some tokens seem to be missing this field
+    pub delegated_amount: u64,
+    pub frozen: bool,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DasResponse {
@@ -69,6 +96,7 @@ pub struct DasResult {
     pub page: u32,
     pub items: Vec<Item>,
 }
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ByCreatorResult {
     pub total: u32,
