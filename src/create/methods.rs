@@ -290,6 +290,7 @@ pub fn create_fungible(args: CreateFungibleArgs) -> Result<()> {
         .payer(keypair.pubkey())
         .update_authority(keypair.pubkey(), true)
         .create_args(create_args)
+        .spl_token_program(Some(spl_token::ID))
         .instruction();
 
     let mut instructions = vec![create_ix];
