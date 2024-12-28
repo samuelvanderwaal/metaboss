@@ -38,7 +38,6 @@ Suggestions and PRs welcome!
 Some alternate tools that do similar things:
 
 * [Banana Tools](https://tools.0xbanana.com/)
-* [Crypto Straps Tools](https://cryptostraps.tools/nft-mints)
 * [SOL Tools](https://sol-tools.tonyboyle.io/nft-tools/create-nft)
 
 ## Installation
