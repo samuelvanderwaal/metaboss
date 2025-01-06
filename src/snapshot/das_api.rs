@@ -119,7 +119,7 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
     });
 
     let fvca_filter = |item: &Item| {
-        item.creators.first().is_some()
+        !item.creators.is_empty()
             && item.creators.first().unwrap().address.to_string() == args.group_value.to_string()
     };
 
@@ -441,7 +441,7 @@ pub async fn fcva_mints(args: FcvaArgs) -> Result<()> {
             .items
             .iter()
             .filter(|item| {
-                item.creators.first().is_some()
+                !item.creators.is_empty()
                     && item.creators.first().unwrap().address.to_string() == creator
             })
             .for_each(|item| {
