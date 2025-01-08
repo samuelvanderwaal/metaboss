@@ -2052,7 +2052,7 @@ dependencies = [
 
 [[package]]
 name = "metaboss"
-version = "0.43.3"
+version = "0.44.0"
 dependencies = [
  "anyhow",
  "async-trait",
