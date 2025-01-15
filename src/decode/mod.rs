@@ -1,3 +1,5 @@
+#![allow(clippy::result_large_err)]
+
 use anyhow::{anyhow, Result as AnyResult};
 use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};

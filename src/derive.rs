@@ -49,7 +49,7 @@ fn parse_seed(s: &str) -> Vec<Vec<u8>> {
     if s.starts_with('"') && s.ends_with('"') {
         // Handle quoted strings
         vec![s[1..s.len() - 1].as_bytes().to_vec()]
-    } else if s.chars().all(|c| c.is_digit(10)) {
+    } else if s.chars().all(|c| c.is_ascii_digit()) {
         // Handle numbers: each digit becomes a separate u8
         s.chars()
             .map(|c| c.to_digit(10).unwrap() as u8)
