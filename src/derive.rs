@@ -32,15 +32,33 @@ pub fn get_token_account_pda(mint: String, owner: Option<String>, token_22: bool
 pub fn get_generic_pda(str_seeds: String, program_id: String) {
     let seeds: Vec<Vec<u8>> = str_seeds
         .split(',')
-        .map(|s| s.into())
-        .map(pubkey_or_bytes)
+        .map(|s| s.trim())
+        .flat_map(parse_seed)
         .collect();
+
+    println!("seeds: {:?}", seeds);
 
     let seeds: Vec<&[u8]> = seeds.iter().map(|seed| seed.as_slice()).collect();
 
     let program_id =
         Pubkey::from_str(&program_id).expect("Failed to parse pubkey from program_id!");
     println!("{}", derive_generic_pda(seeds, program_id));
+}
+
+fn parse_seed(s: &str) -> Vec<Vec<u8>> {
+    if s.starts_with('"') && s.ends_with('"') {
+        // Handle quoted strings
+        vec![s[1..s.len() - 1].as_bytes().to_vec()]
+    } else if s.chars().all(|c| c.is_digit(10)) {
+        // Handle numbers: each digit becomes a separate u8
+        s.chars()
+            .map(|c| c.to_digit(10).unwrap() as u8)
+            .map(|digit| vec![digit])
+            .collect()
+    } else {
+        // Default to pubkey_or_bytes for other cases
+        vec![pubkey_or_bytes(s.to_string())]
+    }
 }
 
 fn pubkey_or_bytes(seed: String) -> Vec<u8> {
