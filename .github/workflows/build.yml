@@ -15,7 +15,7 @@ jobs:
           - windows-latest
           - buildjet-16vcpu-ubuntu-2004
           - macos-latest
-          - macos-14
+          - macos-latest-large # intel
 
     runs-on: ${{ matrix.os }}
 
@@ -49,7 +49,7 @@ jobs:
             binary_path="metaboss-windows-latest${binary_extension}"
           fi
           if [[ "${RUNNER_OS}" == "macOS" ]]; then
-            if [[ "${MATRIX_OS}" == "macos-14" ]]; then
+            if [[ "${MATRIX_OS}" == "macos-latest" ]]; then
               binary_path="metaboss-macos-m1-latest"
             else
               binary_path="metaboss-macos-intel-latest"
