@@ -36,8 +36,6 @@ pub fn get_generic_pda(str_seeds: String, program_id: String) {
         .flat_map(parse_seed)
         .collect();
 
-    println!("seeds: {:?}", seeds);
-
     let seeds: Vec<&[u8]> = seeds.iter().map(|seed| seed.as_slice()).collect();
 
     let program_id =
