@@ -150,7 +150,7 @@ pub async fn check_collection_items(
     Ok(())
 }
 
-async fn get_mint_collection<'a>(
+async fn get_mint_collection(
     client: &AsyncRpcClient,
     mint: String,
 ) -> AnyResult<(String, Option<MdCollection>)> {

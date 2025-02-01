@@ -27,7 +27,7 @@ pub struct SnapshotPrintEditionsArgs {
     pub output: String,
 }
 
-pub async fn snapshot_print_editions<'a>(args: SnapshotPrintEditionsArgs) -> Result<()> {
+pub async fn snapshot_print_editions(args: SnapshotPrintEditionsArgs) -> Result<()> {
     let master_mint_pubkey = Pubkey::from_str(&args.master_mint)?;
     let master_edition_pubkey = derive_edition_pda(&master_mint_pubkey);
 
