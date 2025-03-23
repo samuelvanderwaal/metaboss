@@ -202,7 +202,7 @@ pub async fn process_burn_asset(client: RpcClient, commands: BurnSubcommands) ->
                 priority,
             };
 
-            let sig = burn_asset(args).await.map_err(Into::<ActionError>::into)?;
+            let sig = burn_asset(args).await?;
 
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
@@ -643,9 +643,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 priority,
             };
 
-            let sig = set_primary_sale_happened(args)
-                .await
-                .map_err(Into::<ActionError>::into)?;
+            let sig = set_primary_sale_happened(args).await?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
@@ -691,9 +689,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 priority,
             };
 
-            let sig = set_update_authority(args)
-                .await
-                .map_err(Into::<ActionError>::into)?;
+            let sig = set_update_authority(args).await?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
@@ -737,9 +733,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 priority,
             };
 
-            let sig = set_immutable(args)
-                .await
-                .map_err(Into::<ActionError>::into)?;
+            let sig = set_immutable(args).await?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
@@ -779,9 +773,7 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
                 priority,
             };
 
-            let sig = set_token_standard_one(args)
-                .await
-                .map_err(Into::<ActionError>::into)?;
+            let sig = set_token_standard_one(args).await?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
@@ -862,9 +854,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 priority,
             };
 
-            let sig = update_rule_set(args)
-                .await
-                .map_err(Into::<ActionError>::into)?;
+            let sig = update_rule_set(args).await?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
@@ -906,9 +896,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 priority,
             };
 
-            let sig = clear_rule_set(args)
-                .await
-                .map_err(Into::<ActionError>::into)?;
+            let sig = clear_rule_set(args).await?;
 
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
@@ -951,7 +939,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 priority,
             };
 
-            let sig = update_sfbp(args).await.map_err(Into::<ActionError>::into)?;
+            let sig = update_sfbp(args).await?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
@@ -995,7 +983,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 priority,
             };
 
-            let sig = update_name(args).await.map_err(Into::<ActionError>::into)?;
+            let sig = update_name(args).await?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
@@ -1018,9 +1006,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 priority,
             };
 
-            let sig = update_symbol(args)
-                .await
-                .map_err(Into::<ActionError>::into)?;
+            let sig = update_symbol(args).await?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
@@ -1066,9 +1052,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 priority,
             };
 
-            let sig = update_creator(args)
-                .await
-                .map_err(Into::<ActionError>::into)?;
+            let sig = update_creator(args).await?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
@@ -1116,7 +1100,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 priority,
             };
 
-            let sig = update_data(args).await.map_err(Into::<ActionError>::into)?;
+            let sig = update_data(args).await?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
@@ -1158,7 +1142,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 priority,
             };
 
-            let sig = update_uri(args).await.map_err(Into::<ActionError>::into)?;
+            let sig = update_uri(args).await?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
@@ -1202,7 +1186,7 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
                 overwrite,
                 priority,
             };
-            let sig = update_uses_one(args).map_err(Into::<ActionError>::into)?;
+            let sig = update_uses_one(args)?;
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
 
@@ -1222,9 +1206,7 @@ pub async fn process_verify(client: RpcClient, commands: VerifySubcommands) -> R
                 keypair: Arc::new(keypair),
                 mint,
             };
-            let sig = verify_creator(args)
-                .await
-                .map_err(Into::<ActionError>::into)?;
+            let sig = verify_creator(args).await?;
 
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
@@ -1262,9 +1244,7 @@ pub async fn process_unverify(client: RpcClient, commands: UnverifySubcommands) 
                 keypair: Arc::new(keypair),
                 mint,
             };
-            let sig = unverify_creator(args)
-                .await
-                .map_err(Into::<ActionError>::into)?;
+            let sig = unverify_creator(args).await?;
 
             info!("Tx sig: {:?}", sig);
             println!("Tx sig: {sig:?}");
