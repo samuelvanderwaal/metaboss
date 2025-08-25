@@ -117,8 +117,9 @@ pub fn create_metadata(args: CreateMetadataArgs) -> Result<()> {
 
     if !args.full_compute {
         // Only set the compute unit limit if we're not doing a full compute
-        let compute_units = get_compute_units(&args.client, &[create_ix.clone()], &[&keypair])?
-            .unwrap_or(DEFAULT_COMPUTE_UNITS);
+        let compute_units =
+            get_compute_units(&args.client, std::slice::from_ref(&create_ix), &[&keypair])?
+                .unwrap_or(DEFAULT_COMPUTE_UNITS);
 
         instructions.push(ComputeBudgetInstruction::set_compute_unit_limit(
             compute_units as u32,
@@ -877,8 +878,8 @@ pub fn create_master_edition(args: CreateMasterEditionArgs) -> Result<()> {
 
     let signers = vec![&keypair, &mint_authority];
 
-    let compute_units =
-        get_compute_units(&args.client, &[ix.clone()], &signers)?.unwrap_or(DEFAULT_COMPUTE_UNITS);
+    let compute_units = get_compute_units(&args.client, std::slice::from_ref(&ix), &signers)?
+        .unwrap_or(DEFAULT_COMPUTE_UNITS);
 
     let micro_lamports = match args.priority {
         Priority::None => 20,

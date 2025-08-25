@@ -204,7 +204,7 @@ pub enum TokenExtrasInstruction {
     /// - Token exists and Token is not ATA: Instruction succeeds.
     /// - Token does not exist and Token is ATA: Instruction creates the ATA account and succeeds.
     /// - Token does not exist and Token is not ATA: Instruction fails as we cannot create a
-    ///    non-ATA account without it being a signer.
+    ///   non-ATA account without it being a signer.
     ///
     /// Note that additional checks are made to ensure that the token account provided
     /// matches the mint account and owner account provided.
