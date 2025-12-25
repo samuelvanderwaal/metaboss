@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use borsh::{BorshDeserialize, BorshSerialize};
 use retry::{delay::Exponential, retry};
 use serde::Deserialize;
@@ -254,12 +254,14 @@ pub fn get_largest_token_account_owner(client: &RpcClient, mint: Pubkey) -> Resu
         method: "getTokenLargestAccounts",
     };
     let params = json!([mint.to_string(), { "commitment": "confirmed" }]);
-    let result: JRpcResponse = client.send(request, params)?;
+    let result: JRpcResponse = client
+        .send(request, params)
+        .context("Failed to get largest token accounts from RPC")?;
 
     let token_accounts: Vec<TokenAccount> = result
         .value
         .into_iter()
-        .filter(|account| account.amount.parse::<u64>().unwrap() == 1)
+        .filter(|account| account.amount.parse::<u64>().unwrap_or(0) == 1)
         .collect();
 
     if token_accounts.len() > 1 {
@@ -276,14 +278,24 @@ pub fn get_largest_token_account_owner(client: &RpcClient, mint: Pubkey) -> Resu
         ));
     }
 
-    let token_account = Pubkey::from_str(&token_accounts[0].address).unwrap();
+    let token_account = Pubkey::from_str(&token_accounts[0].address).map_err(|_| {
+        anyhow!(
+            "Invalid token account address: {}",
+            token_accounts[0].address
+        )
+    })?;
 
     let account = client
         .get_account_with_commitment(&token_account, CommitmentConfig::confirmed())
-        .unwrap()
+        .context(format!(
+            "Failed to get account data for token account {}",
+            token_account
+        ))?
         .value
-        .unwrap();
-    let account_data = Account::unpack(&account.data).unwrap();
+        .ok_or_else(|| anyhow!("Token account {} not found on-chain", token_account))?;
+
+    let account_data = Account::unpack(&account.data)
+        .context("Failed to unpack token account data (SPL Token format)")?;
 
     Ok(account_data.owner)
 }
