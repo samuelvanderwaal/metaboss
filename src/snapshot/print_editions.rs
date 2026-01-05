@@ -1,10 +1,11 @@
 use borsh::BorshDeserialize;
-use indexmap::IndexMap;
+use dashmap::DashMap;
 use metaboss_lib::{
     decode::decode_metadata_from_mint, derive::derive_edition_pda,
     snapshot::get_metadata_accounts_by_creator,
 };
 use mpl_token_metadata::accounts::Edition;
+use rayon::prelude::*;
 
 use crate::spinner::create_spinner;
 
@@ -59,24 +60,34 @@ pub async fn snapshot_print_editions(args: SnapshotPrintEditionsArgs) -> Result<
         .collect::<Vec<_>>();
     spinner.finish();
 
-    let mut edition_mints = IndexMap::new();
+    let edition_mints = DashMap::new();
 
     let spinner = create_spinner("Finding edition mints...");
-    for m in mints {
-        let edition = derive_edition_pda(&m);
-        let edition_account = &args.client.get_account(&edition)?;
-        let edition = match Edition::deserialize(&mut edition_account.data.as_slice()) {
-            Ok(e) => e,
-            Err(_) => continue,
-        };
 
-        if edition.parent == master_edition_pubkey {
-            edition_mints.insert(edition.edition, m.to_string());
+    // WARNING: Parallel execution increases RPC load. If you hit rate limits (Error 429),
+    // use the RAYON_NUM_THREADS environment variable to limit concurrency
+    // (e.g., RAYON_NUM_THREADS=4 metaboss ...).
+    info!("WARNING: Parallel execution increases RPC load. If you hit rate limits (Error 429), use the RAYON_NUM_THREADS environment variable to limit concurrency.");
+
+    mints.par_iter().for_each(|m| {
+        let edition = derive_edition_pda(m);
+        if let Ok(edition_account) = args.client.get_account(&edition) {
+            if let Ok(edition_data) = Edition::deserialize(&mut edition_account.data.as_slice()) {
+                if edition_data.parent == master_edition_pubkey {
+                    edition_mints.insert(edition_data.edition, *m);
+                }
+            }
         }
-    }
+    });
+
     spinner.finish();
 
-    edition_mints.sort_keys();
+    // Convert to BTreeMap for sorting (and correct JSON serialization of keys)
+    use std::collections::BTreeMap;
+    let edition_mints: BTreeMap<u64, String> = edition_mints
+        .into_iter()
+        .map(|(k, v)| (k, v.to_string()))
+        .collect();
 
     println!("Found {} editions", edition_mints.len());
 

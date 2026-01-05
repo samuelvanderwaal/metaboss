@@ -1,6 +1,7 @@
 #![allow(clippy::result_large_err)]
 
 use anyhow::{anyhow, Result as AnyResult};
+use borsh::BorshDeserialize;
 use indicatif::ParallelProgressIterator;
 use log::{debug, error, info};
 use metaboss_lib::data::NftData;
@@ -8,6 +9,7 @@ use metaboss_lib::decode::{
     decode_bpf_loader_upgradeable_state, decode_edition_from_mint, decode_edition_marker_from_mint,
     decode_master_edition_from_mint, decode_mint, decode_token,
 };
+use mpl_core::accounts::BaseAssetV1;
 use mpl_token_metadata::accounts::Metadata;
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
@@ -312,4 +314,12 @@ pub fn get_metadata_pda(pubkey: Pubkey) -> Pubkey {
 
     let (pda, _) = Pubkey::find_program_address(seeds, &metaplex_pubkey);
     pda
+}
+
+pub fn decode_core_asset(client: &RpcClient, asset: &str) -> AnyResult<()> {
+    let pubkey = Pubkey::from_str(asset)?;
+    let account = client.get_account(&pubkey)?;
+    let asset = BaseAssetV1::deserialize(&mut account.data.as_slice())?;
+    println!("{asset:?}");
+    Ok(())
 }

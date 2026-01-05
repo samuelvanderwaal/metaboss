@@ -9,6 +9,7 @@ use metaboss_lib::{
     mint::{mint_asset, AssetData, MintAssetArgs},
     transaction::get_compute_units,
 };
+use mpl_core::instructions::CreateV1Builder;
 use mpl_token_metadata::{
     accounts::EditionMarker,
     instructions::{
@@ -517,9 +518,14 @@ pub fn mint_editions(
         return Ok(());
     }
     if let Some(specific_editions) = specific_editions {
-        for num in specific_editions {
-            mint_edition(client, &keypair_path, &account, num, receiver, &priority)?;
-        }
+        // Parallelize using Rayon
+        // WARNING: This increases RPC load.
+        specific_editions.par_iter().for_each(|num| {
+            if let Err(e) = mint_edition(client, &keypair_path, &account, *num, receiver, &priority)
+            {
+                error!("Failed to mint edition {}: {}", num, e);
+            }
+        });
         return Ok(());
     }
     spinner.finish();
@@ -768,6 +774,73 @@ pub fn mint_missing_editions(
     spinner.finish();
 
     Ok(())
+}
+
+pub fn mint_core(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    asset_keypair_path: Option<String>,
+    receiver: Option<String>,
+    name: String,
+    uri: String,
+    priority: Priority,
+) -> Result<Signature> {
+    let solana_opts = parse_solana_config();
+    let keypair = parse_keypair(keypair_path, solana_opts);
+
+    let asset_keypair = if let Some(path) = asset_keypair_path {
+        read_keypair(&path)?
+    } else {
+        Keypair::new()
+    };
+    let asset_pubkey = asset_keypair.pubkey();
+
+    let receiver_pubkey = if let Some(r) = receiver {
+        Pubkey::from_str(&r)?
+    } else {
+        keypair.pubkey()
+    };
+
+    let create_ix = CreateV1Builder::new()
+        .asset(asset_pubkey)
+        .name(name)
+        .uri(uri)
+        .payer(keypair.pubkey())
+        .owner(Some(receiver_pubkey))
+        .instruction();
+
+    let instructions = vec![create_ix];
+    let signers = vec![&keypair, &asset_keypair];
+
+    let compute_units = get_compute_units(client, &instructions, &signers)?.unwrap_or(200_000);
+
+    let micro_lamports = match priority {
+        Priority::None => 20,
+        Priority::Low => 20_000,
+        Priority::Medium => 200_000,
+        Priority::High => 1_000_000,
+        Priority::Max => 2_000_000,
+    };
+
+    let mut final_instructions = vec![
+        ComputeBudgetInstruction::set_compute_unit_limit(compute_units as u32),
+        ComputeBudgetInstruction::set_compute_unit_price(micro_lamports),
+    ];
+    final_instructions.extend(instructions);
+
+    let recent_blockhash = client.get_latest_blockhash()?;
+    let tx = Transaction::new_signed_with_payer(
+        &final_instructions,
+        Some(&keypair.pubkey()),
+        &signers,
+        recent_blockhash,
+    );
+
+    let sig = client.send_and_confirm_transaction(&tx)?;
+    println!("Minted Core Asset: {}", asset_pubkey);
+    println!("Signature: {}", sig);
+
+    Ok(sig)
 }
 
 #[allow(clippy::too_many_arguments)]

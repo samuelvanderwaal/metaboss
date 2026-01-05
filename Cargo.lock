@@ -997,6 +997,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "dashmap"
+version = "5.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "978747c1d849a7d2ee5e8adc0159961c48fb7e5db2f06af6723b80123bb53856"
+dependencies = [
+ "cfg-if",
+ "hashbrown 0.14.5",
+ "lock_api",
+ "once_cell",
+ "parking_lot_core",
+]
+
+[[package]]
 name = "data-encoding"
 version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2166,6 +2179,7 @@ dependencies = [
  "bs58",
  "chrono",
  "console",
+ "dashmap 5.5.3",
  "dirs 5.0.1",
  "env_logger",
  "futures",
@@ -2176,6 +2190,7 @@ dependencies = [
  "lazy_static",
  "log",
  "metaboss_lib",
+ "mpl-core",
  "mpl-token-metadata",
  "num_cpus",
  "once_cell",
@@ -2259,6 +2274,44 @@ dependencies = [
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "modular-bitfield"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a53d79ba8304ac1c4f9eb3b9d281f21f7be9d4626f72ce7df4ad8fbde4f38a74"
+dependencies = [
+ "modular-bitfield-impl",
+ "static_assertions",
+]
+
+[[package]]
+name = "modular-bitfield-impl"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a7d5f7076603ebc68de2dc6a650ec331a062a13abaa346975be747bbfa4b789"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "mpl-core"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1d4f516cd9daae872182a50850ab6d5588667e71152d49b0729a32830036b83"
+dependencies = [
+ "base64 0.22.1",
+ "borsh 0.10.3",
+ "modular-bitfield",
+ "num-derive 0.3.3",
+ "num-traits",
+ "rmp-serde",
+ "serde_json",
+ "solana-program",
+ "thiserror",
 ]
 
 [[package]]
@@ -3780,7 +3833,7 @@ checksum = "250ffcda91bc30c2adcc290c9b7c796f59884f1043ae3bcf3245f05158c7986c"
 dependencies = [
  "async-trait",
  "bincode",
- "dashmap",
+ "dashmap 4.0.2",
  "futures",
  "futures-util",
  "indexmap 2.2.6",
@@ -4751,6 +4804,12 @@ name = "stable_deref_trait"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
+
+[[package]]
+name = "static_assertions"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "strsim"
