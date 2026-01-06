@@ -25,6 +25,7 @@ pub struct AirdropSplArgs {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[allow(dead_code)]
 struct SplFailedTransaction {
     transaction_accounts: Vec<String>,
     recipients: HashMap<String, f64>,

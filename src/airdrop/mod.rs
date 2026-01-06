@@ -19,6 +19,7 @@ pub use solana_sdk::{pubkey::Pubkey, signer::Signer};
 pub use crate::update::{parse_keypair, parse_solana_config};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[allow(dead_code)]
 struct FailedTransaction {
     transaction_accounts: Vec<String>,
     recipients: HashMap<String, u64>,
@@ -26,6 +27,7 @@ struct FailedTransaction {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[allow(dead_code)]
 struct Recipient {
     address: String,
     amount: u64,
