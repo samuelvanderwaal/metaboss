@@ -4,17 +4,11 @@ extern crate log;
 use anyhow::Result;
 use metaboss::airdrop::process_airdrop;
 use metaboss::check::process_check;
-use metaboss::constants::PUBLIC_RPC_URLS;
 use metaboss::extend_program::process_extend_program;
-use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
-use solana_sdk::commitment_config::CommitmentConfig;
-use std::str::FromStr;
-use std::time::Duration;
+use metaboss::setup::AppConfigBuilder;
 use structopt::StructOpt;
 
-use metaboss::constants::*;
 use metaboss::opt::*;
-use metaboss::parse::parse_solana_config;
 use metaboss::process_subcommands::*;
 use metaboss::snapshot::process_snapshot;
 
@@ -25,40 +19,16 @@ async fn main() -> Result<()> {
     let log_level = format!("solana={}", options.log_level);
     solana_logger::setup_with_default(&log_level);
 
-    let sol_config = parse_solana_config();
+    let mut builder = AppConfigBuilder::new().timeout(options.timeout);
 
-    let (rpc, commitment) = if let Some(cli_rpc) = options.rpc {
-        (cli_rpc, String::from("confirmed"))
-    } else if let Some(config) = sol_config {
-        (config.json_rpc_url, config.commitment)
-    } else {
-        info!(
-            "Could not find a valid Solana-CLI config file. Defaulting to https://devnet.genesysgo.net devnet node."
-        );
-        (
-            String::from("https://devnet.genesysgo.net"),
-            String::from("confirmed"),
-        )
-    };
-
-    // Set rate limiting if the user specified a public RPC.
-    if PUBLIC_RPC_URLS.contains(&rpc.as_str()) {
-        warn!(
-            "Using a public RPC URL is not recommended for heavy tasks as you will be rate-limited and suffer a performance hit"
-        );
-        warn!("Please use a private RPC endpoint for best performance results.");
-        *USE_RATE_LIMIT.write().unwrap() = true;
-    } else if RATE_LIMIT_DELAYS.contains_key(&rpc.as_str()) {
-        *USE_RATE_LIMIT.write().unwrap() = true;
-        *RPC_DELAY_NS.write().unwrap() = RATE_LIMIT_DELAYS[&rpc.as_str()];
+    if let Some(rpc) = options.rpc {
+        builder = builder.rpc_url(rpc);
     }
 
-    let commitment = CommitmentConfig::from_str(&commitment)?;
-    let timeout = Duration::from_secs(options.timeout);
-
-    let client = RpcClient::new_with_timeout_and_commitment(rpc.clone(), timeout, commitment);
-    let async_client =
-        AsyncRpcClient::new_with_timeout_and_commitment(rpc.clone(), timeout, commitment);
+    let config = builder.build()?;
+    let rpc = config.rpc_url;
+    let client = config.client;
+    let async_client = config.async_client;
 
     match options.cmd {
         Command::Collections {

@@ -1,14 +1,16 @@
 use anyhow::{anyhow, Result};
-use dirs::home_dir;
+use log::{info, warn};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use solana_client::rpc_client::RpcClient;
+use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 use solana_sdk::{
     commitment_config::CommitmentConfig,
     signature::{read_keypair_file, Keypair},
 };
 
-use std::{fs::File, path::PathBuf, str::FromStr};
+use std::{path::PathBuf, str::FromStr, time::Duration};
+
+use crate::constants::{PUBLIC_RPC_URLS, RATE_LIMIT_DELAYS, RPC_DELAY_NS, USE_RATE_LIMIT};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Deserialize, Serialize)]
 pub enum ClientType {
@@ -19,13 +21,6 @@ pub enum ClientType {
 pub enum ClientLike {
     RpcClient(RpcClient),
     DasClient(Client),
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct SolanaConfig {
-    pub json_rpc_url: String,
-    pub keypair_path: String,
-    pub commitment: String,
 }
 
 pub struct CliConfig {
@@ -41,12 +36,6 @@ pub struct CliConfigBuilder {
     pub commitment: Option<String>,
     pub client_type: ClientType,
 }
-
-// impl Default for ClientType {
-//     fn default() -> Self {
-//         Self::Standard
-//     }
-// }
 
 impl CliConfigBuilder {
     pub fn new(client_type: ClientType) -> Self {
@@ -112,7 +101,7 @@ impl CliConfig {
         client_type: ClientType,
     ) -> Result<Self> {
         let mut builder = CliConfigBuilder::new(client_type);
-        let solana_config = parse_solana_config();
+        let solana_config = crate::parse::parse_solana_config();
 
         if let Some(config) = solana_config {
             builder = builder
@@ -135,20 +124,93 @@ impl CliConfig {
     }
 }
 
-fn parse_solana_config() -> Option<SolanaConfig> {
-    let home_path = home_dir().expect("Couldn't find home dir");
+const DEFAULT_TIMEOUT_SECS: u64 = 90;
+const DEFAULT_RPC_URL: &str = "https://devnet.genesysgo.net";
 
-    let solana_config_path = home_path
-        .join(".config")
-        .join("solana")
-        .join("cli")
-        .join("config.yml");
+/// Configuration for the main application, including RPC clients and rate limiting.
+pub struct AppConfig {
+    pub client: RpcClient,
+    pub async_client: AsyncRpcClient,
+    pub rpc_url: String,
+}
 
-    let config_file = File::open(solana_config_path).ok();
+/// Builder for constructing the main application configuration.
+///
+/// Resolves RPC endpoint, commitment level, and timeout from CLI arguments,
+/// the Solana CLI config file, or built-in defaults. Automatically configures
+/// rate limiting for known public RPC endpoints.
+pub struct AppConfigBuilder {
+    rpc_url: Option<String>,
+    timeout_secs: u64,
+}
 
-    if let Some(config_file) = config_file {
-        let config: SolanaConfig = serde_yaml::from_reader(config_file).ok()?;
-        return Some(config);
+impl AppConfigBuilder {
+    pub fn new() -> Self {
+        Self {
+            rpc_url: None,
+            timeout_secs: DEFAULT_TIMEOUT_SECS,
+        }
     }
-    None
+
+    /// Set the RPC endpoint URL, overriding the Solana config file value.
+    pub fn rpc_url(mut self, rpc_url: String) -> Self {
+        self.rpc_url = Some(rpc_url);
+        self
+    }
+
+    /// Set the RPC client timeout in seconds. Defaults to 90 seconds.
+    pub fn timeout(mut self, timeout_secs: u64) -> Self {
+        self.timeout_secs = timeout_secs;
+        self
+    }
+
+    /// Build the `AppConfig`, resolving values from the Solana CLI config
+    /// file as needed and configuring rate limiting for public RPC endpoints.
+    pub fn build(self) -> Result<AppConfig> {
+        let sol_config = crate::parse::parse_solana_config();
+
+        let (rpc_url, commitment_str) = if let Some(cli_rpc) = self.rpc_url {
+            (cli_rpc, String::from("confirmed"))
+        } else if let Some(config) = sol_config {
+            (config.json_rpc_url, config.commitment)
+        } else {
+            info!(
+                "Could not find a valid Solana-CLI config file. Defaulting to {} devnet node.",
+                DEFAULT_RPC_URL
+            );
+            (String::from(DEFAULT_RPC_URL), String::from("confirmed"))
+        };
+
+        // Configure rate limiting for known public RPC endpoints.
+        if PUBLIC_RPC_URLS.contains(&rpc_url.as_str()) {
+            warn!(
+                "Using a public RPC URL is not recommended for heavy tasks as you will be rate-limited and suffer a performance hit"
+            );
+            warn!("Please use a private RPC endpoint for best performance results.");
+            *USE_RATE_LIMIT.write().unwrap() = true;
+        } else if RATE_LIMIT_DELAYS.contains_key(&rpc_url.as_str()) {
+            *USE_RATE_LIMIT.write().unwrap() = true;
+            *RPC_DELAY_NS.write().unwrap() = RATE_LIMIT_DELAYS[&rpc_url.as_str()];
+        }
+
+        let commitment = CommitmentConfig::from_str(&commitment_str)?;
+        let timeout = Duration::from_secs(self.timeout_secs);
+
+        let client =
+            RpcClient::new_with_timeout_and_commitment(rpc_url.clone(), timeout, commitment);
+        let async_client =
+            AsyncRpcClient::new_with_timeout_and_commitment(rpc_url.clone(), timeout, commitment);
+
+        Ok(AppConfig {
+            client,
+            async_client,
+            rpc_url,
+        })
+    }
+}
+
+impl Default for AppConfigBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
 }
