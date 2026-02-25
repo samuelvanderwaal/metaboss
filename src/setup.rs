@@ -214,3 +214,264 @@ impl Default for AppConfigBuilder {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // --- CliConfigBuilder tests ---
+
+    #[test]
+    fn cli_config_builder_new_has_correct_defaults() {
+        let builder = CliConfigBuilder::new(ClientType::Standard);
+        assert!(builder.json_rpc_url.is_none());
+        assert!(builder.keypair_path.is_none());
+        assert!(builder.commitment.is_none());
+        assert_eq!(builder.client_type, ClientType::Standard);
+    }
+
+    #[test]
+    fn cli_config_builder_new_das_type() {
+        let builder = CliConfigBuilder::new(ClientType::DAS);
+        assert_eq!(builder.client_type, ClientType::DAS);
+    }
+
+    #[test]
+    fn cli_config_builder_sets_rpc_url() {
+        let builder = CliConfigBuilder::new(ClientType::Standard)
+            .rpc_url("https://example.com".to_string());
+        assert_eq!(builder.json_rpc_url, Some("https://example.com".to_string()));
+    }
+
+    #[test]
+    fn cli_config_builder_sets_keypair_path() {
+        let builder = CliConfigBuilder::new(ClientType::Standard)
+            .keypair_path(PathBuf::from("/tmp/keypair.json"));
+        assert_eq!(builder.keypair_path, Some(PathBuf::from("/tmp/keypair.json")));
+    }
+
+    #[test]
+    fn cli_config_builder_sets_commitment() {
+        let builder = CliConfigBuilder::new(ClientType::Standard)
+            .commitment("finalized".to_string());
+        assert_eq!(builder.commitment, Some("finalized".to_string()));
+    }
+
+    #[test]
+    fn cli_config_builder_chained_methods() {
+        let builder = CliConfigBuilder::new(ClientType::Standard)
+            .rpc_url("https://example.com".to_string())
+            .keypair_path(PathBuf::from("/tmp/key.json"))
+            .commitment("confirmed".to_string());
+        assert_eq!(builder.json_rpc_url, Some("https://example.com".to_string()));
+        assert_eq!(builder.keypair_path, Some(PathBuf::from("/tmp/key.json")));
+        assert_eq!(builder.commitment, Some("confirmed".to_string()));
+    }
+
+    #[test]
+    fn cli_config_builder_build_fails_without_rpc_url() {
+        let builder = CliConfigBuilder::new(ClientType::Standard);
+        let result = builder.build();
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("No rpc url provided")
+        );
+    }
+
+    #[test]
+    fn cli_config_builder_build_succeeds_with_rpc_url() {
+        let builder = CliConfigBuilder::new(ClientType::Standard)
+            .rpc_url("https://api.devnet.solana.com".to_string());
+        let config = builder.build();
+        assert!(config.is_ok());
+        let config = config.unwrap();
+        assert_eq!(config.rpc_url, "https://api.devnet.solana.com");
+        assert!(config.keypair.is_none());
+    }
+
+    #[test]
+    fn cli_config_builder_build_with_invalid_commitment_fails() {
+        let builder = CliConfigBuilder::new(ClientType::Standard)
+            .rpc_url("https://api.devnet.solana.com".to_string())
+            .commitment("not_a_valid_commitment".to_string());
+        let result = builder.build();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn cli_config_builder_build_defaults_to_confirmed_commitment() {
+        // When no commitment is set, build should succeed (defaults to confirmed).
+        let builder = CliConfigBuilder::new(ClientType::Standard)
+            .rpc_url("https://api.devnet.solana.com".to_string());
+        let config = builder.build();
+        assert!(config.is_ok());
+    }
+
+    #[test]
+    fn cli_config_builder_build_with_invalid_keypair_fails() {
+        let builder = CliConfigBuilder::new(ClientType::Standard)
+            .rpc_url("https://api.devnet.solana.com".to_string())
+            .keypair_path(PathBuf::from("/nonexistent/keypair.json"));
+        let result = builder.build();
+        assert!(result.is_err());
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("Unable to read keypair file")
+        );
+    }
+
+    #[test]
+    fn cli_config_builder_build_creates_standard_client() {
+        let builder = CliConfigBuilder::new(ClientType::Standard)
+            .rpc_url("https://api.devnet.solana.com".to_string());
+        let config = builder.build().unwrap();
+        assert!(matches!(config.client, ClientLike::RpcClient(_)));
+    }
+
+    #[test]
+    fn cli_config_builder_build_creates_das_client() {
+        let builder = CliConfigBuilder::new(ClientType::DAS)
+            .rpc_url("https://api.devnet.solana.com".to_string());
+        let config = builder.build().unwrap();
+        assert!(matches!(config.client, ClientLike::DasClient(_)));
+    }
+
+    #[test]
+    fn cli_config_builder_last_rpc_url_wins() {
+        let builder = CliConfigBuilder::new(ClientType::Standard)
+            .rpc_url("https://first.com".to_string())
+            .rpc_url("https://second.com".to_string());
+        let config = builder.build().unwrap();
+        assert_eq!(config.rpc_url, "https://second.com");
+    }
+
+    // --- AppConfigBuilder tests ---
+
+    #[test]
+    fn app_config_builder_new_has_correct_defaults() {
+        let builder = AppConfigBuilder::new();
+        assert!(builder.rpc_url.is_none());
+        assert_eq!(builder.timeout_secs, DEFAULT_TIMEOUT_SECS);
+    }
+
+    #[test]
+    fn app_config_builder_default_matches_new() {
+        let from_new = AppConfigBuilder::new();
+        let from_default = AppConfigBuilder::default();
+        assert_eq!(from_new.rpc_url, from_default.rpc_url);
+        assert_eq!(from_new.timeout_secs, from_default.timeout_secs);
+    }
+
+    #[test]
+    fn app_config_builder_sets_rpc_url() {
+        let builder = AppConfigBuilder::new()
+            .rpc_url("https://custom-rpc.example.com".to_string());
+        assert_eq!(
+            builder.rpc_url,
+            Some("https://custom-rpc.example.com".to_string())
+        );
+    }
+
+    #[test]
+    fn app_config_builder_sets_timeout() {
+        let builder = AppConfigBuilder::new().timeout(120);
+        assert_eq!(builder.timeout_secs, 120);
+    }
+
+    #[test]
+    fn app_config_builder_chained_methods() {
+        let builder = AppConfigBuilder::new()
+            .rpc_url("https://custom-rpc.example.com".to_string())
+            .timeout(30);
+        assert_eq!(
+            builder.rpc_url,
+            Some("https://custom-rpc.example.com".to_string())
+        );
+        assert_eq!(builder.timeout_secs, 30);
+    }
+
+    #[test]
+    fn app_config_builder_build_with_explicit_rpc_url() {
+        let config = AppConfigBuilder::new()
+            .rpc_url("https://custom-rpc.example.com".to_string())
+            .build()
+            .unwrap();
+        assert_eq!(config.rpc_url, "https://custom-rpc.example.com");
+    }
+
+    #[test]
+    fn app_config_builder_build_without_rpc_falls_back() {
+        // Without an explicit RPC URL and without a Solana config file,
+        // the builder should fall back to the default RPC URL.
+        let config = AppConfigBuilder::new().build().unwrap();
+        // It should either use the Solana config file value or the default.
+        // In a test environment without a Solana config, it falls back to DEFAULT_RPC_URL.
+        assert!(!config.rpc_url.is_empty());
+    }
+
+    #[test]
+    fn app_config_builder_build_with_custom_timeout() {
+        // The timeout is applied to the RPC clients internally.
+        // We verify the builder accepts the value and the build succeeds.
+        let config = AppConfigBuilder::new()
+            .rpc_url("https://api.devnet.solana.com".to_string())
+            .timeout(30)
+            .build()
+            .unwrap();
+        assert_eq!(config.rpc_url, "https://api.devnet.solana.com");
+    }
+
+    #[test]
+    fn app_config_builder_public_rpc_enables_rate_limiting() {
+        // Reset rate limit state before test.
+        *USE_RATE_LIMIT.write().unwrap() = false;
+
+        let _config = AppConfigBuilder::new()
+            .rpc_url("https://api.devnet.solana.com".to_string())
+            .build()
+            .unwrap();
+
+        assert!(*USE_RATE_LIMIT.read().unwrap());
+
+        // Clean up.
+        *USE_RATE_LIMIT.write().unwrap() = false;
+    }
+
+    #[test]
+    fn app_config_builder_private_rpc_does_not_enable_rate_limiting() {
+        // Reset rate limit state before test.
+        *USE_RATE_LIMIT.write().unwrap() = false;
+
+        let _config = AppConfigBuilder::new()
+            .rpc_url("https://my-private-rpc.example.com".to_string())
+            .build()
+            .unwrap();
+
+        assert!(!*USE_RATE_LIMIT.read().unwrap());
+    }
+
+    #[test]
+    fn app_config_builder_last_rpc_url_wins() {
+        let config = AppConfigBuilder::new()
+            .rpc_url("https://first.com".to_string())
+            .rpc_url("https://second.com".to_string())
+            .build()
+            .unwrap();
+        assert_eq!(config.rpc_url, "https://second.com");
+    }
+
+    #[test]
+    fn default_timeout_is_90_seconds() {
+        assert_eq!(DEFAULT_TIMEOUT_SECS, 90);
+    }
+
+    #[test]
+    fn default_rpc_url_is_devnet() {
+        assert_eq!(DEFAULT_RPC_URL, "https://devnet.genesysgo.net");
+    }
+}
