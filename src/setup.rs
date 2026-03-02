@@ -238,22 +238,28 @@ mod tests {
 
     #[test]
     fn cli_config_builder_sets_rpc_url() {
-        let builder = CliConfigBuilder::new(ClientType::Standard)
-            .rpc_url("https://example.com".to_string());
-        assert_eq!(builder.json_rpc_url, Some("https://example.com".to_string()));
+        let builder =
+            CliConfigBuilder::new(ClientType::Standard).rpc_url("https://example.com".to_string());
+        assert_eq!(
+            builder.json_rpc_url,
+            Some("https://example.com".to_string())
+        );
     }
 
     #[test]
     fn cli_config_builder_sets_keypair_path() {
         let builder = CliConfigBuilder::new(ClientType::Standard)
             .keypair_path(PathBuf::from("/tmp/keypair.json"));
-        assert_eq!(builder.keypair_path, Some(PathBuf::from("/tmp/keypair.json")));
+        assert_eq!(
+            builder.keypair_path,
+            Some(PathBuf::from("/tmp/keypair.json"))
+        );
     }
 
     #[test]
     fn cli_config_builder_sets_commitment() {
-        let builder = CliConfigBuilder::new(ClientType::Standard)
-            .commitment("finalized".to_string());
+        let builder =
+            CliConfigBuilder::new(ClientType::Standard).commitment("finalized".to_string());
         assert_eq!(builder.commitment, Some("finalized".to_string()));
     }
 
@@ -263,7 +269,10 @@ mod tests {
             .rpc_url("https://example.com".to_string())
             .keypair_path(PathBuf::from("/tmp/key.json"))
             .commitment("confirmed".to_string());
-        assert_eq!(builder.json_rpc_url, Some("https://example.com".to_string()));
+        assert_eq!(
+            builder.json_rpc_url,
+            Some("https://example.com".to_string())
+        );
         assert_eq!(builder.keypair_path, Some(PathBuf::from("/tmp/key.json")));
         assert_eq!(builder.commitment, Some("confirmed".to_string()));
     }
@@ -273,12 +282,10 @@ mod tests {
         let builder = CliConfigBuilder::new(ClientType::Standard);
         let result = builder.build();
         assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("No rpc url provided")
-        );
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("No rpc url provided"));
     }
 
     #[test]
@@ -317,12 +324,10 @@ mod tests {
             .keypair_path(PathBuf::from("/nonexistent/keypair.json"));
         let result = builder.build();
         assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("Unable to read keypair file")
-        );
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Unable to read keypair file"));
     }
 
     #[test]
@@ -369,8 +374,7 @@ mod tests {
 
     #[test]
     fn app_config_builder_sets_rpc_url() {
-        let builder = AppConfigBuilder::new()
-            .rpc_url("https://custom-rpc.example.com".to_string());
+        let builder = AppConfigBuilder::new().rpc_url("https://custom-rpc.example.com".to_string());
         assert_eq!(
             builder.rpc_url,
             Some("https://custom-rpc.example.com".to_string())
