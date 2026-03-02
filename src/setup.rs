@@ -428,6 +428,9 @@ mod tests {
             .build()
             .unwrap();
         assert_eq!(config.rpc_url, "https://api.devnet.solana.com");
+
+        // Clean up.
+        *USE_RATE_LIMIT.write().unwrap() = false;
     }
 
     #[test]
