@@ -171,12 +171,15 @@ pub fn mint_from_files(
         }
     });
 
-    // TODO: handle errors in a better way.
     if !errors.is_empty() {
         error!("Failed to read some of the files with the following errors:");
-        for error in errors {
+        for error in &errors {
             error!("{}", error);
         }
+        return Err(anyhow!(
+            "Failed to read {} file(s) in the directory",
+            errors.len()
+        ));
     }
 
     Ok(())
@@ -494,7 +497,6 @@ pub fn mint_one<P: AsRef<Path>>(
     let message = format!("Tx sig: {:?}\nMint account: {:?}", &tx_id, &mint_account,);
     println!("{message}");
     if sign {
-        //TODO: Error handling
         sign_one(client, keypair_path, mint_account.to_string())?;
     }
 
