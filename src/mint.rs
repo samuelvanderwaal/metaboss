@@ -520,12 +520,27 @@ pub fn mint_editions(
     if let Some(specific_editions) = specific_editions {
         // Parallelize using Rayon
         // WARNING: This increases RPC load.
-        specific_editions.par_iter().for_each(|num| {
-            if let Err(e) = mint_edition(client, &keypair_path, &account, *num, receiver, &priority)
-            {
-                error!("Failed to mint edition {}: {}", num, e);
-            }
-        });
+        let failures: Vec<(u64, String)> = specific_editions
+            .par_iter()
+            .filter_map(|num| {
+                match mint_edition(client, &keypair_path, &account, *num, receiver, &priority) {
+                    Ok(_) => None,
+                    Err(e) => {
+                        error!("Failed to mint edition {}: {}", num, e);
+                        Some((*num, e.to_string()))
+                    }
+                }
+            })
+            .collect();
+
+        if let Some((edition, err)) = failures.first() {
+            return Err(anyhow!(
+                "Failed to mint {} specific edition(s); first failure was edition {}: {}",
+                failures.len(),
+                edition,
+                err
+            ));
+        }
         return Ok(());
     }
     spinner.finish();
