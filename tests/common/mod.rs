@@ -248,12 +248,3 @@ pub fn parse_mint_from_output(output: &str) -> String {
         .map(|m| m.as_str().to_string())
         .expect("Could not find 'Mint account: <pubkey>' in output")
 }
-
-/// Extract a transaction signature from metaboss output matching "Tx sig: <SIG>".
-pub fn parse_signature_from_output(output: &str) -> String {
-    let re = Regex::new(r"Tx sig: (\S+)").expect("invalid regex");
-    re.captures(output)
-        .and_then(|c| c.get(1))
-        .map(|m| m.as_str().to_string())
-        .expect("Could not find 'Tx sig: <sig>' in output")
-}
