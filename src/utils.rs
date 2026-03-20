@@ -389,3 +389,309 @@ pub fn create_token_22_if_missing_instruction(
             .unwrap(),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ── find_errors ──────────────────────────────────────────────────
+
+    #[test]
+    fn find_errors_returns_anchor_error_for_known_hex_code() {
+        // "64" is InstructionMissing in ANCHOR_ERROR
+        let results = find_errors("64");
+        assert!(!results.is_empty(), "Expected at least one result for '64'");
+        let anchor_hit = results.iter().find(|e| e.domain == "Anchor Program");
+        assert!(
+            anchor_hit.is_some(),
+            "Expected an Anchor Program error for hex code '64'"
+        );
+        assert!(
+            anchor_hit.unwrap().message.contains("InstructionMissing"),
+            "Expected message to contain 'InstructionMissing'"
+        );
+    }
+
+    #[test]
+    fn find_errors_returns_metadata_error_for_known_hex_code() {
+        // "0" is InstructionUnpackError in METADATA_ERROR
+        let results = find_errors("0");
+        let meta_hit = results.iter().find(|e| e.domain == "Token Metadata");
+        assert!(
+            meta_hit.is_some(),
+            "Expected a Token Metadata error for hex code '0'"
+        );
+        assert!(
+            meta_hit.unwrap().message.contains("InstructionUnpackError"),
+            "Expected message to contain 'InstructionUnpackError'"
+        );
+    }
+
+    #[test]
+    fn find_errors_is_case_insensitive() {
+        let lower = find_errors("64");
+        let upper = find_errors("64"); // already uppercase, but test lowercase hex
+        assert_eq!(lower.len(), upper.len());
+
+        // Try with a hex code that has alphabetic chars if available;
+        // at minimum verify lowercasing path works
+        let results = find_errors("a");
+        let results_upper = find_errors("A");
+        assert_eq!(results.len(), results_upper.len());
+    }
+
+    #[test]
+    fn find_errors_returns_empty_for_unknown_code() {
+        let results = find_errors("ZZZZZ");
+        assert!(
+            results.is_empty(),
+            "Expected no results for unknown hex code"
+        );
+    }
+
+    #[test]
+    fn find_errors_returns_empty_for_empty_string() {
+        let results = find_errors("");
+        assert!(results.is_empty(), "Expected no results for empty hex code");
+    }
+
+    // ── find_tm_error ────────────────────────────────────────────────
+
+    #[test]
+    fn find_tm_error_returns_some_for_known_code() {
+        let result = find_tm_error("0");
+        assert!(result.is_some(), "Expected Some for known code '0'");
+        assert!(
+            result.unwrap().contains("InstructionUnpackError"),
+            "Expected message to contain 'InstructionUnpackError'"
+        );
+    }
+
+    #[test]
+    fn find_tm_error_returns_some_for_another_known_code() {
+        // "1" is InstructionPackError
+        let result = find_tm_error("1");
+        assert!(result.is_some(), "Expected Some for known code '1'");
+        assert!(
+            result.unwrap().contains("InstructionPackError"),
+            "Expected message to contain 'InstructionPackError'"
+        );
+    }
+
+    #[test]
+    fn find_tm_error_is_case_insensitive() {
+        let lower = find_tm_error("a");
+        let upper = find_tm_error("A");
+        assert_eq!(lower, upper);
+    }
+
+    #[test]
+    fn find_tm_error_returns_none_for_unknown_code() {
+        let result = find_tm_error("ZZZZZ");
+        assert!(result.is_none(), "Expected None for unknown hex code");
+    }
+
+    #[test]
+    fn find_tm_error_returns_none_for_empty_string() {
+        let result = find_tm_error("");
+        assert!(result.is_none(), "Expected None for empty hex code");
+    }
+
+    // ── generate_phf_map_var ─────────────────────────────────────────
+
+    #[test]
+    fn generate_phf_map_var_produces_correct_format() {
+        let output = generate_phf_map_var("MY_ERRORS");
+        assert_eq!(
+            output,
+            "pub static MY_ERRORS: phf::Map<&'static str, &'static str> = phf_map! {\n"
+        );
+    }
+
+    #[test]
+    fn generate_phf_map_var_handles_empty_name() {
+        let output = generate_phf_map_var("");
+        assert!(output.starts_with("pub static : phf::Map"));
+    }
+
+    #[test]
+    fn generate_phf_map_var_preserves_casing() {
+        let output = generate_phf_map_var("mixedCase_Var");
+        assert!(output.contains("mixedCase_Var"));
+    }
+
+    // ── convert_to_wtf_error ─────────────────────────────────────────
+
+    #[test]
+    fn convert_to_wtf_error_parses_simple_enum() {
+        let file_name = "my-error.rs";
+        let file_contents = r#"
+pub enum MyError {
+    #[error("Something went wrong")]
+    SomethingWrong,
+    #[error("Another error")]
+    AnotherError,
+}
+"#;
+        let result = convert_to_wtf_error(file_name, file_contents).unwrap();
+        assert!(
+            result.contains("pub static MY_ERROR: phf::Map"),
+            "Expected PHF map header"
+        );
+        assert!(
+            result.contains("SomethingWrong"),
+            "Expected first variant name"
+        );
+        assert!(
+            result.contains("AnotherError"),
+            "Expected second variant name"
+        );
+        assert!(
+            result.contains("Something went wrong"),
+            "Expected first error message"
+        );
+        assert!(result.ends_with("};\n\n"), "Expected closing braces");
+    }
+
+    #[test]
+    fn convert_to_wtf_error_parses_anchor_style_errors() {
+        let file_name = "anchor-error.rs";
+        let file_contents = r#"
+pub enum ErrorCode {
+    #[msg("Invalid account")]
+    InvalidAccount,
+    #[msg("Unauthorized")]
+    Unauthorized,
+}
+"#;
+        let result = convert_to_wtf_error(file_name, file_contents).unwrap();
+        assert!(result.contains("ANCHOR_ERROR"));
+        // Anchor errors start at 100 (0x64)
+        assert!(
+            result.contains("\"64\""),
+            "Expected hex code 64 for first anchor error"
+        );
+        assert!(result.contains("InvalidAccount: Invalid account"));
+        assert!(result.contains("Unauthorized: Unauthorized"));
+    }
+
+    #[test]
+    fn convert_to_wtf_error_parses_msg_style_starting_at_6000() {
+        let file_name = "test-error.rs";
+        let file_contents = r#"
+pub enum TestError {
+    #[msg("First error")]
+    FirstError,
+    #[msg("Second error")]
+    SecondError,
+}
+"#;
+        let result = convert_to_wtf_error(file_name, file_contents).unwrap();
+        // #[msg] style, non-anchor -> starts at 6000 (0x1770)
+        assert!(
+            result.contains("\"1770\""),
+            "Expected hex code 1770 for error starting at 6000"
+        );
+        assert!(result.contains("FirstError: First error"));
+    }
+
+    #[test]
+    fn convert_to_wtf_error_handles_explicit_error_codes() {
+        let file_name = "custom-error.rs";
+        let file_contents = r#"
+pub enum CustomError {
+    #[error("Start error")]
+    StartError = 42,
+    #[error("Next error")]
+    NextError,
+}
+"#;
+        let result = convert_to_wtf_error(file_name, file_contents).unwrap();
+        // 42 = 0x2A
+        assert!(
+            result.contains("\"2A\""),
+            "Expected hex code 2A for explicit code 42"
+        );
+        // Next should be 43 = 0x2B
+        assert!(
+            result.contains("\"2B\""),
+            "Expected hex code 2B for next error after 42"
+        );
+    }
+
+    #[test]
+    fn convert_to_wtf_error_returns_error_when_enum_not_found() {
+        let file_name = "missing-error.rs";
+        let file_contents = "pub struct NotAnEnum { field: u8 }";
+        let result = convert_to_wtf_error(file_name, file_contents);
+        assert!(result.is_err(), "Expected error when enum is not found");
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Could not find Error enum"),);
+    }
+
+    #[test]
+    fn convert_to_wtf_error_returns_error_for_malformed_enum_no_closing_brace() {
+        let file_name = "bad-error.rs";
+        let file_contents = r#"
+pub enum BadError {
+    #[error("Oops")]
+    Oops,
+"#;
+        let result = convert_to_wtf_error(file_name, file_contents);
+        assert!(
+            result.is_err(),
+            "Expected error for malformed enum without closing brace"
+        );
+    }
+
+    #[test]
+    fn convert_to_wtf_error_capitalizes_multiword_file_name() {
+        let file_name = "candy-core-error.rs";
+        // candy-core-error special-cases the enum name to CandyError
+        let file_contents = r#"
+pub enum CandyError {
+    #[error("Bad candy")]
+    BadCandy,
+}
+"#;
+        let result = convert_to_wtf_error(file_name, file_contents).unwrap();
+        assert!(
+            result.contains("CANDY_CORE_ERROR"),
+            "Expected uppercased variable name"
+        );
+    }
+
+    // ── clone_keypair ────────────────────────────────────────────────
+
+    #[test]
+    fn clone_keypair_produces_identical_keypair() {
+        let original = Keypair::new();
+        let cloned = clone_keypair(&original);
+        assert_eq!(
+            original.to_bytes(),
+            cloned.to_bytes(),
+            "Cloned keypair bytes must match original"
+        );
+        assert_eq!(
+            original.pubkey(),
+            cloned.pubkey(),
+            "Cloned keypair pubkey must match original"
+        );
+    }
+
+    #[test]
+    fn clone_keypair_produces_independent_instance() {
+        let original = Keypair::new();
+        let cloned = clone_keypair(&original);
+        // They should be distinct allocations but equal in value
+        let orig_ptr = &original as *const Keypair;
+        let clone_ptr = &cloned as *const Keypair;
+        assert_ne!(
+            orig_ptr, clone_ptr,
+            "Cloned keypair should be a separate allocation"
+        );
+        assert_eq!(original.to_bytes(), cloned.to_bytes());
+    }
+}
