@@ -1,12 +1,44 @@
 # Metaboss Orchestrator Context
 
 > Living document maintained by the orchestrator thread. Updated as the codebase evolves.
+> This thread is the source of truth. The main thread orchestrates — subagents execute.
+
+## Orchestration Protocol
+
+**The main thread is the orchestrator. It does NOT implement changes directly.**
+
+All non-orchestration work MUST be delegated to subagents. This includes:
+- Writing or modifying code
+- Adding tests
+- Fixing bugs
+- Updating CI/config files
+- Creating new files
+
+The orchestrator's responsibilities:
+1. **Analyze** — understand the task, identify affected files, assess risk
+2. **Delegate** — spawn subagent(s) with a clear prompt containing: goal, owned files, forbidden files, conventions, verification steps
+3. **Review** — verify subagent output compiles and tests pass
+4. **Integrate** — update this document, memory, and repo understanding
+5. **Commit/PR** — only after orchestrator review and verification
+
+When multiple independent tasks exist, spawn subagents in parallel. When tasks have dependencies, sequence them.
+
+### Subagent Prompt Template
+
+Every subagent prompt should include:
+- **Goal**: What to accomplish (specific and measurable)
+- **Files to create/modify**: Explicit list
+- **Files NOT to touch**: Explicit list
+- **Context**: Relevant architecture, output formats, patterns
+- **Conventions**: `cargo fmt`, `anyhow::Result`, no unsafe, conventional commits
+- **Verification**: What commands to run to confirm success (e.g., `cargo check --tests`, `cargo test --lib`)
 
 ## Project Identity
 
 - **Name**: Metaboss — "The Metaplex NFT-standard Swiss Army Knife tool"
 - **Language**: Rust (edition 2021), v0.45.0, Apache-2.0
 - **Binary**: `metaboss` (CLI tool for Solana/Metaplex NFT operations)
+- **Task runner**: `just` (see justfile at project root)
 
 ## Architecture
 
@@ -96,58 +128,85 @@ main.rs → Opt::from_args() (structopt)
 2. Solana CLI config (`~/.config/solana/cli/config.yml`)
 3. Defaults (devnet, 90s timeout)
 
+### Gitignore
+- `*.json` is globally ignored — test fixture JSON files need `!tests/fixtures/**/*.json` exception in `.gitignore`
+
 ## CI/CD
 
-- **CI** (`.github/workflows/ci.yml`): test + rustfmt + clippy on ubuntu-latest
+- **CI** (`.github/workflows/ci.yml`): test + rustfmt + clippy + integration-test on ubuntu-latest
 - **Build** (`.github/workflows/build.yml`): Cross-platform release binaries (Windows, Linux, macOS Intel+ARM)
 - Triggers: push to main, PRs, tags `v*.*.*`
+- Integration tests require Solana CLI v1.17.29, run with `--test-threads=1`
+
+## Task Runner (justfile)
+
+| Command | What it does |
+|---------|-------------|
+| `just test` | Run unit tests |
+| `just integration-tests` | Run integration tests (requires solana-test-validator) |
+| `just test-all` | Unit tests then integration tests |
+| `just fmt` | cargo fmt |
+| `just clippy` | cargo clippy -- -D warnings |
+| `just check` | cargo check --tests |
+| `just build` | cargo build |
+| `just ci` | fmt check + clippy + unit tests |
 
 ## Tests
 
-### Unit Tests (cargo test --lib)
-- `setup.rs`: 25 tests (AppConfigBuilder + CliConfigBuilder)
-- `derive.rs`: 8 tests (PDA derivation)
+### Unit Tests (`just test`) — 130 total
+- `setup.rs`: 27 tests (AppConfigBuilder + CliConfigBuilder, rate-limit mutex)
 - `parse.rs`: 30 tests (creator_is_verified, parse_creators, parse_name, parse_symbol, parse_seller_fee_basis_points, is_only_one_option, parse_cli_creators, read_keypair)
+- `utils.rs`: 22 tests (find_errors, find_tm_error, convert_to_wtf_error, generate_phf_map_var, clone_keypair)
+- `mint.rs`: 13 tests (find_first_zero_bit bit manipulation)
+- `data.rs`: 13 tests (Indexers FromStr/Display, round-trips, FoundError serde)
+- `errors.rs`: 12 tests (Display output for all error variants, From conversions)
+- `derive.rs`: 8 tests (PDA derivation)
 - `cache/mod.rs`: 7 tests (Cache::new, write, update_errors, hex code extraction)
-- **Total: 70 unit tests**
 
-### Integration Tests (cargo test --test integration_tests -- --ignored --test-threads=1)
-- `tests/integration_tests.rs`: 6 tests covering core NFT lifecycle
-  - `test_mint_one_and_decode` — mint + decode + verify metadata
-  - `test_mint_update_uri_and_name` — mint + update URI + update name + verify
-  - `test_mint_and_burn` — mint + burn + verify token gone
-  - `test_mint_and_transfer` — mint + transfer + verify balances
-  - `test_mint_and_sign` — mint + sign + verify creator verified
-  - `test_derive_metadata_pda` — derive PDA via CLI + verify against library
+### Integration Tests (`just integration-tests`) — 28 total
+- `tests/integration_tests.rs` (6): core NFT lifecycle (mint+decode, update uri+name, burn, transfer, sign, derive PDA)
+- `tests/collection_tests.rs` (3): set-and-verify, verify/unverify lifecycle, set-size
+- `tests/create_mint_tests.rs` (3): master edition + editions, mint --immutable, mint --sign
+- `tests/decode_tests.rs` (5): mint-account, token-account, master edition, --full flag, raw bytes
+- `tests/set_tests.rs` (4): set immutable, secondary-sale, update-authority, immutable-blocks-updates
+- `tests/update_tests.rs` (4): update symbol, sfbp, creators, data
+- `tests/verify_tests.rs` (3): verify creator, unverify creator, roundtrip
 
 ### Test Infrastructure
 - `tests/common/mod.rs` — TestContext harness (starts validator, funds keypair, runs metaboss)
 - `tests/fixtures/programs/` — 5 .so files (Token Metadata, Metaplex Core, SPL Token, Token-2022, ATA)
-- `tests/fixtures/data/test_nft.json` — template NFT metadata
+- `tests/fixtures/data/test_nft.json` — template NFT metadata (creator address filled at runtime)
 - `scripts/refresh-programs.sh` — refreshes .so files from mainnet
 - `.test_files/` — legacy test fixtures
 
-### CI Integration
-- CI runs unit tests in `test` job, integration tests in `integration-test` job (with Solana CLI v1.17.29)
+### CLI Output Patterns (for integration tests)
+- `mint one`: `Tx sig: "..." \nMint account: "..."` (Debug-formatted with quotes)
+- `mint asset`: `Minted asset: "..." \nTransaction signature: "..."`
+- `mint editions`: `Edition with mint: "..." \nCreated in tx: "..."`
+- Update/set/burn commands: `Tx sig: "..."`
+- Metadata fields are null-padded: always `trim_matches(char::from(0))`
 
 ### Legacy Tests
 - `tests/mint.rs`: 3 ignored tests (pre-existing, manual validator setup)
 
 ## Current State
 
-### Branch: `refactor/config-builder`
-- Introduced `AppConfigBuilder` and `CliConfigBuilder` in `setup.rs`
-- Builder pattern replaces direct config construction in `main.rs`
-- Comprehensive tests added for both builders
-- `setup.rs` is modified (staged)
+### Branch: `test/comprehensive-test-suite` (PR #375)
+- Full test suite: 130 unit + 28 integration = 158 tests
+- Test harness, fixtures, CI, justfile
+- Flaky rate-limit test fixed
+- setup.rs merge conflict cleaned up
+- clippy::result_large_err suppressed for Rust 1.94+ compatibility
+- `create fungible` tests excluded (requires program feature unavailable in test validator)
 
 ## Known Fragile Areas
 
 1. **`opt.rs` (2005 lines)**: Massive file, any CLI change touches it. Tightly coupled to `process_subcommands.rs`.
 2. **`process_subcommands.rs` (1278 lines)**: Giant match statement routing. Must stay in sync with `opt.rs`.
-3. **Rate limiting globals**: `USE_RATE_LIMIT` and `RPC_DELAY_NS` are `lazy_static` `RwLock` globals in `constants.rs`. Tests that touch rate limiting can interfere with each other.
+3. **Rate limiting globals**: `USE_RATE_LIMIT` and `RPC_DELAY_NS` are `lazy_static` `RwLock` globals in `constants.rs`. Tests use `RATE_LIMIT_TEST_MUTEX` in `setup.rs` to serialize access.
 4. **Platform-specific keypair parsing**: `parse.rs` has `#[cfg(unix)]`/`#[cfg(windows)]`/`#[cfg(target_os = "macos")]` branches.
 5. **External dependency on Solana config file**: Many operations silently fall back to defaults if `~/.config/solana/cli/config.yml` is missing.
+6. **Integration test port**: All tests use port 8899 (solana-test-validator default). Must run with `--test-threads=1`.
 
 ## Decisions Log
 
@@ -158,12 +217,6 @@ main.rs → Opt::from_args() (structopt)
 | 2026-03-20 | One validator per test (TestContext) | Isolation over speed; tests are self-contained |
 | 2026-03-20 | Integration tests use #[ignore] | Keep `cargo test` fast; run with --ignored flag |
 | 2026-03-20 | Test via CLI binary, verify via metaboss_lib | Tests the real user path end-to-end |
-
-## Subagent Guidelines
-
-When spawning subagents for this repo:
-- **Must run**: `cargo fmt` before any commit
-- **Must not touch**: Files outside their assigned scope
-- **Must verify**: `cargo test` passes, `cargo clippy -- -D warnings` clean
-- **Convention**: Use `anyhow::Result`, conventional commits, no unsafe code
-- **Large files warning**: `opt.rs` and `process_subcommands.rs` are tightly coupled — changes to one usually require changes to the other
+| 2026-03-20 | Mutex for rate-limit tests | Global RwLock state leaks between parallel tests |
+| 2026-03-20 | justfile for task running | Abstracts long cargo commands into memorable recipes |
+| 2026-03-20 | Orchestrator delegates all implementation to subagents | Preserves main thread context; subagents get focused scope |
