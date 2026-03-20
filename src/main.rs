@@ -1,3 +1,5 @@
+#![allow(clippy::result_large_err)]
+
 extern crate log;
 
 use anyhow::Result;
