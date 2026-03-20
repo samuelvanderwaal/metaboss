@@ -8,7 +8,7 @@ test:
 
 # Run integration tests (requires solana-test-validator)
 integration-tests:
-    cargo test --test integration_tests -- --ignored --test-threads=1
+    cargo test --test integration_tests --test collection_tests --test create_mint_tests --test decode_tests --test set_tests --test update_tests --test verify_tests -- --ignored --test-threads=1
 
 # Format code
 fmt:

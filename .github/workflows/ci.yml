@@ -74,4 +74,4 @@ jobs:
       - name: Build
         run: cargo build
       - name: Run integration tests
-        run: cargo test --test integration_tests -- --ignored --test-threads=1
+        run: cargo test --test integration_tests --test collection_tests --test create_mint_tests --test decode_tests --test set_tests --test update_tests --test verify_tests -- --ignored --test-threads=1
