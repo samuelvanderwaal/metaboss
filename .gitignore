@@ -1,5 +1,6 @@
 /target
 *.json
+!tests/fixtures/**/*.json
 *.bin
 /temp
 /binaries

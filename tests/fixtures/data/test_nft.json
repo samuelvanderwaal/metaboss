@@ -1,0 +1,13 @@
+{
+    "name": "Test NFT",
+    "symbol": "TNFT",
+    "uri": "https://arweave.net/FPGAv1XnyZidnqquOdEbSY6_ES735ckcDTdaAtI7GFw",
+    "seller_fee_basis_points": 100,
+    "creators": [
+        {
+            "address": "PLACEHOLDER",
+            "verified": false,
+            "share": 100
+        }
+    ]
+}

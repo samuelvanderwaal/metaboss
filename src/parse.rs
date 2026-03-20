@@ -228,6 +228,7 @@ pub fn parse_errors_code(error_code: &str) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
 
     #[test]
     fn parses_white_space_keys() {
@@ -245,5 +246,344 @@ mod tests {
         assert!(whitespace_res.is_ok());
         assert!(newline_res.is_ok());
         assert!(phantom_res.is_ok());
+    }
+
+    // -- creator_is_verified tests --
+
+    #[test]
+    fn test_creator_is_verified_true() {
+        // Arrange
+        let creators = Some(vec![Creator {
+            address: Pubkey::new_unique(),
+            verified: true,
+            share: 100,
+        }]);
+
+        // Act & Assert
+        assert!(creator_is_verified(&creators, 0));
+    }
+
+    #[test]
+    fn test_creator_is_verified_false() {
+        // Arrange
+        let creators = Some(vec![Creator {
+            address: Pubkey::new_unique(),
+            verified: false,
+            share: 100,
+        }]);
+
+        // Act & Assert
+        assert!(!creator_is_verified(&creators, 0));
+    }
+
+    #[test]
+    fn test_creator_is_verified_none() {
+        // Act & Assert
+        assert!(!creator_is_verified(&None, 0));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_creator_is_verified_out_of_bounds() {
+        // Arrange
+        let creators = Some(vec![Creator {
+            address: Pubkey::new_unique(),
+            verified: true,
+            share: 100,
+        }]);
+
+        // Act - should panic on out-of-bounds index
+        creator_is_verified(&creators, 5);
+    }
+
+    // -- parse_creators tests --
+
+    #[test]
+    fn test_parse_creators_valid_single_creator() {
+        // Arrange
+        let pubkey = Pubkey::new_unique();
+        let creators_json = json!([
+            {"address": pubkey.to_string(), "share": 100}
+        ]);
+
+        // Act
+        let result = parse_creators(&creators_json).unwrap();
+
+        // Assert
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].address, pubkey);
+        assert_eq!(result[0].share, 100);
+    }
+
+    #[test]
+    fn test_parse_creators_valid_multiple_creators() {
+        // Arrange
+        let pubkey1 = Pubkey::new_unique();
+        let pubkey2 = Pubkey::new_unique();
+        let creators_json = json!([
+            {"address": pubkey1.to_string(), "share": 60},
+            {"address": pubkey2.to_string(), "share": 40}
+        ]);
+
+        // Act
+        let result = parse_creators(&creators_json).unwrap();
+
+        // Assert
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[0].share, 60);
+        assert_eq!(result[1].share, 40);
+    }
+
+    #[test]
+    fn test_parse_creators_all_verified_false() {
+        // Arrange
+        let pubkey = Pubkey::new_unique();
+        let creators_json = json!([
+            {"address": pubkey.to_string(), "share": 100}
+        ]);
+
+        // Act
+        let result = parse_creators(&creators_json).unwrap();
+
+        // Assert
+        assert!(!result[0].verified);
+    }
+
+    #[test]
+    fn test_parse_creators_error_not_array() {
+        // Arrange
+        let creators_json = json!({"address": "test", "share": 100});
+
+        // Act
+        let result = parse_creators(&creators_json);
+
+        // Assert
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_creators_error_missing_address() {
+        // Arrange
+        let creators_json = json!([{"share": 100}]);
+
+        // Act
+        let result = parse_creators(&creators_json);
+
+        // Assert
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_creators_error_missing_share() {
+        // Arrange
+        let pubkey = Pubkey::new_unique();
+        let creators_json = json!([{"address": pubkey.to_string()}]);
+
+        // Act
+        let result = parse_creators(&creators_json);
+
+        // Assert
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_creators_error_invalid_pubkey() {
+        // Arrange
+        let creators_json = json!([{"address": "not_a_valid_pubkey", "share": 100}]);
+
+        // Act
+        let result = parse_creators(&creators_json);
+
+        // Assert
+        assert!(result.is_err());
+    }
+
+    // -- parse_name tests --
+
+    #[test]
+    fn test_parse_name_valid() {
+        // Arrange
+        let body = json!({"name": "My NFT"});
+
+        // Act
+        let result = parse_name(&body).unwrap();
+
+        // Assert
+        assert_eq!(result, "My NFT");
+    }
+
+    #[test]
+    fn test_parse_name_missing() {
+        // Arrange
+        let body = json!({"symbol": "NFT"});
+
+        // Act & Assert
+        assert!(parse_name(&body).is_err());
+    }
+
+    #[test]
+    fn test_parse_name_not_string() {
+        // Arrange
+        let body = json!({"name": 123});
+
+        // Act & Assert
+        assert!(parse_name(&body).is_err());
+    }
+
+    // -- parse_symbol tests --
+
+    #[test]
+    fn test_parse_symbol_valid() {
+        // Arrange
+        let body = json!({"symbol": "NFT"});
+
+        // Act
+        let result = parse_symbol(&body).unwrap();
+
+        // Assert
+        assert_eq!(result, "NFT");
+    }
+
+    #[test]
+    fn test_parse_symbol_missing() {
+        // Arrange
+        let body = json!({"name": "test"});
+
+        // Act & Assert
+        assert!(parse_symbol(&body).is_err());
+    }
+
+    // -- parse_seller_fee_basis_points tests --
+
+    #[test]
+    fn test_parse_seller_fee_basis_points_valid() {
+        // Arrange
+        let body = json!({"seller_fee_basis_points": 500});
+
+        // Act
+        let result = parse_seller_fee_basis_points(&body).unwrap();
+
+        // Assert
+        assert_eq!(result, 500);
+    }
+
+    #[test]
+    fn test_parse_seller_fee_basis_points_missing() {
+        // Arrange
+        let body = json!({"name": "test"});
+
+        // Act & Assert
+        assert!(parse_seller_fee_basis_points(&body).is_err());
+    }
+
+    #[test]
+    fn test_parse_seller_fee_basis_points_not_number() {
+        // Arrange
+        let body = json!({"seller_fee_basis_points": "five hundred"});
+
+        // Act & Assert
+        assert!(parse_seller_fee_basis_points(&body).is_err());
+    }
+
+    // -- is_only_one_option tests --
+
+    #[test]
+    fn test_is_only_one_option_some_none() {
+        assert!(is_only_one_option(&Some(1), &None::<i32>));
+    }
+
+    #[test]
+    fn test_is_only_one_option_none_some() {
+        assert!(is_only_one_option(&None::<i32>, &Some(1)));
+    }
+
+    #[test]
+    fn test_is_only_one_option_some_some() {
+        assert!(!is_only_one_option(&Some(1), &Some(2)));
+    }
+
+    #[test]
+    fn test_is_only_one_option_none_none() {
+        assert!(!is_only_one_option(&None::<i32>, &None::<i32>));
+    }
+
+    // -- parse_cli_creators tests --
+
+    #[test]
+    fn test_parse_cli_creators_single() {
+        // Arrange
+        let pubkey = Pubkey::new_unique();
+        let input = format!("{}:100:true", pubkey);
+
+        // Act
+        let result = parse_cli_creators(input, false).unwrap();
+
+        // Assert
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].address, pubkey);
+        assert_eq!(result[0].share, 100);
+        assert!(result[0].verified);
+    }
+
+    #[test]
+    fn test_parse_cli_creators_multiple() {
+        // Arrange
+        let pk1 = Pubkey::new_unique();
+        let pk2 = Pubkey::new_unique();
+        let input = format!("{}:60:true,{}:40:false", pk1, pk2);
+
+        // Act
+        let result = parse_cli_creators(input, false).unwrap();
+
+        // Assert
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[0].share, 60);
+        assert_eq!(result[1].share, 40);
+        assert!(result[0].verified);
+        assert!(!result[1].verified);
+    }
+
+    #[test]
+    fn test_parse_cli_creators_too_many() {
+        // Arrange - 6 creators (over the limit of 5)
+        let creators: Vec<String> = (0..6)
+            .map(|_| format!("{}:10:true", Pubkey::new_unique()))
+            .collect();
+        let input = creators.join(",");
+
+        // Act & Assert
+        assert!(parse_cli_creators(input, false).is_err());
+    }
+
+    #[test]
+    fn test_parse_cli_creators_append_sets_share_zero() {
+        // Arrange
+        let pubkey = Pubkey::new_unique();
+        let input = format!("{}:100:true", pubkey);
+
+        // Act
+        let result = parse_cli_creators(input, true).unwrap();
+
+        // Assert
+        assert_eq!(result[0].share, 0);
+    }
+
+    #[test]
+    fn test_parse_cli_creators_invalid_address() {
+        // Arrange
+        let input = "not_a_valid_address:100:true".to_string();
+
+        // Act & Assert
+        assert!(parse_cli_creators(input, false).is_err());
+    }
+
+    #[test]
+    fn test_parse_cli_creators_missing_fields() {
+        // Arrange - missing verified field
+        let pubkey = Pubkey::new_unique();
+        let input = format!("{}:100", pubkey);
+
+        // Act & Assert
+        assert!(parse_cli_creators(input, false).is_err());
     }
 }
