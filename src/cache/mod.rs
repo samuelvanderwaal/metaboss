@@ -124,6 +124,146 @@ pub struct RunActionArgs {
     pub priority: Priority,
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::errors::ActionError;
+
+    #[test]
+    fn test_cache_new_is_empty() {
+        // Act
+        let cache = Cache::new();
+
+        // Assert
+        assert!(cache.is_empty());
+        assert_eq!(cache.len(), 0);
+    }
+
+    #[test]
+    fn test_cache_default_is_empty() {
+        // Act
+        let cache = Cache::default();
+
+        // Assert
+        assert!(cache.is_empty());
+    }
+
+    #[test]
+    fn test_cache_write_produces_valid_json() {
+        // Arrange
+        let mut cache = Cache::new();
+        cache.insert(
+            "mint123".to_string(),
+            CacheItem {
+                error: Some("test error".to_string()),
+            },
+        );
+
+        // Act
+        let mut buf = Vec::new();
+        cache.write(&mut buf).unwrap();
+        let output = String::from_utf8(buf).unwrap();
+
+        // Assert
+        let parsed: serde_json::Value = serde_json::from_str(&output).unwrap();
+        assert!(parsed.is_object());
+        assert!(parsed.get("mint123").is_some());
+    }
+
+    #[test]
+    fn test_cache_update_errors_extracts_mint_addresses() {
+        // Arrange
+        let mut cache = Cache::new();
+        let errors: Vec<Result<(), ActionError>> = vec![
+            Err(ActionError::ActionFailed(
+                "mintAAA".to_string(),
+                "some error".to_string(),
+            )),
+            Err(ActionError::ActionFailed(
+                "mintBBB".to_string(),
+                "another error".to_string(),
+            )),
+        ];
+
+        // Act
+        cache.update_errors(errors);
+
+        // Assert
+        assert_eq!(cache.len(), 2);
+        assert!(cache.contains_key("mintAAA"));
+        assert!(cache.contains_key("mintBBB"));
+    }
+
+    #[test]
+    fn test_cache_update_errors_clears_old_errors() {
+        // Arrange
+        let mut cache = Cache::new();
+        cache.insert(
+            "old_mint".to_string(),
+            CacheItem {
+                error: Some("old error".to_string()),
+            },
+        );
+
+        let errors: Vec<Result<(), ActionError>> = vec![Err(ActionError::ActionFailed(
+            "new_mint".to_string(),
+            "new error".to_string(),
+        ))];
+
+        // Act
+        cache.update_errors(errors);
+
+        // Assert
+        assert_eq!(cache.len(), 1);
+        assert!(!cache.contains_key("old_mint"));
+        assert!(cache.contains_key("new_mint"));
+    }
+
+    #[test]
+    fn test_cache_update_errors_hex_code_in_message() {
+        // Arrange
+        let mut cache = Cache::new();
+        let errors: Vec<Result<(), ActionError>> = vec![Err(ActionError::ActionFailed(
+            "mintHEX".to_string(),
+            "Transaction failed with 0x1771".to_string(),
+        ))];
+
+        // Act
+        cache.update_errors(errors);
+
+        // Assert
+        assert_eq!(cache.len(), 1);
+        let item = cache.get("mintHEX").unwrap();
+        // The error message should have been processed (hex code extracted).
+        // Whether it resolves to a known error or falls back to the original,
+        // it should have a non-empty error string.
+        assert!(item.error.is_some());
+        assert!(!item.error.as_ref().unwrap().is_empty());
+    }
+
+    #[test]
+    fn test_cache_update_errors_no_hex_code() {
+        // Arrange
+        let mut cache = Cache::new();
+        let errors: Vec<Result<(), ActionError>> = vec![Err(ActionError::ActionFailed(
+            "mintNOHEX".to_string(),
+            "Simple error without hex".to_string(),
+        ))];
+
+        // Act
+        cache.update_errors(errors);
+
+        // Assert
+        let item = cache.get("mintNOHEX").unwrap();
+        // Without a hex code, the error message should be the full ActionError display string.
+        assert!(item
+            .error
+            .as_ref()
+            .unwrap()
+            .contains("Simple error without hex"));
+    }
+}
+
 #[async_trait]
 pub trait Action {
     async fn action(args: RunActionArgs) -> Result<(), ActionError>;

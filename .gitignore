@@ -1,8 +1,10 @@
 /target
 *.json
+!tests/fixtures/**/*.json
 *.bin
 /temp
 /binaries
 .test_files
 docs-src/book
 src/error_files
+.claude/

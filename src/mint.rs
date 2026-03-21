@@ -1121,3 +1121,128 @@ impl From<Supply> for PrintSupply {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_find_first_zero_bit_all_zeros_no_first_marker() {
+        let arr = [0u8; 31];
+        // All zeros: first zero bit is at byte 0, bit position 0 (MSB).
+        let result = find_first_zero_bit(arr, false);
+        assert_eq!(result, Some((0, 0)));
+    }
+
+    #[test]
+    fn test_find_first_zero_bit_all_zeros_first_marker() {
+        let arr = [0u8; 31];
+        // With first_marker=true, byte 0 bit 7 (MSB, position 0) is skipped.
+        // Next zero bit is byte 0, bit position 1.
+        let result = find_first_zero_bit(arr, true);
+        assert_eq!(result, Some((0, 1)));
+    }
+
+    #[test]
+    fn test_find_first_zero_bit_all_ones() {
+        let arr = [0xFFu8; 31];
+        assert_eq!(find_first_zero_bit(arr, false), None);
+        assert_eq!(find_first_zero_bit(arr, true), None);
+    }
+
+    #[test]
+    fn test_find_first_zero_bit_first_byte_only_msb_zero() {
+        // 0b0111_1111 = 0x7F: only MSB (bit 7) is zero → position 0.
+        let mut arr = [0xFFu8; 31];
+        arr[0] = 0x7F;
+        assert_eq!(find_first_zero_bit(arr, false), Some((0, 0)));
+        // With first_marker, this bit is skipped and no other zeros exist.
+        assert_eq!(find_first_zero_bit(arr, true), None);
+    }
+
+    #[test]
+    fn test_find_first_zero_bit_first_byte_only_lsb_zero() {
+        // 0b1111_1110 = 0xFE: only LSB (bit 0) is zero → position 7.
+        let mut arr = [0xFFu8; 31];
+        arr[0] = 0xFE;
+        assert_eq!(find_first_zero_bit(arr, false), Some((0, 7)));
+        assert_eq!(find_first_zero_bit(arr, true), Some((0, 7)));
+    }
+
+    #[test]
+    fn test_find_first_zero_bit_zero_in_middle_of_first_byte() {
+        // 0b1110_1111 = 0xEF: bit 4 is zero → position 3.
+        let mut arr = [0xFFu8; 31];
+        arr[0] = 0xEF;
+        assert_eq!(find_first_zero_bit(arr, false), Some((0, 3)));
+        assert_eq!(find_first_zero_bit(arr, true), Some((0, 3)));
+    }
+
+    #[test]
+    fn test_find_first_zero_bit_second_byte() {
+        // First byte is all ones, second byte has a zero at position 2 (bit 5).
+        // 0b1101_1111 = 0xDF
+        let mut arr = [0xFFu8; 31];
+        arr[1] = 0xDF;
+        assert_eq!(find_first_zero_bit(arr, false), Some((1, 2)));
+        // first_marker doesn't affect bytes beyond index 0.
+        assert_eq!(find_first_zero_bit(arr, true), Some((1, 2)));
+    }
+
+    #[test]
+    fn test_find_first_zero_bit_last_byte() {
+        let mut arr = [0xFFu8; 31];
+        arr[30] = 0xFE; // LSB zero → position 7.
+        assert_eq!(find_first_zero_bit(arr, false), Some((30, 7)));
+    }
+
+    #[test]
+    fn test_find_first_zero_bit_last_byte_msb() {
+        let mut arr = [0xFFu8; 31];
+        arr[30] = 0x7F; // MSB zero → position 0.
+        assert_eq!(find_first_zero_bit(arr, false), Some((30, 0)));
+    }
+
+    #[test]
+    fn test_find_first_zero_bit_multiple_zeros_returns_first() {
+        // Zeros in byte 2 and byte 5; should return the one in byte 2.
+        let mut arr = [0xFFu8; 31];
+        arr[2] = 0xBF; // 0b1011_1111 → position 1
+        arr[5] = 0x00;
+        assert_eq!(find_first_zero_bit(arr, false), Some((2, 1)));
+    }
+
+    #[test]
+    fn test_find_first_zero_bit_multiple_zeros_in_same_byte_returns_msb() {
+        // 0b1001_0011 = 0x93: zeros at positions 1, 3, 5, 6.
+        // First zero scanning from MSB is at position 1 (bit 6).
+        let mut arr = [0xFFu8; 31];
+        arr[0] = 0x93;
+        assert_eq!(find_first_zero_bit(arr, false), Some((0, 1)));
+    }
+
+    #[test]
+    fn test_find_first_zero_bit_first_marker_skips_only_first_bit() {
+        // 0b0011_1111 = 0x3F: zeros at positions 0 and 1.
+        // first_marker skips position 0, so returns position 1.
+        let mut arr = [0xFFu8; 31];
+        arr[0] = 0x3F;
+        assert_eq!(find_first_zero_bit(arr, true), Some((0, 1)));
+    }
+
+    #[test]
+    fn test_find_first_zero_bit_single_zero_each_position() {
+        // Verify each bit position within a byte is correctly reported.
+        for pos in 0u8..8 {
+            let mut arr = [0xFFu8; 31];
+            // Clear bit (7 - pos) to create a zero at the given position.
+            arr[3] = 0xFF ^ (1 << (7 - pos));
+            assert_eq!(
+                find_first_zero_bit(arr, false),
+                Some((3, pos)),
+                "Failed for bit position {}",
+                pos
+            );
+        }
+    }
+}

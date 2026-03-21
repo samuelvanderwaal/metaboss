@@ -23,6 +23,16 @@ pub enum ClientLike {
     DasClient(Client),
 }
 
+impl std::fmt::Debug for ClientLike {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ClientLike::RpcClient(_) => f.debug_struct("RpcClient").finish(),
+            ClientLike::DasClient(client) => f.debug_tuple("DasClient").field(client).finish(),
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct CliConfig {
     pub client: ClientLike,
     pub keypair: Option<Keypair>,
@@ -218,6 +228,10 @@ impl Default for AppConfigBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Mutex;
+
+    /// Guard to serialize tests that read/write the global USE_RATE_LIMIT state.
+    static RATE_LIMIT_TEST_MUTEX: Mutex<()> = Mutex::new(());
 
     // --- CliConfigBuilder tests ---
 
@@ -238,22 +252,28 @@ mod tests {
 
     #[test]
     fn cli_config_builder_sets_rpc_url() {
-        let builder = CliConfigBuilder::new(ClientType::Standard)
-            .rpc_url("https://example.com".to_string());
-        assert_eq!(builder.json_rpc_url, Some("https://example.com".to_string()));
+        let builder =
+            CliConfigBuilder::new(ClientType::Standard).rpc_url("https://example.com".to_string());
+        assert_eq!(
+            builder.json_rpc_url,
+            Some("https://example.com".to_string())
+        );
     }
 
     #[test]
     fn cli_config_builder_sets_keypair_path() {
         let builder = CliConfigBuilder::new(ClientType::Standard)
             .keypair_path(PathBuf::from("/tmp/keypair.json"));
-        assert_eq!(builder.keypair_path, Some(PathBuf::from("/tmp/keypair.json")));
+        assert_eq!(
+            builder.keypair_path,
+            Some(PathBuf::from("/tmp/keypair.json"))
+        );
     }
 
     #[test]
     fn cli_config_builder_sets_commitment() {
-        let builder = CliConfigBuilder::new(ClientType::Standard)
-            .commitment("finalized".to_string());
+        let builder =
+            CliConfigBuilder::new(ClientType::Standard).commitment("finalized".to_string());
         assert_eq!(builder.commitment, Some("finalized".to_string()));
     }
 
@@ -263,7 +283,10 @@ mod tests {
             .rpc_url("https://example.com".to_string())
             .keypair_path(PathBuf::from("/tmp/key.json"))
             .commitment("confirmed".to_string());
-        assert_eq!(builder.json_rpc_url, Some("https://example.com".to_string()));
+        assert_eq!(
+            builder.json_rpc_url,
+            Some("https://example.com".to_string())
+        );
         assert_eq!(builder.keypair_path, Some(PathBuf::from("/tmp/key.json")));
         assert_eq!(builder.commitment, Some("confirmed".to_string()));
     }
@@ -273,12 +296,10 @@ mod tests {
         let builder = CliConfigBuilder::new(ClientType::Standard);
         let result = builder.build();
         assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("No rpc url provided")
-        );
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("No rpc url provided"));
     }
 
     #[test]
@@ -317,12 +338,10 @@ mod tests {
             .keypair_path(PathBuf::from("/nonexistent/keypair.json"));
         let result = builder.build();
         assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .to_string()
-                .contains("Unable to read keypair file")
-        );
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Unable to read keypair file"));
     }
 
     #[test]
@@ -369,8 +388,7 @@ mod tests {
 
     #[test]
     fn app_config_builder_sets_rpc_url() {
-        let builder = AppConfigBuilder::new()
-            .rpc_url("https://custom-rpc.example.com".to_string());
+        let builder = AppConfigBuilder::new().rpc_url("https://custom-rpc.example.com".to_string());
         assert_eq!(
             builder.rpc_url,
             Some("https://custom-rpc.example.com".to_string())
@@ -416,19 +434,20 @@ mod tests {
 
     #[test]
     fn app_config_builder_build_with_custom_timeout() {
-        // The timeout is applied to the RPC clients internally.
-        // We verify the builder accepts the value and the build succeeds.
+        // Use a private URL to avoid writing to the global USE_RATE_LIMIT state.
         let config = AppConfigBuilder::new()
-            .rpc_url("https://api.devnet.solana.com".to_string())
+            .rpc_url("https://my-private-rpc.example.com".to_string())
             .timeout(30)
             .build()
             .unwrap();
-        assert_eq!(config.rpc_url, "https://api.devnet.solana.com");
+        assert_eq!(config.rpc_url, "https://my-private-rpc.example.com");
     }
 
     #[test]
     fn app_config_builder_public_rpc_enables_rate_limiting() {
-        // Reset rate limit state before test.
+        let _lock = RATE_LIMIT_TEST_MUTEX
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
         *USE_RATE_LIMIT.write().unwrap() = false;
 
         let _config = AppConfigBuilder::new()
@@ -438,13 +457,14 @@ mod tests {
 
         assert!(*USE_RATE_LIMIT.read().unwrap());
 
-        // Clean up.
         *USE_RATE_LIMIT.write().unwrap() = false;
     }
 
     #[test]
     fn app_config_builder_private_rpc_does_not_enable_rate_limiting() {
-        // Reset rate limit state before test.
+        let _lock = RATE_LIMIT_TEST_MUTEX
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
         *USE_RATE_LIMIT.write().unwrap() = false;
 
         let _config = AppConfigBuilder::new()
