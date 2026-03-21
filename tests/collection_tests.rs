@@ -1,41 +1,11 @@
 mod common;
 
-use std::time::Instant;
-
 use anyhow::Result;
-use common::{assert_success, parse_mint_from_output, TestContext};
-use metaboss_lib::decode::decode_metadata_from_mint;
 
-/// Strip surrounding quotes from a string that was printed with Rust Debug
-/// formatting (e.g. `"J7abc..."` -> `J7abc...`).
-fn strip_debug_quotes(s: &str) -> String {
-    s.trim_matches('"').to_string()
-}
-
-/// Create a unique temporary directory for test artifacts.
-fn create_temp_dir(label: &str) -> std::path::PathBuf {
-    let dir = std::env::temp_dir().join(format!(
-        "metaboss-coll-{}-{}-{}",
-        label,
-        std::process::id(),
-        Instant::now().elapsed().as_nanos()
-    ));
-    std::fs::create_dir_all(&dir).expect("failed to create temp dir");
-    dir
-}
-
-/// Helper: mint a test NFT using `mint one`, returning the stripped mint address.
-fn mint_test_nft(ctx: &TestContext, temp_dir: &std::path::Path) -> Result<String> {
-    let nft_json = temp_dir.join("test_nft.json");
-    ctx.create_test_nft_json(&nft_json)?;
-
-    let nft_json_str = nft_json.to_string_lossy().to_string();
-    let output = ctx.run_metaboss(&["mint", "one", "-d", &nft_json_str, "-k", &ctx.keypair_path]);
-    assert_success(&output);
-
-    let raw_mint = parse_mint_from_output(&output.stdout);
-    Ok(strip_debug_quotes(&raw_mint))
-}
+use common::{
+    assert_success, create_temp_dir, decode_onchain_metadata, mint_test_nft,
+    parse_mint_from_output, strip_debug_quotes, TestContext,
+};
 
 /// Helper: mint a sized collection parent NFT using `mint one --sized`.
 fn mint_collection_nft(ctx: &TestContext, temp_dir: &std::path::Path) -> Result<String> {
@@ -58,16 +28,6 @@ fn mint_collection_nft(ctx: &TestContext, temp_dir: &std::path::Path) -> Result<
 
     let raw_mint = parse_mint_from_output(&output.stdout);
     Ok(strip_debug_quotes(&raw_mint))
-}
-
-/// Helper: decode on-chain metadata for a given mint address.
-fn decode_onchain_metadata(
-    ctx: &TestContext,
-    mint_str: &str,
-) -> Result<mpl_token_metadata::accounts::Metadata> {
-    let metadata = decode_metadata_from_mint(&ctx.client, mint_str.to_string())
-        .map_err(|e| anyhow::anyhow!("Failed to decode metadata: {:?}", e))?;
-    Ok(metadata)
 }
 
 // ---------------------------------------------------------------------------

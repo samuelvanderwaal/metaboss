@@ -1,54 +1,11 @@
 mod common;
 
-use std::time::Instant;
-
 use anyhow::Result;
-use metaboss_lib::decode::decode_metadata_from_mint;
 use solana_sdk::signer::Signer;
 
-use common::{assert_success, parse_mint_from_output, TestContext};
-
-/// Strip surrounding quotes from a string that was printed with Rust Debug
-/// formatting (e.g. `"J7abc..."` -> `J7abc...`).
-fn strip_debug_quotes(s: &str) -> String {
-    s.trim_matches('"').to_string()
-}
-
-/// Create a unique temporary directory for test artifacts.
-fn create_temp_dir(label: &str) -> std::path::PathBuf {
-    let dir = std::env::temp_dir().join(format!(
-        "metaboss-verify-{}-{}-{}",
-        label,
-        std::process::id(),
-        Instant::now().elapsed().as_nanos()
-    ));
-    std::fs::create_dir_all(&dir).expect("failed to create temp dir");
-    dir
-}
-
-/// Helper: mint a test NFT using `mint one`, returning the stripped mint address.
-fn mint_test_nft(ctx: &TestContext, temp_dir: &std::path::Path) -> Result<String> {
-    let nft_json = temp_dir.join("test_nft.json");
-    ctx.create_test_nft_json(&nft_json)?;
-
-    let nft_json_str = nft_json.to_string_lossy().to_string();
-    let output = ctx.run_metaboss(&["mint", "one", "-d", &nft_json_str, "-k", &ctx.keypair_path]);
-    assert_success(&output);
-
-    let raw_mint = parse_mint_from_output(&output.stdout);
-    Ok(strip_debug_quotes(&raw_mint))
-}
-
-/// Helper: decode on-chain metadata for a given mint address and return the
-/// Metadata struct.
-fn decode_onchain_metadata(
-    ctx: &TestContext,
-    mint_str: &str,
-) -> Result<mpl_token_metadata::accounts::Metadata> {
-    let metadata = decode_metadata_from_mint(&ctx.client, mint_str.to_string())
-        .map_err(|e| anyhow::anyhow!("Failed to decode metadata: {:?}", e))?;
-    Ok(metadata)
-}
+use common::{
+    assert_success, create_temp_dir, decode_onchain_metadata, mint_test_nft, TestContext,
+};
 
 /// Helper: assert the verified status of the test keypair creator on a given mint.
 fn assert_creator_verified(ctx: &TestContext, mint: &str, expected_verified: bool, context: &str) {
@@ -72,7 +29,7 @@ fn assert_creator_verified(ctx: &TestContext, mint: &str, expected_verified: boo
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_verify_creator() -> Result<()> {
     let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("verify");
+    let temp_dir = create_temp_dir("verify-creator");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Before verifying, the creator should be unverified.
@@ -98,7 +55,7 @@ fn test_verify_creator() -> Result<()> {
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_unverify_creator() -> Result<()> {
     let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("unverify");
+    let temp_dir = create_temp_dir("verify-unverify");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // First verify the creator using `sign one`.
@@ -133,7 +90,7 @@ fn test_unverify_creator() -> Result<()> {
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_verify_and_unverify_roundtrip() -> Result<()> {
     let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("roundtrip");
+    let temp_dir = create_temp_dir("verify-roundtrip");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Step 1: Creator should be unverified after mint.

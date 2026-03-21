@@ -1,11 +1,18 @@
+#![allow(dead_code)]
+
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Output};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::thread;
 use std::time::{Duration, Instant};
 
+/// Global counter for generating unique temp directory names.
+static COUNTER: AtomicU64 = AtomicU64::new(0);
+
 use anyhow::{bail, Context, Result};
+use metaboss_lib::decode::decode_metadata_from_mint;
 use regex::Regex;
 use serde_json::json;
 use solana_client::rpc_client::RpcClient;
@@ -55,6 +62,7 @@ pub struct CommandOutput {
 /// temp directories. Cleans up on drop.
 pub struct TestContext {
     pub rpc_url: String,
+    #[allow(dead_code)]
     pub client: RpcClient,
     pub keypair_path: String,
     pub keypair: Keypair,
@@ -71,7 +79,7 @@ impl TestContext {
         let temp_dir = std::env::temp_dir().join(format!(
             "metaboss-test-{}-{}",
             std::process::id(),
-            Instant::now().elapsed().as_nanos()
+            COUNTER.fetch_add(1, Ordering::Relaxed)
         ));
         fs::create_dir_all(&temp_dir).context("Failed to create temp directory")?;
 
@@ -247,4 +255,58 @@ pub fn parse_mint_from_output(output: &str) -> String {
         .and_then(|c| c.get(1))
         .map(|m| m.as_str().to_string())
         .expect("Could not find 'Mint account: <pubkey>' in output")
+}
+
+/// Strip surrounding quotes from a string that was printed with Rust Debug
+/// formatting (e.g. `"J7abc..."` -> `J7abc...`).
+#[allow(dead_code)]
+pub fn strip_debug_quotes(s: &str) -> String {
+    s.trim_matches('"').to_string()
+}
+
+/// Create a unique temporary directory for test artifacts.
+/// The `label` parameter is used to namespace the directory name.
+#[allow(dead_code)]
+pub fn create_temp_dir(label: &str) -> PathBuf {
+    let dir = std::env::temp_dir().join(format!(
+        "metaboss-test-{}-{}-{}",
+        label,
+        std::process::id(),
+        COUNTER.fetch_add(1, Ordering::Relaxed)
+    ));
+    fs::create_dir_all(&dir).expect("failed to create temp dir");
+    dir
+}
+
+/// Helper: mint a test NFT using `mint one`, returning the stripped mint address.
+#[allow(dead_code)]
+pub fn mint_test_nft(ctx: &TestContext, temp_dir: &Path) -> Result<String> {
+    let nft_json = temp_dir.join("test_nft.json");
+    ctx.create_test_nft_json(&nft_json)?;
+
+    let nft_json_str = nft_json.to_string_lossy().to_string();
+    let output = ctx.run_metaboss(&["mint", "one", "-d", &nft_json_str, "-k", &ctx.keypair_path]);
+    assert_success(&output);
+
+    let raw_mint = parse_mint_from_output(&output.stdout);
+    Ok(strip_debug_quotes(&raw_mint))
+}
+
+/// Helper: decode on-chain metadata for a given mint address and return the
+/// Metadata struct. Fields like name/symbol/uri are padded with null bytes;
+/// callers should trim them with [`trim_null`].
+#[allow(dead_code)]
+pub fn decode_onchain_metadata(
+    ctx: &TestContext,
+    mint_str: &str,
+) -> Result<mpl_token_metadata::accounts::Metadata> {
+    let metadata = decode_metadata_from_mint(&ctx.client, mint_str.to_string())
+        .map_err(|e| anyhow::anyhow!("Failed to decode metadata: {:?}", e))?;
+    Ok(metadata)
+}
+
+/// Trim null bytes from a metadata string field.
+#[allow(dead_code)]
+pub fn trim_null(s: &str) -> &str {
+    s.trim_matches(char::from(0))
 }

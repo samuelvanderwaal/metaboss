@@ -1,10 +1,8 @@
 mod common;
 
 use std::str::FromStr;
-use std::time::Instant;
 
 use anyhow::Result;
-use metaboss_lib::decode::decode_metadata_from_mint;
 use metaboss_lib::derive::derive_metadata_pda;
 use solana_program::program_pack::Pack;
 use solana_sdk::pubkey::Pubkey;
@@ -13,55 +11,9 @@ use solana_sdk::signer::Signer;
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::state::Account as TokenAccount;
 
-use common::{assert_success, parse_mint_from_output, TestContext};
-
-/// Strip surrounding quotes from a string that was printed with Rust Debug
-/// formatting (e.g. `"J7abc..."` -> `J7abc...`).
-fn strip_debug_quotes(s: &str) -> String {
-    s.trim_matches('"').to_string()
-}
-
-/// Create a unique temporary directory for test artifacts.
-fn create_temp_dir(label: &str) -> std::path::PathBuf {
-    let dir = std::env::temp_dir().join(format!(
-        "metaboss-integ-{}-{}-{}",
-        label,
-        std::process::id(),
-        Instant::now().elapsed().as_nanos()
-    ));
-    std::fs::create_dir_all(&dir).expect("failed to create temp dir");
-    dir
-}
-
-/// Helper: mint a test NFT using `mint one`, returning the stripped mint address.
-fn mint_test_nft(ctx: &TestContext, temp_dir: &std::path::Path) -> Result<String> {
-    let nft_json = temp_dir.join("test_nft.json");
-    ctx.create_test_nft_json(&nft_json)?;
-
-    let nft_json_str = nft_json.to_string_lossy().to_string();
-    let output = ctx.run_metaboss(&["mint", "one", "-d", &nft_json_str, "-k", &ctx.keypair_path]);
-    assert_success(&output);
-
-    let raw_mint = parse_mint_from_output(&output.stdout);
-    Ok(strip_debug_quotes(&raw_mint))
-}
-
-/// Helper: decode on-chain metadata for a given mint address and return the
-/// Metadata struct. Fields like name/symbol/uri are padded with null bytes;
-/// callers should trim them.
-fn decode_onchain_metadata(
-    ctx: &TestContext,
-    mint_str: &str,
-) -> Result<mpl_token_metadata::accounts::Metadata> {
-    let metadata = decode_metadata_from_mint(&ctx.client, mint_str.to_string())
-        .map_err(|e| anyhow::anyhow!("Failed to decode metadata: {:?}", e))?;
-    Ok(metadata)
-}
-
-/// Trim null bytes from a metadata string field.
-fn trim_null(s: &str) -> &str {
-    s.trim_matches(char::from(0))
-}
+use common::{
+    assert_success, create_temp_dir, decode_onchain_metadata, mint_test_nft, trim_null, TestContext,
+};
 
 // ---------------------------------------------------------------------------
 // Test 1: Mint an NFT and verify its on-chain metadata via decode

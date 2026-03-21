@@ -1,60 +1,14 @@
 mod common;
 
 use std::io::Write;
-use std::time::Instant;
 
 use anyhow::Result;
-use metaboss_lib::decode::decode_metadata_from_mint;
 use solana_sdk::signature::Keypair;
 use solana_sdk::signer::Signer;
 
-use common::{assert_success, parse_mint_from_output, TestContext};
-
-/// Strip surrounding quotes from a string that was printed with Rust Debug
-/// formatting (e.g. `"J7abc..."` -> `J7abc...`).
-fn strip_debug_quotes(s: &str) -> String {
-    s.trim_matches('"').to_string()
-}
-
-/// Create a unique temporary directory for test artifacts.
-fn create_temp_dir(label: &str) -> std::path::PathBuf {
-    let dir = std::env::temp_dir().join(format!(
-        "metaboss-update-{}-{}-{}",
-        label,
-        std::process::id(),
-        Instant::now().elapsed().as_nanos()
-    ));
-    std::fs::create_dir_all(&dir).expect("failed to create temp dir");
-    dir
-}
-
-/// Helper: mint a test NFT using `mint one`, returning the stripped mint address.
-fn mint_test_nft(ctx: &TestContext, temp_dir: &std::path::Path) -> Result<String> {
-    let nft_json = temp_dir.join("test_nft.json");
-    ctx.create_test_nft_json(&nft_json)?;
-
-    let nft_json_str = nft_json.to_string_lossy().to_string();
-    let output = ctx.run_metaboss(&["mint", "one", "-d", &nft_json_str, "-k", &ctx.keypair_path]);
-    assert_success(&output);
-
-    let raw_mint = parse_mint_from_output(&output.stdout);
-    Ok(strip_debug_quotes(&raw_mint))
-}
-
-/// Helper: decode on-chain metadata for a given mint address.
-fn decode_onchain_metadata(
-    ctx: &TestContext,
-    mint_str: &str,
-) -> Result<mpl_token_metadata::accounts::Metadata> {
-    let metadata = decode_metadata_from_mint(&ctx.client, mint_str.to_string())
-        .map_err(|e| anyhow::anyhow!("Failed to decode metadata: {:?}", e))?;
-    Ok(metadata)
-}
-
-/// Trim null bytes from a metadata string field.
-fn trim_null(s: &str) -> &str {
-    s.trim_matches(char::from(0))
-}
+use common::{
+    assert_success, create_temp_dir, decode_onchain_metadata, mint_test_nft, trim_null, TestContext,
+};
 
 // ---------------------------------------------------------------------------
 // Test 1: Mint an NFT and update its symbol
@@ -63,7 +17,7 @@ fn trim_null(s: &str) -> &str {
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_update_symbol() -> Result<()> {
     let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("symbol");
+    let temp_dir = create_temp_dir("update-symbol");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Verify initial symbol.
@@ -108,7 +62,7 @@ fn test_update_symbol() -> Result<()> {
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_update_seller_fee_basis_points() -> Result<()> {
     let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("sfbp");
+    let temp_dir = create_temp_dir("update-sfbp");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Verify initial seller fee basis points.
@@ -152,7 +106,7 @@ fn test_update_seller_fee_basis_points() -> Result<()> {
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_update_creators() -> Result<()> {
     let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("creators");
+    let temp_dir = create_temp_dir("update-creators");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Generate a second keypair to use as a new creator.
@@ -208,7 +162,7 @@ fn test_update_creators() -> Result<()> {
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_update_data() -> Result<()> {
     let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("data");
+    let temp_dir = create_temp_dir("update-data");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Generate a new creator keypair for the updated data.
