@@ -5,8 +5,8 @@ use regex::Regex;
 use solana_sdk::signer::Signer;
 
 use common::{
-    assert_success, create_temp_dir, decode_onchain_metadata, parse_mint_from_output,
-    strip_debug_quotes, trim_null, TestContext,
+    assert_success, decode_onchain_metadata, parse_mint_from_output, strip_debug_quotes, trim_null,
+    TestContext,
 };
 
 /// Parse edition mint pubkeys from `mint editions` output which prints
@@ -25,8 +25,8 @@ fn parse_edition_mints(output: &str) -> Vec<String> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_create_master_edition_and_mint_editions() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("mint-editions");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("mint-editions");
 
     // Mint an NFT with max-editions 10 (creates master edition automatically).
     let nft_json = temp_dir.join("test_nft.json");
@@ -84,7 +84,6 @@ fn test_create_master_edition_and_mint_editions() -> Result<()> {
         );
     }
 
-    let _ = std::fs::remove_dir_all(&temp_dir);
     Ok(())
 }
 
@@ -94,8 +93,8 @@ fn test_create_master_edition_and_mint_editions() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_mint_one_with_immutable() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("mint-immutable");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("mint-immutable");
 
     let nft_json = temp_dir.join("test_nft.json");
     ctx.create_test_nft_json(&nft_json)?;
@@ -122,7 +121,6 @@ fn test_mint_one_with_immutable() -> Result<()> {
         "metadata should be immutable when minted with --immutable flag"
     );
 
-    let _ = std::fs::remove_dir_all(&temp_dir);
     Ok(())
 }
 
@@ -132,8 +130,8 @@ fn test_mint_one_with_immutable() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_mint_one_with_sign() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("mint-sign");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("mint-sign");
 
     let nft_json = temp_dir.join("test_nft.json");
     ctx.create_test_nft_json(&nft_json)?;
@@ -165,6 +163,5 @@ fn test_mint_one_with_sign() -> Result<()> {
         "creator should be verified when minted with --sign flag"
     );
 
-    let _ = std::fs::remove_dir_all(&temp_dir);
     Ok(())
 }

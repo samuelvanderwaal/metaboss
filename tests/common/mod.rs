@@ -62,12 +62,12 @@ pub struct CommandOutput {
 /// temp directories. Cleans up on drop.
 pub struct TestContext {
     pub rpc_url: String,
-    #[allow(dead_code)]
     pub client: RpcClient,
     pub keypair_path: String,
     pub keypair: Keypair,
     validator_process: Child,
     temp_dir: PathBuf,
+    extra_temp_dirs: Vec<PathBuf>,
 }
 
 impl TestContext {
@@ -129,6 +129,7 @@ impl TestContext {
             keypair,
             validator_process,
             temp_dir,
+            extra_temp_dirs: Vec::new(),
         })
     }
 
@@ -226,6 +227,21 @@ impl TestContext {
         file.write_all(serde_json::to_string_pretty(&metadata)?.as_bytes())?;
         Ok(())
     }
+
+    /// Create a unique temporary directory for test artifacts.
+    /// The `label` parameter is used to namespace the directory name.
+    /// The directory is automatically cleaned up when the `TestContext` is dropped.
+    pub fn create_temp_dir(&mut self, label: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!(
+            "metaboss-test-{}-{}-{}",
+            label,
+            std::process::id(),
+            COUNTER.fetch_add(1, Ordering::Relaxed)
+        ));
+        fs::create_dir_all(&dir).expect("failed to create temp dir");
+        self.extra_temp_dirs.push(dir.clone());
+        dir
+    }
 }
 
 impl Drop for TestContext {
@@ -236,6 +252,10 @@ impl Drop for TestContext {
         let _ = self.validator_process.wait();
         // Clean up the temp directory. Best-effort; ignore errors.
         let _ = fs::remove_dir_all(&self.temp_dir);
+        // Clean up any extra temp directories created during tests.
+        for dir in &self.extra_temp_dirs {
+            let _ = fs::remove_dir_all(dir);
+        }
     }
 }
 
@@ -259,27 +279,11 @@ pub fn parse_mint_from_output(output: &str) -> String {
 
 /// Strip surrounding quotes from a string that was printed with Rust Debug
 /// formatting (e.g. `"J7abc..."` -> `J7abc...`).
-#[allow(dead_code)]
 pub fn strip_debug_quotes(s: &str) -> String {
     s.trim_matches('"').to_string()
 }
 
-/// Create a unique temporary directory for test artifacts.
-/// The `label` parameter is used to namespace the directory name.
-#[allow(dead_code)]
-pub fn create_temp_dir(label: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!(
-        "metaboss-test-{}-{}-{}",
-        label,
-        std::process::id(),
-        COUNTER.fetch_add(1, Ordering::Relaxed)
-    ));
-    fs::create_dir_all(&dir).expect("failed to create temp dir");
-    dir
-}
-
 /// Helper: mint a test NFT using `mint one`, returning the stripped mint address.
-#[allow(dead_code)]
 pub fn mint_test_nft(ctx: &TestContext, temp_dir: &Path) -> Result<String> {
     let nft_json = temp_dir.join("test_nft.json");
     ctx.create_test_nft_json(&nft_json)?;
@@ -295,7 +299,6 @@ pub fn mint_test_nft(ctx: &TestContext, temp_dir: &Path) -> Result<String> {
 /// Helper: decode on-chain metadata for a given mint address and return the
 /// Metadata struct. Fields like name/symbol/uri are padded with null bytes;
 /// callers should trim them with [`trim_null`].
-#[allow(dead_code)]
 pub fn decode_onchain_metadata(
     ctx: &TestContext,
     mint_str: &str,
@@ -306,7 +309,6 @@ pub fn decode_onchain_metadata(
 }
 
 /// Trim null bytes from a metadata string field.
-#[allow(dead_code)]
 pub fn trim_null(s: &str) -> &str {
     s.trim_matches(char::from(0))
 }

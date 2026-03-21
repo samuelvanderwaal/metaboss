@@ -3,9 +3,7 @@ mod common;
 use anyhow::Result;
 use solana_sdk::signer::Signer;
 
-use common::{
-    assert_success, create_temp_dir, decode_onchain_metadata, mint_test_nft, TestContext,
-};
+use common::{assert_success, decode_onchain_metadata, mint_test_nft, TestContext};
 
 /// Helper: assert the verified status of the test keypair creator on a given mint.
 fn assert_creator_verified(ctx: &TestContext, mint: &str, expected_verified: bool, context: &str) {
@@ -28,8 +26,8 @@ fn assert_creator_verified(ctx: &TestContext, mint: &str, expected_verified: boo
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_verify_creator() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("verify-creator");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("verify-creator");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Before verifying, the creator should be unverified.
@@ -42,9 +40,6 @@ fn test_verify_creator() -> Result<()> {
     // After verifying, the creator should be verified.
     assert_creator_verified(&ctx, &mint, true, "should be verified after verify creator");
 
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
-
     Ok(())
 }
 
@@ -54,8 +49,8 @@ fn test_verify_creator() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_unverify_creator() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("verify-unverify");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("verify-unverify");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // First verify the creator using `sign one`.
@@ -77,9 +72,6 @@ fn test_unverify_creator() -> Result<()> {
         "should be unverified after unverify creator",
     );
 
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
-
     Ok(())
 }
 
@@ -89,8 +81,8 @@ fn test_unverify_creator() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_verify_and_unverify_roundtrip() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("verify-roundtrip");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("verify-roundtrip");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Step 1: Creator should be unverified after mint.
@@ -120,9 +112,6 @@ fn test_verify_and_unverify_roundtrip() -> Result<()> {
         true,
         "step 4: verified again after second verify creator",
     );
-
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
 
     Ok(())
 }

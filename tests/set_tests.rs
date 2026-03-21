@@ -4,9 +4,7 @@ use anyhow::Result;
 use solana_sdk::signature::Keypair;
 use solana_sdk::signer::Signer;
 
-use common::{
-    assert_success, create_temp_dir, decode_onchain_metadata, mint_test_nft, TestContext,
-};
+use common::{assert_success, decode_onchain_metadata, mint_test_nft, TestContext};
 
 // ---------------------------------------------------------------------------
 // Test 1: Mint an NFT and set it as immutable
@@ -14,8 +12,8 @@ use common::{
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_set_immutable() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("set-immutable");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("set-immutable");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Verify is_mutable is true initially.
@@ -36,7 +34,6 @@ fn test_set_immutable() -> Result<()> {
         "NFT should be immutable after set immutable"
     );
 
-    let _ = std::fs::remove_dir_all(&temp_dir);
     Ok(())
 }
 
@@ -46,8 +43,8 @@ fn test_set_immutable() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_set_secondary_sale() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("set-secondary-sale");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("set-secondary-sale");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Verify primary_sale_happened is false initially.
@@ -75,7 +72,6 @@ fn test_set_secondary_sale() -> Result<()> {
         "primary_sale_happened should be true after set secondary-sale"
     );
 
-    let _ = std::fs::remove_dir_all(&temp_dir);
     Ok(())
 }
 
@@ -85,8 +81,8 @@ fn test_set_secondary_sale() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_set_update_authority() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("set-update-authority");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("set-update-authority");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Verify initial update authority is the test keypair.
@@ -122,7 +118,6 @@ fn test_set_update_authority() -> Result<()> {
         "update_authority should be the new authority after set update-authority"
     );
 
-    let _ = std::fs::remove_dir_all(&temp_dir);
     Ok(())
 }
 
@@ -132,8 +127,8 @@ fn test_set_update_authority() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_set_immutable_prevents_further_updates() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("set-immutable-no-update");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("set-immutable-no-update");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Set the NFT as immutable.
@@ -157,6 +152,5 @@ fn test_set_immutable_prevents_further_updates() -> Result<()> {
         output.stdout, output.stderr,
     );
 
-    let _ = std::fs::remove_dir_all(&temp_dir);
     Ok(())
 }

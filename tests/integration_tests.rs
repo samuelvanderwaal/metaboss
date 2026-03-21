@@ -11,9 +11,7 @@ use solana_sdk::signer::Signer;
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::state::Account as TokenAccount;
 
-use common::{
-    assert_success, create_temp_dir, decode_onchain_metadata, mint_test_nft, trim_null, TestContext,
-};
+use common::{assert_success, decode_onchain_metadata, mint_test_nft, trim_null, TestContext};
 
 // ---------------------------------------------------------------------------
 // Test 1: Mint an NFT and verify its on-chain metadata via decode
@@ -21,8 +19,8 @@ use common::{
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_mint_one_and_decode() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("decode");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("decode");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Also exercise the CLI decode command to ensure it writes the JSON file.
@@ -87,9 +85,6 @@ fn test_mint_one_and_decode() -> Result<()> {
         "creators should contain the test keypair address"
     );
 
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
-
     Ok(())
 }
 
@@ -99,8 +94,8 @@ fn test_mint_one_and_decode() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_mint_update_uri_and_name() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("update");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("update");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Update URI.
@@ -152,9 +147,6 @@ fn test_mint_update_uri_and_name() -> Result<()> {
         "URI should remain updated after name change"
     );
 
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
-
     Ok(())
 }
 
@@ -164,8 +156,8 @@ fn test_mint_update_uri_and_name() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_mint_and_burn() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("burn");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("burn");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Burn the NFT using `burn-nft one`.
@@ -192,9 +184,6 @@ fn test_mint_and_burn() -> Result<()> {
         }
     }
 
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
-
     Ok(())
 }
 
@@ -204,8 +193,8 @@ fn test_mint_and_burn() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_mint_and_transfer() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("transfer");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("transfer");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Generate a receiver keypair (no need to fund it; the sender pays).
@@ -256,9 +245,6 @@ fn test_mint_and_transfer() -> Result<()> {
         }
     }
 
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
-
     Ok(())
 }
 
@@ -268,8 +254,8 @@ fn test_mint_and_transfer() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_mint_and_sign() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("sign");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("sign");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Before signing, the creator should be unverified.
@@ -297,9 +283,6 @@ fn test_mint_and_sign() -> Result<()> {
         .expect("test keypair should be listed as a creator");
     assert!(creator.verified, "creator should be verified after signing");
 
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
-
     Ok(())
 }
 
@@ -309,8 +292,8 @@ fn test_mint_and_sign() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_derive_metadata_pda() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("derive");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("derive");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
     let mint_pubkey = Pubkey::from_str(&mint)?;
 
@@ -329,9 +312,6 @@ fn test_derive_metadata_pda() -> Result<()> {
         expected_pda,
         stdout
     );
-
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
 
     Ok(())
 }

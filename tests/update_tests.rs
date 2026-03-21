@@ -6,9 +6,7 @@ use anyhow::Result;
 use solana_sdk::signature::Keypair;
 use solana_sdk::signer::Signer;
 
-use common::{
-    assert_success, create_temp_dir, decode_onchain_metadata, mint_test_nft, trim_null, TestContext,
-};
+use common::{assert_success, decode_onchain_metadata, mint_test_nft, trim_null, TestContext};
 
 // ---------------------------------------------------------------------------
 // Test 1: Mint an NFT and update its symbol
@@ -16,8 +14,8 @@ use common::{
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_update_symbol() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("update-symbol");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("update-symbol");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Verify initial symbol.
@@ -49,9 +47,6 @@ fn test_update_symbol() -> Result<()> {
     assert_eq!(trim_null(&metadata.name), "Test NFT");
     assert_eq!(metadata.seller_fee_basis_points, 100);
 
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
-
     Ok(())
 }
 
@@ -61,8 +56,8 @@ fn test_update_symbol() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_update_seller_fee_basis_points() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("update-sfbp");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("update-sfbp");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Verify initial seller fee basis points.
@@ -93,9 +88,6 @@ fn test_update_seller_fee_basis_points() -> Result<()> {
     assert_eq!(trim_null(&metadata.name), "Test NFT");
     assert_eq!(trim_null(&metadata.symbol), "TNFT");
 
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
-
     Ok(())
 }
 
@@ -105,8 +97,8 @@ fn test_update_seller_fee_basis_points() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_update_creators() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("update-creators");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("update-creators");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Generate a second keypair to use as a new creator.
@@ -149,9 +141,6 @@ fn test_update_creators() -> Result<()> {
     assert_eq!(trim_null(&metadata.symbol), "TNFT");
     assert_eq!(metadata.seller_fee_basis_points, 100);
 
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
-
     Ok(())
 }
 
@@ -161,8 +150,8 @@ fn test_update_creators() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_update_data() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("update-data");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("update-data");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Generate a new creator keypair for the updated data.
@@ -237,9 +226,6 @@ fn test_update_data() -> Result<()> {
     );
     assert_eq!(creators[0].share, 100);
     assert!(!creators[0].verified);
-
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
 
     Ok(())
 }

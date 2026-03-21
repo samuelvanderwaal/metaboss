@@ -8,8 +8,7 @@ use solana_sdk::signer::Signer;
 use spl_associated_token_account::get_associated_token_address;
 
 use common::{
-    assert_success, create_temp_dir, mint_test_nft, parse_mint_from_output, strip_debug_quotes,
-    TestContext,
+    assert_success, mint_test_nft, parse_mint_from_output, strip_debug_quotes, TestContext,
 };
 
 /// Helper: mint a test NFT with --max-editions flag.
@@ -45,8 +44,8 @@ fn mint_test_nft_with_editions(
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_decode_mint_account() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("decode-mint-account");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("decode-mint-account");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // `decode mint-account -a <mint>` prints the SPL Mint struct to stdout.
@@ -78,7 +77,6 @@ fn test_decode_mint_account() -> Result<()> {
         stdout
     );
 
-    let _ = std::fs::remove_dir_all(&temp_dir);
     Ok(())
 }
 
@@ -88,8 +86,8 @@ fn test_decode_mint_account() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_decode_token_account() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("decode-token-account");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("decode-token-account");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // Derive the ATA for the minter.
@@ -132,7 +130,6 @@ fn test_decode_token_account() -> Result<()> {
         stdout
     );
 
-    let _ = std::fs::remove_dir_all(&temp_dir);
     Ok(())
 }
 
@@ -142,8 +139,8 @@ fn test_decode_token_account() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_decode_master_edition() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("decode-master-edition");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("decode-master-edition");
 
     // Mint with --max-editions so that a master edition with max_supply is created.
     let mint = mint_test_nft_with_editions(&ctx, &temp_dir, 10)?;
@@ -172,7 +169,6 @@ fn test_decode_master_edition() -> Result<()> {
         stdout
     );
 
-    let _ = std::fs::remove_dir_all(&temp_dir);
     Ok(())
 }
 
@@ -182,8 +178,8 @@ fn test_decode_master_edition() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_decode_mint_full() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("decode-mint-full");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("decode-mint-full");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     let output_dir = temp_dir.join("decode_full_output");
@@ -263,7 +259,6 @@ fn test_decode_mint_full() -> Result<()> {
         "non-full decode should NOT contain 'primary_sale_happened'"
     );
 
-    let _ = std::fs::remove_dir_all(&temp_dir);
     Ok(())
 }
 
@@ -273,8 +268,8 @@ fn test_decode_mint_full() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_decode_account_raw_bytes() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("decode-account-raw");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("decode-account-raw");
     let mint = mint_test_nft(&ctx, &temp_dir)?;
 
     // `decode account <mint>` prints the raw bytes of the account to stdout.
@@ -293,6 +288,5 @@ fn test_decode_account_raw_bytes() -> Result<()> {
         &stdout[..std::cmp::min(200, stdout.len())]
     );
 
-    let _ = std::fs::remove_dir_all(&temp_dir);
     Ok(())
 }

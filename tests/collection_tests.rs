@@ -3,8 +3,8 @@ mod common;
 use anyhow::Result;
 
 use common::{
-    assert_success, create_temp_dir, decode_onchain_metadata, mint_test_nft,
-    parse_mint_from_output, strip_debug_quotes, TestContext,
+    assert_success, decode_onchain_metadata, mint_test_nft, parse_mint_from_output,
+    strip_debug_quotes, TestContext,
 };
 
 /// Helper: mint a sized collection parent NFT using `mint one --sized`.
@@ -36,8 +36,8 @@ fn mint_collection_nft(ctx: &TestContext, temp_dir: &std::path::Path) -> Result<
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_collections_set_and_verify() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("set-and-verify");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("set-and-verify");
 
     // Mint the collection parent NFT (sized).
     let collection_mint = mint_collection_nft(&ctx, &temp_dir)?;
@@ -80,9 +80,6 @@ fn test_collections_set_and_verify() -> Result<()> {
         "collection should be verified after set-and-verify"
     );
 
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
-
     Ok(())
 }
 
@@ -92,8 +89,8 @@ fn test_collections_set_and_verify() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_collections_verify_and_unverify() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("verify-unverify");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("verify-unverify");
 
     // Mint collection parent and child NFTs.
     let collection_mint = mint_collection_nft(&ctx, &temp_dir)?;
@@ -173,9 +170,6 @@ fn test_collections_verify_and_unverify() -> Result<()> {
         "collection should be verified after re-verify"
     );
 
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
-
     Ok(())
 }
 
@@ -185,8 +179,8 @@ fn test_collections_verify_and_unverify() -> Result<()> {
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
 fn test_collections_set_size() -> Result<()> {
-    let ctx = TestContext::new()?;
-    let temp_dir = create_temp_dir("set-size");
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("set-size");
 
     // Mint an unsized collection NFT (no --sized flag) with a master edition.
     let nft_json = temp_dir.join("collection_nft.json");
@@ -212,7 +206,7 @@ fn test_collections_set_size() -> Result<()> {
         "unsized collection should have no collection_details"
     );
 
-    // Set collection size to 100 (converts unsized → sized).
+    // Set collection size to 100 (converts unsized -> sized).
     let output = ctx.run_metaboss(&[
         "collections",
         "set-size",
@@ -238,9 +232,6 @@ fn test_collections_set_size() -> Result<()> {
             );
         }
     }
-
-    // Clean up temp dir.
-    let _ = std::fs::remove_dir_all(&temp_dir);
 
     Ok(())
 }
