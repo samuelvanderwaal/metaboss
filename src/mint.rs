@@ -497,7 +497,12 @@ pub fn mint_one<P: AsRef<Path>>(
     let message = format!("Tx sig: {:?}\nMint account: {:?}", &tx_id, &mint_account,);
     println!("{message}");
     if sign {
-        sign_one(client, keypair_path, mint_account.to_string())?;
+        sign_one(
+            client,
+            keypair_path,
+            mint_account.to_string(),
+            priority.clone(),
+        )?;
     }
 
     Ok(mint_account.to_string())
