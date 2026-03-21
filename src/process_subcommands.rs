@@ -803,7 +803,11 @@ pub async fn process_set(client: RpcClient, commands: SetSubcommands) -> Result<
 
 pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()> {
     match commands {
-        SignSubcommands::One { keypair, account } => sign_one(client, keypair, account),
+        SignSubcommands::One {
+            keypair,
+            account,
+            priority,
+        } => sign_one(client, keypair, account, priority),
         SignSubcommands::All {
             keypair,
             creator,
@@ -811,6 +815,7 @@ pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()>
             v2,
             v3,
             mint_accounts_file,
+            priority,
         } => sign_all(
             client,
             keypair,
@@ -819,6 +824,7 @@ pub fn process_sign(client: &RpcClient, commands: SignSubcommands) -> Result<()>
             v2,
             v3,
             mint_accounts_file,
+            priority,
         ),
     }
 }
@@ -831,7 +837,16 @@ pub fn process_transfer(client: RpcClient, commands: TransferSubcommands) -> Res
             mint,
             amount,
             receiver_account,
-        } => process_transfer_asset(&client, keypair, receiver, receiver_account, mint, amount),
+            priority,
+        } => process_transfer_asset(
+            &client,
+            keypair,
+            receiver,
+            receiver_account,
+            mint,
+            amount,
+            priority,
+        ),
     }
 }
 
@@ -1197,7 +1212,11 @@ pub async fn process_update(client: RpcClient, commands: UpdateSubcommands) -> R
 
 pub async fn process_verify(client: RpcClient, commands: VerifySubcommands) -> Result<()> {
     match commands {
-        VerifySubcommands::Creator { keypair, mint } => {
+        VerifySubcommands::Creator {
+            keypair,
+            mint,
+            priority,
+        } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
 
@@ -1205,6 +1224,7 @@ pub async fn process_verify(client: RpcClient, commands: VerifySubcommands) -> R
                 client: Arc::new(client),
                 keypair: Arc::new(keypair),
                 mint,
+                priority,
             };
             let sig = verify_creator(args).await?;
 
@@ -1219,6 +1239,7 @@ pub async fn process_verify(client: RpcClient, commands: VerifySubcommands) -> R
             cache_file,
             rate_limit,
             retries,
+            priority,
         } => {
             verify_creator_all(VerifyCreatorAllArgs {
                 client,
@@ -1227,6 +1248,7 @@ pub async fn process_verify(client: RpcClient, commands: VerifySubcommands) -> R
                 cache_file,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }
@@ -1235,7 +1257,11 @@ pub async fn process_verify(client: RpcClient, commands: VerifySubcommands) -> R
 
 pub async fn process_unverify(client: RpcClient, commands: UnverifySubcommands) -> Result<()> {
     match commands {
-        UnverifySubcommands::Creator { keypair, mint } => {
+        UnverifySubcommands::Creator {
+            keypair,
+            mint,
+            priority,
+        } => {
             let solana_opts = parse_solana_config();
             let keypair = parse_keypair(keypair, solana_opts);
 
@@ -1243,6 +1269,7 @@ pub async fn process_unverify(client: RpcClient, commands: UnverifySubcommands) 
                 client: Arc::new(client),
                 keypair: Arc::new(keypair),
                 mint,
+                priority,
             };
             let sig = unverify_creator(args).await?;
 
@@ -1257,6 +1284,7 @@ pub async fn process_unverify(client: RpcClient, commands: UnverifySubcommands) 
             cache_file,
             rate_limit,
             retries,
+            priority,
         } => {
             unverify_creator_all(UnverifyCreatorAllArgs {
                 client,
@@ -1265,6 +1293,7 @@ pub async fn process_unverify(client: RpcClient, commands: UnverifySubcommands) 
                 cache_file,
                 rate_limit,
                 retries,
+                priority,
             })
             .await
         }

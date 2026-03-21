@@ -1319,6 +1319,11 @@ pub enum SignSubcommands {
         /// Mint account to sign
         #[structopt(short, long)]
         account: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
     /// Sign all metadata from a JSON list or for a given candy machine id / creator
     #[structopt(name = "all")]
@@ -1346,6 +1351,11 @@ pub enum SignSubcommands {
         /// Path to JSON file with list of mint accounts to sign
         #[structopt(short, long)]
         mint_accounts_file: Option<String>,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
 }
 
@@ -1927,6 +1937,11 @@ pub enum TransferSubcommands {
         /// Receiver token account, if not provided an ATA will be created.
         #[structopt(long)]
         receiver_account: Option<String>,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
 }
 
@@ -1940,6 +1955,11 @@ pub enum VerifySubcommands {
         /// Mint account of token to transfer
         #[structopt(short = "a", long)]
         mint: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
     CreatorAll {
         /// Path to the update_authority keypair file
@@ -1961,6 +1981,11 @@ pub enum VerifySubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
 }
 
@@ -1974,6 +1999,11 @@ pub enum UnverifySubcommands {
         /// Mint account of token to transfer
         #[structopt(short = "a", long)]
         mint: String,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
     CreatorAll {
         /// Path to the update_authority keypair file
@@ -1995,6 +2025,11 @@ pub enum UnverifySubcommands {
         /// Maximum retries: retry failed items up to this many times.
         #[structopt(long, default_value = "0")]
         retries: u8,
+
+        /// Priority of the transaction: higher priority costs more.
+        /// See https://metaboss.rs/priority-fees.html for more details.
+        #[structopt(short = "P", long, default_value = "none")]
+        priority: Priority,
     },
 }
 

@@ -2,11 +2,13 @@ use anyhow::{anyhow, Result};
 use borsh::BorshDeserialize;
 use indicatif::ParallelProgressIterator;
 use log::{error, info};
+use metaboss_lib::data::Priority;
 use mpl_token_metadata::{accounts::Metadata, instructions::SignMetadata};
 use rayon::prelude::*;
 use retry::{delay::Exponential, retry};
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
+    compute_budget::ComputeBudgetInstruction,
     pubkey::Pubkey,
     signature::Signature,
     signer::{keypair::Keypair, Signer},
@@ -28,7 +30,12 @@ use crate::parse::{is_only_one_option, parse_keypair};
 use crate::snapshot::get_cm_creator_accounts;
 use crate::{constants::*, parse::parse_solana_config};
 
-pub fn sign_one(client: &RpcClient, keypair_path: Option<String>, account: String) -> Result<()> {
+pub fn sign_one(
+    client: &RpcClient,
+    keypair_path: Option<String>,
+    account: String,
+    priority: Priority,
+) -> Result<()> {
     let solana_opts = parse_solana_config();
     let creator = parse_keypair(keypair_path, solana_opts);
 
@@ -41,13 +48,14 @@ pub fn sign_one(client: &RpcClient, keypair_path: Option<String>, account: Strin
         &creator.pubkey()
     );
 
-    let sig = sign(client, &creator, metadata_pubkey)?;
+    let sig = sign(client, &creator, metadata_pubkey, priority)?;
     info!("Tx sig: {}", sig);
     println!("Tx sig: {sig}");
 
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn sign_all(
     client: &RpcClient,
     keypair_path: Option<String>,
@@ -56,6 +64,7 @@ pub fn sign_all(
     v2: bool,
     v3: bool,
     mint_accounts_file: Option<String>,
+    priority: Priority,
 ) -> Result<()> {
     let solana_opts = parse_solana_config();
     let creator_keypair = parse_keypair(keypair_path, solana_opts);
@@ -76,6 +85,7 @@ pub fn sign_all(
                 &cmv2_creator.to_string(),
                 creator_keypair,
                 position,
+                priority,
             )?
         } else if v3 {
             let cmv3_creator = derive_cmv3_pda(&creator_pubkey);
@@ -84,15 +94,16 @@ pub fn sign_all(
                 &cmv3_creator.to_string(),
                 creator_keypair,
                 position,
+                priority,
             )?
         } else {
-            sign_candy_machine_accounts(client, creator, creator_keypair, position)?
+            sign_candy_machine_accounts(client, creator, creator_keypair, position, priority)?
         }
     } else if let Some(mint_accounts_file) = mint_accounts_file {
         let file = File::open(mint_accounts_file)?;
         let mint_accounts: Vec<String> = serde_json::from_reader(&file)?;
 
-        sign_mint_accounts(client, &creator_keypair, mint_accounts)?;
+        sign_mint_accounts(client, &creator_keypair, mint_accounts, priority)?;
     } else {
         unreachable!();
     }
@@ -100,16 +111,34 @@ pub fn sign_all(
     Ok(())
 }
 
-pub fn sign(client: &RpcClient, creator: &Keypair, metadata_pubkey: Pubkey) -> Result<Signature> {
-    let recent_blockhash = client.get_latest_blockhash()?;
-    let ix = SignMetadata {
+pub fn sign(
+    client: &RpcClient,
+    creator: &Keypair,
+    metadata_pubkey: Pubkey,
+    priority: Priority,
+) -> Result<Signature> {
+    let micro_lamports = match priority {
+        Priority::None => 20,
+        Priority::Low => 20_000,
+        Priority::Medium => 200_000,
+        Priority::High => 1_000_000,
+        Priority::Max => 2_000_000,
+    };
+
+    let sign_ix = SignMetadata {
         metadata: metadata_pubkey,
         creator: creator.pubkey(),
     }
     .instruction();
 
+    let ixs = vec![
+        ComputeBudgetInstruction::set_compute_unit_price(micro_lamports),
+        sign_ix,
+    ];
+
+    let recent_blockhash = client.get_latest_blockhash()?;
     let tx = Transaction::new_signed_with_payer(
-        &[ix],
+        &ixs,
         Some(&creator.pubkey()),
         &[creator],
         recent_blockhash,
@@ -129,6 +158,7 @@ pub fn sign_mint_accounts(
     client: &RpcClient,
     creator: &Keypair,
     mint_accounts: Vec<String>,
+    priority: Priority,
 ) -> Result<()> {
     let use_rate_limit = *USE_RATE_LIMIT.read().unwrap();
     let handle = create_default_rate_limiter();
@@ -153,7 +183,7 @@ pub fn sign_mint_accounts(
             let metadata_pubkey = get_metadata_pda(account_pubkey);
 
             // Try to sign all accounts, print any errors that crop up.
-            match sign(client, creator, metadata_pubkey) {
+            match sign(client, creator, metadata_pubkey, priority.clone()) {
                 Ok(sig) => info!("{}", sig),
                 Err(e) => error!("{}", e),
             }
@@ -167,6 +197,7 @@ pub fn sign_candy_machine_accounts(
     creator: &str,
     signing_creator: Keypair,
     position: usize,
+    priority: Priority,
 ) -> Result<()> {
     let accounts = get_cm_creator_accounts(client, creator, position)?;
 
@@ -197,7 +228,12 @@ pub fn sign_candy_machine_accounts(
                         );
                         info!("Signing...");
 
-                        let sig = match sign(client, &signing_creator, *metadata_pubkey) {
+                        let sig = match sign(
+                            client,
+                            &signing_creator,
+                            *metadata_pubkey,
+                            priority.clone(),
+                        ) {
                             Ok(sig) => sig,
                             Err(e) => {
                                 error!("Error signing: {}", e);
