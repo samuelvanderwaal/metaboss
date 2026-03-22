@@ -848,7 +848,7 @@ pub fn create_master_edition(args: CreateMasterEditionArgs) -> Result<()> {
         read_keypair_file(&mint_authority)
             .map_err(|e| anyhow!(format!("Failed to read mint authority keypair file: {e}")))?
     } else {
-        Keypair::from_bytes(&keypair.to_bytes())
+        Keypair::try_from(keypair.to_bytes().as_slice())
             .map_err(|e| anyhow!(format!("Failed to create mint authority keypair: {e}")))?
     };
 

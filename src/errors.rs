@@ -5,7 +5,7 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum DecodeError {
     #[error("Client Error: '{0}'")]
-    ClientError(ClientErrorKind),
+    ClientError(Box<ClientErrorKind>),
 
     #[error("Network Error: '{0}'")]
     NetworkError(String),
@@ -77,7 +77,7 @@ mod tests {
     #[test]
     fn decode_error_client_error_display() {
         let kind = ClientErrorKind::Custom("rpc failure".to_string());
-        let err = DecodeError::ClientError(kind);
+        let err = DecodeError::ClientError(Box::new(kind));
         let msg = err.to_string();
         assert!(
             msg.starts_with("Client Error: '"),

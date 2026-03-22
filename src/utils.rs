@@ -7,12 +7,12 @@ use solana_client::rpc_request::RpcRequest;
 use solana_client::{nonblocking::rpc_client::RpcClient as AsyncRpcClient, rpc_client::RpcClient};
 use solana_program::instruction::AccountMeta;
 use solana_program::program_pack::Pack;
-use solana_program::system_program;
 use solana_program::{pubkey, pubkey::Pubkey};
 use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::{
     instruction::Instruction, signature::Keypair, signer::Signer, transaction::Transaction,
 };
+use solana_sdk_ids::system_program;
 use spl_token::state::Account;
 use std::str::FromStr;
 use std::{ops::Add, sync::Arc};
@@ -246,7 +246,7 @@ pub fn find_tm_error(hex_code: &str) -> Option<String> {
 }
 
 pub fn clone_keypair(keypair: &Keypair) -> Keypair {
-    Keypair::from_bytes(&keypair.to_bytes()).unwrap()
+    Keypair::try_from(keypair.to_bytes().as_slice()).unwrap()
 }
 
 pub fn get_largest_token_account_owner(client: &RpcClient, mint: Pubkey) -> Result<Pubkey> {

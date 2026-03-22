@@ -205,12 +205,12 @@ pub fn snapshot_holders_gpa(client: RpcClient, args: SnapshotHoldersGpaArgs) -> 
             };
 
             for (associated_token_address, account) in token_accounts {
-                let data = match parse_account_data(
+                let data = match parse_account_data_v3(
                     &metadata.mint,
                     &TOKEN_PROGRAM_ID,
                     &account.data,
-                    Some(AccountAdditionalData {
-                        spl_token_decimals: Some(0),
+                    Some(AccountAdditionalDataV3 {
+                        spl_token_additional_data: Some(SplTokenAdditionalDataV2::with_decimals(0)),
                     }),
                 ) {
                     Ok(data) => data,
@@ -266,7 +266,8 @@ pub fn snapshot_holders_gpa(client: RpcClient, args: SnapshotHoldersGpaArgs) -> 
 
     nft_holders.lock().unwrap().sort_unstable();
     let mut file = File::create(format!("{}/{}_holders.json", args.output, prefix))?;
-    serde_json::to_writer_pretty(&mut file, &nft_holders)?;
+    let holders = nft_holders.lock().unwrap();
+    serde_json::to_writer_pretty(&mut file, &*holders)?;
 
     Ok(())
 }
@@ -371,12 +372,12 @@ pub async fn get_holder_from_gpa_result(api_key: String, result: GPAResult) -> R
         let bs64_data = &token_result.account.data.as_array().unwrap()[0];
         let data = base64::decode(bs64_data.as_str().unwrap())?;
 
-        let parsed_account = match parse_account_data(
+        let parsed_account = match parse_account_data_v3(
             &metadata.mint,
             &TOKEN_PROGRAM_ID,
             &data,
-            Some(AccountAdditionalData {
-                spl_token_decimals: Some(0),
+            Some(AccountAdditionalDataV3 {
+                spl_token_additional_data: Some(SplTokenAdditionalDataV2::with_decimals(0)),
             }),
         ) {
             Ok(data) => data,
@@ -467,12 +468,10 @@ fn get_mints_by_update_authority(
 ) -> Result<Vec<(Pubkey, Account)>> {
     let update_authority = Pubkey::from_str(update_authority)?;
 
-    #[allow(deprecated)]
-    let filter = RpcFilterType::Memcmp(Memcmp {
-        offset: 1, // key
-        bytes: MemcmpEncodedBytes::Bytes(update_authority.to_bytes().to_vec()),
-        encoding: None,
-    });
+    let filter = RpcFilterType::Memcmp(Memcmp::new_raw_bytes(
+        1, // key
+        update_authority.to_bytes().to_vec(),
+    ));
     let config = RpcProgramAccountsConfig {
         filters: Some(vec![filter]),
         account_config: RpcAccountInfoConfig {
@@ -484,6 +483,7 @@ fn get_mints_by_update_authority(
             min_context_slot: None,
         },
         with_context: None,
+        sort_results: None,
     };
 
     let accounts = client.get_program_accounts_with_config(&TOKEN_METADATA_PROGRAM_ID, config)?;
@@ -531,12 +531,10 @@ fn get_cm_accounts_by_update_authority(
     let candy_machine_program_id = Pubkey::from_str(CANDY_MACHINE_PROGRAM_ID)?;
     let update_authority = Pubkey::from_str(update_authority)?;
 
-    #[allow(deprecated)]
-    let filter = RpcFilterType::Memcmp(Memcmp {
-        offset: 8, // key
-        bytes: MemcmpEncodedBytes::Bytes(update_authority.to_bytes().to_vec()),
-        encoding: None,
-    });
+    let filter = RpcFilterType::Memcmp(Memcmp::new_raw_bytes(
+        8, // key
+        update_authority.to_bytes().to_vec(),
+    ));
     let config = RpcProgramAccountsConfig {
         filters: Some(vec![filter]),
         account_config: RpcAccountInfoConfig {
@@ -548,6 +546,7 @@ fn get_cm_accounts_by_update_authority(
             min_context_slot: None,
         },
         with_context: None,
+        sort_results: None,
     };
 
     let accounts = client.get_program_accounts_with_config(&candy_machine_program_id, config)?;
@@ -565,9 +564,7 @@ pub fn get_cm_creator_accounts(
         std::process::exit(1);
     }
     let creator = Pubkey::from_str(creator)?;
-    #[allow(deprecated)]
-    let filter = RpcFilterType::Memcmp(Memcmp {
-        offset: 1 + // key
+    let offset = 1 + // key
             32 + // update auth
             32 + // mint
             4 + // name string length
@@ -584,10 +581,8 @@ pub fn get_cm_creator_accounts(
                 32 + // address
                 1 + // verified
                 1 // share
-            ),
-        bytes: MemcmpEncodedBytes::Bytes(creator.to_bytes().to_vec()),
-        encoding: None,
-    });
+            );
+    let filter = RpcFilterType::Memcmp(Memcmp::new_raw_bytes(offset, creator.to_bytes().to_vec()));
 
     let config = RpcProgramAccountsConfig {
         filters: Some(vec![filter]),
@@ -600,6 +595,7 @@ pub fn get_cm_creator_accounts(
             min_context_slot: None,
         },
         with_context: None,
+        sort_results: None,
     };
 
     let accounts = client.get_program_accounts_with_config(&TOKEN_METADATA_PROGRAM_ID, config)?;
@@ -613,12 +609,7 @@ fn get_holder_token_accounts(
 ) -> Result<Vec<(Pubkey, Account)>> {
     let mint_account = Pubkey::from_str(&mint_account)?;
 
-    #[allow(deprecated)]
-    let filter1 = RpcFilterType::Memcmp(Memcmp {
-        offset: 0,
-        bytes: MemcmpEncodedBytes::Bytes(mint_account.to_bytes().to_vec()),
-        encoding: None,
-    });
+    let filter1 = RpcFilterType::Memcmp(Memcmp::new_raw_bytes(0, mint_account.to_bytes().to_vec()));
     let filter2 = RpcFilterType::DataSize(165);
     let account_config = RpcAccountInfoConfig {
         encoding: Some(UiAccountEncoding::Base64),
@@ -633,6 +624,7 @@ fn get_holder_token_accounts(
         filters: Some(vec![filter1, filter2]),
         account_config,
         with_context: None,
+        sort_results: None,
     };
 
     let holders = client.get_program_accounts_with_config(&TOKEN_PROGRAM_ID, config)?;
