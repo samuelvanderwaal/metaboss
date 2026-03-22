@@ -287,7 +287,43 @@ fn test_mint_and_sign() -> Result<()> {
 }
 
 // ---------------------------------------------------------------------------
-// Test 6: Derive metadata PDA and verify it matches the expected value
+// Test 6: Mint an NFT and burn it using `burn asset`
+// ---------------------------------------------------------------------------
+#[test]
+#[ignore = "requires solana-test-validator (run with --ignored)"]
+fn test_burn_asset() -> Result<()> {
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("burn-asset");
+    let mint = mint_test_nft(&ctx, &temp_dir)?;
+
+    // Burn the NFT using `burn asset`.
+    let output = ctx.run_metaboss(&["burn", "asset", "-k", &ctx.keypair_path, "-a", &mint]);
+    assert_success(&output);
+
+    // After burning, the token account should no longer exist or have 0 balance.
+    let mint_pubkey = Pubkey::from_str(&mint)?;
+    let ata = get_associated_token_address(&ctx.keypair.pubkey(), &mint_pubkey);
+    let account_result = ctx.client.get_account(&ata);
+
+    match account_result {
+        Err(_) => {
+            // Account no longer exists -- expected after burn.
+        }
+        Ok(account) => {
+            let token_account = TokenAccount::unpack(&account.data)
+                .expect("should be able to unpack token account if it still exists");
+            assert_eq!(
+                token_account.amount, 0,
+                "token account balance should be 0 after burn"
+            );
+        }
+    }
+
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Test 7: Derive metadata PDA and verify it matches the expected value
 // ---------------------------------------------------------------------------
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]

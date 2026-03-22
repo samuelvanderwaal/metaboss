@@ -51,7 +51,49 @@ fn test_update_symbol() -> Result<()> {
 }
 
 // ---------------------------------------------------------------------------
-// Test 2: Mint an NFT and update its seller fee basis points
+// Test 2: Mint an NFT and update its name
+// ---------------------------------------------------------------------------
+#[test]
+#[ignore = "requires solana-test-validator (run with --ignored)"]
+fn test_update_name() -> Result<()> {
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("update-name");
+    let mint = mint_test_nft(&ctx, &temp_dir)?;
+
+    // Verify initial name.
+    let metadata = decode_onchain_metadata(&ctx, &mint)?;
+    assert_eq!(trim_null(&metadata.name), "Test NFT");
+
+    // Update the name.
+    let output = ctx.run_metaboss(&[
+        "update",
+        "name",
+        "-k",
+        &ctx.keypair_path,
+        "-a",
+        &mint,
+        "--new-name",
+        "Updated Name",
+    ]);
+    assert_success(&output);
+
+    // Verify name was updated on-chain.
+    let metadata = decode_onchain_metadata(&ctx, &mint)?;
+    assert_eq!(
+        trim_null(&metadata.name),
+        "Updated Name",
+        "name should be updated to 'Updated Name'"
+    );
+
+    // Other fields should remain unchanged.
+    assert_eq!(trim_null(&metadata.symbol), "TNFT");
+    assert_eq!(metadata.seller_fee_basis_points, 100);
+
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Test 3: Mint an NFT and update its seller fee basis points
 // ---------------------------------------------------------------------------
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
@@ -92,7 +134,7 @@ fn test_update_seller_fee_basis_points() -> Result<()> {
 }
 
 // ---------------------------------------------------------------------------
-// Test 3: Mint an NFT and update its creators
+// Test 4: Mint an NFT and update its creators
 // ---------------------------------------------------------------------------
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
@@ -145,7 +187,7 @@ fn test_update_creators() -> Result<()> {
 }
 
 // ---------------------------------------------------------------------------
-// Test 4: Mint an NFT and update its entire data struct via a JSON file
+// Test 5: Mint an NFT and update its entire data struct via a JSON file
 // ---------------------------------------------------------------------------
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
