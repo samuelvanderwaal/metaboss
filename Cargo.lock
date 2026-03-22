@@ -694,6 +694,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "clocksource"
+version = "0.8.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "46a4f8c23584e9dc6e40de1406e8c776ae727c49f7cb85c0bb23fb8c2096f7e0"
+dependencies = [
+ "libc",
+ "time",
+ "winapi",
+]
+
+[[package]]
 name = "combine"
 version = "4.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1997,6 +2008,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
+name = "jib"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "357008d3c9d4f5570af197b3ff6dcee1266286e8db72d9875bdbde68772e5954"
+dependencies = [
+ "bincode",
+ "futures-util",
+ "indicatif 0.17.11",
+ "ratelimit 0.9.1",
+ "rayon",
+ "serde",
+ "solana-client",
+ "solana-sdk",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "jni"
 version = "0.21.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2246,6 +2276,7 @@ dependencies = [
  "glob",
  "indexmap 1.9.3",
  "indicatif 0.16.2",
+ "jib",
  "lazy_static",
  "log",
  "metaboss_lib",
@@ -2254,7 +2285,7 @@ dependencies = [
  "num_cpus",
  "once_cell",
  "phf",
- "ratelimit",
+ "ratelimit 0.4.4",
  "rayon",
  "regex",
  "reqwest 0.11.27",
@@ -3076,6 +3107,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c4777eb47471c2a42bee8b553b22b8e5c496f657dc6f8b8e29bd69662f31e7e"
 
 [[package]]
+name = "ratelimit"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c1bb13e2dcfa2232ac6887157aad8d9b3fe4ca57f7c8d4938ff5ea9be742300"
+dependencies = [
+ "clocksource",
+ "parking_lot",
+ "thiserror 1.0.63",
+]
+
+[[package]]
 name = "raw-cpuid"
 version = "11.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3413,7 +3455,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -6654,7 +6696,19 @@ checksum = "c3523ab5a71916ccf420eebdf5521fcef02141234bbc0b8a49f2fdc4544364ef"
 dependencies = [
  "log",
  "pin-project-lite",
+ "tracing-attributes",
  "tracing-core",
+]
+
+[[package]]
+name = "tracing-attributes"
+version = "0.1.31"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7490cfa5ec963746568740651ac6781f701c9c5ea257c58e057f3ba8cf69e8da"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
 ]
 
 [[package]]

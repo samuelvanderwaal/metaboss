@@ -108,11 +108,26 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
             })
             .await
         }
-        AirdropSubcommands::ReadCache {
-            cache_file: _,
-            errors: _,
-        } => {
-            anyhow::bail!("Airdrop read-cache is temporarily unavailable during Solana v2 migration. The jib dependency needs to be updated.")
+        AirdropSubcommands::ReadCache { cache_file, errors } => {
+            let path = std::path::Path::new(&cache_file);
+            let file = File::open(path)?;
+            let cache: Vec<JibFailedTransaction> = bincode::deserialize_from(file)?;
+
+            let json_filename = path.with_extension("json");
+            let pb = ProgressBar::new_spinner();
+            pb.set_message("Writing cache file...");
+            pb.enable_steady_tick(100);
+
+            let cache_file = std::fs::File::create(json_filename)?;
+            serde_json::to_writer(cache_file, &cache)?;
+            pb.finish_and_clear();
+
+            if errors {
+                for tx in cache {
+                    println!("{:?}", tx.error);
+                }
+            }
+            Ok(())
         }
     }
 }

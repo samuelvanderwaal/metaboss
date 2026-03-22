@@ -10,6 +10,8 @@ pub use spl::*;
 pub use std::{collections::HashMap, fs::File, path::PathBuf, str::FromStr};
 
 pub use anyhow::Result;
+use indicatif::ProgressBar;
+pub use jib::{Jib, JibFailedTransaction, Network};
 pub use log::debug;
 use metaboss_lib::data::Priority;
 pub use serde::{Deserialize, Serialize};
