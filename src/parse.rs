@@ -83,7 +83,7 @@ pub fn read_keypair(path: &String) -> Result<Keypair> {
         },
     };
 
-    let keypair = Keypair::from_bytes(&secret_bytes)?;
+    let keypair = Keypair::try_from(secret_bytes.as_slice())?;
     Ok(keypair)
 }
 

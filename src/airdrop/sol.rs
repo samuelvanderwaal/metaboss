@@ -21,7 +21,6 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
         std::process::exit(1);
     }
 
-    // Get the current time as yyyy-mm-dd-hh-mm-ss
     let now = chrono::Local::now();
     let timestamp = now.format("%Y-%m-%d-%H-%M-%S").to_string();
 
@@ -29,11 +28,11 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
     let successful_tx_file_name = format!("mb-successful-airdrops-{timestamp}.json");
 
     let priority_fee = match args.priority {
-        Priority::None => 200,         // 1 lamport
-        Priority::Low => 200_000,      // 1_000 lamports
-        Priority::Medium => 1_000_000, // 5_000 lamports
-        Priority::High => 5_000_000,   // 25_000 lamports
-        Priority::Max => 20_000_000,   // 100_000 lamports
+        Priority::None => 200,
+        Priority::Low => 200_000,
+        Priority::Medium => 1_000_000,
+        Priority::High => 5_000_000,
+        Priority::Max => 20_000_000,
     };
 
     jib.set_priority_fee(priority_fee);
@@ -43,7 +42,6 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
         jib.set_rate_limit(rate);
     }
 
-    // Airdrop case
     let results = if let Some(list_file) = args.recipient_list {
         let airdrop_list: HashMap<String, u64> = serde_json::from_reader(File::open(list_file)?)?;
 
@@ -66,8 +64,6 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
 
         jib.set_instructions(instructions);
         jib.hoist().await?
-
-    // Retry case
     } else if let Some(cache_file) = args.cache_file {
         cache_file_name = PathBuf::from(cache_file.clone())
             .file_name()
@@ -97,12 +93,11 @@ pub async fn airdrop_sol(args: AirdropSolArgs) -> Result<()> {
             let failure = r.get_failure().unwrap();
             failures.push(failure);
         } else {
-            debug!("Transaction successful: {}", r.signature().unwrap()); // Signatures exist on successes.
-            successes.push(r.signature().unwrap()); // Signatures exist on successes.
+            debug!("Transaction successful: {}", r.signature().unwrap());
+            successes.push(r.signature().unwrap());
         }
     });
 
-    // Write cache file and successful transactions.
     if !successes.is_empty() {
         let successful_tx_file = std::fs::File::create(successful_tx_file_name)?;
         serde_json::to_writer_pretty(successful_tx_file, &successes)?;

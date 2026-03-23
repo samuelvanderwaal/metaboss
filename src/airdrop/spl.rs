@@ -7,8 +7,9 @@ use metaboss_lib::transaction::send_and_confirm_tx;
 use solana_program::{
     instruction::{AccountMeta, Instruction},
     program_pack::Pack,
-    pubkey, system_program,
+    pubkey,
 };
+use solana_sdk_ids::system_program;
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::instruction::transfer_checked;
 
@@ -64,11 +65,11 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
     let successful_tx_file_name = format!("mb-successful-airdrops-{timestamp}.json");
 
     let priority_fee = match args.priority {
-        Priority::None => 200,         // 1 lamport
-        Priority::Low => 200_000,      // 1_000 lamports
-        Priority::Medium => 1_000_000, // 5_000 lamports
-        Priority::High => 5_000_000,   // 25_000 lamports
-        Priority::Max => 20_000_000,   // 100_000 lamports
+        Priority::None => 200,
+        Priority::Low => 200_000,
+        Priority::Medium => 1_000_000,
+        Priority::High => 5_000_000,
+        Priority::Max => 20_000_000,
     };
 
     jib.set_priority_fee(priority_fee);
@@ -167,12 +168,11 @@ pub async fn airdrop_spl(args: AirdropSplArgs) -> Result<()> {
             let failure = r.get_failure().unwrap();
             failures.push(failure);
         } else {
-            debug!("Transaction successful: {}", r.signature().unwrap()); // Signatures exist on successes.
-            successes.push(r.signature().unwrap()); // Signatures exist on successes.
+            debug!("Transaction successful: {}", r.signature().unwrap());
+            successes.push(r.signature().unwrap());
         }
     });
 
-    // Write cache file and successful transactions.
     if !successes.is_empty() {
         let successful_tx_file = std::fs::File::create(successful_tx_file_name)?;
         serde_json::to_writer_pretty(successful_tx_file, &successes)?;
@@ -194,22 +194,6 @@ const MPL_TOOLBOX_ID: Pubkey = pubkey!("TokExjvjJmhKaRBShsBAsbSvEWMA1AgUNK7ps4SA
 #[derive(Debug, Clone, BorshSerialize, BorshDeserialize)]
 #[rustfmt::skip]
 pub enum TokenExtrasInstruction {
-    /// Creates a new associated token account for the given mint and owner, if and only if
-    /// the given token account does not exists and the token account is the same as the
-    /// associated token account. That way, clients can ensure that, after this instruction,
-    /// the token account will exists.
-    ///
-    /// Notice this instruction asks for both the token account and the associated token account (ATA)
-    /// These may or may not be the same account. Here are all the possible cases:
-    ///
-    /// - Token exists and Token is ATA: Instruction succeeds.
-    /// - Token exists and Token is not ATA: Instruction succeeds.
-    /// - Token does not exist and Token is ATA: Instruction creates the ATA account and succeeds.
-    /// - Token does not exist and Token is not ATA: Instruction fails as we cannot create a
-    ///   non-ATA account without it being a signer.
-    ///
-    /// Note that additional checks are made to ensure that the token account provided
-    /// matches the mint account and owner account provided.
     CreateTokenIfMissing,
 }
 
@@ -243,9 +227,8 @@ fn convert_to_base_units(amount: f64, decimals: u8) -> Option<u64> {
     let multiplier = 10u64.pow(decimals as u32);
     let base_units = (amount * multiplier as f64).round();
 
-    // Check for overflow and precision issues
     if base_units > u64::MAX as f64 || base_units < 0.0 {
-        None // Indicates an overflow or invalid input
+        None
     } else {
         Some(base_units as u64)
     }

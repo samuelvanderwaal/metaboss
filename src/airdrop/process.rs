@@ -113,7 +113,6 @@ pub async fn process_airdrop(client: RpcClient, commands: AirdropSubcommands) ->
             let file = File::open(path)?;
             let cache: Vec<JibFailedTransaction> = bincode::deserialize_from(file)?;
 
-            // Convert to JSON
             let json_filename = path.with_extension("json");
             let pb = ProgressBar::new_spinner();
             pb.set_message("Writing cache file...");
