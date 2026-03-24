@@ -9,37 +9,11 @@
 
 ## Overview
 
-The Solana Metaplex NFT 'Swiss Army Knife' tool.
+A command-line tool for managing Solana NFTs and tokens via the Metaplex standard. Mint, update, transfer, burn, verify, decode, snapshot, and airdrop — for both legacy Token Metadata and Metaplex Core assets.
 
-Features:
+See the [docs](https://metaboss.dev) for full usage instructions. Suggestions and PRs welcome!
 
-- Decode the metadata of a token mint account
-
-- Mint new NFTs from a JSON file or URIs
-
-- Set `primary_sale_happened` bool on an NFT's metadata
-
-- Set `update_authority` address on an NFT's metadata
-
-- Verify a creator by signing the metadata accounts for all tokens in a list, for a given candy
-  machine id or a single mint account
-
-- Get a snapshot of current NFT holders for a given candy machine ID or update authority
-
-... and more! See the [docs](https://metaboss.dev) for full features and usage instructions.
-
-Suggestions and PRs welcome!
-
-**Note: This is experimental software for a young ecosystem. Use at your own risk. The author is not
-responsible for misuse of the software or for the user failing to test specific commands on devnet
-before using on production NFTs.**
-
-## Alternate Tools
-
-Some alternate tools that do similar things:
-
-- [Banana Tools](https://tools.0xbanana.com/)
-- [SOL Tools](https://sol-tools.tonyboyle.io/nft-tools/create-nft)
+**Use at your own risk. Always test commands on devnet before running against production NFTs.**
 
 ## Installation
 
@@ -56,20 +30,12 @@ If you get errors you may need dependencies:
 Ubuntu:
 
 ```bash
-sudo apt install libssl-dev libudev-dev pkg-config
-```
-
-MacOS may need openssl:
-
-```bash
-brew install openssl@3
+sudo apt install libudev-dev pkg-config
 ```
 
 ### Binaries
 
-Linux, MacOS and Windows binaries available in
-[releases](https://github.com/samuelvanderwaal/metaboss/releases), thanks to CI work done by
-[Kartik Soneji](https://github.com/KartikSoneji).
+Linux and macOS binaries are available in [releases](https://github.com/samuelvanderwaal/metaboss/releases).
 
 ### Install From crates.io
 
@@ -79,7 +45,7 @@ cargo install metaboss
 
 ### Install From Source
 
-Requires Rust 1.58 or later.
+Requires Rust 1.75 or later.
 
 Install [Rust](https://www.rust-lang.org/tools/install).
 
