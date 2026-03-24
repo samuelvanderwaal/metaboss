@@ -12,7 +12,6 @@ jobs:
     strategy:
       matrix:
         os:
-          - windows-latest
           - ubuntu-latest
           - macos-latest
           - macos-latest-large # intel
@@ -24,14 +23,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Latest Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          default: true
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Build
         id: build
@@ -43,10 +38,6 @@ jobs:
 
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             binary_path="metaboss-ubuntu-latest"
-          fi
-          if [[ "${RUNNER_OS}" == "Windows" ]]; then
-            binary_extension=".exe"
-            binary_path="metaboss-windows-latest${binary_extension}"
           fi
           if [[ "${RUNNER_OS}" == "macOS" ]]; then
             if [[ "${MATRIX_OS}" == "macos-latest" ]]; then
