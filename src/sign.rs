@@ -71,7 +71,7 @@ pub fn sign_all(
 
     if !is_only_one_option(creator, &mint_accounts_file) {
         return Err(anyhow!(
-            "Must specify exactly one of --candy-machine-id or --mint-data-dir"
+            "Must specify exactly one of --creator or --mint-accounts-file"
         ));
     }
 
