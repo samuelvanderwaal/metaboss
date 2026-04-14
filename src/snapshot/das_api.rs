@@ -198,10 +198,11 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
         holders.sort();
 
         // Write to file
-        let file = File::create(format!(
+        std::fs::create_dir_all(&args.output)?;
+        let file = File::create(args.output.join(format!(
             "{}_{}_holders.json",
             args.group_value, args.group_key
-        ))?;
+        )))?;
         serde_json::to_writer_pretty(file, &holders)?;
     }
 
@@ -209,7 +210,11 @@ pub async fn snapshot_holders(args: HoldersArgs) -> Result<()> {
         token_holders.sort_by(|a, b| a.owner.cmp(&b.owner));
 
         // Write to file
-        let file = File::create(format!("{}_token_holders.json", args.group_value))?;
+        std::fs::create_dir_all(&args.output)?;
+        let file = File::create(
+            args.output
+                .join(format!("{}_token_holders.json", args.group_value)),
+        )?;
         serde_json::to_writer_pretty(file, &token_holders)?;
     }
 
@@ -364,10 +369,11 @@ pub async fn snapshot_mints(args: MintsArgs) -> Result<()> {
     mints.sort();
 
     // Write to file
-    let file = File::create(format!(
+    std::fs::create_dir_all(&args.output)?;
+    let file = File::create(args.output.join(format!(
         "{}_{}_mints.json",
         args.group_value, args.group_key
-    ))?;
+    )))?;
     serde_json::to_writer_pretty(file, &mints)?;
 
     Ok(())
@@ -455,7 +461,8 @@ pub async fn fcva_mints(args: FcvaArgs) -> Result<()> {
     mints.sort();
 
     // Write to file
-    let file = File::create(format!("{}_fvca_mints.json", creator))?;
+    std::fs::create_dir_all(&args.output)?;
+    let file = File::create(args.output.join(format!("{}_fvca_mints.json", creator)))?;
     serde_json::to_writer_pretty(file, &mints)?;
 
     Ok(())
@@ -529,7 +536,8 @@ pub async fn mcc_mints(args: MccArgs) -> Result<()> {
     mints.sort();
 
     // Write to file
-    let file = File::create(format!("{}_mcc_mints.json", mcc_id))?;
+    std::fs::create_dir_all(&args.output)?;
+    let file = File::create(args.output.join(format!("{}_mcc_mints.json", mcc_id)))?;
     serde_json::to_writer_pretty(file, &mints)?;
 
     Ok(())
