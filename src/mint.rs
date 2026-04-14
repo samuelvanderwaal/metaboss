@@ -80,7 +80,7 @@ pub fn mint_list(
 ) -> Result<()> {
     if !is_only_one_option(&list_dir, &external_metadata_uris) {
         return Err(anyhow!(
-            "Only one of --list-dir or --external-metadata-uris can be specified"
+            "Only one of --nft-data-dir or --external-metadata-uris can be specified"
         ));
     }
     let max_editions = 0;
@@ -113,7 +113,7 @@ pub fn mint_list(
         )?;
     } else {
         return Err(anyhow!(
-            "Either --list-dir or --external-metadata-uris must be specified"
+            "Either --nft-data-dir or --external-metadata-uris must be specified"
         ));
     }
 
@@ -441,7 +441,7 @@ pub fn mint_one<P: AsRef<Path>>(
 ) -> Result<String> {
     if !is_only_one_option(&nft_data_file, &external_metadata_uri) {
         return Err(anyhow!(
-            "You must supply either --nft_data_file or --external-metadata-uris but not both"
+            "You must supply either --nft-data-file or --external-metadata-uri but not both"
         ));
     }
 
@@ -477,7 +477,7 @@ pub fn mint_one<P: AsRef<Path>>(
         }
     } else {
         return Err(anyhow!(
-            "You must supply either --nft_data_file or --external-metadata-uris but not both"
+            "You must supply either --nft-data-file or --external-metadata-uri but not both"
         ));
     };
 

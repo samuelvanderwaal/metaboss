@@ -166,7 +166,10 @@ pub enum Command {
 #[derive(Debug, StructOpt)]
 pub enum BurnSubcommands {
     /// Burn an asset.
-    #[structopt(name = "asset")]
+    #[structopt(
+        name = "asset",
+        after_help = "EXAMPLES:\nmetaboss burn asset --mint-account <MINT_ADDRESS>"
+    )]
     Asset {
         /// Path to the owner keypair file
         #[structopt(short, long)]
@@ -719,6 +722,7 @@ pub enum CollectionsSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum DecodeSubcommands {
+    /// Decode BPF upgradeable loader state account data.
     BpfUpgradeableState {
         /// BpfUpgradeableState address
         #[structopt(short = "a", long)]
@@ -746,6 +750,7 @@ pub enum DecodeSubcommands {
         #[structopt(short = "a", long)]
         token_address: String,
     },
+    /// Decode a metadata delegate record account.
     MetadataDelegate {
         /// MetadataDelegate address
         #[structopt(short = "a", long)]
@@ -761,11 +766,13 @@ pub enum DecodeSubcommands {
         #[structopt(short = "m", long)]
         mint: Option<String>,
     },
+    /// Decode a collection authority record account.
     CollectionDelegate {
         /// CollectionAuthorityRecord address
         #[structopt(short = "a", long)]
         authority_record: String,
     },
+    /// Decode a use authority record account.
     UseDelegate {
         /// UseDelegate address
         #[structopt(short = "a", long)]
@@ -1071,7 +1078,10 @@ pub enum MintSubcommands {
         #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
-    #[structopt(name = "list")]
+    #[structopt(
+        name = "list",
+        after_help = "EXAMPLES:\nmetaboss mint list --nft-data-dir <PATH_TO_METADATA_DIR>"
+    )]
     /// Mint a list of NFTs from a directory of JSON files
     List {
         /// Path to the update_authority's keypair file
@@ -1237,6 +1247,7 @@ pub enum SetSubcommands {
         #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
+    /// Set is-mutable to false for a list of NFTs.
     ImmutableAll {
         /// Path to the update authority's keypair file
         #[structopt(short, long)]
@@ -1917,6 +1928,7 @@ pub enum UpdateSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum TransferSubcommands {
+    /// Transfer a Metaplex asset.
     Asset {
         /// Path to the update_authority keypair file
         #[structopt(short, long)]
@@ -1947,6 +1959,7 @@ pub enum TransferSubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum VerifySubcommands {
+    /// Verify a creator for a single NFT.
     Creator {
         /// Path to the update_authority keypair file
         #[structopt(short, long)]
@@ -1961,6 +1974,7 @@ pub enum VerifySubcommands {
         #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
+    /// Verify a creator for a list of NFTs.
     CreatorAll {
         /// Path to the update_authority keypair file
         #[structopt(short, long)]
@@ -1991,6 +2005,7 @@ pub enum VerifySubcommands {
 
 #[derive(Debug, StructOpt)]
 pub enum UnverifySubcommands {
+    /// Unverify a creator for a single NFT.
     Creator {
         /// Path to the update_authority keypair file
         #[structopt(short, long)]
@@ -2005,6 +2020,7 @@ pub enum UnverifySubcommands {
         #[structopt(short = "P", long, default_value = "none")]
         priority: Priority,
     },
+    /// Unverify a creator for a list of NFTs.
     CreatorAll {
         /// Path to the update_authority keypair file
         #[structopt(short, long)]

@@ -17,7 +17,7 @@ use crate::{constants::*, decode::get_metadata_pda};
 pub fn snapshot_mints_gpa(client: RpcClient, args: SnapshotMintsGpaArgs) -> Result<()> {
     if !is_only_one_option(&args.creator, &args.update_authority) {
         return Err(anyhow!(
-            "Please specify either a candy machine id or an update authority, but not both."
+            "Please specify either a creator or an update authority, but not both."
         ));
     }
 
@@ -27,7 +27,7 @@ pub fn snapshot_mints_gpa(client: RpcClient, args: SnapshotMintsGpaArgs) -> Resu
         creator.clone()
     } else {
         return Err(anyhow!(
-            "Must specify either --update-authority or --candy-machine-id"
+            "Must specify either --update-authority or --creator"
         ));
     };
 
@@ -108,7 +108,7 @@ pub fn get_mint_accounts(
         }
     } else {
         return Err(anyhow!(
-            "Please specify either a candy machine id or an update authority, but not both."
+            "Please specify either a creator or an update authority, but not both."
         ));
     };
     spinner.finish();
@@ -160,7 +160,7 @@ pub fn snapshot_holders_gpa(client: RpcClient, args: SnapshotHoldersGpaArgs) -> 
         get_mint_account_infos(&client, mint_accounts)?
     } else {
         return Err(anyhow!(
-            "Must specify either --update-authority or --candy-machine-id or --mint-accounts-file"
+            "Must specify either --update-authority or --creator or --mint-accounts-file"
         ));
     };
     spinner.finish_with_message("Getting accounts...Done!");
@@ -260,7 +260,7 @@ pub fn snapshot_holders_gpa(client: RpcClient, args: SnapshotHoldersGpaArgs) -> 
         str::replace(&mint_accounts_file, ".json", "")
     } else {
         return Err(anyhow!(
-            "Must specify either --update-authority or --candy-machine-id or --mint-accounts-file"
+            "Must specify either --update-authority or --creator or --mint-accounts-file"
         ));
     };
 
