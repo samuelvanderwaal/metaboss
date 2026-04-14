@@ -70,9 +70,9 @@ fn test_snapshot_fvca_honors_output_flag() -> Result<()> {
         .join(&expected_filename)
         .exists();
 
-    // Verification: Currently, Metaboss buggy behavior writes to CWD instead of the output dir
-    assert!(in_cwd, "file should be in CWD (current buggy behavior)");
-    assert!(!in_output_dir, "file should NOT be in output dir yet");
+    // The file should be in the output dir
+    assert!(in_output_dir, "file should be in output dir");
+    assert!(!in_cwd, "file should NOT be in CWD anymore");
 
     // Cleanup leaked file
     if in_cwd {
