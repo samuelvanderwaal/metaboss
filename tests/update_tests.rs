@@ -316,13 +316,9 @@ fn test_update_creators_all_append() -> Result<()> {
         .creators
         .expect("creators should be present after update");
 
-    // STAGE 1: Current buggy behavior - the --append flag is ignored
-    // and creator A is completely overwritten by creator B, so length is just 1.
-    assert_eq!(
-        creators.len(),
-        1,
-        "bug: --append ignored, original creator was overwritten"
-    );
+    // The --append flag is respected and creator B is appended to creator A,
+    // so length is 2.
+    assert_eq!(creators.len(), 2, "--append works, both creators present");
 
     Ok(())
 }

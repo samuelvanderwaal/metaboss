@@ -93,6 +93,7 @@ pub async fn set_update_authority_all(args: SetUpdateAuthorityAllArgs) -> AnyRes
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::Single(args.new_authority),
+        should_append: false,
         rate_limit: args.rate_limit,
         retries: args.retries,
         priority: args.priority,

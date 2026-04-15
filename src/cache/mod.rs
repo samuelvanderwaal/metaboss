@@ -110,6 +110,7 @@ pub struct BatchActionArgs {
     pub mint_list: Option<Vec<String>>,
     pub cache_file: Option<String>,
     pub new_value: NewValue,
+    pub should_append: bool,
     pub rate_limit: usize,
     pub retries: u8,
     pub priority: Priority,
@@ -121,6 +122,7 @@ pub struct RunActionArgs {
     pub payer: Arc<Option<Keypair>>,
     pub mint_account: String,
     pub new_value: String,
+    pub should_append: bool,
     pub priority: Priority,
 }
 
@@ -345,6 +347,7 @@ pub trait Action {
                         payer: payer.clone(),
                         mint_account: mint_address,
                         new_value: new_value.to_string(),
+                        should_append: args.should_append,
                         priority: args.priority.clone(),
                     });
 
