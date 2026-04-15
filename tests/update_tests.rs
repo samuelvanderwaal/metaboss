@@ -271,3 +271,58 @@ fn test_update_data() -> Result<()> {
 
     Ok(())
 }
+
+// ---------------------------------------------------------------------------
+// Test 6: Mint an NFT and execute update creators-all with --append flag
+// ---------------------------------------------------------------------------
+#[test]
+#[ignore = "requires solana-test-validator (run with --ignored)"]
+fn test_update_creators_all_append() -> Result<()> {
+    // Initialize Context
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("update-creators-all-append");
+
+    // Mint test NFT (Assigns default creator A)
+    let mint = mint_test_nft(&ctx, &temp_dir)?;
+
+    // Write mint address to a temp list file
+    let mint_list_file = temp_dir.join("append_test_mints.json");
+    let mut file = std::fs::File::create(&mint_list_file)?;
+    file.write_all(serde_json::to_string(&vec![&mint])?.as_bytes())?;
+    let mint_list_file_str = mint_list_file.to_string_lossy().to_string();
+
+    // Generate a new keypair for creator B
+    let new_creator = Keypair::new();
+    let new_creator_pubkey = new_creator.pubkey().to_string();
+    let new_creators_arg = format!("{}:0:false", new_creator_pubkey);
+
+    // Run update creators-all --append with creator B
+    let output = ctx.run_metaboss(&[
+        "update",
+        "creators-all",
+        "-k",
+        &ctx.keypair_path,
+        "-L",
+        &mint_list_file_str,
+        "--new-creators",
+        &new_creators_arg,
+        "--append",
+    ]);
+    assert_success(&output);
+
+    // Decode and assert creators
+    let metadata = decode_onchain_metadata(&ctx, &mint)?;
+    let creators = metadata
+        .creators
+        .expect("creators should be present after update");
+
+    // STAGE 1: Current buggy behavior - the --append flag is ignored
+    // and creator A is completely overwritten by creator B, so length is just 1.
+    assert_eq!(
+        creators.len(),
+        1,
+        "bug: --append ignored, original creator was overwritten"
+    );
+
+    Ok(())
+}
