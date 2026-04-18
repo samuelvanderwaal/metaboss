@@ -322,3 +322,57 @@ fn test_update_creators_all_append() -> Result<()> {
 
     Ok(())
 }
+
+// ---------------------------------------------------------------------------
+// Test 7: Resume update uri-all with a cache file containing a mint not present
+// in the new URIs file. This should currently panic.
+// ---------------------------------------------------------------------------
+#[test]
+#[ignore = "requires solana-test-validator (run with --ignored)"]
+fn test_uri_all_resume_missing_mint_panics() -> Result<()> {
+    // Initialize context
+    let mut ctx = TestContext::new()?;
+    let temp_dir = ctx.create_temp_dir("uri-all-resume-panic");
+
+    // Mint a real NFT
+    let mint = mint_test_nft(&ctx, &temp_dir)?;
+
+    // Create cache file with the mint
+    let cache_file = temp_dir.join("resume_cache.json");
+    let cache_data = serde_json::json!({
+        mint: {
+            "error": "Simulated failure"
+        }
+    });
+    std::fs::write(&cache_file, serde_json::to_string(&cache_data)?)?;
+    let cache_file_str = cache_file.to_string_lossy().to_string();
+
+    // Create new_uris_file that is empty (mint removed by user)
+    let new_uris_file = temp_dir.join("new_uris.json");
+    let new_uris_data: Vec<serde_json::Value> = vec![];
+    std::fs::write(&new_uris_file, serde_json::to_string(&new_uris_data)?)?;
+    let new_uris_file_str = new_uris_file.to_string_lossy().to_string();
+
+    // Run metaboss update uri-all
+    let output = ctx.run_metaboss(&[
+        "update",
+        "uri-all",
+        "-k",
+        &ctx.keypair_path,
+        "--new-uris-file",
+        &new_uris_file_str,
+        "--cache-file",
+        &cache_file_str,
+    ]);
+
+    // Current buggy behavior: process should have panicked
+    assert!(!output.success, "bug: process should have panicked/crashed");
+
+    assert!(
+        output.stderr.contains("panicked") || output.stderr.contains("unwrap"),
+        "bug: expected panic in stderr, got: {}",
+        output.stderr
+    );
+
+    Ok(())
+}
