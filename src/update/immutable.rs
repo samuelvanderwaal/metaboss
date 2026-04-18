@@ -81,6 +81,7 @@ pub async fn set_immutable_all(args: SetImmutableAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::None,
+        should_append: false,
         rate_limit: args.rate_limit,
         retries: args.retries,
         priority: args.priority,

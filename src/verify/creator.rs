@@ -103,6 +103,7 @@ pub async fn verify_creator_all(args: VerifyCreatorAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::None,
+        should_append: false,
         rate_limit: args.rate_limit,
         retries: args.retries,
         priority: args.priority,

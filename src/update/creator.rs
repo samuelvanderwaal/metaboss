@@ -101,6 +101,7 @@ pub async fn update_creator_all(args: UpdateCreatorAllArgs) -> AnyResult<()> {
         mint_list,
         cache_file: args.cache_file,
         new_value: NewValue::Single(args.new_creators),
+        should_append: args.should_append,
         rate_limit: args.rate_limit,
         retries: args.retries,
         priority: args.priority,
@@ -122,7 +123,7 @@ impl Action for UpdateCreatorAll {
             keypair: args.keypair,
             mint_account: args.mint_account,
             new_creators: args.new_value,
-            should_append: false,
+            should_append: args.should_append,
             priority: args.priority,
         })
         .await
