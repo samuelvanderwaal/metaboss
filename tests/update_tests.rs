@@ -324,12 +324,12 @@ fn test_update_creators_all_append() -> Result<()> {
 }
 
 // ---------------------------------------------------------------------------
-// Test 7: Resume update uri-all with a cache file containing a mint not present
-// in the new URIs file. This should currently panic.
+// Test 7: update uri-all resume should not panic when a mint from the cache
+// is missing from the new-uris file
 // ---------------------------------------------------------------------------
 #[test]
 #[ignore = "requires solana-test-validator (run with --ignored)"]
-fn test_uri_all_resume_missing_mint_panics() -> Result<()> {
+fn test_uri_all_resume_missing_mint_fails_gracefully() -> Result<()> {
     // Initialize context
     let mut ctx = TestContext::new()?;
     let temp_dir = ctx.create_temp_dir("uri-all-resume-panic");
@@ -365,12 +365,23 @@ fn test_uri_all_resume_missing_mint_panics() -> Result<()> {
         &cache_file_str,
     ]);
 
-    // Current buggy behavior: process should have panicked
-    assert!(!output.success, "bug: process should have panicked/crashed");
+    // process should fail but not panic
+    assert!(
+        !output.success,
+        "Command should fail when mint is missing from input list"
+    );
 
     assert!(
-        output.stderr.contains("panicked") || output.stderr.contains("unwrap"),
-        "bug: expected panic in stderr, got: {}",
+        !output.stderr.contains("panicked") && !output.stderr.contains("unwrap"),
+        "Process panicked in stderr: {}",
+        output.stderr
+    );
+
+    assert!(
+        output
+            .stderr
+            .contains("mint found in cache but missing from input list"),
+        "Missing expected error message in stderr: {}",
         output.stderr
     );
 
