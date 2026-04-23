@@ -335,7 +335,16 @@ pub trait Action {
                 let new_value = match &args.new_value {
                     NewValue::None => &empty_string,
                     NewValue::Single(value) => value,
-                    NewValue::List(values) => values.get(&mint_address).unwrap(),
+                    NewValue::List(values) => match values.get(&mint_address) {
+                        Some(v) => v,
+                        None => {
+                            return Err(ActionError::ActionFailed(
+                                mint_address.clone(),
+                                "mint found in cache but missing from input list".to_string(),
+                            )
+                            .into());
+                        }
+                    },
                 };
 
                 // Create task to run the action in a separate thread.
