@@ -22,19 +22,19 @@ pub type NetworkError = String;
 
 #[derive(Error, Debug)]
 pub enum MigrateError {
-    #[error("Migration failed with error: {1}")]
+    #[error("Migration failed for mint {0}: {1}")]
     MigrationFailed(MintAddress, NetworkError),
 }
 
 #[derive(Error, Debug)]
 pub enum UpdateError {
-    #[error("Action failed with error: {1}")]
+    #[error("Action failed for mint {0}: {1}")]
     UpdateFailed(MintAddress, NetworkError),
 }
 
 #[derive(Error, Debug)]
 pub enum ActionError {
-    #[error("Action failed with error: {1}")]
+    #[error("Action failed for mint {0}: {1}")]
     ActionFailed(MintAddress, NetworkError),
 }
 
@@ -95,7 +95,7 @@ mod tests {
         );
         assert_eq!(
             err.to_string(),
-            "Migration failed with error: connection refused"
+            "Migration failed for mint AbcDef123: connection refused"
         );
     }
 
@@ -104,7 +104,7 @@ mod tests {
     #[test]
     fn update_error_display() {
         let err = UpdateError::UpdateFailed("mint123".to_string(), "tx failed".to_string());
-        assert_eq!(err.to_string(), "Action failed with error: tx failed");
+        assert_eq!(err.to_string(), "Action failed for mint mint123: tx failed");
     }
 
     // ActionError tests
@@ -112,7 +112,7 @@ mod tests {
     #[test]
     fn action_error_display() {
         let err = ActionError::ActionFailed("mint456".to_string(), "timeout".to_string());
-        assert_eq!(err.to_string(), "Action failed with error: timeout");
+        assert_eq!(err.to_string(), "Action failed for mint mint456: timeout");
     }
 
     // SolConfigError tests
