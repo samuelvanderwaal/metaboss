@@ -58,7 +58,7 @@ pub async fn check_collection_items(
     async_client: AsyncRpcClient,
     collection_mint: String,
     mint_list_path: String,
-    _debug: bool,
+    debug: bool,
 ) -> AnyResult<()> {
     let f = File::open(mint_list_path)?;
     let mut mint_list: Vec<String> = serde_json::from_reader(f)?;
@@ -132,17 +132,33 @@ pub async fn check_collection_items(
 
     // Check if there's the only one and correct collection parent associated with the mint list and that all items in the list belong to it.
     if !keys.contains(&&collection_mint) || keys.len() > 1 {
-        println!("Writing debug file...");
-        let out = File::create(format!("{collection_mint}-debug-collections.json"))?;
-        serde_json::to_writer_pretty(out, &collections)?;
-        return Err(anyhow!("Not all mints from the list belong to this parent. Run with --debug to see more details."));
+        if debug {
+            println!("Writing debug file...");
+            let out = File::create(format!("{collection_mint}-debug-collections.json"))?;
+            serde_json::to_writer_pretty(out, &collections)?;
+        }
+        return Err(anyhow!(
+            "Not all mints from the list belong to this parent.{}",
+            if debug {
+                ""
+            } else {
+                " Run with --debug to see more details."
+            }
+        ));
     }
 
     if mint_items.len() != mint_list_length || keys.is_empty() {
-        let out = File::create(format!("{collection_mint}-debug-collections.json"))?;
-        serde_json::to_writer_pretty(out, &collections)?;
+        if debug {
+            let out = File::create(format!("{collection_mint}-debug-collections.json"))?;
+            serde_json::to_writer_pretty(out, &collections)?;
+        }
         return Err(anyhow!(
-            "Missed some mints from the list. Run with --debug to see more details."
+            "Missed some mints from the list.{}",
+            if debug {
+                ""
+            } else {
+                " Run with --debug to see more details."
+            }
         ));
     }
 
