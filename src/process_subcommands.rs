@@ -486,7 +486,11 @@ pub fn process_derive(commands: DeriveSubcommands) {
             owner,
             token_22,
         } => get_token_account_pda(mint, owner, token_22),
-        DeriveSubcommands::Pda { seeds, program_id } => get_generic_pda(seeds, program_id),
+        DeriveSubcommands::Pda {
+            seeds,
+            program_id,
+            bump,
+        } => get_generic_pda(seeds, program_id, bump),
         DeriveSubcommands::Metadata { mint_account } => get_metadata_pda(mint_account),
         DeriveSubcommands::Edition { mint_account } => get_edition_pda(mint_account),
         DeriveSubcommands::EditionMarker {
