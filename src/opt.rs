@@ -872,6 +872,9 @@ pub enum DeriveSubcommands {
         seeds: String,
         /// Program id to derive PDA from
         program_id: String,
+        /// Optional bump seed for PDA derivation
+        #[structopt(long, short)]
+        bump: Option<u8>,
     },
 
     /// Derive Metadata PDA

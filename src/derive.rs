@@ -29,7 +29,7 @@ pub fn get_token_account_pda(mint: String, owner: Option<String>, token_22: bool
     println!("{}", derive_token_account_pda(&mint, &owner, &program_id))
 }
 
-pub fn get_generic_pda(str_seeds: String, program_id: String) {
+pub fn get_generic_pda(str_seeds: String, program_id: String, bump: Option<u8>) {
     let seeds: Vec<Vec<u8>> = str_seeds
         .split(',')
         .map(|s| s.trim())
@@ -40,6 +40,19 @@ pub fn get_generic_pda(str_seeds: String, program_id: String) {
 
     let program_id =
         Pubkey::from_str(&program_id).expect("Failed to parse pubkey from program_id!");
+
+    if let Some(bump) = bump {
+        let pda = match derive_generic_pda_with_bump(seeds, program_id, bump) {
+            Ok(pda) => pda,
+            Err(e) => {
+                eprintln!("{}", e);
+                return;
+            }
+        };
+        println!("{}", pda);
+        return;
+    }
+
     println!("{}", derive_generic_pda(seeds, program_id));
 }
 
@@ -118,6 +131,20 @@ pub fn get_collection_delegate(mint: Pubkey, authority: Pubkey, delegate: Pubkey
 fn derive_generic_pda(seeds: Vec<&[u8]>, program_id: Pubkey) -> Pubkey {
     let (pda, _) = Pubkey::find_program_address(&seeds, &program_id);
     pda
+}
+
+fn derive_generic_pda_with_bump(
+    seeds: Vec<&[u8]>,
+    program_id: Pubkey,
+    bump: u8,
+) -> anyhow::Result<Pubkey> {
+    let bump_seed = [bump];
+    let seeds_with_bump = seeds
+        .into_iter()
+        .chain(std::iter::once(bump_seed.as_slice()))
+        .collect::<Vec<_>>();
+    let pda = Pubkey::create_program_address(&seeds_with_bump, &program_id)?;
+    Ok(pda)
 }
 
 pub fn derive_token_account_pda(mint: &Pubkey, owner: &Pubkey, program_id: &Pubkey) -> Pubkey {
